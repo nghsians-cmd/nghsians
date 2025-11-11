@@ -27,7 +27,7 @@
   button{font-family:inherit;cursor:pointer}
 
   /* PAGE WIPE */
-  .page-wipe{ position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 220ms linear;background:var(--bg); }
+  .page-wipe{ position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 220ms linear;background:var(--bg); }
   .page-wipe.show{ opacity:1; pointer-events:auto }
   .page-wipe .wipe-layer{ position:absolute;inset:0;background:linear-gradient(180deg, rgba(8,8,9,0.98), rgba(2,2,2,0.98)); opacity:0; transition: opacity calc(var(--wipe-duration) * 0.9) var(--wipe-ease); }
   .page-wipe.show .wipe-layer{ opacity:1 }
@@ -55,7 +55,7 @@
   /* hamburger (same animated icon) */
   .hamburger {
     display:none;
-    width:46px; height:42px; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; padding:8px;
+    width:46px; height:42px; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; padding:8px; z-index:1600;
   }
   .hamburger .lines { position:relative; width:22px; height:14px; display:inline-block; }
   .hamburger .lines span{ position:absolute; left:0; right:0; height:2px; background:var(--accent-deep); display:block; border-radius:2px; transform-origin:center; transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 160ms, top 260ms; }
@@ -68,18 +68,31 @@
     .nav-left, .nav-right{ display:none } .hamburger{ display:flex } .header-grid{ grid-template-columns:auto 1fr auto }
   }
 
+  /* mobile drawer styles (right slide-in) */
+  #mobileDrawer { display:none; position:fixed; inset:0; z-index:1550; pointer-events:none; }
+  #mobileBackdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
+  #mobileDrawer.open { display:block; pointer-events:auto; }
+  #mobileDrawer.open #mobileBackdrop { opacity:1; pointer-events:auto; }
+
+  #mobilePanel { position:fixed; right:0; top:0; height:100vh; width:320px; max-width:92%; background:var(--panel); transform:translateX(110%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); box-shadow:-20px 0 60px rgba(0,0,0,0.6); padding:22px; }
+  #mobileDrawer.open #mobilePanel { transform:translateX(0); }
+  body.drawer-open { overflow:hidden; touch-action:none; }
+
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
   .container{ width:100%; max-width:1100px; padding:20px; }
 
-  /* coming soon + merch area styles (same as before) */
   .coming-wrap{ display:flex; align-items:center; justify-content:center; min-height:48vh; padding:40px 12px; }
   .coming-section{ text-align:center; transition: opacity 420ms cubic-bezier(.2,.9,.2,1), transform 420ms cubic-bezier(.2,.9,.2,1); will-change:opacity,transform; }
   .coming-section.hide{ opacity:0; transform: translateY(18px); pointer-events:none; }
+
   .coming-title{ font-weight:900; font-size:2.6rem; letter-spacing:-0.6px; margin:0; color:var(--text) }
+  @media (max-width:520px){ .coming-title{ font-size:1.8rem } }
+
   .admin-label{ color:var(--muted); margin-top:12px; font-weight:600; font-size:13px }
   .access-row{ display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
   .access-row input{ padding:12px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text); min-width:240px; }
   .access-row button{ padding:12px 14px; border-radius:6px; border:1px solid transparent; background:var(--accent-muted); color:var(--text); font-weight:800; cursor:pointer; }
+
   .hint{ color:var(--muted); margin-top:12px; font-size:13px }
 
   .merch-area{ opacity:0; transform: translateY(8px); transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms; pointer-events:none; margin-top:8px; }
@@ -88,6 +101,7 @@
   .products-grid{ display:grid; gap:18px; grid-template-columns: repeat(3,1fr); }
   @media (max-width:1100px){ .products-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .products-grid{ grid-template-columns:1fr } }
+
   .product-card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms; display:flex; flex-direction:column; gap:8px; }
   .product-card:hover{ transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
   .product-image{ width:100%; height:180px; border-radius:6px; background:#121212; display:flex; align-items:center; justify-content:center; color:var(--muted); font-weight:700; letter-spacing:0.6px; border:1px dashed rgba(255,255,255,0.03); }
@@ -143,10 +157,10 @@
   </header>
 
   <!-- MOBILE DRAWER -->
-  <div id="mobileDrawer" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:1700;">
-    <div id="mobileBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,0.6);" onclick="toggleMobileDrawer(false)"></div>
-    <aside style="position:fixed;right:0;top:0;height:100vh;width:320px;background:var(--panel);padding:22px;box-shadow:-12px 0 40px rgba(0,0,0,0.6);">
-      <button onclick="toggleMobileDrawer(false)" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
+  <div id="mobileDrawer" aria-hidden="true">
+    <div id="mobileBackdrop"></div>
+    <div id="mobilePanel">
+      <button id="mobileClose" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
       <nav style="display:flex;flex-direction:column;gap:12px">
         <a href="index.html" class="drawer-link">Home</a>
         <a href="index.html#about" class="drawer-link">About</a>
@@ -158,10 +172,10 @@
         <a href="index.html#contact" class="drawer-link">Contact</a>
         <a href="merch.html" class="drawer-link" aria-current="page">Merch</a>
       </nav>
-    </aside>
+    </div>
   </div>
 
-  <!-- MAIN (coming soon + merch preview) -->
+  <!-- MAIN -->
   <main>
     <div class="container">
       <div class="coming-wrap">
@@ -243,6 +257,8 @@
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mobileDrawer = document.getElementById('mobileDrawer');
   const mobileBackdrop = document.getElementById('mobileBackdrop');
+  const mobilePanel = document.getElementById('mobilePanel');
+  const mobileClose = document.getElementById('mobileClose');
   const accessForm = document.getElementById('accessForm');
   const accessCode = document.getElementById('accessCode');
   const comingSection = document.getElementById('coming');
@@ -251,26 +267,15 @@
   const SECRET = 'nghs25admin';
 
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
-  window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 180); });
+  window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
 
-  // Hamburger toggle functions (open/close mobile drawer)
-  function openMobileDrawer(){
-    mobileDrawer.style.display = 'block';
-    mobileDrawer.setAttribute('aria-hidden','false');
-    if(hamburgerBtn){ hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); }
-  }
-  function closeMobileDrawer(){
-    mobileDrawer.style.display = 'none';
-    mobileDrawer.setAttribute('aria-hidden','true');
-    if(hamburgerBtn){ hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); }
-  }
-  window.toggleMobileDrawer = function(open){
-    if(!mobileDrawer) return;
-    if(open === undefined) open = mobileDrawer.style.display !== 'block';
-    if(open) openMobileDrawer(); else closeMobileDrawer();
-  };
+  function openMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('drawer-open'); }
+  function closeMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('drawer-open'); }
+  window.toggleMobileDrawer = function(open){ if(!mobileDrawer) return; if(open === undefined) open = !mobileDrawer.classList.contains('open'); if(open) openMobileDrawer(); else closeMobileDrawer(); };
   if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
   if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
+  if(mobileClose) mobileClose.addEventListener('click', ()=> toggleMobileDrawer(false));
+  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
 
   (function headerScroll(){ function update(){ if(window.scrollY > 12) siteHeader.classList.add('scrolled'); else siteHeader.classList.remove('scrolled'); } window.addEventListener('scroll', update, { passive:true }); update(); })();
 
@@ -282,7 +287,7 @@
     }
   });
 
-  // ADMIN access (same behaviour as before)
+  // ADMIN access behavior (same as earlier)
   window.handleAccess = function(e){
     e.preventDefault();
     const val = (accessCode.value || '').trim();
@@ -332,7 +337,6 @@
   })();
 
   window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; toggleMobileDrawer(false); } });
-  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
 })();
 </script>
 </body>

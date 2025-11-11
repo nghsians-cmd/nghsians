@@ -44,7 +44,7 @@
      PAGE WIPE (cinematic dark wipe + logo pulse)
      =========================== */
   .page-wipe{
-    position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+    position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;
     pointer-events:none;opacity:0;transition:opacity 220ms linear;background:var(--bg);
   }
   .page-wipe.show{ opacity:1; pointer-events:auto }
@@ -55,7 +55,7 @@
   .page-wipe.show .pulse-wrap{ transform:scale(1); opacity:1 }
   .page-wipe .pulse-img{
     width:72px; height:72px; border-radius:50%; overflow:hidden; display:block; box-shadow:0 18px 60px rgba(0,0,0,0.6);
-    background:transparent; /* transparent so logo.png shows as-is */
+    background:transparent; /* transparent so logo.png shows */
   }
   .pulse-img img{ width:100%; height:100%; object-fit:contain; display:block }
 
@@ -72,11 +72,10 @@
   header.scrolled{ background: linear-gradient(180deg, rgba(8,8,9,0.92), rgba(6,6,7,0.95)); box-shadow: 0 10px 30px rgba(0,0,0,0.6) }
 
   .header-grid{ width:100%; max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:12px; }
-  .nav-left, .nav-right{ display:flex;gap:18px;align-items:center; }
-  .nav-left{ justify-content:flex-start }
-  .nav-right{ justify-content:flex-end }
+  .nav-left, .nav-right{ display:flex; gap:18px; align-items:center; }
+  .nav-left{ justify-content:flex-start } .nav-right{ justify-content:flex-end }
 
-  .nav-link{ position:relative;color:var(--text);font-weight:600;font-size:14px;padding:6px 6px;white-space:nowrap; transition:color 140ms }
+  .nav-link{ position:relative; color:var(--text); font-weight:600; font-size:14px; padding:6px 6px; white-space:nowrap; transition: color 140ms }
   .nav-link::after{ content:""; position:absolute; left:6px; right:6px; bottom:-6px; height:2px; background:var(--accent-deep); transform:scaleX(0); transform-origin:left center; transition:transform 140ms cubic-bezier(.2,.9,.2,1); opacity:.95 }
   .nav-link:hover::after, .nav-link.active::after{ transform:scaleX(1) }
 
@@ -101,6 +100,7 @@
     cursor:pointer;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     padding:8px;
+    z-index:1600;
   }
 
   /* lines */
@@ -121,12 +121,28 @@
   /* show/hide nav at mobile widths */
   @media (max-width:980px){
     .nav-left, .nav-right{ display:none }
-    .hamburger{ display:flex; }
+    .hamburger{ display:flex }
     .header-grid{ grid-template-columns: auto 1fr auto; align-items:center; }
   }
 
   /* ===========================
-     HERO + rest - unchanged
+     MOBILE DRAWER (right slide-in overlay)
+     - backdrop semi-transparent: rgba(0,0,0,0.85)
+     - drawer slides from right, locks body scroll when open
+     =========================== */
+  #mobileDrawer { display:none; position:fixed; inset:0; z-index:1550; pointer-events:none; }
+  #mobileBackdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
+  #mobileDrawer.open { display:block; pointer-events:auto; }
+  #mobileDrawer.open #mobileBackdrop { opacity:1; pointer-events:auto; }
+
+  #mobilePanel { position:fixed; right:0; top:0; height:100vh; width:320px; max-width:92%; background:var(--panel); transform:translateX(110%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); box-shadow:-20px 0 60px rgba(0,0,0,0.6); padding:22px; }
+  #mobileDrawer.open #mobilePanel { transform:translateX(0); }
+
+  /* lock body scroll when drawer open (toggle via .drawer-open on <body>) */
+  body.drawer-open { overflow:hidden; touch-action:none; }
+
+  /* ===========================
+     HERO + rest - mostly unchanged
      =========================== */
   .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible }
   .hero-media{
@@ -139,7 +155,7 @@
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) var(--hero-mask-stop,100%), rgba(0,0,0,0) 100%);
     will-change:transform, mask-image;
   }
-  .hero-overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(4,6,8,0.12), rgba(4,6,8,0.42)); z-index:1 }
+  .hero-overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(4,6,8,0.12), rgba(4,6,8,0.46)); z-index:1 }
 
   .hero-inner{ position:relative; z-index:2; text-align:center; max-width:1100px; padding:36px 18px; margin-top:calc(var(--header-h) * 0.14) }
   .hero-title{ margin:0; font-size:3rem; font-weight:900; color:var(--text); letter-spacing:-0.6px; line-height:1; text-shadow:0 12px 34px rgba(0,0,0,0.6) }
@@ -153,8 +169,7 @@
   .btn--ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04) }
   .btn--ghost:hover{ background: rgba(255,255,255,0.02); transform: translateY(-2px) }
 
-  .magnetic{ position:relative; overflow:visible; display:inline-block }
-  .btn-inner{ display:inline-block; transform:translate3d(0,0,0); transition:transform 260ms cubic-bezier(.2,.9,.2,1) }
+  .magnetic{ position:relative; overflow:visible; display:inline-block } .btn-inner{ display:inline-block; transform:translate3d(0,0,0); transition:transform 260ms cubic-bezier(.2,.9,.2,1) }
 
   .wrap{ max-width:var(--max-w); margin:0 auto; padding:28px var(--pad) 80px; }
   section{ padding:56px 0; scroll-margin-top: calc(var(--header-h) + 8px) }
@@ -192,7 +207,7 @@
   .reveal.is-visible{ opacity:1; transform:translateY(0) scale(1) }
 
   @media (max-width:560px){
-    .brand-logo{ width:52px;height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
+    .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
   }
 </style>
 </head>
@@ -234,7 +249,7 @@
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
 
-        <!-- HAMBURGER (mobile) - uses animated lines -->
+        <!-- HAMBURGER (mobile) - animated lines -->
         <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
           <span class="lines" aria-hidden="true">
             <span class="top"></span>
@@ -246,11 +261,11 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER (hidden default) -->
-  <div id="mobileDrawer" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:1700;">
-    <div id="mobileBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,0.6);" onclick="toggleMobileDrawer(false)"></div>
-    <aside style="position:fixed;right:0;top:0;height:100vh;width:320px;background:var(--panel);padding:22px;box-shadow:-12px 0 40px rgba(0,0,0,0.6);">
-      <button onclick="toggleMobileDrawer(false)" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
+  <!-- MOBILE DRAWER (right slide-in) -->
+  <div id="mobileDrawer" aria-hidden="true">
+    <div id="mobileBackdrop"></div>
+    <div id="mobilePanel">
+      <button id="mobileClose" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
       <nav style="display:flex;flex-direction:column;gap:12px">
         <a href="index.html" class="drawer-link">Home</a>
         <a href="#about" class="drawer-link">About</a>
@@ -263,7 +278,7 @@
         <a href="merch.html" class="drawer-link" data-external="true">Merch</a>
         <a href="#extras" class="drawer-link">Extras</a>
       </nav>
-    </aside>
+    </div>
   </div>
 
   <!-- HERO (top) -->
@@ -462,218 +477,206 @@
     </div>
   </div>
 
-  <!-- ============================
-       JS: header, reveal, magnetic, hero mask, nav, modal, forms
-       - All code lightweight, editable, and documented
-       ============================ -->
-  <script>
-  (function(){
-    /* ===============
-       CACHE ELEMENTS
-       =============== */
-    const header = document.getElementById('siteHeader');
-    const navLinks = Array.from(document.querySelectorAll('.nav-link'));
-    const brandBtn = document.getElementById('brandBtn');
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const mobileDrawer = document.getElementById('mobileDrawer');
-    const pageWipe = document.getElementById('pageWipe');
-    const heroMedia = document.getElementById('heroMedia');
-    const heroSection = document.getElementById('home');
-    const mobileBackdrop = document.getElementById('mobileBackdrop');
+<script>
+(function(){
+  /* ===============
+     CACHE ELEMENTS
+     =============== */
+  const header = document.getElementById('siteHeader');
+  const navLinks = Array.from(document.querySelectorAll('.nav-link'));
+  const brandBtn = document.getElementById('brandBtn');
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileDrawer = document.getElementById('mobileDrawer');
+  const mobileBackdrop = document.getElementById('mobileBackdrop');
+  const mobilePanel = document.getElementById('mobilePanel');
+  const mobileClose = document.getElementById('mobileClose');
+  const pageWipe = document.getElementById('pageWipe');
+  const heroMedia = document.getElementById('heroMedia');
+  const heroSection = document.getElementById('home');
 
-    /* ===========================
-       Page wipe helper
-       =========================== */
-    function showWipe(cb){
-      if(!pageWipe){ if(cb) cb(); return; }
-      pageWipe.classList.add('show');
-      setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980);
-    }
+  /* ===========================
+     Page wipe helper (plays on load and nav)
+     =========================== */
+  function showWipe(cb){
+    if(!pageWipe){ if(cb) cb(); return; }
+    pageWipe.classList.add('show');
+    // keep slightly shorter than CSS variable so content becomes visible just after wipe
+    setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980);
+  }
 
-    /* ===========================
-       Smooth anchor navigation
-       =========================== */
-    function smoothTo(id){
-      const target = document.getElementById(id);
-      if(!target) return;
-      // close drawer
-      toggleMobileDrawer(false);
-      showWipe(()=> {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        history.replaceState(null, '', '#' + id);
-        setTimeout(()=> {
-          const heading = target.querySelector('h1,h2,h3');
-          if(heading){ heading.setAttribute('tabindex','-1'); heading.focus(); }
-        }, 500);
-      });
-    }
+  // Trigger wipe on first load of index (fix for earlier issue)
+  window.addEventListener('load', ()=> {
+    // run the cinematic wipe on first load
+    setTimeout(()=> showWipe(()=>{}), 160);
+  });
 
-    // attach click handlers to elements with data-target (buttons)
-    document.querySelectorAll('[data-target]').forEach(el=>{
-      el.addEventListener('click', function(e){
-        const id = this.dataset.target;
-        if(!id) return;
-        e.preventDefault();
-        smoothTo(id);
-      });
+  /* ===========================
+     Smooth anchor navigation
+     =========================== */
+  function smoothTo(id){
+    const target = document.getElementById(id);
+    if(!target) return;
+    toggleMobileDrawer(false);
+    showWipe(()=> {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', '#' + id);
+      setTimeout(()=> {
+        const heading = target.querySelector('h1,h2,h3');
+        if(heading){ heading.setAttribute('tabindex','-1'); heading.focus(); }
+      }, 520);
     });
+  }
 
-    // also attach to anchor links starting with #
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{
-      a.addEventListener('click', function(e){
-        const href = this.getAttribute('href') || '';
-        if(!href.startsWith('#')) return;
-        e.preventDefault();
-        const id = href.slice(1);
-        smoothTo(id);
-      });
-    });
-
-    /* ===========================
-       Hamburger & mobile drawer logic
-       - animated hamburger toggles class "open" for X morph
-       - mobile drawer shows/hides; backdrop click closes it
-       =========================== */
-    function openMobileDrawer(){
-      mobileDrawer.style.display = 'block';
-      mobileDrawer.setAttribute('aria-hidden','false');
-      hamburgerBtn.classList.add('open');
-      hamburgerBtn.setAttribute('aria-expanded','true');
-    }
-    function closeMobileDrawer(){
-      mobileDrawer.style.display = 'none';
-      mobileDrawer.setAttribute('aria-hidden','true');
-      hamburgerBtn.classList.remove('open');
-      hamburgerBtn.setAttribute('aria-expanded','false');
-    }
-    window.toggleMobileDrawer = function(open){
-      if(!mobileDrawer) return;
-      if(open === undefined) open = mobileDrawer.style.display !== 'block';
-      if(open) openMobileDrawer(); else closeMobileDrawer();
-    };
-    if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
-
-    // ensure backdrop also toggles drawer on touch
-    if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
-
-    /* ===========================
-       Header style toggle (transparent over hero)
-       =========================== */
-    if(heroSection){
-      const heroObserver = new IntersectionObserver(entries => {
-        entries.forEach(en => {
-          if(en.isIntersecting) header.classList.remove('scrolled'); else header.classList.add('scrolled');
-        });
-      }, { threshold: 0.02 });
-      heroObserver.observe(heroSection);
-    }
-
-    /* ===========================
-       Reveal intersection observer (for .reveal elements)
-       =========================== */
-    const reveals = Array.from(document.querySelectorAll('.reveal'));
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if(entry.isIntersecting){
-          entry.target.classList.add('is-visible');
-        }
-      });
-    }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
-    reveals.forEach(r => revealObserver.observe(r));
-
-    /* ===========================
-       Active nav highlighting (by section in view)
-       =========================== */
-    const sectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach(en => {
-        if(en.isIntersecting && en.target.id){
-          const id = en.target.id;
-          navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
-        }
-      });
-    }, { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 });
-    document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
-
-    /* ===========================
-       Magnetic micro-interaction for elements with [data-magnetic]
-       =========================== */
-    const magneticRoots = Array.from(document.querySelectorAll('[data-magnetic]'));
-    magneticRoots.forEach(root => {
-      const inner = root.querySelector('.btn-inner') || root.firstElementChild;
-      if(!inner) return;
-      const maxX = 10, maxY = 6;
-      root.addEventListener('pointermove', (ev)=>{
-        const rect = root.getBoundingClientRect();
-        const relX = (ev.clientX - rect.left) - rect.width/2;
-        const relY = (ev.clientY - rect.top) - rect.height/2;
-        const tx = (relX / rect.width) * maxX;
-        const ty = (relY / rect.height) * maxY;
-        inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.01)`;
-      });
-      root.addEventListener('pointerleave', ()=> inner.style.transform = 'translate3d(0,0,0) scale(1)');
-    });
-
-    /* ===========================
-       Gallery modal open/close
-       =========================== */
-    window.openModal = function(el){
-      const img = el.querySelector('img'); if(!img) return;
-      const modal = document.getElementById('modal');
-      const modalImg = document.getElementById('modal-img');
-      modalImg.src = img.src;
-      modal.style.display = 'flex';
-      modal.style.opacity = 1;
-    };
-    window.closeModal = function(){ const modal = document.getElementById('modal'); modal.style.opacity = 0; setTimeout(()=> modal.style.display = 'none', 180); };
-    document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
-
-    /* ===========================
-       Demo form handlers (replace later)
-       =========================== */
-    window.subscribeNews = function(e){ e.preventDefault(); const email = document.getElementById('email') ? document.getElementById('email').value : ''; document.getElementById('sub-response').textContent = `Subscribed (demo): ${email}`; e.target.reset(); };
-    window.submitMemory = function(e){ e.preventDefault(); const batch = document.getElementById('batch') ? document.getElementById('batch').value : ''; document.getElementById('send-response').textContent = `Memory received from ${batch} (demo).`; e.target.reset(); };
-    window.contactUs = function(e){ e.preventDefault(); const name = document.getElementById('cname') ? document.getElementById('cname').value : ''; document.getElementById('contact-response').textContent = `Thanks ${name} (demo).`; e.target.reset(); };
-
-    /* ===========================
-       HERO MELT (mask) EFFECT
-       =========================== */
-    (function heroMask(){
-      if(!heroSection || !heroMedia) return;
-      const docElem = document.documentElement;
-      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-      function updateMask(){
-        const rect = heroSection.getBoundingClientRect();
-        const viewH = window.innerHeight || docElem.clientHeight;
-        const heroBottom = rect.bottom;
-        const heroHeight = rect.height || (viewH * 0.6);
-        let progress = clamp(heroBottom / (heroHeight + viewH * 0.05), 0, 1);
-        const maskPct = Math.round((progress * 100));
-        heroMedia.style.setProperty('--hero-mask-stop', maskPct + '%');
-        heroMedia.style.opacity = 0.45 + (progress * 0.6);
-      }
-      window.addEventListener('scroll', updateMask, { passive: true });
-      window.addEventListener('resize', updateMask);
-      window.addEventListener('load', updateMask);
-      updateMask();
-    })();
-
-    /* ===========================
-       Accessibility / keyboard
-       =========================== */
-    window.addEventListener('keydown', (ev)=>{
-      if(ev.key === 'Escape'){ toggleMobileDrawer(false); closeModal(); }
-    });
-
-    /* small initial update */
-    setTimeout(()=> window.dispatchEvent(new Event('scroll')), 120);
-
-    /* Brand click -> home (smooth) */
-    brandBtn && brandBtn.addEventListener('click', (e)=>{
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    el.addEventListener('click', function(e){
+      const id = this.dataset.target;
+      if(!id) return;
       e.preventDefault();
-      showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); });
+      smoothTo(id);
     });
+  });
 
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', function(e){
+      const href = this.getAttribute('href') || '';
+      if(!href.startsWith('#')) return;
+      e.preventDefault();
+      const id = href.slice(1);
+      smoothTo(id);
+    });
+  });
+
+  /* ===========================
+     MOBILE DRAWER logic (open/close)
+     - slides from right; locks body scroll; backdrop clickable
+     =========================== */
+  function openMobileDrawer(){
+    if(!mobileDrawer) return;
+    mobileDrawer.classList.add('open');
+    hamburgerBtn.classList.add('open');
+    hamburgerBtn.setAttribute('aria-expanded','true');
+    document.body.classList.add('drawer-open');
+  }
+  function closeMobileDrawer(){
+    if(!mobileDrawer) return;
+    mobileDrawer.classList.remove('open');
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded','false');
+    document.body.classList.remove('drawer-open');
+  }
+  window.toggleMobileDrawer = function(open){
+    if(!mobileDrawer) return;
+    if(open === undefined) open = !mobileDrawer.classList.contains('open');
+    if(open) openMobileDrawer(); else closeMobileDrawer();
+  };
+
+  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
+  if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
+  if(mobileClose) mobileClose.addEventListener('click', ()=> toggleMobileDrawer(false));
+  // close drawer when any drawer-link clicked
+  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
+
+  /* ===========================
+     Header: transparent over hero, solid on scroll
+     =========================== */
+  if(heroSection){
+    const heroObserver = new IntersectionObserver(entries => {
+      entries.forEach(en => { if(en.isIntersecting) header.classList.remove('scrolled'); else header.classList.add('scrolled'); });
+    }, { threshold: 0.02 });
+    heroObserver.observe(heroSection);
+  }
+
+  /* ===========================
+     Reveal observer
+     =========================== */
+  const reveals = Array.from(document.querySelectorAll('.reveal'));
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => { if(entry.isIntersecting) entry.target.classList.add('is-visible'); });
+  }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  reveals.forEach(r => revealObserver.observe(r));
+
+  /* ===========================
+     Active nav highlighting
+     =========================== */
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if(en.isIntersecting && en.target.id){
+        const id = en.target.id;
+        navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
+      }
+    });
+  }, { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+  document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
+
+  /* ===========================
+     Magnetic micro-interaction
+     =========================== */
+  const magneticRoots = Array.from(document.querySelectorAll('[data-magnetic]'));
+  magneticRoots.forEach(root => {
+    const inner = root.querySelector('.btn-inner') || root.firstElementChild;
+    if(!inner) return;
+    const maxX = 10, maxY = 6;
+    root.addEventListener('pointermove', (ev)=>{
+      const rect = root.getBoundingClientRect();
+      const relX = (ev.clientX - rect.left) - rect.width/2;
+      const relY = (ev.clientY - rect.top) - rect.height/2;
+      const tx = (relX / rect.width) * maxX;
+      const ty = (relY / rect.height) * maxY;
+      inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.01)`;
+    });
+    root.addEventListener('pointerleave', ()=> inner.style.transform = 'translate3d(0,0,0) scale(1)');
+  });
+
+  /* ===========================
+     Gallery modal
+     =========================== */
+  window.openModal = function(el){
+    const img = el.querySelector('img'); if(!img) return;
+    const modal = document.getElementById('modal'); const modalImg = document.getElementById('modal-img');
+    modalImg.src = img.src; modal.style.display = 'flex'; modal.style.opacity = 1;
+  };
+  window.closeModal = function(){ const modal = document.getElementById('modal'); modal.style.opacity = 0; setTimeout(()=> modal.style.display = 'none', 180); };
+  document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
+
+  /* ===========================
+     Demo form handlers
+     =========================== */
+  window.subscribeNews = function(e){ e.preventDefault(); const email = document.getElementById('email') ? document.getElementById('email').value : ''; document.getElementById('sub-response').textContent = `Subscribed (demo): ${email}`; e.target.reset(); };
+  window.submitMemory = function(e){ e.preventDefault(); const batch = document.getElementById('batch') ? document.getElementById('batch').value : ''; document.getElementById('send-response').textContent = `Memory received from ${batch} (demo).`; e.target.reset(); };
+  window.contactUs = function(e){ e.preventDefault(); const name = document.getElementById('cname') ? document.getElementById('cname').value : ''; document.getElementById('contact-response').textContent = `Thanks ${name} (demo).`; e.target.reset(); };
+
+  /* ===========================
+     HERO MELT (mask) EFFECT
+     =========================== */
+  (function heroMask(){
+    if(!heroSection || !heroMedia) return;
+    const docElem = document.documentElement;
+    const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+    function updateMask(){
+      const rect = heroSection.getBoundingClientRect();
+      const viewH = window.innerHeight || docElem.clientHeight;
+      const heroBottom = rect.bottom;
+      const heroHeight = Math.max(rect.height, viewH * 0.4);
+      let progress = clamp(heroBottom / (heroHeight + viewH * 0.05), 0, 1);
+      const maskPct = Math.round((progress * 100));
+      heroMedia.style.setProperty('--hero-mask-stop', maskPct + '%');
+      heroMedia.style.opacity = 0.45 + (progress * 0.55);
+    }
+    window.addEventListener('scroll', updateMask, { passive: true });
+    window.addEventListener('resize', updateMask);
+    window.addEventListener('load', updateMask);
+    updateMask();
   })();
-  </script>
+
+  /* ===========================
+     Accessibility / keyboard
+     =========================== */
+  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ toggleMobileDrawer(false); closeModal(); } });
+
+  /* Brand click -> home with wipe */
+  brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });
+
+})();
+</script>
 </body>
 </html>
