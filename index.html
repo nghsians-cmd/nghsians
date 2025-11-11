@@ -18,7 +18,7 @@
     --panel: #0d0e10;
     --text: #eef0f2;
     --muted: #9aa0a6;
-    --accent-deep: #710C04;
+    --accent-deep: #710C04;    /* chosen accent */
     --accent-soft: #fff39a;
     --accent-muted: rgba(113,12,4,0.12);
     --max-w: 1200px;
@@ -42,8 +42,6 @@
 
   /* ===========================
      PAGE WIPE (cinematic dark wipe + logo pulse)
-     - shows on load and nav clicks
-     - duration controlled by --wipe-duration
      =========================== */
   .page-wipe{
     position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
@@ -57,8 +55,7 @@
   .page-wipe.show .pulse-wrap{ transform:scale(1); opacity:1 }
   .page-wipe .pulse-img{
     width:72px; height:72px; border-radius:50%; overflow:hidden; display:block; box-shadow:0 18px 60px rgba(0,0,0,0.6);
-    /* NOTE: no solid background — transparent logos will show cleanly */
-    background:transparent;
+    background:transparent; /* transparent so logo.png shows as-is */
   }
   .pulse-img img{ width:100%; height:100%; object-fit:contain; display:block }
 
@@ -75,31 +72,65 @@
   header.scrolled{ background: linear-gradient(180deg, rgba(8,8,9,0.92), rgba(6,6,7,0.95)); box-shadow: 0 10px 30px rgba(0,0,0,0.6) }
 
   .header-grid{ width:100%; max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:12px; }
-  .nav-left, .nav-right{ display:flex; gap:18px; align-items:center; }
-  .nav-left{ justify-content:flex-start } .nav-right{ justify-content:flex-end }
+  .nav-left, .nav-right{ display:flex;gap:18px;align-items:center; }
+  .nav-left{ justify-content:flex-start }
+  .nav-right{ justify-content:flex-end }
 
-  .nav-link{ position:relative; color:var(--text); font-weight:600; font-size:14px; padding:6px 6px; white-space:nowrap; transition: color 140ms }
+  .nav-link{ position:relative;color:var(--text);font-weight:600;font-size:14px;padding:6px 6px;white-space:nowrap; transition:color 140ms }
   .nav-link::after{ content:""; position:absolute; left:6px; right:6px; bottom:-6px; height:2px; background:var(--accent-deep); transform:scaleX(0); transform-origin:left center; transition:transform 140ms cubic-bezier(.2,.9,.2,1); opacity:.95 }
   .nav-link:hover::after, .nav-link.active::after{ transform:scaleX(1) }
 
   .brand-center{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
-  /* logo container uses an <img> so it's responsive to different logo.png sizes; no circular fill behind it */
   .brand-logo{ width:64px; height:64px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); background:transparent }
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
-  .menu-btn{ display:none; background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); padding:8px 10px; border-radius:6px }
+  /* ===========================
+     HAMBURGER (mobile) - visible <=980px
+     - animated 3 lines -> X
+     - uses accent color
+     =========================== */
+  .hamburger {
+    display:none;
+    width:46px;
+    height:42px;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    padding:8px;
+  }
+
+  /* lines */
+  .hamburger .lines { position:relative; width:22px; height:14px; display:inline-block; }
+  .hamburger .lines span{
+    position:absolute; left:0; right:0; height:2px; background:var(--accent-deep); display:block; border-radius:2px;
+    transform-origin:center; transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 160ms, top 260ms;
+  }
+  .hamburger .lines span.top{ top:0; }
+  .hamburger .lines span.mid{ top:6px; }
+  .hamburger .lines span.bot{ top:12px; }
+
+  /* active -> morph into X */
+  .hamburger.open .lines span.top{ transform: translateY(6px) rotate(45deg); top:6px; }
+  .hamburger.open .lines span.mid{ opacity:0; transform: scaleX(0.2); }
+  .hamburger.open .lines span.bot{ transform: translateY(-6px) rotate(-45deg); top:6px; }
+
+  /* show/hide nav at mobile widths */
   @media (max-width:980px){
-    .nav-left, .nav-right{ display:none } .menu-btn{ display:inline-flex } .header-grid{ grid-template-columns: auto 1fr auto }
+    .nav-left, .nav-right{ display:none }
+    .hamburger{ display:flex; }
+    .header-grid{ grid-template-columns: auto 1fr auto; align-items:center; }
   }
 
   /* ===========================
-     HERO (with mask melt)
+     HERO + rest - unchanged
      =========================== */
   .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible }
   .hero-media{
     position:absolute; inset:0;
-    /* EDIT: change this URL to your hero image */
     background-image: url('banner.jpg');
     background-size:cover; background-position:center center;
     filter:grayscale(20%) contrast(96%) brightness(42%);
@@ -108,7 +139,7 @@
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) var(--hero-mask-stop,100%), rgba(0,0,0,0) 100%);
     will-change:transform, mask-image;
   }
-  .hero-overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(4,6,8,0.12), rgba(4,6,8,0.46)); z-index:1 }
+  .hero-overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(4,6,8,0.12), rgba(4,6,8,0.42)); z-index:1 }
 
   .hero-inner{ position:relative; z-index:2; text-align:center; max-width:1100px; padding:36px 18px; margin-top:calc(var(--header-h) * 0.14) }
   .hero-title{ margin:0; font-size:3rem; font-weight:900; color:var(--text); letter-spacing:-0.6px; line-height:1; text-shadow:0 12px 34px rgba(0,0,0,0.6) }
@@ -122,15 +153,14 @@
   .btn--ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04) }
   .btn--ghost:hover{ background: rgba(255,255,255,0.02); transform: translateY(-2px) }
 
-  .magnetic{ position:relative; overflow:visible; display:inline-block } .btn-inner{ display:inline-block; transform:translate3d(0,0,0); transition:transform 260ms cubic-bezier(.2,.9,.2,1) }
+  .magnetic{ position:relative; overflow:visible; display:inline-block }
+  .btn-inner{ display:inline-block; transform:translate3d(0,0,0); transition:transform 260ms cubic-bezier(.2,.9,.2,1) }
 
-  /* ===========================
-     SITE CONTENT
-     =========================== */
   .wrap{ max-width:var(--max-w); margin:0 auto; padding:28px var(--pad) 80px; }
   section{ padding:56px 0; scroll-margin-top: calc(var(--header-h) + 8px) }
   h2.section-title{ font-size:1.6rem; margin:0 0 12px 0; font-weight:800; color:var(--text) }
   p.lead{ color:var(--muted); margin:0 0 12px 0 }
+
   .card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008)); padding:18px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); box-shadow:0 10px 30px rgba(0,0,0,0.55) }
   .muted{ color:var(--muted) }
 
@@ -162,17 +192,11 @@
   .reveal.is-visible{ opacity:1; transform:translateY(0) scale(1) }
 
   @media (max-width:560px){
-    .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
+    .brand-logo{ width:52px;height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
   }
 </style>
 </head>
 <body>
-
-  <!--
-    Put your transparent logo file named "logo.png" in the same folder as this HTML.
-    The logo is used both in the header (.brand-logo img) and in the page transition (.pulse-img img).
-    NOTE: there is NO solid circular background behind the logo — your transparent PNG will show clean.
-  -->
 
   <!-- PAGE WIPE (cinematic) -->
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
@@ -184,35 +208,47 @@
     </div>
   </div>
 
-  <!-- HEADER -->
+  <!-- HEADER: left nav | center brand | right nav -->
   <header id="siteHeader" class="">
     <div class="header-grid" role="navigation" aria-label="Main header">
+      <!-- LEFT NAV -->
       <div class="nav-left" id="navLeft">
+        <!-- EDIT: add/remove left nav links here -->
         <a class="nav-link" href="#about" data-target="about">About</a>
         <a class="nav-link" href="#gallery" data-target="gallery">Gallery</a>
         <a class="nav-link" href="#news" data-target="news">News</a>
       </div>
 
+      <!-- CENTER BRAND -->
       <div class="brand-center" id="brandBtn" aria-label="Home (brand)">
+        <!-- Replace with <img src="..." alt=""> for different logo -->
         <div class="brand-logo" id="brandLogo"><img src="logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
         <div class="brand-title">NGHSIANS</div>
       </div>
 
+      <!-- RIGHT NAV -->
       <div class="nav-right" id="navRight">
         <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="#submit" data-target="submit">Share</a>
         <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
-        <!-- NEW MERCH TOP-LEVEL LINK -->
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
-        <button id="menuToggle" class="menu-btn" aria-controls="mobileDrawer" aria-expanded="false">☰</button>
+
+        <!-- HAMBURGER (mobile) - uses animated lines -->
+        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+          <span class="lines" aria-hidden="true">
+            <span class="top"></span>
+            <span class="mid"></span>
+            <span class="bot"></span>
+          </span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- MOBILE DRAWER -->
+  <!-- MOBILE DRAWER (hidden default) -->
   <div id="mobileDrawer" aria-hidden="true" style="display:none; position:fixed; inset:0; z-index:1700;">
-    <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);" onclick="toggleMobileDrawer(false)"></div>
+    <div id="mobileBackdrop" style="position:absolute;inset:0;background:rgba(0,0,0,0.6);" onclick="toggleMobileDrawer(false)"></div>
     <aside style="position:fixed;right:0;top:0;height:100vh;width:320px;background:var(--panel);padding:22px;box-shadow:-12px 0 40px rgba(0,0,0,0.6);">
       <button onclick="toggleMobileDrawer(false)" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
       <nav style="display:flex;flex-direction:column;gap:12px">
@@ -230,10 +266,10 @@
     </aside>
   </div>
 
-  <!-- HERO -->
+  <!-- HERO (top) -->
   <main>
     <section id="home" class="hero" aria-label="Home hero">
-      <div class="hero-media" id="heroMedia" aria-hidden="true"></div>
+      <div class="hero-media" id="heroMedia" aria-hidden="true"></div> <!-- EDIT: change background-image in CSS above -->
       <div class="hero-overlay" aria-hidden="true"></div>
 
       <div class="hero-inner reveal is-visible" style="transition-delay:60ms">
@@ -253,30 +289,34 @@
       </div>
     </section>
 
-    <!-- WRAP: all sections kept intact -->
+    <!-- WRAPPER: ALL SECTIONS BELOW (keeps existing content intact) -->
     <div class="wrap">
 
-      <!-- ===== ABOUT START ===== -->
+      <!-- ===== ABOUT SECTION START ===== -->
       <section id="about" class="reveal">
         <div class="card">
           <h2 class="section-title">About NGHSIANS</h2>
           <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
+
           <div class="grid" style="margin-top:14px">
             <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
             <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
             <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
           </div>
-          <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items.</div>
+
+          <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
         </div>
       </section>
-      <!-- ===== ABOUT END ===== -->
+      <!-- ===== ABOUT SECTION END ===== -->
 
-      <!-- ===== GALLERY START ===== -->
+      <!-- ===== GALLERY SECTION START ===== -->
       <section id="gallery" class="reveal" style="margin-top:18px;">
         <h2 class="section-title">Gallery</h2>
         <div class="card">
           <p class="muted">Click any image to preview larger.</p>
+
           <div class="media-grid" style="margin-top:14px">
+            <!-- START: gallery item (copy to add more) -->
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh1/900/600" alt="Memory 1"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh2/900/600" alt="Memory 2"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh3/900/600" alt="Memory 3"></div>
@@ -284,17 +324,18 @@
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh5/900/600" alt="Memory 5"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh6/900/600" alt="Memory 6"></div>
           </div>
+
           <div class="hint">Hint: replace <code>src</code> with your images or copy a gallery block to add more.</div>
         </div>
       </section>
-      <!-- ===== GALLERY END ===== -->
+      <!-- ===== GALLERY SECTION END ===== -->
 
-      <!-- ===== NEWS START ===== -->
+      <!-- ===== NEWS SECTION START ===== -->
       <section id="news" class="reveal" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         <div class="card">
           <div class="news-grid" style="margin-top:12px">
-            <div class="news-item reveal"><strong>Batch 2005 Reunion — Planning</strong><div class="muted" style="margin-top:6px">Organizers finalizing date — subscribe to be notified.</div></div>
+            <div class="news-item reveal"><strong>Batch 2005 Reunion — Planning</strong><div class="muted" style="margin-top:6px">Organizers finalizing the date — subscribe to be notified.</div></div>
             <div class="news-item reveal"><strong>Student Spotlight</strong><div class="muted" style="margin-top:6px">District science fair winners — congrats!</div></div>
             <div class="news-item reveal"><strong>Alumni Talk Series</strong><div class="muted" style="margin-top:6px">Monthly virtual sessions with alumni guests.</div></div>
             <div class="news-item reveal"><strong>Fundraiser</strong><div class="muted" style="margin-top:6px">Support school facilities — merch & donation options soon.</div></div>
@@ -302,13 +343,14 @@
           <div class="hint">Hint: copy a <code>&lt;div class="news-item"&gt;</code> block to add news.</div>
         </div>
       </section>
-      <!-- ===== NEWS END ===== -->
+      <!-- ===== NEWS SECTION END ===== -->
 
-      <!-- ===== NEWSLETTER START ===== -->
+      <!-- ===== NEWSLETTER SECTION START ===== -->
       <section id="newsletter" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Newsletter</h2>
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
+
           <form onsubmit="subscribeNews(event)" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
             <input required id="email" type="email" placeholder="Email address" style="flex:1;min-width:220px;padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <div style="display:flex;gap:10px">
@@ -316,52 +358,59 @@
               <span class="magnetic" data-magnetic><button class="btn btn--ghost" type="button" data-target="submit"><span class="btn-inner">Share Memory</span></button></span>
             </div>
           </form>
+
           <div id="sub-response" class="muted" style="margin-top:10px"></div>
           <div class="hint">Hint: integrate your mailing provider by updating <code>subscribeNews</code> in JS.</div>
         </div>
       </section>
-      <!-- ===== NEWSLETTER END ===== -->
+      <!-- ===== NEWSLETTER SECTION END ===== -->
 
-      <!-- ===== SUBMIT START ===== -->
+      <!-- ===== SUBMIT SECTION START ===== -->
       <section id="submit" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Share Your Memory</h2>
         <div class="card">
           <p class="muted">Send photos & stories — we will curate and credit you (or post anonymously).</p>
+
           <form onsubmit="submitMemory(event)" style="margin-top:12px;display:grid;gap:10px">
             <input required id="batch" type="text" placeholder="Your batch/year (e.g., 2012)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <input required id="contact_email" type="email" placeholder="Your email (for confirmation)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <textarea required id="story" placeholder="Tell the story..." style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)"></textarea>
+            <!-- NOTE: For file uploads add <input type="file"> and wire backend -->
             <div style="display:flex;gap:10px">
               <span class="magnetic" data-magnetic><button class="btn btn--primary" type="submit"><span class="btn-inner">Send Memory</span></button></span>
               <button class="btn btn--ghost" type="reset">Reset</button>
             </div>
             <div id="send-response" class="muted" style="margin-top:8px"></div>
           </form>
-          <div class="hint">Hint: connect form to backend; see <code>submitMemory</code> in JS.</div>
+
+          <div class="hint">Hint: see <code>submitMemory</code> in JS to connect backend.</div>
         </div>
       </section>
-      <!-- ===== SUBMIT END ===== -->
+      <!-- ===== SUBMIT SECTION END ===== -->
 
-      <!-- ===== ALUMNI START ===== -->
+      <!-- ===== ALUMNI SECTION START ===== -->
       <section id="alumni" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Alumni & Students</h2>
         <div class="card">
           <p class="muted">Featured alumni, batch highlights, mentoring opportunities.</p>
+
           <div class="alumni-grid" style="margin-top:12px">
             <div class="card reveal"><strong>Alumnus — Name</strong><div class="muted" style="margin-top:6px">Short bio & achievements.</div></div>
             <div class="card reveal"><strong>Student of the Month</strong><div class="muted" style="margin-top:6px">Recognized for achievements.</div></div>
             <div class="card reveal"><strong>Batch Feature</strong><div class="muted" style="margin-top:6px">Stories & interviews.</div></div>
           </div>
+
           <div class="hint">Hint: copy an Alumni card to add more.</div>
         </div>
       </section>
-      <!-- ===== ALUMNI END ===== -->
+      <!-- ===== ALUMNI SECTION END ===== -->
 
-      <!-- ===== CONTACT START ===== -->
+      <!-- ===== CONTACT SECTION START ===== -->
       <section id="contact" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Contact & Collaborate</h2>
         <div class="card">
           <p class="muted">For collaborations, press, or events — reach out.</p>
+
           <form onsubmit="contactUs(event)" style="margin-top:12px;display:grid;gap:10px">
             <input required id="cname" type="text" placeholder="Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <input required id="cemail" type="email" placeholder="Email" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
@@ -373,12 +422,13 @@
             </div>
             <div id="contact-response" class="muted" style="margin-top:8px"></div>
           </form>
+
           <div class="hint">Hint: edit <code>contactUs</code> in JS to forward messages to email/Sheets.</div>
         </div>
       </section>
-      <!-- ===== CONTACT END ===== -->
+      <!-- ===== CONTACT SECTION END ===== -->
 
-      <!-- ===== EXTRAS START ===== -->
+      <!-- ===== EXTRAS SECTION START ===== -->
       <section id="extras" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Extras</h2>
         <div class="card">
@@ -392,7 +442,7 @@
           <div class="hint">Hint: copy Extras blocks to expand offerings.</div>
         </div>
       </section>
-      <!-- ===== EXTRAS END ===== -->
+      <!-- ===== EXTRAS SECTION END ===== -->
 
     </div> <!-- /wrap -->
   </main>
@@ -412,196 +462,218 @@
     </div>
   </div>
 
-<script>
-(function(){
-  /* -------------------------
-     Caches
-     ------------------------- */
-  const header = document.getElementById('siteHeader');
-  const navLinks = Array.from(document.querySelectorAll('.nav-link'));
-  const brandBtn = document.getElementById('brandBtn');
-  const mobileToggle = document.getElementById('menuToggle');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  const pageWipe = document.getElementById('pageWipe');
-  const heroMedia = document.getElementById('heroMedia');
-  const heroSection = document.getElementById('home');
+  <!-- ============================
+       JS: header, reveal, magnetic, hero mask, nav, modal, forms
+       - All code lightweight, editable, and documented
+       ============================ -->
+  <script>
+  (function(){
+    /* ===============
+       CACHE ELEMENTS
+       =============== */
+    const header = document.getElementById('siteHeader');
+    const navLinks = Array.from(document.querySelectorAll('.nav-link'));
+    const brandBtn = document.getElementById('brandBtn');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    const pageWipe = document.getElementById('pageWipe');
+    const heroMedia = document.getElementById('heroMedia');
+    const heroSection = document.getElementById('home');
+    const mobileBackdrop = document.getElementById('mobileBackdrop');
 
-  /* -------------------------
-     Page wipe helper (longer cinematic)
-     - duration tuned to match CSS --wipe-duration (~1000ms)
-     ------------------------- */
-  function showWipe(cb){
-    if(!pageWipe){ if(cb) cb(); return; }
-    pageWipe.classList.add('show');
-    const total = 980; //ms (adjust this value for longer/shorter)
-    setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, total);
-  }
+    /* ===========================
+       Page wipe helper
+       =========================== */
+    function showWipe(cb){
+      if(!pageWipe){ if(cb) cb(); return; }
+      pageWipe.classList.add('show');
+      setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980);
+    }
 
-  /* -------------------------
-     Smooth anchor navigation (with wipe)
-     - external html links (e.g., merch.html) are detected via data-external="true" OR href ending with .html
-     ------------------------- */
-  function smoothTo(id){
-    const target = document.getElementById(id);
-    if(!target) return;
-    toggleMobileDrawer(false);
-    showWipe(()=> {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      history.replaceState(null, '', '#' + id);
-      setTimeout(()=> { const h = target.querySelector('h1,h2,h3'); if(h){ h.setAttribute('tabindex','-1'); h.focus(); } }, 520);
-    });
-  }
-
-  // data-target handlers (internal)
-  document.querySelectorAll('[data-target]').forEach(el=>{
-    el.addEventListener('click', function(e){
-      const id = this.dataset.target;
-      if(!id) return;
-      e.preventDefault();
-      smoothTo(id);
-    });
-  });
-
-  // anchors & external HTML navigation handling
-  document.querySelectorAll('a').forEach(a=>{
-    const href = a.getAttribute('href') || '';
-    if(href.startsWith('#')){
-      // internal handled above by anchors; add event to ensure wipe
-      a.addEventListener('click', function(e){
-        e.preventDefault();
-        smoothTo(href.slice(1));
-      });
-    } else if(href.endsWith('.html') || a.dataset.external === "true"){
-      // external page navigation (merch.html etc.) - show cinematic wipe then navigate
-      a.addEventListener('click', function(e){
-        e.preventDefault();
-        const url = href;
-        showWipe(()=> { window.location.href = url; });
+    /* ===========================
+       Smooth anchor navigation
+       =========================== */
+    function smoothTo(id){
+      const target = document.getElementById(id);
+      if(!target) return;
+      // close drawer
+      toggleMobileDrawer(false);
+      showWipe(()=> {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', '#' + id);
+        setTimeout(()=> {
+          const heading = target.querySelector('h1,h2,h3');
+          if(heading){ heading.setAttribute('tabindex','-1'); heading.focus(); }
+        }, 500);
       });
     }
-  });
 
-  /* -------------------------
-     Mobile drawer
-     ------------------------- */
-  window.toggleMobileDrawer = function(open){
-    if(!mobileDrawer) return;
-    if(open === undefined) open = mobileDrawer.style.display !== 'block';
-    if(open){ mobileDrawer.style.display = 'block'; mobileDrawer.setAttribute('aria-hidden','false'); mobileToggle && mobileToggle.setAttribute('aria-expanded','true'); }
-    else { mobileDrawer.style.display = 'none'; mobileDrawer.setAttribute('aria-hidden','true'); mobileToggle && mobileToggle.setAttribute('aria-expanded','false'); }
-  };
-  mobileToggle && mobileToggle.addEventListener('click', ()=> toggleMobileDrawer(true));
+    // attach click handlers to elements with data-target (buttons)
+    document.querySelectorAll('[data-target]').forEach(el=>{
+      el.addEventListener('click', function(e){
+        const id = this.dataset.target;
+        if(!id) return;
+        e.preventDefault();
+        smoothTo(id);
+      });
+    });
 
-  /* -------------------------
-     Header: transparent over hero, solid on scroll
-     ------------------------- */
-  if(heroSection){
-    const heroObserver = new IntersectionObserver(entries => {
-      entries.forEach(en => { if(en.isIntersecting) header.classList.remove('scrolled'); else header.classList.add('scrolled'); });
-    }, { threshold: 0.02 });
-    heroObserver.observe(heroSection);
-  }
+    // also attach to anchor links starting with #
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', function(e){
+        const href = this.getAttribute('href') || '';
+        if(!href.startsWith('#')) return;
+        e.preventDefault();
+        const id = href.slice(1);
+        smoothTo(id);
+      });
+    });
 
-  /* -------------------------
-     Reveal observer
-     ------------------------- */
-  const reveals = Array.from(document.querySelectorAll('.reveal'));
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => { if(entry.isIntersecting) entry.target.classList.add('is-visible'); });
-  }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
-  reveals.forEach(r => revealObserver.observe(r));
+    /* ===========================
+       Hamburger & mobile drawer logic
+       - animated hamburger toggles class "open" for X morph
+       - mobile drawer shows/hides; backdrop click closes it
+       =========================== */
+    function openMobileDrawer(){
+      mobileDrawer.style.display = 'block';
+      mobileDrawer.setAttribute('aria-hidden','false');
+      hamburgerBtn.classList.add('open');
+      hamburgerBtn.setAttribute('aria-expanded','true');
+    }
+    function closeMobileDrawer(){
+      mobileDrawer.style.display = 'none';
+      mobileDrawer.setAttribute('aria-hidden','true');
+      hamburgerBtn.classList.remove('open');
+      hamburgerBtn.setAttribute('aria-expanded','false');
+    }
+    window.toggleMobileDrawer = function(open){
+      if(!mobileDrawer) return;
+      if(open === undefined) open = mobileDrawer.style.display !== 'block';
+      if(open) openMobileDrawer(); else closeMobileDrawer();
+    };
+    if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
 
-  /* -------------------------
-     Active nav highlighting
-     ------------------------- */
-  const sectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach(en => {
-      if(en.isIntersecting && en.target.id){
-        const id = en.target.id;
-        navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
+    // ensure backdrop also toggles drawer on touch
+    if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
+
+    /* ===========================
+       Header style toggle (transparent over hero)
+       =========================== */
+    if(heroSection){
+      const heroObserver = new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          if(en.isIntersecting) header.classList.remove('scrolled'); else header.classList.add('scrolled');
+        });
+      }, { threshold: 0.02 });
+      heroObserver.observe(heroSection);
+    }
+
+    /* ===========================
+       Reveal intersection observer (for .reveal elements)
+       =========================== */
+    const reveals = Array.from(document.querySelectorAll('.reveal'));
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+    reveals.forEach(r => revealObserver.observe(r));
+
+    /* ===========================
+       Active nav highlighting (by section in view)
+       =========================== */
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if(en.isIntersecting && en.target.id){
+          const id = en.target.id;
+          navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
+        }
+      });
+    }, { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+    document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
+
+    /* ===========================
+       Magnetic micro-interaction for elements with [data-magnetic]
+       =========================== */
+    const magneticRoots = Array.from(document.querySelectorAll('[data-magnetic]'));
+    magneticRoots.forEach(root => {
+      const inner = root.querySelector('.btn-inner') || root.firstElementChild;
+      if(!inner) return;
+      const maxX = 10, maxY = 6;
+      root.addEventListener('pointermove', (ev)=>{
+        const rect = root.getBoundingClientRect();
+        const relX = (ev.clientX - rect.left) - rect.width/2;
+        const relY = (ev.clientY - rect.top) - rect.height/2;
+        const tx = (relX / rect.width) * maxX;
+        const ty = (relY / rect.height) * maxY;
+        inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.01)`;
+      });
+      root.addEventListener('pointerleave', ()=> inner.style.transform = 'translate3d(0,0,0) scale(1)');
+    });
+
+    /* ===========================
+       Gallery modal open/close
+       =========================== */
+    window.openModal = function(el){
+      const img = el.querySelector('img'); if(!img) return;
+      const modal = document.getElementById('modal');
+      const modalImg = document.getElementById('modal-img');
+      modalImg.src = img.src;
+      modal.style.display = 'flex';
+      modal.style.opacity = 1;
+    };
+    window.closeModal = function(){ const modal = document.getElementById('modal'); modal.style.opacity = 0; setTimeout(()=> modal.style.display = 'none', 180); };
+    document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
+
+    /* ===========================
+       Demo form handlers (replace later)
+       =========================== */
+    window.subscribeNews = function(e){ e.preventDefault(); const email = document.getElementById('email') ? document.getElementById('email').value : ''; document.getElementById('sub-response').textContent = `Subscribed (demo): ${email}`; e.target.reset(); };
+    window.submitMemory = function(e){ e.preventDefault(); const batch = document.getElementById('batch') ? document.getElementById('batch').value : ''; document.getElementById('send-response').textContent = `Memory received from ${batch} (demo).`; e.target.reset(); };
+    window.contactUs = function(e){ e.preventDefault(); const name = document.getElementById('cname') ? document.getElementById('cname').value : ''; document.getElementById('contact-response').textContent = `Thanks ${name} (demo).`; e.target.reset(); };
+
+    /* ===========================
+       HERO MELT (mask) EFFECT
+       =========================== */
+    (function heroMask(){
+      if(!heroSection || !heroMedia) return;
+      const docElem = document.documentElement;
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      function updateMask(){
+        const rect = heroSection.getBoundingClientRect();
+        const viewH = window.innerHeight || docElem.clientHeight;
+        const heroBottom = rect.bottom;
+        const heroHeight = rect.height || (viewH * 0.6);
+        let progress = clamp(heroBottom / (heroHeight + viewH * 0.05), 0, 1);
+        const maskPct = Math.round((progress * 100));
+        heroMedia.style.setProperty('--hero-mask-stop', maskPct + '%');
+        heroMedia.style.opacity = 0.45 + (progress * 0.6);
       }
+      window.addEventListener('scroll', updateMask, { passive: true });
+      window.addEventListener('resize', updateMask);
+      window.addEventListener('load', updateMask);
+      updateMask();
+    })();
+
+    /* ===========================
+       Accessibility / keyboard
+       =========================== */
+    window.addEventListener('keydown', (ev)=>{
+      if(ev.key === 'Escape'){ toggleMobileDrawer(false); closeModal(); }
     });
-  }, { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 });
-  document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
 
-  /* -------------------------
-     Magnetic micro-interaction
-     ------------------------- */
-  const magneticRoots = Array.from(document.querySelectorAll('[data-magnetic]'));
-  magneticRoots.forEach(root => {
-    const inner = root.querySelector('.btn-inner') || root.firstElementChild;
-    if(!inner) return;
-    const maxX = 10, maxY = 6;
-    root.addEventListener('pointermove', (ev)=>{
-      const rect = root.getBoundingClientRect();
-      const relX = (ev.clientX - rect.left) - rect.width/2;
-      const relY = (ev.clientY - rect.top) - rect.height/2;
-      const tx = (relX / rect.width) * maxX;
-      const ty = (relY / rect.height) * maxY;
-      inner.style.transform = `translate3d(${tx}px, ${ty}px, 0) scale(1.01)`;
+    /* small initial update */
+    setTimeout(()=> window.dispatchEvent(new Event('scroll')), 120);
+
+    /* Brand click -> home (smooth) */
+    brandBtn && brandBtn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); });
     });
-    root.addEventListener('pointerleave', ()=> inner.style.transform = 'translate3d(0,0,0) scale(1)');
-  });
 
-  /* -------------------------
-     Gallery modal
-     ------------------------- */
-  window.openModal = function(el){
-    const img = el.querySelector('img'); if(!img) return;
-    const modal = document.getElementById('modal'); const modalImg = document.getElementById('modal-img');
-    modalImg.src = img.src; modal.style.display = 'flex'; modal.style.opacity = 1;
-  };
-  window.closeModal = function(){ const modal = document.getElementById('modal'); modal.style.opacity = 0; setTimeout(()=> modal.style.display = 'none', 180); };
-  document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
-
-  /* -------------------------
-     Demo form handlers
-     ------------------------- */
-  window.subscribeNews = function(e){ e.preventDefault(); const email = document.getElementById('email') ? document.getElementById('email').value : ''; document.getElementById('sub-response').textContent = `Subscribed (demo): ${email}`; e.target.reset(); };
-  window.submitMemory = function(e){ e.preventDefault(); const batch = document.getElementById('batch') ? document.getElementById('batch').value : ''; document.getElementById('send-response').textContent = `Memory received from ${batch} (demo).`; e.target.reset(); };
-  window.contactUs = function(e){ e.preventDefault(); const name = document.getElementById('cname') ? document.getElementById('cname').value : ''; document.getElementById('contact-response').textContent = `Thanks ${name} (demo).`; e.target.reset(); };
-
-  /* -------------------------
-     HERO MELT (mask) EFFECT
-     ------------------------- */
-  (function heroMask(){
-    if(!heroSection || !heroMedia) return;
-    const docElem = document.documentElement;
-    const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
-    function updateMask(){
-      const rect = heroSection.getBoundingClientRect();
-      const viewH = window.innerHeight || docElem.clientHeight;
-      const heroBottom = rect.bottom;
-      const heroHeight = Math.max(rect.height, viewH * 0.4);
-      let progress = clamp(heroBottom / (heroHeight + viewH * 0.05), 0, 1);
-      const maskPct = Math.round((progress * 100));
-      heroMedia.style.setProperty('--hero-mask-stop', maskPct + '%');
-      heroMedia.style.opacity = 0.45 + (progress * 0.55);
-    }
-    window.addEventListener('scroll', updateMask, { passive: true });
-    window.addEventListener('resize', updateMask);
-    window.addEventListener('load', updateMask);
-    updateMask();
   })();
-
-  /* -------------------------
-     Accessibility / keyboard
-     ------------------------- */
-  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ toggleMobileDrawer(false); closeModal(); } });
-
-  /* -------------------------
-     Brand click -> home with wipe
-     ------------------------- */
-  brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });
-
-  /* -------------------------
-     Trigger page wipe on load (cinematic)
-     ------------------------- */
-  window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 220); });
-
-  /* small initial update to set header state */
-  setTimeout(()=> window.dispatchEvent(new Event('scroll')), 120);
-})();
-</script>
+  </script>
 </body>
 </html>
