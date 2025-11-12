@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NGHSIANS — Nasirabad Government High School</title>
-<meta name="description" content="NGHSIANS — community site (dark editorial minimal UI). Place logo.png in same folder." />
+<meta name="description" content="NGHSIANS — community site (dark editorial minimal UI). Place logo.png and banner.jpg in same folder." />
 
 <!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,7 +18,7 @@
     --panel: #0d0e10;
     --text: #eef0f2;
     --muted: #9aa0a6;
-    --accent-deep: #710C04;    /* chosen accent */
+    --accent-deep: #710C04;    /* chosen accent (used for hamburger & interactions) */
     --accent-soft: #fff39a;
     --accent-muted: rgba(113,12,4,0.12);
     --max-w: 1200px;
@@ -88,6 +88,7 @@
      HAMBURGER (mobile) - visible <=980px
      - animated 3 lines -> X
      - uses accent color
+     - ensured high z-index and visible color
      =========================== */
   .hamburger {
     display:none;
@@ -100,7 +101,7 @@
     cursor:pointer;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     padding:8px;
-    z-index:1600;
+    z-index:1600; /* ensure above header content */
   }
 
   /* lines */
@@ -142,11 +143,13 @@
   body.drawer-open { overflow:hidden; touch-action:none; }
 
   /* ===========================
-     HERO + rest - mostly unchanged
+     HERO + rest
+     - hero background now points to banner.jpg as requested
      =========================== */
   .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible }
   .hero-media{
     position:absolute; inset:0;
+    /* user-specified banner - replace banner.jpg in project folder if you change */
     background-image: url('banner.jpg');
     background-size:cover; background-position:center center;
     filter:grayscale(20%) contrast(96%) brightness(42%);
@@ -248,6 +251,7 @@
         <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
+        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
 
         <!-- HAMBURGER (mobile) - animated lines -->
         <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
@@ -276,6 +280,7 @@
         <a href="#alumni" class="drawer-link">Alumni</a>
         <a href="#contact" class="drawer-link">Contact</a>
         <a href="merch.html" class="drawer-link" data-external="true">Merch</a>
+        <a href="sign.html" class="drawer-link" data-external="true">Sign Day</a>
         <a href="#extras" class="drawer-link">Extras</a>
       </nav>
     </div>
@@ -284,7 +289,7 @@
   <!-- HERO (top) -->
   <main>
     <section id="home" class="hero" aria-label="Home hero">
-      <div class="hero-media" id="heroMedia" aria-hidden="true"></div> <!-- EDIT: change background-image in CSS above -->
+      <div class="hero-media" id="heroMedia" aria-hidden="true"></div> <!-- uses banner.jpg -->
       <div class="hero-overlay" aria-hidden="true"></div>
 
       <div class="hero-inner reveal is-visible" style="transition-delay:60ms">
@@ -300,7 +305,7 @@
           </span>
         </div>
 
-        <div style="margin-top:12px;color:var(--muted);font-size:12px">Hint: edit the hero image URL in the CSS <code>.hero-media { background-image: url('...') }</code>.</div>
+        <div style="margin-top:12px;color:var(--muted);font-size:12px">Hint: edit the hero image file <code>banner.jpg</code> in the site folder to change the hero picture.</div>
       </div>
     </section>
 
@@ -500,7 +505,7 @@
   function showWipe(cb){
     if(!pageWipe){ if(cb) cb(); return; }
     pageWipe.classList.add('show');
-    // keep slightly shorter than CSS variable so content becomes visible just after wipe
+    // keep slightly shorter than CSS variable so content becomes visible after wipe
     setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980);
   }
 

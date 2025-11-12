@@ -101,7 +101,6 @@
   .products-grid{ display:grid; gap:18px; grid-template-columns: repeat(3,1fr); }
   @media (max-width:1100px){ .products-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .products-grid{ grid-template-columns:1fr } }
-
   .product-card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms; display:flex; flex-direction:column; gap:8px; }
   .product-card:hover{ transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
   .product-image{ width:100%; height:180px; border-radius:6px; background:#121212; display:flex; align-items:center; justify-content:center; color:var(--muted); font-weight:700; letter-spacing:0.6px; border:1px dashed rgba(255,255,255,0.03); }
@@ -143,6 +142,7 @@
         <a class="nav-link" href="index.html#alumni" data-target="alumni">Alumni</a>
         <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
         <a class="nav-link active" href="merch.html" aria-current="page">Merch</a>
+        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
 
         <!-- HAMBURGER (mobile) -->
         <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
@@ -171,11 +171,12 @@
         <a href="index.html#alumni" class="drawer-link">Alumni</a>
         <a href="index.html#contact" class="drawer-link">Contact</a>
         <a href="merch.html" class="drawer-link" aria-current="page">Merch</a>
+        <a href="sign.html" class="drawer-link">Sign Day</a>
       </nav>
     </div>
   </div>
 
-  <!-- MAIN -->
+  <!-- MAIN (coming soon + merch preview) -->
   <main>
     <div class="container">
       <div class="coming-wrap">
