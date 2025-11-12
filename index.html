@@ -88,7 +88,7 @@
      HAMBURGER (mobile) - visible <=980px
      - animated 3 lines -> X
      - uses accent color
-     - ensured high z-index and visible color
+     - implemented with simple JS + CSS; top-slide menu (new)
      =========================== */
   .hamburger {
     display:none;
@@ -104,7 +104,6 @@
     z-index:1600; /* ensure above header content */
   }
 
-  /* lines */
   .hamburger .lines { position:relative; width:22px; height:14px; display:inline-block; }
   .hamburger .lines span{
     position:absolute; left:0; right:0; height:2px; background:var(--accent-deep); display:block; border-radius:2px;
@@ -127,20 +126,23 @@
   }
 
   /* ===========================
-     MOBILE DRAWER (right slide-in overlay)
-     - backdrop semi-transparent: rgba(0,0,0,0.85)
-     - drawer slides from right, locks body scroll when open
+     MOBILE MENU (top slide-down)
+     - overlay backdrop: rgba(0,0,0,0.85)
+     - panel slides down from top, covers full width
      =========================== */
-  #mobileDrawer { display:none; position:fixed; inset:0; z-index:1550; pointer-events:none; }
-  #mobileBackdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
-  #mobileDrawer.open { display:block; pointer-events:auto; }
-  #mobileDrawer.open #mobileBackdrop { opacity:1; pointer-events:auto; }
+  #mobileMenu { position:fixed; inset:0; top:-100vh; z-index:1550; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; transition: top 380ms cubic-bezier(.2,.9,.2,1); }
+  #mobileMenu.open { top:0; pointer-events:auto; }
+  #mobileMenu .backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
+  #mobileMenu.open .backdrop { opacity:1; pointer-events:auto; }
+  #mobileMenu .panel { width:100%; max-width:var(--max-w); background:linear-gradient(180deg, rgba(13,14,16,0.98), rgba(11,12,14,0.98)); padding:34px 22px; transform:translateY(-6px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
+  #mobileMenu.open .panel { transform:translateY(0) }
 
-  #mobilePanel { position:fixed; right:0; top:0; height:100vh; width:320px; max-width:92%; background:var(--panel); transform:translateX(110%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); box-shadow:-20px 0 60px rgba(0,0,0,0.6); padding:22px; }
-  #mobileDrawer.open #mobilePanel { transform:translateX(0); }
+  /* style links inside menu */
+  .mobile-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+  .mobile-links a{ color:var(--text); font-weight:700; font-size:18px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.02); width:100%; }
 
-  /* lock body scroll when drawer open (toggle via .drawer-open on <body>) */
-  body.drawer-open { overflow:hidden; touch-action:none; }
+  /* lock body scroll when menu open */
+  body.menu-open { overflow:hidden; touch-action:none; }
 
   /* ===========================
      HERO + rest
@@ -253,8 +255,8 @@
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
 
-        <!-- HAMBURGER (mobile) - animated lines -->
-        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+        <!-- HAMBURGER (mobile) - NEW top-slide variant -->
+        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
           <span class="lines" aria-hidden="true">
             <span class="top"></span>
             <span class="mid"></span>
@@ -265,23 +267,23 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER (right slide-in) -->
-  <div id="mobileDrawer" aria-hidden="true">
-    <div id="mobileBackdrop"></div>
-    <div id="mobilePanel">
-      <button id="mobileClose" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
-      <nav style="display:flex;flex-direction:column;gap:12px">
-        <a href="index.html" class="drawer-link">Home</a>
-        <a href="#about" class="drawer-link">About</a>
-        <a href="#gallery" class="drawer-link">Gallery</a>
-        <a href="#news" class="drawer-link">News</a>
-        <a href="#newsletter" class="drawer-link">Newsletter</a>
-        <a href="#submit" class="drawer-link">Share</a>
-        <a href="#alumni" class="drawer-link">Alumni</a>
-        <a href="#contact" class="drawer-link">Contact</a>
-        <a href="merch.html" class="drawer-link" data-external="true">Merch</a>
-        <a href="sign.html" class="drawer-link" data-external="true">Sign Day</a>
-        <a href="#extras" class="drawer-link">Extras</a>
+  <!-- MOBILE MENU (TOP SLIDE) -->
+  <div id="mobileMenu" aria-hidden="true">
+    <div class="backdrop" id="menuBackdrop" aria-hidden="true"></div>
+    <div class="panel" role="menu" aria-label="Mobile menu">
+      <!-- Menu content (copy/edit these links) -->
+      <nav class="mobile-links">
+        <a class="menu-link" href="index.html">Home</a>
+        <a class="menu-link" href="#about" data-target="about">About</a>
+        <a class="menu-link" href="#gallery" data-target="gallery">Gallery</a>
+        <a class="menu-link" href="#news" data-target="news">News</a>
+        <a class="menu-link" href="#newsletter" data-target="newsletter">Newsletter</a>
+        <a class="menu-link" href="#submit" data-target="submit">Share</a>
+        <a class="menu-link" href="#alumni" data-target="alumni">Alumni</a>
+        <a class="menu-link" href="#contact" data-target="contact">Contact</a>
+        <a class="menu-link" href="merch.html">Merch</a>
+        <a class="menu-link" href="sign.html">Sign Day</a>
+        <a class="menu-link" href="#extras">Extras</a>
       </nav>
     </div>
   </div>
@@ -491,10 +493,8 @@
   const navLinks = Array.from(document.querySelectorAll('.nav-link'));
   const brandBtn = document.getElementById('brandBtn');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileBackdrop = document.getElementById('mobileBackdrop');
-  const mobilePanel = document.getElementById('mobilePanel');
-  const mobileClose = document.getElementById('mobileClose');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBackdrop = document.getElementById('menuBackdrop');
   const pageWipe = document.getElementById('pageWipe');
   const heroMedia = document.getElementById('heroMedia');
   const heroSection = document.getElementById('home');
@@ -521,7 +521,7 @@
   function smoothTo(id){
     const target = document.getElementById(id);
     if(!target) return;
-    toggleMobileDrawer(false);
+    closeMobileMenu(); // ensure mobile menu closed
     showWipe(()=> {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       history.replaceState(null, '', '#' + id);
@@ -552,34 +552,44 @@
   });
 
   /* ===========================
-     MOBILE DRAWER logic (open/close)
-     - slides from right; locks body scroll; backdrop clickable
+     NEW MOBILE MENU logic (top slide)
+     - slides down from top; locks body scroll; backdrop clickable
+     - implemented cleanly to avoid earlier hidden-because-of-z-index bugs
      =========================== */
-  function openMobileDrawer(){
-    if(!mobileDrawer) return;
-    mobileDrawer.classList.add('open');
+  function openMobileMenu(){
+    if(!mobileMenu) return;
+    mobileMenu.classList.add('open');
     hamburgerBtn.classList.add('open');
     hamburgerBtn.setAttribute('aria-expanded','true');
-    document.body.classList.add('drawer-open');
+    document.body.classList.add('menu-open');
   }
-  function closeMobileDrawer(){
-    if(!mobileDrawer) return;
-    mobileDrawer.classList.remove('open');
+  function closeMobileMenu(){
+    if(!mobileMenu) return;
+    mobileMenu.classList.remove('open');
     hamburgerBtn.classList.remove('open');
     hamburgerBtn.setAttribute('aria-expanded','false');
-    document.body.classList.remove('drawer-open');
+    document.body.classList.remove('menu-open');
   }
-  window.toggleMobileDrawer = function(open){
-    if(!mobileDrawer) return;
-    if(open === undefined) open = !mobileDrawer.classList.contains('open');
-    if(open) openMobileDrawer(); else closeMobileDrawer();
-  };
+  window.closeMobileMenu = closeMobileMenu;
 
-  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
-  if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
-  if(mobileClose) mobileClose.addEventListener('click', ()=> toggleMobileDrawer(false));
-  // close drawer when any drawer-link clicked
-  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
+  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = mobileMenu.classList.contains('open'); if(opened) closeMobileMenu(); else openMobileMenu(); });
+  if(menuBackdrop) menuBackdrop.addEventListener('click', ()=> closeMobileMenu());
+  // close menu when any mobile link clicked
+  document.querySelectorAll('.menu-link').forEach(ml => ml.addEventListener('click', function(e){
+    // If link is an internal anchor, let smoothTo handle navigation & wipe
+    const href = (this.getAttribute('href') || '').trim();
+    if(href.startsWith('#')){
+      e.preventDefault();
+      const id = href.slice(1);
+      smoothTo(id);
+      return;
+    }
+    // For normal links (merch, sign.html, index.html) we show wipe then navigate
+    e.preventDefault();
+    const url = href;
+    closeMobileMenu();
+    showWipe(()=> { window.location.href = url; });
+  }));
 
   /* ===========================
      Header: transparent over hero, solid on scroll
@@ -676,7 +686,7 @@
   /* ===========================
      Accessibility / keyboard
      =========================== */
-  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ toggleMobileDrawer(false); closeModal(); } });
+  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeMobileMenu(); closeModal(); } });
 
   /* Brand click -> home with wipe */
   brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });

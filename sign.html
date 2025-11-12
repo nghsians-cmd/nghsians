@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>NGHSIANS — Films</title>
-<meta name="description" content="Sign Day — Films. Place logo.png in same folder."/>
+<title>NGHSIANS — Sign Day</title>
+<meta name="description" content="Sign Day — video highlights. Place logo.png in same folder."/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -62,14 +62,16 @@
   .hamburger.open .lines span.bot{ transform: translateY(-6px) rotate(-45deg); top:6px; }
   @media (max-width:980px){ .nav-left, .nav-right{ display:none } .hamburger{ display:flex } .header-grid{ grid-template-columns:auto 1fr auto } }
 
-  /* mobile drawer */
-  #mobileDrawer { display:none; position:fixed; inset:0; z-index:1550; pointer-events:none; }
-  #mobileBackdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
-  #mobileDrawer.open { display:block; pointer-events:auto; }
-  #mobileDrawer.open #mobileBackdrop { opacity:1; pointer-events:auto; }
-  #mobilePanel { position:fixed; right:0; top:0; height:100vh; width:320px; max-width:92%; background:var(--panel); transform:translateX(110%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); box-shadow:-20px 0 60px rgba(0,0,0,0.6); padding:22px; }
-  #mobileDrawer.open #mobilePanel { transform:translateX(0); }
-  body.drawer-open { overflow:hidden; touch-action:none; }
+  /* mobile top menu */
+  #mobileMenu { position:fixed; inset:0; top:-100vh; z-index:1550; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; transition: top 380ms cubic-bezier(.2,.9,.2,1); }
+  #mobileMenu.open { top:0; pointer-events:auto; }
+  #mobileMenu .backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
+  #mobileMenu.open .backdrop { opacity:1; pointer-events:auto; }
+  #mobileMenu .panel { width:100%; max-width:var(--max-w); background:linear-gradient(180deg, rgba(13,14,16,0.98), rgba(11,12,14,0.98)); padding:34px 22px; transform:translateY(-6px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
+  #mobileMenu.open .panel { transform:translateY(0) }
+  .mobile-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+  .mobile-links a{ color:var(--text); font-weight:700; font-size:18px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.02); width:100%; }
+  body.menu-open { overflow:hidden; touch-action:none; }
 
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
   .wrap{ width:100%; max-width:1100px; padding:20px; }
@@ -139,7 +141,7 @@
         <a class="nav-link active" href="sign.html" aria-current="page">Sign Day</a>
 
         <!-- HAMBURGER (mobile) -->
-        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
           <span class="lines" aria-hidden="true">
             <span class="top"></span>
             <span class="mid"></span>
@@ -150,19 +152,18 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER -->
-  <div id="mobileDrawer" aria-hidden="true">
-    <div id="mobileBackdrop"></div>
-    <div id="mobilePanel">
-      <button id="mobileClose" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
-      <nav style="display:flex;flex-direction:column;gap:12px">
-        <a href="index.html" class="drawer-link">Home</a>
-        <a href="index.html#about" class="drawer-link">About</a>
-        <a href="index.html#gallery" class="drawer-link">Gallery</a>
-        <a href="index.html#news" class="drawer-link">News</a>
-        <a href="index.html#newsletter" class="drawer-link">Newsletter</a>
-        <a href="index.html#submit" class="drawer-link">Share</a>
-        <a href="merch.html" class="drawer-link">Merch</a>
+  <!-- MOBILE MENU (TOP SLIDE) -->
+  <div id="mobileMenu" aria-hidden="true">
+    <div class="backdrop" id="menuBackdrop" aria-hidden="true"></div>
+    <div class="panel" role="menu" aria-label="Mobile menu">
+      <nav class="mobile-links">
+        <a class="menu-link" href="index.html">Home</a>
+        <a class="menu-link" href="index.html#about" data-target="about">About</a>
+        <a class="menu-link" href="index.html#gallery" data-target="gallery">Gallery</a>
+        <a class="menu-link" href="index.html#news" data-target="news">News</a>
+        <a class="menu-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
+        <a class="menu-link" href="index.html#submit" data-target="submit">Share</a>
+        <a class="menu-link" href="merch.html">Merch</a>
       </nav>
     </div>
   </div>
@@ -178,25 +179,25 @@
           To add a new video:
           1) Duplicate this .video-card block.
           2) Replace data-video-id with the YouTube ID (the value after v= in YouTube URL).
-          3) Update title/desc accordingly.
+          3) Update title/desc/duration accordingly.
         -->
-        <div class="video-card reveal" data-video-id="RyxnEuFfzxU"> <!-- sample id -->
+        <div class="video-card reveal" data-video-id="RyxnEuFfzxU"> 
           <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 1" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
-            <img src="https://img.youtube.com/vi/RyxnEuFfzxU/hqdefault.jpg" alt="Video 1 thumbnail">
+            <img src="https://img.youtube.com/vi/RyxnEuFfzxU/hqdefault.jpg" alt="Batch 25 & NGHS 58 thumbnail">
             <div class="play-overlay"><div class="play-button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
           </div>
           <div class="video-meta">
             <div>
               <div class="video-title">Batch 25 & NGHS 58</div>
-              <div class="video-desc">Come watch and feel the ultimate film experience of Bangladeshi Sign Day.</div>
+              <div class="video-desc">Come Watch and feel the ultimate film experience of Bangladeshi Sign Day.</div>
             </div>
             <div class="muted" style="font-weight:700">5:56</div>
           </div>
         </div>
 
-        <div class="video-card reveal" data-video-id="ClZKWorUQNk"> <!-- sample id -->
+        <div class="video-card reveal" data-video-id="ClZKWorUQNk">
           <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 2" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
-            <img src="https://img.youtube.com/vi/ClZKWorUQNk/hqdefault.jpg" alt="Video 2 thumbnail">
+            <img src="https://img.youtube.com/vi/ClZKWorUQNk/hqdefault.jpg" alt="Batch 23 & NGHS 56 thumbnail">
             <div class="play-overlay"><div class="play-button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
           </div>
           <div class="video-meta">
@@ -208,15 +209,15 @@
           </div>
         </div>
 
-        <div class="video-card reveal" data-video-id="lr2AjjTw8Ro"> <!-- sample id -->
+        <div class="video-card reveal" data-video-id="lr2AjjTw8Ro">
           <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 3" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
-            <img src="https://img.youtube.com/vi/lr2AjjTw8Ro/hqdefault.jpg" alt="Video 3 thumbnail">
+            <img src="https://img.youtube.com/vi/lr2AjjTw8Ro/hqdefault.jpg" alt="Batch 22 & NGHS 55 thumbnail">
             <div class="play-overlay"><div class="play-button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
           </div>
           <div class="video-meta">
             <div>
               <div class="video-title">Batch 22 & NGHS 55</div>
-              <div class="video-desc">Watch Batch 22 ending NGHSIAN life with memory!</div>
+              <div class="video-desc">Watch Batch 22 ending NGHSIAN life with memories!</div>
             </div>
             <div class="muted" style="font-weight:700">4:24</div>
           </div>
@@ -235,16 +236,13 @@
 
 <script>
 (function(){
-  // Basic shared helpers: page wipe, header, drawer (same behavior as other pages)
+  // Basic shared helpers: page wipe, header, top-menu (same behavior as other pages)
   const pageWipe = document.getElementById('pageWipe');
   const siteHeader = document.getElementById('siteHeader');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileBackdrop = document.getElementById('mobileBackdrop');
-  const mobilePanel = document.getElementById('mobilePanel');
-  const mobileClose = document.getElementById('mobileClose');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBackdrop = document.getElementById('menuBackdrop');
   const reveals = Array.from(document.querySelectorAll('.reveal'));
-  const heroSection = null; // sign page doesn't have the hero section
 
   function showWipe(cb){
     if(!pageWipe){ if(cb) cb(); return; }
@@ -254,14 +252,25 @@
   // play wipe on load
   window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
 
-  // MOBILE DRAWER
-  function openMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('drawer-open'); }
-  function closeMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('drawer-open'); }
-  window.toggleMobileDrawer = function(open){ if(!mobileDrawer) return; if(open === undefined) open = !mobileDrawer.classList.contains('open'); if(open) openMobileDrawer(); else closeMobileDrawer(); };
-  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
-  if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
-  if(mobileClose) mobileClose.addEventListener('click', ()=> toggleMobileDrawer(false));
-  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
+  // MOBILE TOP MENU
+  function openMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('menu-open'); }
+  function closeMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('menu-open'); }
+  window.closeMobileMenu = closeMobileMenu;
+  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = mobileMenu.classList.contains('open'); if(opened) closeMobileMenu(); else openMobileMenu(); });
+  if(menuBackdrop) menuBackdrop.addEventListener('click', ()=> closeMobileMenu());
+  document.querySelectorAll('.menu-link').forEach(ml => ml.addEventListener('click', function(e){
+    const href = (this.getAttribute('href') || '').trim();
+    if(href.startsWith('index.html#')){
+      e.preventDefault();
+      const id = href.split('#')[1];
+      closeMobileMenu();
+      showWipe(()=> { window.location.href = 'index.html#' + id; });
+      return;
+    }
+    e.preventDefault();
+    closeMobileMenu();
+    showWipe(()=> { window.location.href = href; });
+  }));
 
   // reveal scroll observer
   const revealObserver = new IntersectionObserver((entries)=> {
@@ -270,9 +279,7 @@
   reveals.forEach(r => revealObserver.observe(r));
 
   // -------------------------
-  // Inline video play logic
-  // When the user clicks a .video-thumb, replace the .video-thumb element with an iframe
-  // that auto-plays the YouTube video.
+  // Inline video play logic (click thumbnail -> replace with iframe autoplay)
   // -------------------------
   window.playInline = function(el){
     try{
@@ -302,6 +309,12 @@
       console.error('playInline error', err);
     }
   };
+
+  // Accessibility: allow Enter key on thumbs
+  document.querySelectorAll('.video-thumb').forEach(t => {
+    t.addEventListener('keydown', (ev)=> { if(ev.key === 'Enter') playInline(t); });
+  });
+
 })();
 </script>
 </body>

@@ -68,15 +68,16 @@
     .nav-left, .nav-right{ display:none } .hamburger{ display:flex } .header-grid{ grid-template-columns:auto 1fr auto }
   }
 
-  /* mobile drawer styles (right slide-in) */
-  #mobileDrawer { display:none; position:fixed; inset:0; z-index:1550; pointer-events:none; }
-  #mobileBackdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
-  #mobileDrawer.open { display:block; pointer-events:auto; }
-  #mobileDrawer.open #mobileBackdrop { opacity:1; pointer-events:auto; }
-
-  #mobilePanel { position:fixed; right:0; top:0; height:100vh; width:320px; max-width:92%; background:var(--panel); transform:translateX(110%); transition:transform 360ms cubic-bezier(.2,.9,.2,1); box-shadow:-20px 0 60px rgba(0,0,0,0.6); padding:22px; }
-  #mobileDrawer.open #mobilePanel { transform:translateX(0); }
-  body.drawer-open { overflow:hidden; touch-action:none; }
+  /* mobile top menu (same pattern as index) */
+  #mobileMenu { position:fixed; inset:0; top:-100vh; z-index:1550; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; transition: top 380ms cubic-bezier(.2,.9,.2,1); }
+  #mobileMenu.open { top:0; pointer-events:auto; }
+  #mobileMenu .backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
+  #mobileMenu.open .backdrop { opacity:1; pointer-events:auto; }
+  #mobileMenu .panel { width:100%; max-width:var(--max-w); background:linear-gradient(180deg, rgba(13,14,16,0.98), rgba(11,12,14,0.98)); padding:34px 22px; transform:translateY(-6px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
+  #mobileMenu.open .panel { transform:translateY(0) }
+  .mobile-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+  .mobile-links a{ color:var(--text); font-weight:700; font-size:18px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.02); width:100%; }
+  body.menu-open { overflow:hidden; touch-action:none; }
 
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
   .container{ width:100%; max-width:1100px; padding:20px; }
@@ -145,7 +146,7 @@
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
 
         <!-- HAMBURGER (mobile) -->
-        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
+        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
           <span class="lines" aria-hidden="true">
             <span class="top"></span>
             <span class="mid"></span>
@@ -156,22 +157,21 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER -->
-  <div id="mobileDrawer" aria-hidden="true">
-    <div id="mobileBackdrop"></div>
-    <div id="mobilePanel">
-      <button id="mobileClose" style="background:transparent;border:none;color:var(--text);font-size:20px;margin-bottom:14px">✕</button>
-      <nav style="display:flex;flex-direction:column;gap:12px">
-        <a href="index.html" class="drawer-link">Home</a>
-        <a href="index.html#about" class="drawer-link">About</a>
-        <a href="index.html#gallery" class="drawer-link">Gallery</a>
-        <a href="index.html#news" class="drawer-link">News</a>
-        <a href="index.html#newsletter" class="drawer-link">Newsletter</a>
-        <a href="index.html#submit" class="drawer-link">Share</a>
-        <a href="index.html#alumni" class="drawer-link">Alumni</a>
-        <a href="index.html#contact" class="drawer-link">Contact</a>
-        <a href="merch.html" class="drawer-link" aria-current="page">Merch</a>
-        <a href="sign.html" class="drawer-link">Sign Day</a>
+  <!-- MOBILE MENU (TOP SLIDE) -->
+  <div id="mobileMenu" aria-hidden="true">
+    <div class="backdrop" id="menuBackdrop" aria-hidden="true"></div>
+    <div class="panel" role="menu" aria-label="Mobile menu">
+      <nav class="mobile-links">
+        <a class="menu-link" href="index.html">Home</a>
+        <a class="menu-link" href="index.html#about" data-target="about">About</a>
+        <a class="menu-link" href="index.html#gallery" data-target="gallery">Gallery</a>
+        <a class="menu-link" href="index.html#news" data-target="news">News</a>
+        <a class="menu-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
+        <a class="menu-link" href="index.html#submit" data-target="submit">Share</a>
+        <a class="menu-link" href="index.html#alumni" data-target="alumni">Alumni</a>
+        <a class="menu-link" href="index.html#contact" data-target="contact">Contact</a>
+        <a class="menu-link" href="merch.html" aria-current="page">Merch</a>
+        <a class="menu-link" href="sign.html">Sign Day</a>
       </nav>
     </div>
   </div>
@@ -256,10 +256,8 @@
   const pageWipe = document.getElementById('pageWipe');
   const siteHeader = document.getElementById('siteHeader');
   const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileBackdrop = document.getElementById('mobileBackdrop');
-  const mobilePanel = document.getElementById('mobilePanel');
-  const mobileClose = document.getElementById('mobileClose');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBackdrop = document.getElementById('menuBackdrop');
   const accessForm = document.getElementById('accessForm');
   const accessCode = document.getElementById('accessCode');
   const comingSection = document.getElementById('coming');
@@ -270,13 +268,17 @@
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
   window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
 
-  function openMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('drawer-open'); }
-  function closeMobileDrawer(){ if(!mobileDrawer) return; mobileDrawer.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('drawer-open'); }
-  window.toggleMobileDrawer = function(open){ if(!mobileDrawer) return; if(open === undefined) open = !mobileDrawer.classList.contains('open'); if(open) openMobileDrawer(); else closeMobileDrawer(); };
-  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = hamburgerBtn.classList.contains('open'); toggleMobileDrawer(!opened); });
-  if(mobileBackdrop) mobileBackdrop.addEventListener('click', ()=> toggleMobileDrawer(false));
-  if(mobileClose) mobileClose.addEventListener('click', ()=> toggleMobileDrawer(false));
-  document.querySelectorAll('.drawer-link').forEach(dl => dl.addEventListener('click', ()=> toggleMobileDrawer(false)));
+  // NEW top-slide mobile menu functions
+  function openMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('menu-open'); }
+  function closeMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('menu-open'); }
+  window.closeMobileMenu = closeMobileMenu;
+  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = mobileMenu.classList.contains('open'); if(opened) closeMobileMenu(); else openMobileMenu(); });
+  if(menuBackdrop) menuBackdrop.addEventListener('click', ()=> closeMobileMenu());
+  document.querySelectorAll('.menu-link').forEach(ml => ml.addEventListener('click', function(e){
+    const href = (this.getAttribute('href') || '').trim();
+    if(href.startsWith('#')){ e.preventDefault(); const id = href.slice(1); closeMobileMenu(); showWipe(()=> { document.getElementById(id) && document.getElementById(id).scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#'+id); }); return; }
+    e.preventDefault(); closeMobileMenu(); showWipe(()=> { window.location.href = href; });
+  }));
 
   (function headerScroll(){ function update(){ if(window.scrollY > 12) siteHeader.classList.add('scrolled'); else siteHeader.classList.remove('scrolled'); } window.addEventListener('scroll', update, { passive:true }); update(); })();
 
@@ -337,7 +339,7 @@
     });
   })();
 
-  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; toggleMobileDrawer(false); } });
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; closeMobileMenu(); } });
 })();
 </script>
 </body>
