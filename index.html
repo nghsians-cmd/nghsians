@@ -228,22 +228,6 @@
     margin-left:auto; margin-right:auto;
   }
 
-  /* ===========================
-     ABOUT SECTION: new responsive flex layout (40% image / 60% text)
-     - Slightly rounded corners on image (8px) as requested (Option B)
-     - Image is a reveal item so it loads on scroll (keeps existing reveal behavior)
-     =========================== */
-  .about-row{ display:flex; gap:28px; align-items:center; justify-content:space-between; margin-top:18px; }
-  .about-media{ flex: 0 0 40%; max-width:40%; display:block; }
-  .about-media img{ width:100%; height:auto; display:block; border-radius:8px; object-fit:cover; border:1px solid rgba(255,255,255,0.02) }
-  .about-content{ flex:1; padding-left:6px; min-width:0; } /* min-width:0 prevents overflowing text in flex children */
-
-  @media (max-width:900px){
-    .about-row{ flex-direction:column; gap:14px; }
-    .about-media{ max-width:100%; flex-basis:100% }
-    .about-content{ padding-left:0 }
-  }
-
 </style>
 </head>
 <body>
@@ -302,7 +286,9 @@
           <span class="magnetic" data-magnetic>
             <button class="btn btn--primary" data-target="newsletter"><span class="btn-inner">Join Newsletter</span></button>
           </span>
-          <!-- Share Memory button removed per request; Join Newsletter kept -->
+          <span class="magnetic" data-magnetic>
+            <button class="btn btn--ghost" data-target="submit"><span class="btn-inner">Share Memory</span></button>
+          </span>
         </div>
 
         <div style="margin-top:12px;color:var(--muted);font-size:12px">Hint: edit the hero image file <code>banner.jpg</code> in the site folder to change the hero picture.</div>
@@ -318,24 +304,13 @@
           <h2 class="section-title">About NGHSIANS</h2>
           <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
 
-          <!-- New layout: image on left (40%) / content on right (60%) — content text unchanged -->
-          <div class="about-row" style="margin-top:14px;">
-            <div class="about-media reveal">
-              <!-- about.png will be loaded from project root; replace file as needed -->
-              <img src="about.png" alt="About NGHSIANS image (left)" />
-            </div>
-
-            <div class="about-content">
-              <div class="grid">
-                <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
-                <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
-                <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
-              </div>
-
-              <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
-            </div>
+          <div class="grid" style="margin-top:14px">
+            <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
+            <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
+            <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
           </div>
 
+          <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
         </div>
       </section>
       <!-- ===== ABOUT SECTION END ===== -->
