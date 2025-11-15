@@ -13,6 +13,8 @@
     --text:#eef0f2;
     --muted:#9aa0a6;
     --accent-deep:#710C04;
+    --accent-gold:255,243,154;
+    --gold-opacity:0.7; /* 70% per request */
     --accent-muted: rgba(113,12,4,0.12);
     --max-w:1200px;
     --pad:20px;
@@ -25,6 +27,30 @@
   img{max-width:100%;height:auto;display:block}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit;cursor:pointer}
+
+  /* subtle grain overlay (kept for non-hero areas) */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.08;
+    mix-blend-mode:overlay;
+  }
+  .container::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:2;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.08;
+    mix-blend-mode:overlay;
+  }
 
   /* PAGE WIPE */
   .page-wipe{ position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 220ms linear;background:var(--bg); }
@@ -52,35 +78,10 @@
   .brand-logo{ width:64px; height:64px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); background:transparent }
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
 
-  /* hamburger (same animated icon) */
-  .hamburger {
-    display:none;
-    width:46px; height:42px; align-items:center; justify-content:center; background:transparent; border:none; cursor:pointer; padding:8px; z-index:1600;
-  }
-  .hamburger .lines { position:relative; width:22px; height:14px; display:inline-block; }
-  .hamburger .lines span{ position:absolute; left:0; right:0; height:2px; background:var(--accent-deep); display:block; border-radius:2px; transform-origin:center; transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 160ms, top 260ms; }
-  .hamburger .lines span.top{ top:0; } .hamburger .lines span.mid{ top:6px; } .hamburger .lines span.bot{ top:12px; }
-  .hamburger.open .lines span.top{ transform: translateY(6px) rotate(45deg); top:6px; }
-  .hamburger.open .lines span.mid{ opacity:0; transform: scaleX(0.2); }
-  .hamburger.open .lines span.bot{ transform: translateY(-6px) rotate(-45deg); top:6px; }
-
-  @media (max-width:980px){
-    .nav-left, .nav-right{ display:none } .hamburger{ display:flex } .header-grid{ grid-template-columns:auto 1fr auto }
-  }
-
-  /* mobile top menu (same pattern as index) */
-  #mobileMenu { position:fixed; inset:0; top:-100vh; z-index:1550; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; transition: top 380ms cubic-bezier(.2,.9,.2,1); }
-  #mobileMenu.open { top:0; pointer-events:auto; }
-  #mobileMenu .backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
-  #mobileMenu.open .backdrop { opacity:1; pointer-events:auto; }
-  #mobileMenu .panel { width:100%; max-width:var(--max-w); background:linear-gradient(180deg, rgba(13,14,16,0.98), rgba(11,12,14,0.98)); padding:34px 22px; transform:translateY(-6px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
-  #mobileMenu.open .panel { transform:translateY(0) }
-  .mobile-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
-  .mobile-links a{ color:var(--text); font-weight:700; font-size:18px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.02); width:100%; }
-  body.menu-open { overflow:hidden; touch-action:none; }
+  /* (HAMBURGER REMOVED) -- all mobile-menu/hamburger code deleted. */
 
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
-  .container{ width:100%; max-width:1100px; padding:20px; }
+  .container{ width:100%; max-width:1100px; padding:20px; position:relative; }
 
   .coming-wrap{ display:flex; align-items:center; justify-content:center; min-height:48vh; padding:40px 12px; }
   .coming-section{ text-align:center; transition: opacity 420ms cubic-bezier(.2,.9,.2,1), transform 420ms cubic-bezier(.2,.9,.2,1); will-change:opacity,transform; }
@@ -102,7 +103,7 @@
   .products-grid{ display:grid; gap:18px; grid-template-columns: repeat(3,1fr); }
   @media (max-width:1100px){ .products-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .products-grid{ grid-template-columns:1fr } }
-  .product-card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms; display:flex; flex-direction:column; gap:8px; }
+  .product-card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms; display:flex; flex-direction:column; gap:8px; position:relative; }
   .product-card:hover{ transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
   .product-image{ width:100%; height:180px; border-radius:6px; background:#121212; display:flex; align-items:center; justify-content:center; color:var(--muted); font-weight:700; letter-spacing:0.6px; border:1px dashed rgba(255,255,255,0.03); }
   .product-meta{ display:flex; justify-content:space-between; align-items:center; gap:12px; } .product-title{ font-weight:800; font-size:14px; } .product-price{ color:var(--muted); font-weight:800; font-size:13px; }
@@ -110,6 +111,19 @@
   .product-card[data-hidden="true"]{ opacity:0; transform: translateY(12px); }
 
   footer{ text-align:center; color:var(--muted); margin-top:28px; padding-bottom:40px; font-size:13px; }
+
+  /* gold baseline under product cards */
+  .product-card::after{
+    content:"";
+    display:block;
+    height:4px;
+    width:60%;
+    margin-top:12px;
+    background: rgba(var(--accent-gold), var(--gold-opacity));
+    border-radius:3px;
+    margin-left:auto;margin-right:auto;
+  }
+
 </style>
 </head>
 <body>
@@ -141,40 +155,11 @@
         <a class="nav-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="index.html#submit" data-target="submit">Share</a>
         <a class="nav-link" href="index.html#alumni" data-target="alumni">Alumni</a>
-        <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
         <a class="nav-link active" href="merch.html" aria-current="page">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
-
-        <!-- HAMBURGER (mobile) -->
-        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
-          <span class="lines" aria-hidden="true">
-            <span class="top"></span>
-            <span class="mid"></span>
-            <span class="bot"></span>
-          </span>
-        </button>
       </div>
     </div>
   </header>
-
-  <!-- MOBILE MENU (TOP SLIDE) -->
-  <div id="mobileMenu" aria-hidden="true">
-    <div class="backdrop" id="menuBackdrop" aria-hidden="true"></div>
-    <div class="panel" role="menu" aria-label="Mobile menu">
-      <nav class="mobile-links">
-        <a class="menu-link" href="index.html">Home</a>
-        <a class="menu-link" href="index.html#about" data-target="about">About</a>
-        <a class="menu-link" href="index.html#gallery" data-target="gallery">Gallery</a>
-        <a class="menu-link" href="index.html#news" data-target="news">News</a>
-        <a class="menu-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
-        <a class="menu-link" href="index.html#submit" data-target="submit">Share</a>
-        <a class="menu-link" href="index.html#alumni" data-target="alumni">Alumni</a>
-        <a class="menu-link" href="index.html#contact" data-target="contact">Contact</a>
-        <a class="menu-link" href="merch.html" aria-current="page">Merch</a>
-        <a class="menu-link" href="sign.html">Sign Day</a>
-      </nav>
-    </div>
-  </div>
 
   <!-- MAIN (coming soon + merch preview) -->
   <main>
@@ -255,9 +240,6 @@
 (function(){
   const pageWipe = document.getElementById('pageWipe');
   const siteHeader = document.getElementById('siteHeader');
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuBackdrop = document.getElementById('menuBackdrop');
   const accessForm = document.getElementById('accessForm');
   const accessCode = document.getElementById('accessCode');
   const comingSection = document.getElementById('coming');
@@ -267,18 +249,6 @@
 
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
   window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
-
-  // NEW top-slide mobile menu functions
-  function openMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.add('open'); hamburgerBtn.classList.add('open'); hamburgerBtn.setAttribute('aria-expanded','true'); document.body.classList.add('menu-open'); }
-  function closeMobileMenu(){ if(!mobileMenu) return; mobileMenu.classList.remove('open'); hamburgerBtn.classList.remove('open'); hamburgerBtn.setAttribute('aria-expanded','false'); document.body.classList.remove('menu-open'); }
-  window.closeMobileMenu = closeMobileMenu;
-  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = mobileMenu.classList.contains('open'); if(opened) closeMobileMenu(); else openMobileMenu(); });
-  if(menuBackdrop) menuBackdrop.addEventListener('click', ()=> closeMobileMenu());
-  document.querySelectorAll('.menu-link').forEach(ml => ml.addEventListener('click', function(e){
-    const href = (this.getAttribute('href') || '').trim();
-    if(href.startsWith('#')){ e.preventDefault(); const id = href.slice(1); closeMobileMenu(); showWipe(()=> { document.getElementById(id) && document.getElementById(id).scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#'+id); }); return; }
-    e.preventDefault(); closeMobileMenu(); showWipe(()=> { window.location.href = href; });
-  }));
 
   (function headerScroll(){ function update(){ if(window.scrollY > 12) siteHeader.classList.add('scrolled'); else siteHeader.classList.remove('scrolled'); } window.addEventListener('scroll', update, { passive:true }); update(); })();
 
@@ -339,7 +309,7 @@
     });
   })();
 
-  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; closeMobileMenu(); } });
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; } });
 })();
 </script>
 </body>

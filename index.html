@@ -18,9 +18,10 @@
     --panel: #0d0e10;
     --text: #eef0f2;
     --muted: #9aa0a6;
-    --accent-deep: #710C04;    /* chosen accent (used for hamburger & interactions) */
-    --accent-soft: #fff39a;
-    --accent-muted: rgba(113,12,4,0.12);
+    --accent-deep: #710C04;    /* primary red */
+    --accent-gold: 255,243,154; /* muted gold RGB for opacity usage */
+    --gold-opacity: 0.7;       /* global gold opacity (70%) per latest request */
+    --accent-muted: rgba(113,12,4,0.22); /* increased index button fill opacity only */
     --max-w: 1200px;
     --pad: 20px;
     --header-h: 86px;
@@ -39,6 +40,35 @@
   img{max-width:100%;height:auto;display:block}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit;cursor:pointer}
+
+  /* ===========================
+     Subtle grain texture (global)
+     - kept globally but hidden over .hero (per request)
+     =========================== */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1; /* moved behind content so hero can mask it */
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.08;
+    mix-blend-mode:overlay;
+  }
+  /* reapply grain on main content only (so hero appears clean) */
+  .wrap::before, main > .wrap::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:2;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.08;
+    mix-blend-mode:overlay;
+    border-radius:0;
+  }
 
   /* ===========================
      PAGE WIPE (cinematic dark wipe + logo pulse)
@@ -85,70 +115,16 @@
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
   /* ===========================
-     HAMBURGER (mobile) - visible <=980px
-     - animated 3 lines -> X
-     - uses accent color
-     - implemented with simple JS + CSS; top-slide menu (new)
+     (HAMBURGER REMOVED)
+     All hamburger + mobile menu code intentionally deleted per request.
      =========================== */
-  .hamburger {
-    display:none;
-    width:46px;
-    height:42px;
-    align-items:center;
-    justify-content:center;
-    background:transparent;
-    border:none;
-    cursor:pointer;
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-    padding:8px;
-    z-index:1600; /* ensure above header content */
-  }
-
-  .hamburger .lines { position:relative; width:22px; height:14px; display:inline-block; }
-  .hamburger .lines span{
-    position:absolute; left:0; right:0; height:2px; background:var(--accent-deep); display:block; border-radius:2px;
-    transform-origin:center; transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 160ms, top 260ms;
-  }
-  .hamburger .lines span.top{ top:0; }
-  .hamburger .lines span.mid{ top:6px; }
-  .hamburger .lines span.bot{ top:12px; }
-
-  /* active -> morph into X */
-  .hamburger.open .lines span.top{ transform: translateY(6px) rotate(45deg); top:6px; }
-  .hamburger.open .lines span.mid{ opacity:0; transform: scaleX(0.2); }
-  .hamburger.open .lines span.bot{ transform: translateY(-6px) rotate(-45deg); top:6px; }
-
-  /* show/hide nav at mobile widths */
-  @media (max-width:980px){
-    .nav-left, .nav-right{ display:none }
-    .hamburger{ display:flex }
-    .header-grid{ grid-template-columns: auto 1fr auto; align-items:center; }
-  }
-
-  /* ===========================
-     MOBILE MENU (top slide-down)
-     - overlay backdrop: rgba(0,0,0,0.85)
-     - panel slides down from top, covers full width
-     =========================== */
-  #mobileMenu { position:fixed; inset:0; top:-100vh; z-index:1550; display:flex; align-items:flex-start; justify-content:center; pointer-events:none; transition: top 380ms cubic-bezier(.2,.9,.2,1); }
-  #mobileMenu.open { top:0; pointer-events:auto; }
-  #mobileMenu .backdrop { position:absolute; inset:0; background: rgba(0,0,0,0.85); opacity:0; transition:opacity 260ms ease; pointer-events:none; }
-  #mobileMenu.open .backdrop { opacity:1; pointer-events:auto; }
-  #mobileMenu .panel { width:100%; max-width:var(--max-w); background:linear-gradient(180deg, rgba(13,14,16,0.98), rgba(11,12,14,0.98)); padding:34px 22px; transform:translateY(-6px); box-shadow:0 40px 80px rgba(0,0,0,0.6); }
-  #mobileMenu.open .panel { transform:translateY(0) }
-
-  /* style links inside menu */
-  .mobile-links{ display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
-  .mobile-links a{ color:var(--text); font-weight:700; font-size:18px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.02); width:100%; }
-
-  /* lock body scroll when menu open */
-  body.menu-open { overflow:hidden; touch-action:none; }
 
   /* ===========================
      HERO + rest
      - hero background now points to banner.jpg as requested
+     - ensure hero sits above grain (hero clean)
      =========================== */
-  .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible }
+  .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible; z-index:20; }
   .hero-media{
     position:absolute; inset:0;
     /* user-specified banner - replace banner.jpg in project folder if you change */
@@ -160,6 +136,13 @@
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) var(--hero-mask-stop,100%), rgba(0,0,0,0) 100%);
     will-change:transform, mask-image;
   }
+  /* gold mist along hero melt line (kept) */
+  .hero-media::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:14%; pointer-events:none;
+    background: linear-gradient(180deg, rgba(var(--accent-gold), calc(var(--gold-opacity) * 0.9)), rgba(0,0,0,0)); mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    opacity:0.9;
+  }
+
   .hero-overlay{ position:absolute; inset:0; background: linear-gradient(180deg, rgba(4,6,8,0.12), rgba(4,6,8,0.46)); z-index:1 }
 
   .hero-inner{ position:relative; z-index:2; text-align:center; max-width:1100px; padding:36px 18px; margin-top:calc(var(--header-h) * 0.14) }
@@ -170,16 +153,28 @@
   .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
   .btn{ display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 14px; border-radius:6px; border:1px solid transparent; font-weight:800; font-size:14px; transition: background 160ms, transform 160ms, color 160ms; }
   .btn--primary{ background: var(--accent-muted); color:var(--text); border-color: rgba(113,12,4,0.08) }
-  .btn--primary:hover{ background: linear-gradient(0deg, rgba(113,12,4,0.20), rgba(113,12,4,0.20)); color:#fff; transform: translateY(-3px) }
+  .btn--primary:hover{ background: linear-gradient(0deg, rgba(113,12,4,0.28), rgba(113,12,4,0.28)); color:#fff; transform: translateY(-3px) }
   .btn--ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.04) }
   .btn--ghost:hover{ background: rgba(255,255,255,0.02); transform: translateY(-2px) }
 
   .magnetic{ position:relative; overflow:visible; display:inline-block } .btn-inner{ display:inline-block; transform:translate3d(0,0,0); transition:transform 260ms cubic-bezier(.2,.9,.2,1) }
 
-  .wrap{ max-width:var(--max-w); margin:0 auto; padding:28px var(--pad) 80px; }
+  .wrap{ max-width:var(--max-w); margin:0 auto; padding:28px var(--pad) 80px; position:relative; }
   section{ padding:56px 0; scroll-margin-top: calc(var(--header-h) + 8px) }
-  h2.section-title{ font-size:1.6rem; margin:0 0 12px 0; font-weight:800; color:var(--text) }
+  h2.section-title{ font-size:1.6rem; margin:0 0 12px 0; font-weight:800; color:var(--text); display:flex; align-items:center; gap:12px; }
   p.lead{ color:var(--muted); margin:0 0 12px 0 }
+
+  /* gold vertical rule to the left of section titles (A style) */
+  h2.section-title::before{
+    content:"";
+    display:inline-block;
+    width:4px;
+    height:26px;
+    background: rgba(var(--accent-gold), var(--gold-opacity));
+    border-radius:2px;
+    transform: translateY(0);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  }
 
   .card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008)); padding:18px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); box-shadow:0 10px 30px rgba(0,0,0,0.55) }
   .muted{ color:var(--muted) }
@@ -214,6 +209,41 @@
   @media (max-width:560px){
     .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
   }
+
+  /* removed diagonal pseudo-element — class preserved in markup but no visual divider */
+  /* .diag-feather (no pseudo-element) intentionally left empty to preserve markup */
+
+  /* gold baseline under product/video cards (resting baseline under card, not hover)
+     thickness preserved exactly as before; only color opacity changed */
+  .product-card::after, .video-card::after {
+    content:"";
+    display:block;
+    height:4px;
+    width:60%;
+    margin-top:12px;
+    background: rgba(var(--accent-gold), var(--gold-opacity));
+    border-radius:3px;
+    transform-origin:center;
+    opacity:1;
+    margin-left:auto; margin-right:auto;
+  }
+
+  /* ===========================
+     ABOUT SECTION: new responsive flex layout (40% image / 60% text)
+     - Slightly rounded corners on image (8px) as requested (Option B)
+     - Image is a reveal item so it loads on scroll (keeps existing reveal behavior)
+     =========================== */
+  .about-row{ display:flex; gap:28px; align-items:center; justify-content:space-between; margin-top:18px; }
+  .about-media{ flex: 0 0 40%; max-width:40%; display:block; }
+  .about-media img{ width:100%; height:auto; display:block; border-radius:8px; object-fit:cover; border:1px solid rgba(255,255,255,0.02) }
+  .about-content{ flex:1; padding-left:6px; min-width:0; } /* min-width:0 prevents overflowing text in flex children */
+
+  @media (max-width:900px){
+    .about-row{ flex-direction:column; gap:14px; }
+    .about-media{ max-width:100%; flex-basis:100% }
+    .about-content{ padding-left:0 }
+  }
+
 </style>
 </head>
 <body>
@@ -254,39 +284,9 @@
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
-
-        <!-- HAMBURGER (mobile) - NEW top-slide variant -->
-        <button id="hamburgerBtn" class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
-          <span class="lines" aria-hidden="true">
-            <span class="top"></span>
-            <span class="mid"></span>
-            <span class="bot"></span>
-          </span>
-        </button>
       </div>
     </div>
   </header>
-
-  <!-- MOBILE MENU (TOP SLIDE) -->
-  <div id="mobileMenu" aria-hidden="true">
-    <div class="backdrop" id="menuBackdrop" aria-hidden="true"></div>
-    <div class="panel" role="menu" aria-label="Mobile menu">
-      <!-- Menu content (copy/edit these links) -->
-      <nav class="mobile-links">
-        <a class="menu-link" href="index.html">Home</a>
-        <a class="menu-link" href="#about" data-target="about">About</a>
-        <a class="menu-link" href="#gallery" data-target="gallery">Gallery</a>
-        <a class="menu-link" href="#news" data-target="news">News</a>
-        <a class="menu-link" href="#newsletter" data-target="newsletter">Newsletter</a>
-        <a class="menu-link" href="#submit" data-target="submit">Share</a>
-        <a class="menu-link" href="#alumni" data-target="alumni">Alumni</a>
-        <a class="menu-link" href="#contact" data-target="contact">Contact</a>
-        <a class="menu-link" href="merch.html">Merch</a>
-        <a class="menu-link" href="sign.html">Sign Day</a>
-        <a class="menu-link" href="#extras">Extras</a>
-      </nav>
-    </div>
-  </div>
 
   <!-- HERO (top) -->
   <main>
@@ -302,9 +302,7 @@
           <span class="magnetic" data-magnetic>
             <button class="btn btn--primary" data-target="newsletter"><span class="btn-inner">Join Newsletter</span></button>
           </span>
-          <span class="magnetic" data-magnetic>
-            <button class="btn btn--ghost" data-target="submit"><span class="btn-inner">Share Memory</span></button>
-          </span>
+          <!-- Share Memory button removed per request; Join Newsletter kept -->
         </div>
 
         <div style="margin-top:12px;color:var(--muted);font-size:12px">Hint: edit the hero image file <code>banner.jpg</code> in the site folder to change the hero picture.</div>
@@ -315,24 +313,35 @@
     <div class="wrap">
 
       <!-- ===== ABOUT SECTION START ===== -->
-      <section id="about" class="reveal">
+      <section id="about" class="reveal diag-feather">
         <div class="card">
           <h2 class="section-title">About NGHSIANS</h2>
           <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
 
-          <div class="grid" style="margin-top:14px">
-            <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
-            <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
-            <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
+          <!-- New layout: image on left (40%) / content on right (60%) — content text unchanged -->
+          <div class="about-row" style="margin-top:14px;">
+            <div class="about-media reveal">
+              <!-- about.png will be loaded from project root; replace file as needed -->
+              <img src="about.png" alt="About NGHSIANS image (left)" />
+            </div>
+
+            <div class="about-content">
+              <div class="grid">
+                <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
+                <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
+                <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
+              </div>
+
+              <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
+            </div>
           </div>
 
-          <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
         </div>
       </section>
       <!-- ===== ABOUT SECTION END ===== -->
 
       <!-- ===== GALLERY SECTION START ===== -->
-      <section id="gallery" class="reveal" style="margin-top:18px;">
+      <section id="gallery" class="reveal diag-feather" style="margin-top:18px;">
         <h2 class="section-title">Gallery</h2>
         <div class="card">
           <p class="muted">Click any image to preview larger.</p>
@@ -353,7 +362,7 @@
       <!-- ===== GALLERY SECTION END ===== -->
 
       <!-- ===== NEWS SECTION START ===== -->
-      <section id="news" class="reveal" style="margin-top:18px">
+      <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         <div class="card">
           <div class="news-grid" style="margin-top:12px">
@@ -368,7 +377,7 @@
       <!-- ===== NEWS SECTION END ===== -->
 
       <!-- ===== NEWSLETTER SECTION START ===== -->
-      <section id="newsletter" class="reveal" style="margin-top:18px">
+      <section id="newsletter" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">Newsletter</h2>
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
@@ -492,9 +501,6 @@
   const header = document.getElementById('siteHeader');
   const navLinks = Array.from(document.querySelectorAll('.nav-link'));
   const brandBtn = document.getElementById('brandBtn');
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuBackdrop = document.getElementById('menuBackdrop');
   const pageWipe = document.getElementById('pageWipe');
   const heroMedia = document.getElementById('heroMedia');
   const heroSection = document.getElementById('home');
@@ -521,7 +527,6 @@
   function smoothTo(id){
     const target = document.getElementById(id);
     if(!target) return;
-    closeMobileMenu(); // ensure mobile menu closed
     showWipe(()=> {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       history.replaceState(null, '', '#' + id);
@@ -550,46 +555,6 @@
       smoothTo(id);
     });
   });
-
-  /* ===========================
-     NEW MOBILE MENU logic (top slide)
-     - slides down from top; locks body scroll; backdrop clickable
-     - implemented cleanly to avoid earlier hidden-because-of-z-index bugs
-     =========================== */
-  function openMobileMenu(){
-    if(!mobileMenu) return;
-    mobileMenu.classList.add('open');
-    hamburgerBtn.classList.add('open');
-    hamburgerBtn.setAttribute('aria-expanded','true');
-    document.body.classList.add('menu-open');
-  }
-  function closeMobileMenu(){
-    if(!mobileMenu) return;
-    mobileMenu.classList.remove('open');
-    hamburgerBtn.classList.remove('open');
-    hamburgerBtn.setAttribute('aria-expanded','false');
-    document.body.classList.remove('menu-open');
-  }
-  window.closeMobileMenu = closeMobileMenu;
-
-  if(hamburgerBtn) hamburgerBtn.addEventListener('click', ()=> { const opened = mobileMenu.classList.contains('open'); if(opened) closeMobileMenu(); else openMobileMenu(); });
-  if(menuBackdrop) menuBackdrop.addEventListener('click', ()=> closeMobileMenu());
-  // close menu when any mobile link clicked
-  document.querySelectorAll('.menu-link').forEach(ml => ml.addEventListener('click', function(e){
-    // If link is an internal anchor, let smoothTo handle navigation & wipe
-    const href = (this.getAttribute('href') || '').trim();
-    if(href.startsWith('#')){
-      e.preventDefault();
-      const id = href.slice(1);
-      smoothTo(id);
-      return;
-    }
-    // For normal links (merch, sign.html, index.html) we show wipe then navigate
-    e.preventDefault();
-    const url = href;
-    closeMobileMenu();
-    showWipe(()=> { window.location.href = url; });
-  }));
 
   /* ===========================
      Header: transparent over hero, solid on scroll
@@ -686,7 +651,7 @@
   /* ===========================
      Accessibility / keyboard
      =========================== */
-  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeMobileMenu(); closeModal(); } });
+  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeModal(); } });
 
   /* Brand click -> home with wipe */
   brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });
