@@ -128,7 +128,6 @@
 </head>
 <body>
 
-  <!-- PAGE WIPE -->
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
@@ -136,7 +135,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
   <header id="siteHeader">
     <div class="header-grid" role="navigation" aria-label="Main header">
       <div class="nav-left" id="navLeft">
@@ -164,14 +162,7 @@
       <h1 class="page-title">Sign Day — Films</h1>
       <p class="muted">Click a card to play the video inline. Videos are embedded from YouTube (no storage required).</p>
 
-      <!-- VIDEOS GRID -->
       <div id="videosGrid" class="videos-grid">
-        <!--
-          To add a new video:
-          1) Duplicate this .video-card block.
-          2) Replace data-video-id with the YouTube ID (the value after v= in YouTube URL).
-          3) Update title/desc/duration accordingly.
-        -->
         <div class="video-card reveal" data-video-id="RyxnEuFfzxU"> 
           <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 1" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
             <img src="https://img.youtube.com/vi/RyxnEuFfzxU/hqdefault.jpg" alt="Batch 25 & NGHS 58 thumbnail">
@@ -215,13 +206,13 @@
         </div>
       </div>
 
-      <div style="margin-top:18px;color:var(--muted);font-size:13px">Hint: duplicate a <code>.video-card</code> block and update <code>data-video-id</code> and thumbnail URL to add more videos.</div>
-    </div>
+      </div>
   </main>
 
   <footer>
     <div style="max-width:var(--max-w);margin:0 auto;padding:18px var(--pad) 60px;text-align:center;color:var(--muted);font-size:14px">
       © NGHSIANS — Nasirabad Government High School • Built with ♥
+      <div style="margin-top:6px;color:var(--text);font-weight:600;">In developing by Umair Hoque Chowdhury</div>
     </div>
   </footer>
 

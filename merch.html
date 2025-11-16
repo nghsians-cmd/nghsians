@@ -95,7 +95,7 @@
   .access-row input{ padding:12px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text); min-width:240px; }
   .access-row button{ padding:12px 14px; border-radius:6px; border:1px solid transparent; background:var(--accent-muted); color:var(--text); font-weight:800; cursor:pointer; }
 
-  .hint{ color:var(--muted); margin-top:12px; font-size:13px }
+  /* .hint removed as per user request */
 
   .merch-area{ opacity:0; transform: translateY(8px); transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms; pointer-events:none; margin-top:8px; }
   .merch-area.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
@@ -128,7 +128,6 @@
 </head>
 <body>
 
-  <!-- PAGE WIPE -->
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
@@ -136,7 +135,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
   <header id="siteHeader">
     <div class="header-grid" role="navigation" aria-label="Main header">
       <div class="nav-left" id="navLeft">
@@ -161,7 +159,6 @@
     </div>
   </header>
 
-  <!-- MAIN (coming soon + merch preview) -->
   <main>
     <div class="container">
       <div class="coming-wrap">
@@ -174,8 +171,7 @@
               <button type="submit">Enter</button>
             </div>
           </form>
-          <div class="hint">Only authorized team members can preview merch. Enter code and press Enter.</div>
-        </div>
+          </div>
       </div>
 
       <div id="merchArea" class="merch-area" aria-hidden="true">
@@ -185,7 +181,6 @@
         </div>
 
         <div id="productsGrid" class="products-grid">
-          <!-- 6 product cards (placeholder "Product Image") -->
           <div class="product-card" data-hidden="true">
             <div class="product-image" aria-hidden="true">Product Image</div>
             <div class="product-meta"><div class="product-title">NGHSIANS Tee — Sample</div><div class="product-price">৳ 450</div></div>
@@ -229,12 +224,16 @@
           </div>
         </div>
 
-        <footer style="margin-top:20px"><div style="color:var(--muted);font-size:13px">Tip: copy a .product-card to add more items. Replace "Product Image" area with your images.</div></footer>
-      </div>
+        </div>
     </div>
   </main>
 
-  <footer style="text-align:center;color:var(--muted);padding:20px 0 48px">© NGHSIANS — Nasirabad Government High School • Built with ♥</footer>
+  <footer>
+    <div style="max-width:var(--max-w);margin:0 auto;padding:18px var(--pad) 60px;text-align:center;color:var(--muted);font-size:14px">
+      © NGHSIANS — Nasirabad Government High School • Built with ♥
+      <div style="margin-top:6px;color:var(--text);font-weight:600;">In developing by Umair Hoque Chowdhury</div>
+    </div>
+  </footer>
 
 <script>
 (function(){

@@ -6,7 +6,6 @@
 <title>NGHSIANS — Nasirabad Government High School</title>
 <meta name="description" content="NGHSIANS — community site (dark editorial minimal UI). Place logo.png and banner.jpg in same folder." />
 
-<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -115,14 +114,7 @@
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
   /* ===========================
-     (HAMBURGER REMOVED)
-     All hamburger + mobile menu code intentionally deleted per request.
-     =========================== */
-
-  /* ===========================
      HERO + rest
-     - hero background now points to banner.jpg as requested
-     - ensure hero sits above grain (hero clean)
      =========================== */
   .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible; z-index:20; }
   .hero-media{
@@ -150,6 +142,12 @@
   @media (max-width:520px){ .hero-title{ font-size:2.2rem } }
   .hero-sub{ color:var(--muted); margin-top:12px; font-size:1.02rem; max-width:820px; margin-left:auto;margin-right:auto }
 
+  /* Hero Social Icons */
+  .hero-socials{ margin-top:20px; display:flex; gap:18px; justify-content:center; }
+  .social-icon-link{ display:inline-flex; width:30px; height:30px; transition:transform 160ms ease; }
+  .social-icon-link:hover{ transform:scale(1.15) }
+  .social-icon-link svg{ stroke:var(--text); width:100%; height:100%; }
+
   .hero-ctas{ display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
   .btn{ display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 14px; border-radius:6px; border:1px solid transparent; font-weight:800; font-size:14px; transition: background 160ms, transform 160ms, color 160ms; }
   .btn--primary{ background: var(--accent-muted); color:var(--text); border-color: rgba(113,12,4,0.08) }
@@ -163,6 +161,9 @@
   section{ padding:56px 0; scroll-margin-top: calc(var(--header-h) + 8px) }
   h2.section-title{ font-size:1.6rem; margin:0 0 12px 0; font-weight:800; color:var(--text); display:flex; align-items:center; gap:12px; }
   p.lead{ color:var(--muted); margin:0 0 12px 0 }
+  
+  /* Gold text for hero title part */
+  .accent-title-part{ color:rgba(var(--accent-gold),1); }
 
   /* gold vertical rule to the left of section titles (A style) */
   h2.section-title::before{
@@ -183,6 +184,33 @@
   @media (max-width:1100px){ .grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .grid{ grid-template-columns:1fr } }
 
+  /* --- NEW CSS FOR ABOUT SECTION --- */
+  .about-grid{
+    display:grid;
+    grid-template-columns: 0.8fr 1.2fr; /* 40% image, 60% content */
+    gap: 24px;
+    align-items: center; /* vertically center aligns content with image */
+  }
+  .about-image-wrap{
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.02);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+  }
+  .about-image-wrap img{
+    width:100%;
+    height:auto;
+    object-fit:cover;
+  }
+  /* Responsive stack */
+  @media (max-width: 900px){
+    .about-grid{
+      grid-template-columns: 1fr; /* Stack on mobile */
+      gap: 20px;
+    }
+  }
+  /* --- END NEW CSS --- */
+
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
   @media (max-width:900px){ .media-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:460px){ .media-grid{ grid-template-columns:1fr } }
@@ -195,10 +223,50 @@
   .news-grid{ display:grid; gap:12px; grid-template-columns: repeat(2,1fr) }
   @media (max-width:900px){ .news-grid{ grid-template-columns:1fr } }
   .news-item{ padding:14px; border-radius:6px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008)); border:1px solid rgba(255,255,255,0.02) }
+  
+  /* --- NEW CSS FOR NEWS SECTION (OPTION A) --- */
+  .news-layout-grid{
+    display:grid;
+    grid-template-columns: 1.8fr 0.8fr; /* ~70% / 30% split */
+    gap: 20px;
+  }
+  .news-main-story img{
+    width:100%;
+    height:auto;
+    border-radius:6px;
+    margin-bottom:12px;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .news-sidebar-box{
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008));
+    border: 1px solid rgba(255,255,255,0.02);
+    border-radius: 6px;
+    padding: 14px;
+    height: 100%; /* Fill the grid cell */
+  }
+  /* Responsive stack */
+  @media (max-width: 800px){
+    .news-layout-grid{
+      grid-template-columns: 1fr; /* Stack on mobile */
+      gap: 20px;
+    }
+  }
+  /* --- END NEW CSS --- */
 
   .alumni-grid{ display:grid; gap:12px; grid-template-columns: repeat(3,1fr) }
   @media (max-width:1100px){ .alumni-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .alumni-grid{ grid-template-columns:1fr } }
+
+  .socials-above-footer{
+    max-width:var(--max-w);
+    margin:0 auto;
+    padding:0 var(--pad) 20px;
+    display:flex;
+    gap:24px;
+    justify-content:center;
+    border-top:1px solid rgba(255,255,255,0.03);
+    padding-top:20px;
+  }
 
   footer{ padding:36px 20px; color:var(--muted); text-align:center }
 
@@ -209,9 +277,6 @@
   @media (max-width:560px){
     .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
   }
-
-  /* removed diagonal pseudo-element — class preserved in markup but no visual divider */
-  /* .diag-feather (no pseudo-element) intentionally left empty to preserve markup */
 
   /* gold baseline under product/video cards (resting baseline under card, not hover)
      thickness preserved exactly as before; only color opacity changed */
@@ -232,7 +297,6 @@
 </head>
 <body>
 
-  <!-- PAGE WIPE (cinematic) -->
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
@@ -242,25 +306,19 @@
     </div>
   </div>
 
-  <!-- HEADER: left nav | center brand | right nav -->
   <header id="siteHeader" class="">
     <div class="header-grid" role="navigation" aria-label="Main header">
-      <!-- LEFT NAV -->
       <div class="nav-left" id="navLeft">
-        <!-- EDIT: add/remove left nav links here -->
         <a class="nav-link" href="#about" data-target="about">About</a>
         <a class="nav-link" href="#gallery" data-target="gallery">Gallery</a>
         <a class="nav-link" href="#news" data-target="news">News</a>
       </div>
 
-      <!-- CENTER BRAND -->
       <div class="brand-center" id="brandBtn" aria-label="Home (brand)">
-        <!-- Replace with <img src="..." alt=""> for different logo -->
         <div class="brand-logo" id="brandLogo"><img src="logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
         <div class="brand-title">NGHSIANS</div>
       </div>
 
-      <!-- RIGHT NAV -->
       <div class="nav-right" id="navRight">
         <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="#submit" data-target="submit">Share</a>
@@ -272,57 +330,61 @@
     </div>
   </header>
 
-  <!-- HERO (top) -->
   <main>
     <section id="home" class="hero" aria-label="Home hero">
-      <div class="hero-media" id="heroMedia" aria-hidden="true"></div> <!-- uses banner.jpg -->
-      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-media" id="heroMedia" aria-hidden="true"></div> <div class="hero-overlay" aria-hidden="true"></div>
 
       <div class="hero-inner reveal is-visible" style="transition-delay:60ms">
-        <h1 class="hero-title">Once a NGHSIAN — Always a NGHSIAN</h1>
+        <h1 class="hero-title">Once an <span class="accent-title-part">NGHSIANS</span> — Always an <span class="accent-title-part">NGHSIANS</span></h1>
         <p class="hero-sub">A timeless bond connecting students, memories, and legacy of Nasirabad Government High School.</p>
+
+        <div class="hero-socials">
+          <a href="#" target="_blank" class="social-icon-link" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+          </a>
+          <a href="#" target="_blank" class="social-icon-link" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+          </a>
+          <a href="#" target="_blank" class="social-icon-link" aria-label="YouTube">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .5 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15 15.5 11.75 9.75 8.5 9.75 15"></polygon></svg>
+          </a>
+        </div>
 
         <div class="hero-ctas" style="margin-top:20px">
           <span class="magnetic" data-magnetic>
             <button class="btn btn--primary" data-target="newsletter"><span class="btn-inner">Join Newsletter</span></button>
           </span>
-          <span class="magnetic" data-magnetic>
-            <button class="btn btn--ghost" data-target="submit"><span class="btn-inner">Share Memory</span></button>
-          </span>
         </div>
-
-        <div style="margin-top:12px;color:var(--muted);font-size:12px">Hint: edit the hero image file <code>banner.jpg</code> in the site folder to change the hero picture.</div>
       </div>
     </section>
 
-    <!-- WRAPPER: ALL SECTIONS BELOW (keeps existing content intact) -->
     <div class="wrap">
 
-      <!-- ===== ABOUT SECTION START ===== -->
       <section id="about" class="reveal diag-feather">
         <div class="card">
-          <h2 class="section-title">About NGHSIANS</h2>
-          <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
+          <div class="about-grid">
+            <div class="about-image-wrap reveal">
+              <img src="about.png" alt="About NGHSIANS">
+            </div>
+            <div class="about-content-wrap">
+              <h2 class="section-title">About NGHSIANS</h2>
+              <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
 
-          <div class="grid" style="margin-top:14px">
-            <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
-            <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
-            <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
+              <div class="grid" style="margin-top:14px">
+                <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
+                <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
+                <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
+              </div>
+            </div>
           </div>
-
-          <div class="hint">Hint: copy inner <code>&lt;div class="card"&gt;</code> to add items to the grid.</div>
         </div>
       </section>
-      <!-- ===== ABOUT SECTION END ===== -->
-
-      <!-- ===== GALLERY SECTION START ===== -->
       <section id="gallery" class="reveal diag-feather" style="margin-top:18px;">
         <h2 class="section-title">Gallery</h2>
         <div class="card">
           <p class="muted">Click any image to preview larger.</p>
 
           <div class="media-grid" style="margin-top:14px">
-            <!-- START: gallery item (copy to add more) -->
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh1/900/600" alt="Memory 1"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh2/900/600" alt="Memory 2"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh3/900/600" alt="Memory 3"></div>
@@ -330,94 +392,87 @@
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh5/900/600" alt="Memory 5"></div>
             <div class="gallery-item reveal" onclick="openModal(this)"><img src="https://picsum.photos/seed/ngh6/900/600" alt="Memory 6"></div>
           </div>
-
-          <div class="hint">Hint: replace <code>src</code> with your images or copy a gallery block to add more.</div>
         </div>
       </section>
-      <!-- ===== GALLERY SECTION END ===== -->
-
-      <!-- ===== NEWS SECTION START ===== -->
       <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         <div class="card">
-          <div class="news-grid" style="margin-top:12px">
-            <div class="news-item reveal"><strong>Batch 2005 Reunion — Planning</strong><div class="muted" style="margin-top:6px">Organizers finalizing the date — subscribe to be notified.</div></div>
-            <div class="news-item reveal"><strong>Student Spotlight</strong><div class="muted" style="margin-top:6px">District science fair winners — congrats!</div></div>
-            <div class="news-item reveal"><strong>Alumni Talk Series</strong><div class="muted" style="margin-top:6px">Monthly virtual sessions with alumni guests.</div></div>
-            <div class="news-item reveal"><strong>Fundraiser</strong><div class="muted" style="margin-top:6px">Support school facilities — merch & donation options soon.</div></div>
+          <div class="news-layout-grid" style="margin-top:12px">
+            <div class="news-main-story reveal">
+              <img src="launchnews.jpg" alt="NGHSIANS Website Launch">
+              <div style="font-size:1.05rem;font-weight:600;line-height:1.4;margin-top:8px;">
+                NGHSIANS and নাসিরাবাদিয়ানস্ launch a stunning first website for the community
+              </div>
+              <div class="muted" style="font-size:13px;margin-top:6px;">Posted: 15 Nov 2025</div>
+            </div>
+            
+            <div class="news-sidebar reveal">
+              <div class="news-sidebar-box">
+                <strong style="font-size:1.1rem;">NNN: No New News</strong>
+                <div class="muted" style="margin-top:8px;font-size:14px;">Check back later for more updates, event info, and spotlights.</div>
+              </div>
+            </div>
           </div>
-          <div class="hint">Hint: copy a <code>&lt;div class="news-item"&gt;</code> block to add news.</div>
         </div>
       </section>
-      <!-- ===== NEWS SECTION END ===== -->
-
-      <!-- ===== NEWSLETTER SECTION START ===== -->
       <section id="newsletter" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">Newsletter</h2>
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
 
-          <form onsubmit="subscribeNews(event)" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
-            <input required id="email" type="email" placeholder="Email address" style="flex:1;min-width:220px;padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
-            <div style="display:flex;gap:10px">
+          <form onsubmit="subscribeNews(event)" style="margin-top:12px;display:grid;gap:10px">
+            <input required id="email" type="email" placeholder="Email address" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
+            <input id="name" type="text" placeholder="Your Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
+            <input id="phone" type="tel" placeholder="Phone Number (Optional)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
+            <input id="batch" type="text" placeholder="Batch/Year (e.g., 2012)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
+            
+            <div style="display:flex;gap:10px;margin-top:4px;">
               <span class="magnetic" data-magnetic><button class="btn btn--primary" type="submit"><span class="btn-inner">Subscribe</span></button></span>
-              <span class="magnetic" data-magnetic><button class="btn btn--ghost" type="button" data-target="submit"><span class="btn-inner">Share Memory</span></button></span>
+              <span class="magnetic" data-magnetic><button class="btn btn--ghost" type="button" data-target="submit" disabled><span class="btn-inner">Share Memory</span></button></span>
             </div>
           </form>
 
           <div id="sub-response" class="muted" style="margin-top:10px"></div>
-          <div class="hint">Hint: integrate your mailing provider by updating <code>subscribeNews</code> in JS.</div>
         </div>
       </section>
-      <!-- ===== NEWSLETTER SECTION END ===== -->
-
-      <!-- ===== SUBMIT SECTION START ===== -->
       <section id="submit" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Share Your Memory</h2>
         <div class="card">
-          <p class="muted">Send photos & stories — we will curate and credit you (or post anonymously).</p>
-
-          <form onsubmit="submitMemory(event)" style="margin-top:12px;display:grid;gap:10px">
+          <p class="lead muted" style="text-align:center;font-size:1.1rem;padding:20px;">
+              <strong style="color:var(--text)">Coming Soon.</strong> We're setting up the storage for your precious memories!
+          </p>
+          <form onsubmit="submitMemory(event)" style="display:none;margin-top:12px;gap:10px">
             <input required id="batch" type="text" placeholder="Your batch/year (e.g., 2012)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <input required id="contact_email" type="email" placeholder="Your email (for confirmation)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <textarea required id="story" placeholder="Tell the story..." style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)"></textarea>
-            <!-- NOTE: For file uploads add <input type="file"> and wire backend -->
             <div style="display:flex;gap:10px">
               <span class="magnetic" data-magnetic><button class="btn btn--primary" type="submit"><span class="btn-inner">Send Memory</span></button></span>
               <button class="btn btn--ghost" type="reset">Reset</button>
             </div>
             <div id="send-response" class="muted" style="margin-top:8px"></div>
           </form>
-
-          <div class="hint">Hint: see <code>submitMemory</code> in JS to connect backend.</div>
         </div>
       </section>
-      <!-- ===== SUBMIT SECTION END ===== -->
-
-      <!-- ===== ALUMNI SECTION START ===== -->
       <section id="alumni" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Alumni & Students</h2>
         <div class="card">
-          <p class="muted">Featured alumni, batch highlights, mentoring opportunities.</p>
-
-          <div class="alumni-grid" style="margin-top:12px">
+          <p class="lead muted" style="text-align:center;font-size:1.1rem;padding:20px;">
+              <strong style="color:var(--text)">Coming Soon.</strong> We are curating the initial alumni database.
+          </p>
+          <div class="alumni-grid" style="display:none;margin-top:12px">
             <div class="card reveal"><strong>Alumnus — Name</strong><div class="muted" style="margin-top:6px">Short bio & achievements.</div></div>
             <div class="card reveal"><strong>Student of the Month</strong><div class="muted" style="margin-top:6px">Recognized for achievements.</div></div>
             <div class="card reveal"><strong>Batch Feature</strong><div class="muted" style="margin-top:6px">Stories & interviews.</div></div>
           </div>
-
-          <div class="hint">Hint: copy an Alumni card to add more.</div>
         </div>
       </section>
-      <!-- ===== ALUMNI SECTION END ===== -->
-
-      <!-- ===== CONTACT SECTION START ===== -->
       <section id="contact" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Contact & Collaborate</h2>
         <div class="card">
-          <p class="muted">For collaborations, press, or events — reach out.</p>
-
-          <form onsubmit="contactUs(event)" style="margin-top:12px;display:grid;gap:10px">
+          <p class="lead muted" style="font-size:1.1rem;line-height:1.6;text-align:center;">
+            Email <a href="mailto:nghsians@gmail.com" style="color:rgba(var(--accent-gold),1);font-weight:600;">nghsians@gmail.com</a> or DM <a href="https://www.instagram.com/nghsians/" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">@nghsians Instagram</a> or <a href="#" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">নাসিরাবাদিয়ানস্ Facebook</a>.
+          </p>
+          <form onsubmit="contactUs(event)" style="display:none;margin-top:12px;gap:10px">
             <input required id="cname" type="text" placeholder="Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <input required id="cemail" type="email" placeholder="Email" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
             <input id="subject" type="text" placeholder="Subject" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
@@ -428,39 +483,41 @@
             </div>
             <div id="contact-response" class="muted" style="margin-top:8px"></div>
           </form>
-
-          <div class="hint">Hint: edit <code>contactUs</code> in JS to forward messages to email/Sheets.</div>
         </div>
       </section>
-      <!-- ===== CONTACT SECTION END ===== -->
-
-      <!-- ===== EXTRAS SECTION START ===== -->
       <section id="extras" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Extras</h2>
         <div class="card">
-          <p class="muted">Memes, maps, and fundraising.</p>
+          <p class="muted">Campus landmarks and location.</p>
           <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-            <!-- NOTE: 'Merch' removed from here per request; merch is now a top-level nav item -->
-            <div class="card" style="min-width:160px"><strong>Meme Corner</strong><div class="muted" style="margin-top:6px">Student-era memes & trends.</div></div>
-            <div class="card" style="min-width:160px"><strong>School Map</strong><div class="muted" style="margin-top:6px">Campus landmarks & maps.</div></div>
-            <div class="card" style="min-width:160px"><strong>Fundraising</strong><div class="muted" style="margin-top:6px">Support & donation info.</div></div>
+            <div class="card" style="min-width:100%;padding:0;">
+              <strong>School Map</strong>
+              <div class="muted" style="margin-top:6px">Find Nasirabad Government High School.</div>
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3689.508542918451!2d91.80205831539209!3d22.34863954716949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30acd88b5e2f170f%3A0x8673327d4c20f187!2sNasirabad%20Government%20High%20School!5e0!3m2!1sen!2sbd!4v1679000000000!5m2!1sen!2sbd" width="100%" height="450" style="border:0;border-radius:6px;margin-top:14px;filter: grayscale(100%) invert(98%) hue-rotate(180deg);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
           </div>
-          <div class="hint">Hint: copy Extras blocks to expand offerings.</div>
         </div>
       </section>
-      <!-- ===== EXTRAS SECTION END ===== -->
+      </div> </main>
 
-    </div> <!-- /wrap -->
-  </main>
-
-  <!-- FOOTER -->
+  <div class="socials-above-footer">
+    <a href="#" target="_blank" class="social-icon-link" aria-label="Instagram">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="#" target="_blank" class="social-icon-link" aria-label="Facebook">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="#" target="_blank" class="social-icon-link" aria-label="YouTube">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .5 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15 15.5 11.75 9.75 8.5 9.75 15"></polygon></svg>
+    </a>
+  </div>
   <footer>
     <div style="max-width:var(--max-w);margin:0 auto;padding:18px var(--pad) 60px;text-align:center;color:var(--muted);font-size:14px">
       © NGHSIANS — Nasirabad Government High School • Built with ♥
+      <div style="margin-top:6px;color:var(--text);font-weight:600;">In developing by Umair Hoque Chowdhury</div>
     </div>
   </footer>
 
-  <!-- IMAGE MODAL -->
   <div id="modal" style="display:none;position:fixed;inset:0;z-index:3000;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(2,2,2,0.7), rgba(2,2,2,0.9));">
     <div style="max-width:1100px;width:94%;background:var(--panel);padding:12px;border-radius:8px;">
       <button style="background:transparent;border:none;color:var(--text);font-size:18px;float:right" onclick="closeModal()">✕</button>
@@ -479,6 +536,12 @@
   const pageWipe = document.getElementById('pageWipe');
   const heroMedia = document.getElementById('heroMedia');
   const heroSection = document.getElementById('home');
+
+  /* ===========================
+     Brevo API Configuration
+     =========================== */
+  const BREVO_API_KEY = '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';
+  const BREVO_LIST_ID = 2;
 
   /* ===========================
      Page wipe helper (plays on load and nav)
@@ -594,11 +657,78 @@
   document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
 
   /* ===========================
-     Demo form handlers
+     Live Brevo Form Handler
      =========================== */
-  window.subscribeNews = function(e){ e.preventDefault(); const email = document.getElementById('email') ? document.getElementById('email').value : ''; document.getElementById('sub-response').textContent = `Subscribed (demo): ${email}`; e.target.reset(); };
-  window.submitMemory = function(e){ e.preventDefault(); const batch = document.getElementById('batch') ? document.getElementById('batch').value : ''; document.getElementById('send-response').textContent = `Memory received from ${batch} (demo).`; e.target.reset(); };
-  window.contactUs = function(e){ e.preventDefault(); const name = document.getElementById('cname') ? document.getElementById('cname').value : ''; document.getElementById('contact-response').textContent = `Thanks ${name} (demo).`; e.target.reset(); };
+  window.subscribeNews = function(e){
+    e.preventDefault();
+    const form = e.target;
+    const email = document.getElementById('email') ? document.getElementById('email').value : '';
+    const name = document.getElementById('name') ? document.getElementById('name').value : '';
+    const phone = document.getElementById('phone') ? document.getElementById('phone').value : '';
+    const batch = document.getElementById('batch') ? document.getElementById('batch').value : '';
+    const responseEl = document.getElementById('sub-response');
+    responseEl.textContent = 'Subscribing...';
+    responseEl.style.color = 'var(--muted)';
+
+    // Check for a valid email before API call
+    if (!email) {
+      responseEl.style.color = '#FF6060';
+      responseEl.textContent = 'Please provide an email address.';
+      return;
+    }
+
+    const url = 'https://api.brevo.com/v3/contacts';
+    
+    const data = {
+      email: email,
+      listIds: [BREVO_LIST_ID],
+      updateEnabled: true,
+      attributes: {
+        // NOTE: Brevo requires custom attributes to be created in their dashboard. 
+        // These keys (NAME, PHONE, BATCH) are used as standard assumptions.
+        NAME: name,
+        PHONE: phone,
+        BATCH: batch
+      }
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': BREVO_API_KEY
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (res.ok || res.status === 201 || res.status === 204) {
+        responseEl.style.color = 'rgba(var(--accent-gold), 1)';
+        responseEl.textContent = `Success! ${name || 'You'} have been subscribed. Check your email for a welcome message.`;
+        form.reset();
+      } else {
+        // Handle error response (e.g., already subscribed, invalid email, API key error)
+        return res.json().then(errorData => {
+          const msg = errorData.message || 'An unknown error occurred.';
+          responseEl.style.color = '#FF6060';
+          responseEl.textContent = `Subscription failed: ${msg.includes('already exists') ? 'This email is already subscribed.' : msg.includes('Invalid') ? 'Invalid Email or API Key.' : msg}`;
+        });
+      }
+    })
+    .catch(err => {
+      responseEl.style.color = '#FF6060';
+      responseEl.textContent = 'Network error. Please try again later.';
+      console.error('Brevo API error:', err);
+    });
+  };
+
+  /* ===========================
+     Demo form handlers (for hidden forms)
+     =========================== */
+  // The memory form is hidden, so this is just a fallback to prevent error
+  window.submitMemory = function(e){ e.preventDefault(); document.getElementById('send-response').textContent = `Feature Coming Soon.`; e.target.reset(); };
+  // The contact form is hidden, so this is just a fallback to prevent error
+  window.contactUs = function(e){ e.preventDefault(); document.getElementById('contact-response').textContent = `Please use the listed email or social media handles for now.`; e.target.reset(); };
 
   /* ===========================
      HERO MELT (mask) EFFECT
