@@ -300,6 +300,33 @@
       gap: 20px;
     }
   }
+
+  /* --- ADDED CSS FOR COLLAPSIBLE CONTENT --- */
+  .collapsible-content-wrap{
+    height: 220px; /* Initial height limit */
+    overflow: hidden;
+    position: relative;
+    transition: height 500ms ease-in-out;
+  }
+  .collapsible-content-wrap.expanded{
+    height: auto;
+  }
+  .collapsible-content-wrap::after{
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    background: linear-gradient(0deg, var(--bg) 0%, rgba(8,9,10,0) 100%);
+    opacity: 1;
+    transition: opacity 500ms ease-in-out;
+  }
+  .collapsible-content-wrap.expanded::after{
+    opacity: 0;
+  }
+  /* --- END ADDED CSS --- */
   /* --- END NEW CSS --- */
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
@@ -438,7 +465,7 @@
         <p class="hero-sub">A timeless bond connecting students, memories, and legacy of Nasirabad Government High School.</p>
 
         <div class="hero-socials">
-          <a href="https://instagram.com/@nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
+          <a href="https://instagram.com/nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
           </a>
           <a href="https://facebook.com/NasirabadBoys" target="_blank" class="social-icon-link" aria-label="Facebook">
@@ -466,15 +493,31 @@
               <img src="about.png" alt="About NGHSIANS">
             </div>
             <div class="about-content-wrap">
-              <h2 class="section-title">About NGHSIANS</h2>
+              <h2 class="section-title">About Nasirabad Government High School</h2>
               <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
 
               <div class="grid" style="margin-top:14px">
-                <div class="card reveal"><strong>Origin</strong><div class="muted" style="margin-top:8px">Started as an Instagram page to reconnect batches and share archival photos.</div></div>
-                <div class="card reveal"><strong>Mission</strong><div class="muted" style="margin-top:8px">Keep memories alive and build an alumni network.</div></div>
-                <div class="card reveal"><strong>Reunions</strong><div class="muted" style="margin-top:8px">Sign up for batch meetups and special events.</div></div>
+                <div class="card reveal"><strong>History</strong><div class="muted" style="margin-top:8px">Founded in 1941, NGHSIANS honors the rich history and traditions of Nasirabad Government High School.</div></div>
+                <div class="card reveal"><strong>Vision</strong><div class="muted" style="margin-top:8px">To keep memories alive, foster strong school spirit, and build a powerful, connected global alumni network.</div></div>
               </div>
-            </div>
+
+              <div id="collapsibleContent" class="collapsible-content-wrap" style="margin-top: 14px;">
+                <div class="collapsible-content">
+                  <p class="muted"><strong>Campus and Facilities:</strong> Nasirabad Government High School boasts a beautiful campus with modern facilities, including well-equipped science labs, a vast library, and dedicated spaces for co-curricular activities. The school environment is designed to nurture academic excellence and holistic development, preparing students for success in higher education and beyond.</p>
+                  <p class="muted"><strong>Sports and Clubs:</strong> We encourage participation in various sports like football, cricket, and athletics, fostering teamwork and discipline. Our active clubs, including Debate, Science, and Cultural Societies, provide platforms for students to explore their interests and develop leadership skills, broadening their horizons beyond the classroom.</p>
+                  <p class="muted"><strong>Community Outreach:</strong> Committed to social responsibility, we regularly organize community service events, allowing students to contribute positively to society and understand the importance of civic engagement, instilling values of empathy and service.</p>
+                  <p class="muted">This extensive information is currently hidden but will expand on click.</p>
+                </div>
+              </div>
+
+              <div style="text-align:center; margin-top: 14px;">
+                <span class="magnetic" data-magnetic>
+                  <button class="btn btn--ghost see-more-btn" id="seeMoreBtn" aria-expanded="false" aria-controls="collapsibleContent">
+                    <span class="btn-inner">See More</span>
+                  </button>
+                </span>
+              </div>
+              </div>
           </div>
         </div>
       </section>
@@ -569,7 +612,7 @@
         <h2 class="section-title">Contact & Collaborate</h2>
         <div class="card">
           <p class="lead muted" style="font-size:1.1rem;line-height:1.6;text-align:center;">
-            Email <a href="mailto:nghsians@gmail.com" style="color:rgba(var(--accent-gold),1);font-weight:600;">nghsians@gmail.com</a> or DM <a href="https://instagram.com/@nghsians" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">@nghsians Instagram</a> or <a href="https://facebook.com/NasirabadBoys" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">নাসিরাবাদিয়ানস্ Facebook</a>.
+            Email <a href="mailto:nghsians@gmail.com" style="color:rgba(var(--accent-gold),1);font-weight:600;">nghsians@gmail.com</a> or DM <a href="https://instagram.com/nghsians" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">@nghsians Instagram</a> or <a href="https://facebook.com/NasirabadBoys" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">নাসিরাবাদিয়ানস্ Facebook</a>.
           </p>
           <form onsubmit="contactUs(event)" style="display:none;margin-top:12px;gap:10px">
             <input required id="cname" type="text" placeholder="Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
@@ -600,7 +643,7 @@
       </div> </main>
 
   <div class="socials-above-footer">
-    <a href="https://instagram.com/@nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
+    <a href="https://instagram.com/nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
     </a>
     <a href="https://facebook.com/NasirabadBoys" target="_blank" class="social-icon-link" aria-label="Facebook">
@@ -896,6 +939,75 @@
     updateMask();
   })();
 
+  /* ===========================
+     Collapsible Content (See More/Less)
+     =========================== */
+  (function collapsibleContent(){
+    const wrap = document.getElementById('collapsibleContent');
+    const content = wrap ? wrap.querySelector('.collapsible-content') : null;
+    const btn = document.getElementById('seeMoreBtn');
+    if(!wrap || !content || !btn) return;
+
+    let isExpanded = false;
+    let fullHeight = 0;
+
+    // Calculate the full height of the content element
+    function calculateHeight() {
+      // Temporarily remove constraints to get true content height
+      wrap.style.height = 'auto';
+      wrap.style.removeProperty('overflow');
+      fullHeight = content.offsetHeight;
+      
+      // Check if content is actually longer than the limit (220px)
+      if (fullHeight <= 220) {
+        // If content is short, hide the button and ensure no visual fade is applied
+        btn.style.display = 'none';
+        wrap.style.removeProperty('height');
+        wrap.classList.remove('collapsible-content-wrap'); // remove class that applies the :after fade
+        return;
+      } else {
+        btn.style.display = 'inline-flex';
+      }
+
+      // Restore initial limited height (if not expanded)
+      wrap.style.height = '220px';
+      wrap.style.overflow = 'hidden';
+    }
+
+    function toggleExpansion(e) {
+      e.preventDefault();
+      isExpanded = !isExpanded;
+
+      if (isExpanded) {
+        wrap.style.height = `${fullHeight}px`;
+        wrap.classList.add('expanded');
+        btn.querySelector('.btn-inner').textContent = 'See Less';
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        // To trigger CSS transition when collapsing from auto/full height:
+        wrap.style.height = `${fullHeight}px`; 
+        setTimeout(() => {
+          wrap.style.height = '220px';
+          wrap.classList.remove('expanded');
+          btn.querySelector('.btn-inner').textContent = 'See More';
+          btn.setAttribute('aria-expanded', 'false');
+        }, 10);
+        
+        // Smooth scroll to the top of the section when collapsing
+        const aboutSection = document.getElementById('about');
+        // If the top of the content is out of view, scroll.
+        if (wrap.getBoundingClientRect().top < 0) {
+            aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', calculateHeight);
+    window.addEventListener('resize', calculateHeight);
+    btn.addEventListener('click', toggleExpansion);
+  })();
+  
   /* ===========================
      Accessibility / keyboard
      =========================== */
