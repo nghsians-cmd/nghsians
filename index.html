@@ -113,6 +113,97 @@
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
+  /* ADDED: Hamburger icon */
+  .menu-toggle {
+    display: none; /* Default hidden */
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 10;
+  }
+  .menu-toggle svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    stroke: var(--text);
+  }
+
+  /* ADDED: Mobile Menu Styles */
+  #mobileMenu {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1400;
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease, transform 280ms ease;
+    padding: 20px var(--pad);
+    overflow-y: auto;
+    transform: translateY(-10px);
+  }
+  #mobileMenu.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  #mobileMenu .nav-link {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 12px 0;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  #mobileMenu .nav-link::after {
+    display: none; /* Hide hover underline */
+  }
+  #mobileMenu .nav-link.active {
+      color: rgba(var(--accent-gold),1);
+  }
+
+  /* Media Queries for Mobile Layout */
+  @media (max-width: 800px) {
+    .nav-left, .nav-right {
+      display: none; /* Hide desktop nav */
+    }
+    .header-grid {
+      grid-template-columns: auto 1fr auto; /* logo | gap | hamburger */
+    }
+    .menu-toggle {
+      display: block; /* Show hamburger */
+      order: 3; /* Push to right */
+    }
+    .brand-center {
+      order: 1; 
+      align-items: flex-start;
+    }
+    .brand-title {
+      display: none; /* Hide title to save space */
+    }
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      margin-left: -8px; 
+    }
+    header {
+      height: 68px; /* Smaller header */
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    .hero-inner {
+      margin-top: calc(68px + 12px); /* Adjust hero content position */
+    }
+    :root {
+      --header-h: 68px; /* Update variable */
+    }
+  }
+
   /* ===========================
      HERO + rest
      =========================== */
@@ -327,8 +418,16 @@
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
       </div>
+      
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
     </div>
   </header>
+
+  <div id="mobileMenu" aria-hidden="true">
+    <nav id="mobileNavList" role="navigation" aria-label="Mobile navigation"></nav>
+  </div>
 
   <main>
     <section id="home" class="hero" aria-label="Home hero">
@@ -339,13 +438,13 @@
         <p class="hero-sub">A timeless bond connecting students, memories, and legacy of Nasirabad Government High School.</p>
 
         <div class="hero-socials">
-          <a href="#" target="_blank" class="social-icon-link" aria-label="Instagram">
+          <a href="https://instagram.com/@nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
           </a>
-          <a href="#" target="_blank" class="social-icon-link" aria-label="Facebook">
+          <a href="https://facebook.com/NasirabadBoys" target="_blank" class="social-icon-link" aria-label="Facebook">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
           </a>
-          <a href="#" target="_blank" class="social-icon-link" aria-label="YouTube">
+          <a href="https://youtube.com/@nghsians" target="_blank" class="social-icon-link" aria-label="YouTube">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .5 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15 15.5 11.75 9.75 8.5 9.75 15"></polygon></svg>
           </a>
         </div>
@@ -470,7 +569,7 @@
         <h2 class="section-title">Contact & Collaborate</h2>
         <div class="card">
           <p class="lead muted" style="font-size:1.1rem;line-height:1.6;text-align:center;">
-            Email <a href="mailto:nghsians@gmail.com" style="color:rgba(var(--accent-gold),1);font-weight:600;">nghsians@gmail.com</a> or DM <a href="https://www.instagram.com/nghsians/" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">@nghsians Instagram</a> or <a href="#" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">নাসিরাবাদিয়ানস্ Facebook</a>.
+            Email <a href="mailto:nghsians@gmail.com" style="color:rgba(var(--accent-gold),1);font-weight:600;">nghsians@gmail.com</a> or DM <a href="https://instagram.com/@nghsians" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">@nghsians Instagram</a> or <a href="https://facebook.com/NasirabadBoys" target="_blank" style="color:rgba(var(--accent-gold),1);font-weight:600;">নাসিরাবাদিয়ানস্ Facebook</a>.
           </p>
           <form onsubmit="contactUs(event)" style="display:none;margin-top:12px;gap:10px">
             <input required id="cname" type="text" placeholder="Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
@@ -501,13 +600,13 @@
       </div> </main>
 
   <div class="socials-above-footer">
-    <a href="#" target="_blank" class="social-icon-link" aria-label="Instagram">
+    <a href="https://instagram.com/@nghsians" target="_blank" class="social-icon-link" aria-label="Instagram">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
     </a>
-    <a href="#" target="_blank" class="social-icon-link" aria-label="Facebook">
+    <a href="https://facebook.com/NasirabadBoys" target="_blank" class="social-icon-link" aria-label="Facebook">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
     </a>
-    <a href="#" target="_blank" class="social-icon-link" aria-label="YouTube">
+    <a href="https://youtube.com/@nghsians" target="_blank" class="social-icon-link" aria-label="YouTube">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .5 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15 15.5 11.75 9.75 8.5 9.75 15"></polygon></svg>
     </a>
   </div>
@@ -536,6 +635,12 @@
   const pageWipe = document.getElementById('pageWipe');
   const heroMedia = document.getElementById('heroMedia');
   const heroSection = document.getElementById('home');
+  // ADDED: Mobile elements
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const navLeftLinks = Array.from(document.getElementById('navLeft').children);
+  const navRightLinks = Array.from(document.getElementById('navRight').children);
+  const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
 
   /* ===========================
      Brevo API Configuration
@@ -558,6 +663,39 @@
     // run the cinematic wipe on first load
     setTimeout(()=> showWipe(()=>{}), 160);
   });
+
+  /* ===========================
+     Mobile Menu Setup (ADDED)
+     =========================== */
+  function buildMobileMenu(){
+    const mobileNavList = document.getElementById('mobileNavList');
+    mobileNavList.innerHTML = '';
+    allDesktopLinks.forEach(link => {
+      const clone = link.cloneNode(true);
+      // Ensure mobile link closes the menu
+      clone.addEventListener('click', () => {
+        if(clone.getAttribute('href').startsWith('#')) {
+            // Wait for smooth scroll
+            setTimeout(toggleMobileMenu, 600);
+        } else {
+            // For external links
+            toggleMobileMenu();
+        }
+      });
+      mobileNavList.appendChild(clone);
+    });
+  }
+  buildMobileMenu(); // Build the menu on load
+
+  function toggleMobileMenu(){
+    const isOpen = mobileMenu.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', isOpen);
+    mobileMenu.setAttribute('aria-hidden', !isOpen);
+    // Prevent scrolling behind the menu
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  menuToggle.addEventListener('click', toggleMobileMenu);
 
   /* ===========================
      Smooth anchor navigation
@@ -614,13 +752,18 @@
   reveals.forEach(r => revealObserver.observe(r));
 
   /* ===========================
-     Active nav highlighting
+     Active nav highlighting (Updated to include mobile links)
      =========================== */
   const sectionObserver = new IntersectionObserver((entries) => {
     entries.forEach(en => {
       if(en.isIntersecting && en.target.id){
         const id = en.target.id;
         navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
+        // ADDED: Update mobile links too
+        document.querySelectorAll('#mobileMenu .nav-link').forEach(n => {
+            const linkId = (n.dataset.target || (n.getAttribute('href')||'').replace('#',''));
+            n.classList.toggle('active', linkId === id);
+        });
       }
     });
   }, { root: null, rootMargin: '-40% 0px -40% 0px', threshold: 0 });
@@ -756,7 +899,7 @@
   /* ===========================
      Accessibility / keyboard
      =========================== */
-  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeModal(); } });
+  window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeModal(); toggleMobileMenu(); } });
 
   /* Brand click -> home with wipe */
   brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });

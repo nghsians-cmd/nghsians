@@ -77,8 +77,96 @@
   .brand-center{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
   .brand-logo{ width:64px; height:64px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); background:transparent }
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
+  .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
-  /* (HAMBURGER REMOVED) -- all mobile-menu/hamburger code deleted. */
+  /* ADDED: Hamburger icon */
+  .menu-toggle {
+    display: none; /* Default hidden */
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 10;
+  }
+  .menu-toggle svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    stroke: var(--text);
+  }
+
+  /* ADDED: Mobile Menu Styles */
+  #mobileMenu {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1400;
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease, transform 280ms ease;
+    padding: 20px var(--pad);
+    overflow-y: auto;
+    transform: translateY(-10px);
+  }
+  #mobileMenu.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  #mobileMenu .nav-link {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 12px 0;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  #mobileMenu .nav-link::after {
+    display: none; /* Hide hover underline */
+  }
+  #mobileMenu .nav-link.active {
+      color: rgba(var(--accent-gold),1);
+  }
+
+  /* Media Queries for Mobile Layout */
+  @media (max-width: 800px) {
+    .nav-left, .nav-right {
+      display: none; /* Hide desktop nav */
+    }
+    .header-grid {
+      grid-template-columns: auto 1fr auto; /* logo | gap | hamburger */
+    }
+    .menu-toggle {
+      display: block; /* Show hamburger */
+      order: 3; /* Push to right */
+    }
+    .brand-center {
+      order: 1; 
+      align-items: flex-start;
+    }
+    .brand-title {
+      display: none; /* Hide title to save space */
+    }
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      margin-left: -8px; 
+    }
+    header {
+      height: 68px; /* Smaller header */
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+    :root {
+      --header-h: 68px; /* Update variable */
+    }
+  }
+
 
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
   .container{ width:100%; max-width:1100px; padding:20px; position:relative; }
@@ -153,11 +241,20 @@
         <a class="nav-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="index.html#submit" data-target="submit">Share</a>
         <a class="nav-link" href="index.html#alumni" data-target="alumni">Alumni</a>
+        <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
         <a class="nav-link active" href="merch.html" aria-current="page">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
       </div>
+      
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
     </div>
   </header>
+
+  <div id="mobileMenu" aria-hidden="true">
+    <nav id="mobileNavList" role="navigation" aria-label="Mobile navigation"></nav>
+  </div>
 
   <main>
     <div class="container">
@@ -171,7 +268,7 @@
               <button type="submit">Enter</button>
             </div>
           </form>
-          </div>
+        </div>
       </div>
 
       <div id="merchArea" class="merch-area" aria-hidden="true">
@@ -224,7 +321,7 @@
           </div>
         </div>
 
-        </div>
+      </div>
     </div>
   </main>
 
@@ -245,6 +342,12 @@
   const merchArea = document.getElementById('merchArea');
   const productsGrid = document.getElementById('productsGrid');
   const SECRET = 'nghs25admin';
+  // ADDED: Mobile elements
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const navLeftLinks = Array.from(document.getElementById('navLeft').children);
+  const navRightLinks = Array.from(document.getElementById('navRight').children);
+  const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
 
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
   window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
@@ -258,6 +361,38 @@
       a.addEventListener('click', function(e){ e.preventDefault(); const url = href; showWipe(()=> { window.location.href = url; }); });
     }
   });
+
+  /* ===========================
+     Mobile Menu Setup (ADDED)
+     =========================== */
+  function buildMobileMenu(){
+    const mobileNavList = document.getElementById('mobileNavList');
+    mobileNavList.innerHTML = '';
+    allDesktopLinks.forEach(link => {
+      const clone = link.cloneNode(true);
+      // Ensure mobile link closes the menu
+      clone.addEventListener('click', () => {
+        if(clone.getAttribute('href').startsWith('index.html#')) {
+            // No wait needed here, the index.html page will handle the wipe/scroll
+            toggleMobileMenu();
+        } else {
+            // For external links or merch.html itself
+            toggleMobileMenu();
+        }
+      });
+      mobileNavList.appendChild(clone);
+    });
+  }
+  buildMobileMenu();
+
+  function toggleMobileMenu(){
+    const isOpen = mobileMenu.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', isOpen);
+    mobileMenu.setAttribute('aria-hidden', !isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  menuToggle.addEventListener('click', toggleMobileMenu);
 
   // ADMIN access behavior (same as earlier)
   window.handleAccess = function(e){
@@ -308,7 +443,7 @@
     });
   })();
 
-  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; } });
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; toggleMobileMenu(); } });
 })();
 </script>
 </body>
