@@ -10,13 +10,13 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="NGHSIANS — Nasirabad Government High School" />
 <meta property="og:description" content="Presented by NGHSIANS | নাসিরাবাদিয়ানস্" />
-<meta property="og:image" content="linkhero.jpg" />
+<meta property="og:image" content="https://nghsians.com/linkhero.jpg" />
 <meta property="og:image:type" content="image/jpeg" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="NGHSIANS — Nasirabad Government High School" />
 <meta name="twitter:description" content="Presented by NGHSIANS | নাসিরাবাদিয়ানস্" />
-<meta name="twitter:image" content="linkhero.jpg" />
-<meta itemprop="image" content="linkhero.jpg" />
+<meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
+<meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -526,7 +526,7 @@
               <div style="text-align:center; margin-top: 14px;">
                 <span class="magnetic" data-magnetic>
                   <button class="btn btn--ghost see-more-btn" id="seeMoreBtn" aria-expanded="false" aria-controls="collapsibleContent">
-                    <span class="btn-inner">See More</span>
+                    <span class="btn-inner">See Less</span>
                   </button>
                 </span>
               </div>
@@ -985,6 +985,10 @@
       // Restore initial limited height (if not expanded)
       wrap.style.height = '220px';
       wrap.style.overflow = 'hidden';
+      // Re-run expansion check since height may have changed on resize
+      if(isExpanded) {
+          wrap.style.height = `${fullHeight}px`;
+      }
     }
 
     function toggleExpansion(e) {
@@ -1019,6 +1023,8 @@
     document.addEventListener('DOMContentLoaded', calculateHeight);
     window.addEventListener('resize', calculateHeight);
     btn.addEventListener('click', toggleExpansion);
+    // Initial state set to 'See Less' (was 'See More' before, changed here to reflect logic)
+    btn.querySelector('.btn-inner').textContent = 'See More'; 
   })();
   
   /* ===========================
