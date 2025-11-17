@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NGHSIANS — Nasirabad Government High School</title>
 <meta name="description" content="Presented by NGHSIANS | নাসিরাবাদিয়ানস্" />
+<meta property="og:image" content="linkhero.jpg" />
 <link rel="icon" href="logo.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
@@ -988,7 +989,7 @@
       } else {
         // To trigger CSS transition when collapsing from auto/full height:
         wrap.style.height = `${fullHeight}px`; 
-        setTimeout(() => {
+        setTimeout(()=> {
           wrap.style.height = '220px';
           wrap.classList.remove('expanded');
           btn.querySelector('.btn-inner').textContent = 'See More';
