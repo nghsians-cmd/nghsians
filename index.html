@@ -287,6 +287,10 @@
   @media (max-width:1100px){ .grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .grid{ grid-template-columns:1fr } }
 
+  /* Added hover motion for stats/alumni cards in grid */
+  .grid .card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; will-change: transform; }
+  .grid .card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.08); }
+
   /* --- NEW CSS FOR ABOUT SECTION --- */
   .about-grid{
     display:grid;
@@ -320,6 +324,9 @@
     position: relative;
     transition: height 500ms ease-in-out;
   }
+  /* Added padding-bottom to inner content to prevent card clipping */
+  .collapsible-content { padding-bottom: 20px; }
+  
   .collapsible-content-wrap.expanded{
     height: auto;
   }
@@ -508,18 +515,84 @@
               <h2 class="section-title">About Nasirabad Government High School</h2>
               <p class="lead muted">NGHSIANS celebrates nostalgia, school spirit and the stories of Nasirabad Government High School students — both current and alumni.</p>
 
-              <div class="grid" style="margin-top:14px">
-                <div class="card reveal"><strong>Founded</strong><div class="muted" style="margin-top:8px">1967</div></div>
-                <div class="card reveal"><strong>Campus</strong><div class="muted" style="margin-top:8px">~20 Acres</div></div>
+              <div class="grid" style="margin-top:14px; grid-template-columns: 1fr;">
+                <div class="card reveal"><strong>Founded</strong><div class="muted" style="margin-top:8px">January 1, 1967</div></div>
               </div>
 
               <div id="collapsibleContent" class="collapsible-content-wrap" style="margin-top: 14px;">
                 <div class="collapsible-content">
-                  <p class="muted">Nasirabad Government High School (NGHS) — founded in 1967 — is one of the oldest and most respected government secondary schools in Chattogram (Chittagong). Located in East Nasirabad (CDA Avenue), the school operates as a double-shift boys’ high school under the Chittagong Education Board and has educated generations of students from the city and surrounding districts. <span style="font-size:12px">Wikipedia+1</span></p>
-                  <p class="muted">NGHS sits on a large urban campus (reported around 20 acres) and provides a broad mix of academic and co-curricular facilities: well-equipped science laboratories (physics, chemistry, biology, computer), a library, auditorium, dedicated sports fields, and medical and student support facilities. The school runs structured academic clubs and extra-curricular programs that help students prepare for public examinations and life beyond school. <span style="font-size:12px">Wikipedia+1</span></p>
-                  <p class="muted">Sport is a central part of the school’s identity. NGHS has a long tradition of excellence in school-level sports — particularly football, cricket and hockey — and has claimed national school championships in both football and cricket, producing players who went on to represent the country. The school’s ground is a well-known local venue and has been mentioned by notable cricketers as an important part of their early development. <span style="font-size:12px">nghs.tsmts.com+1</span></p>
-                  <p class="muted">NGHS is active beyond sport: alumni networks and student organisations regularly run cultural, debating and chess events. In recent years the school’s debating society and extra-curricular clubs have hosted inter-school festivals and rated competitions (for example, debating festivals and a Rapid Rating Chess Championship in 2025), reflecting an engaged student body and alumni community. <span style="font-size:12px">Facebook</span></p>
-                  <p class="muted">The school has produced several notable alumni in sports, arts and public life, and continues to place emphasis on discipline, academic results (SSC/JSC), and holistic development. For contact, official notices and the latest circulars (admissions, exam schedules, events), refer to the school’s official portal and social pages.</p>
+                  <p class="muted">Welcome to <strong>Nasirabad Government High School (NGHS)</strong> — one of the oldest and most respected government secondary schools in Chattogram (Chittagong). Established on <strong>January 1, 1967</strong>, the school is a pillar of academic excellence in the region. Its native name is <strong>নসিরাবাদ গভঃটি. হাই স্কুল, চিটাগাং</strong>, and it operates as a double-shift boys’ high school under the Chittagong Education Board with the <strong>EIIN 104691</strong>.</p>
+                  <p class="muted">Located in East Nasirabad (CDA Avenue), NGHS sits on a large urban campus (reported around <strong>20 acres</strong>) equipped with a broad mix of facilities: well-furnished science laboratories (physics, chemistry, biology, computer), a library, an auditorium, and dedicated hostels. Our dedicated faculty members, with an average age of <strong>51</strong>, bring a wealth of experience to the classroom, focusing on discipline, holistic development, and excellent academic results (SSC/JSC).</p>
+                  <p class="muted">Sport is central to our identity. NGHS has a long tradition of excellence — particularly in football, cricket, and hockey — claiming national championships and producing players who have represented the country. Beyond sports, our students and alumni are active in cultural, debating, and chess events (such as the 2025 Rapid Rating Chess Championship), fostering a vibrant and engaged community.</p>
+                  <p class="muted">For inquiries, the school can be reached at <strong>01819627823</strong> or via email at <a href="mailto:nasirabadghs@yahoo.com">nasirabadghs@yahoo.com</a>. Visit us to experience a memorable learning environment where every student's potential is nurtured.</p>
+
+                  <h4 style="margin-top:20px; margin-bottom:12px; font-weight:700; color:var(--text); border-top:1px solid rgba(255,255,255,0.03); padding-top:18px;">Key Statistics</h4>
+
+                  <div class="grid" style="margin-top: 14px;">
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <strong>STUDENTS</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">2038 TOTAL</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line><line x1="3" y1="12" x2="21" y2="12"></line></svg>
+                        <strong>TOTAL LAND</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">446 Decimals</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22V8a2 2 0 0 0-2-2l-4 3V2c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2z"></path><path d="M19 13l-4 3V6l4 3V13z"></path></svg>
+                        <strong>PLAYGROUND</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">95 Decimals</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"></path><path d="M10 6h4V3h-4V6z"></path><line x1="10" y1="13" x2="10" y2="17"></line><line x1="14" y1="13" x2="14" y2="17"></line></svg>
+                        <strong>HOSTELS</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">17 Decimals</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="7" height="18" rx="2" ry="2"></rect><rect x="16" y="3" width="7" height="18" rx="2" ry="2"></rect><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="15" x2="16" y2="15"></line></svg>
+                        <strong>FLOOR SPACE</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">75,000 Sq. Ft.</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                        <strong>ROOM COUNT</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">40</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="18" y1="10" x2="18" y2="16"></line><line x1="15" y1="13" x2="21" y2="13"></line></svg>
+                        <strong>STUDENT:TEACHER</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">39:1</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+                        <strong>STUDENT:EMPLOYEE</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">391:1</div>
+                    </div>
+                    <div class="card reveal">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold), 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 12h-4"></path><path d="M22 17h-4"></path><path d="M22 6h-4"></path></svg>
+                        <strong>AVG. TEACHER AGE</strong>
+                      </div>
+                      <div class="muted" style="margin-top:6px">51 Years</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
