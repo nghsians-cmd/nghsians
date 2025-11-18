@@ -22,6 +22,13 @@
 <meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '1927434');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -372,6 +379,102 @@
   
   /* Topper Highlight Style */
   .topper-card { border-color: rgba(var(--accent-gold), 0.3); background: linear-gradient(180deg, rgba(var(--accent-gold), 0.05), rgba(0,0,0,0)); }
+  
+  /* --- MAILERLITE FORM OVERRIDES (STRICT) --- */
+  /* 1. RESET CONTAINER BACKGROUNDS */
+  .ml-embedded, 
+  .ml-embedded .ml-form-embedWrapper, 
+  .ml-embedded .ml-form-embedBody, 
+  .ml-embedded .ml-form-embedContent,
+  .ml-form-align-center {
+      background-color: transparent !important;
+      background: transparent !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      border: none !important;
+  }
+
+  /* 2. HIDE INTERNAL TEXT (Title & Description) */
+  .ml-form-embedBody .ml-form-embedContent h4, 
+  .ml-form-embedBody .ml-form-embedContent p {
+      display: none !important;
+  }
+
+  /* 3. STYLE INPUTS & SELECTS (Glass Theme) */
+  .ml-embedded input.form-control,
+  .ml-embedded select.form-control {
+      background-color: transparent !important;
+      background-image: none !important; 
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      border-radius: 6px !important;
+      color: var(--text) !important;
+      padding: 12px !important;
+      height: auto !important;
+      font-family: var(--font-sans) !important;
+      font-size: 15px !important;
+      width: 100% !important;
+      margin-bottom: 0 !important;
+  }
+  
+  /* Focus State */
+  .ml-embedded input.form-control:focus,
+  .ml-embedded select.form-control:focus {
+      border-color: var(--accent-deep) !important;
+      outline: none !important;
+      box-shadow: 0 0 0 1px var(--accent-deep) !important;
+  }
+  
+  /* Placeholder Text Color */
+  .ml-embedded input.form-control::placeholder {
+      color: var(--muted) !important;
+      opacity: 0.7;
+  }
+
+  /* Fix Dropdown Options (Country Code) */
+  .ml-embedded select option {
+      background-color: #0d0e10 !important;
+      color: var(--text) !important;
+  }
+
+  /* 4. STYLE SUBMIT BUTTON (Red/Gold Theme) */
+  .ml-embedded .ml-button-horizontal { width: 100% !important; }
+  
+  .ml-embedded button.primary {
+      background: var(--accent-muted) !important;
+      color: var(--text) !important;
+      border: 1px solid rgba(113,12,4,0.08) !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      border-radius: 6px !important;
+      padding: 12px !important;
+      cursor: pointer !important;
+      width: 100% !important;
+      font-family: var(--font-sans) !important;
+      transition: all 0.2s ease !important;
+      text-transform: none !important;
+      box-shadow: none !important;
+  }
+  
+  .ml-embedded button.primary:hover {
+      background: linear-gradient(0deg, rgba(113,12,4,0.28), rgba(113,12,4,0.28)) !important;
+      transform: translateY(-3px) !important;
+      color: #fff !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+  }
+
+  /* 5. SUCCESS MESSAGE Styling */
+  .ml-form-successBody .ml-form-successContent h4,
+  .ml-form-successBody .ml-form-successContent p {
+      display: block !important; 
+      color: rgba(var(--accent-gold), 1) !important;
+      font-family: var(--font-sans) !important;
+      text-align: center !important;
+  }
+  
+  /* Layout spacing fix for MailerLite groups */
+  .ml-field-group {
+      margin-bottom: 12px !important;
+  }
   /* --- END NEW CSS --- */
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
@@ -697,21 +800,9 @@
         <h2 class="section-title">Newsletter</h2>
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
-
-          <form onsubmit="subscribeNews(event)" style="margin-top:12px;display:grid;gap:10px">
-            <input required id="email" type="email" placeholder="Email address" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
-            <input id="name" type="text" placeholder="Your Name" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
-            <input id="phone" type="tel" placeholder="Phone Number (Optional)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
-            <input id="batch" type="text" placeholder="Batch/Year (e.g., 2012)" style="padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)">
-            
-            <div style="display:flex;gap:10px;margin-top:4px;">
-              <span class="magnetic" data-magnetic><button class="btn btn--primary" type="submit"><span class="btn-inner">Subscribe</span></button></span>
-              <span class="magnetic" data-magnetic><button class="btn btn--ghost" type="button" data-target="submit" disabled><span class="btn-inner">Share Memory</span></button></span>
-            </div>
-          </form>
-
-          <div id="sub-response" class="muted" style="margin-top:10px"></div>
-        </div>
+          
+          <div style="margin-top:12px;" class="ml-embedded" data-form="Q1EYDP"></div>
+          </div>
       </section>
       <section id="submit" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Share Your Memory</h2>
@@ -820,12 +911,6 @@
   const navLeftLinks = Array.from(document.getElementById('navLeft').children);
   const navRightLinks = Array.from(document.getElementById('navRight').children);
   const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
-
-  /* ===========================
-     Brevo API Configuration
-     =========================== */
-  const BREVO_API_KEY = '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';
-  const BREVO_LIST_ID = 2;
 
   /* ===========================
      Page wipe helper (plays on load and nav)
@@ -1013,72 +1098,6 @@
     });
   }, { threshold: 0.5 });
   counters.forEach(c => counterObserver.observe(c));
-
-  /* ===========================
-     Live Brevo Form Handler
-     =========================== */
-  window.subscribeNews = function(e){
-    e.preventDefault();
-    const form = e.target;
-    const email = document.getElementById('email') ? document.getElementById('email').value : '';
-    const name = document.getElementById('name') ? document.getElementById('name').value : '';
-    const phone = document.getElementById('phone') ? document.getElementById('phone').value : '';
-    const batch = document.getElementById('batch') ? document.getElementById('batch').value : '';
-    const responseEl = document.getElementById('sub-response');
-    responseEl.textContent = 'Subscribing...';
-    responseEl.style.color = 'var(--muted)';
-
-    // Check for a valid email before API call
-    if (!email) {
-      responseEl.style.color = '#FF6060';
-      responseEl.textContent = 'Please provide an email address.';
-      return;
-    }
-
-    const url = 'https://api.brevo.com/v3/contacts';
-    
-    const data = {
-      email: email,
-      listIds: [BREVO_LIST_ID],
-      updateEnabled: true,
-      attributes: {
-        // NOTE: Brevo requires custom attributes to be created in their dashboard. 
-        // These keys (NAME, PHONE, BATCH) are used as standard assumptions.
-        NAME: name,
-        PHONE: phone,
-        BATCH: batch
-      }
-    };
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'api-key': BREVO_API_KEY
-      },
-      body: JSON.stringify(data)
-    })
-    .then(res => {
-      if (res.ok || res.status === 201 || res.status === 204) {
-        responseEl.style.color = 'rgba(var(--accent-gold), 1)';
-        responseEl.textContent = `Success! ${name || 'You'} have been subscribed. Check your email for a welcome message.`;
-        form.reset();
-      } else {
-        // Handle error response (e.g., already subscribed, invalid email, API key error)
-        return res.json().then(errorData => {
-          const msg = errorData.message || 'An unknown error occurred.';
-          responseEl.style.color = '#FF6060';
-          responseEl.textContent = `Subscription failed: ${msg.includes('already exists') ? 'This email is already subscribed.' : msg.includes('Invalid') ? 'Invalid Email or API Key.' : msg}`;
-        });
-      }
-    })
-    .catch(err => {
-      responseEl.style.color = '#FF6060';
-      responseEl.textContent = 'Network error. Please try again later.';
-      console.error('Brevo API error:', err);
-    });
-  };
 
   /* ===========================
      Demo form handlers (for hidden forms)
