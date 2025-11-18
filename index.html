@@ -345,7 +345,29 @@
   .collapsible-content-wrap.expanded::after{
     opacity: 0;
   }
-  /* --- END ADDED CSS --- */
+  
+  /* --- NEW CSS FOR RANKINGS SECTION --- */
+  .rankings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  @media (max-width: 900px) { .rankings-grid { grid-template-columns: 1fr; } }
+  .rank-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 24px 14px;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .rank-card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.6); }
+  
+  .rank-number-wrap { font-family: var(--font-sans); font-weight: 900; font-size: 3.5rem; line-height: 1; color: rgba(var(--accent-gold), 1); display: flex; align-items: center; gap: 2px; text-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .rank-prefix { font-size: 1.8rem; opacity: 0.6; margin-top: 6px; vertical-align: top; }
+  .rank-label { font-size: 1.1rem; font-weight: 700; margin-top: 12px; color: var(--text); }
+  .rank-sub { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+  .rank-score { font-size: 0.95rem; color: rgba(var(--accent-gold), 0.9); font-weight: 600; margin-top: 4px; }
+  
+  /* Topper Highlight Style */
+  .topper-card { border-color: rgba(var(--accent-gold), 0.3); background: linear-gradient(180deg, rgba(var(--accent-gold), 0.05), rgba(0,0,0,0)); }
   /* --- END NEW CSS --- */
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
@@ -447,8 +469,9 @@
     <div class="header-grid" role="navigation" aria-label="Main header">
       <div class="nav-left" id="navLeft">
         <a class="nav-link" href="#about" data-target="about">About</a>
-        <a class="nav-link" href="#gallery" data-target="gallery">Gallery</a>
         <a class="nav-link" href="#news" data-target="news">News</a>
+        <a class="nav-link" href="#rankings" data-target="rankings">Rankings</a>
+        <a class="nav-link" href="#gallery" data-target="gallery">Gallery</a>
       </div>
 
       <div class="brand-center" id="brandBtn" aria-label="Home (brand)">
@@ -607,6 +630,29 @@
           </div>
         </div>
       </section>
+      
+      <section id="rankings" class="reveal diag-feather" style="margin-top:18px">
+        <h2 class="section-title">Rankings & Achievements</h2>
+        <div class="card">
+            <div class="rankings-grid">
+                <div class="rank-card reveal">
+                    <div class="rank-number-wrap"><span class="rank-prefix">#</span><span class="counter" data-target="35" data-start="99">99</span></div>
+                    <div class="rank-label">National School Ranking</div>
+                </div>
+                <div class="rank-card reveal">
+                    <div class="rank-number-wrap"><span class="rank-prefix">#</span><span class="counter" data-target="4" data-start="30">30</span></div>
+                    <div class="rank-label">Chattogram School Ranking</div>
+                </div>
+                <div class="rank-card topper-card reveal">
+                    <div class="rank-number-wrap"><span class="rank-prefix">#</span><span class="counter" data-target="1" data-start="15">15</span></div>
+                    <div class="rank-label" style="font-size:1.25rem">Nibir Karmakar</div>
+                    <div class="rank-sub">SSC 2025 Topper (Whole Bangladesh)</div>
+                    <div class="rank-score">1285/1300 Marks</div>
+                </div>
+            </div>
+        </div>
+      </section>
+
       <section id="gallery" class="reveal diag-feather" style="margin-top:18px;">
         <h2 class="section-title">Gallery</h2>
         <div class="card">
@@ -927,6 +973,42 @@
   };
   window.closeModal = function(){ const modal = document.getElementById('modal'); modal.style.opacity = 0; setTimeout(()=> modal.style.display = 'none', 180); };
   document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
+  
+  /* ===========================
+     Number Counter Animation (ADDED)
+     =========================== */
+  const counters = document.querySelectorAll('.counter');
+  const counterObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target;
+        const target = +counter.getAttribute('data-target');
+        const start = +counter.getAttribute('data-start');
+        const duration = 1500; // ms
+        const startTime = performance.now();
+        
+        function update(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out cubic for "settling" effect
+          const ease = 1 - Math.pow(1 - progress, 3);
+          
+          // Calculate current value (counting down from start to target)
+          const currentVal = Math.floor(start - ((start - target) * ease));
+          counter.innerText = currentVal;
+          
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            counter.innerText = target;
+          }
+        }
+        requestAnimationFrame(update);
+        observer.unobserve(counter);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
 
   /* ===========================
      Live Brevo Form Handler
