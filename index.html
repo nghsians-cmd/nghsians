@@ -381,7 +381,7 @@
   .topper-card { border-color: rgba(var(--accent-gold), 0.3); background: linear-gradient(180deg, rgba(var(--accent-gold), 0.05), rgba(0,0,0,0)); }
   
   /* --- MAILERLITE FORM OVERRIDES (STRICT) --- */
-  /* 1. RESET CONTAINER BACKGROUNDS */
+  /* 1. RESET CONTAINER BACKGROUNDS & ALIGNMENT */
   .ml-embedded, 
   .ml-embedded .ml-form-embedWrapper, 
   .ml-embedded .ml-form-embedBody, 
@@ -392,6 +392,15 @@
       padding: 0 !important;
       box-shadow: none !important;
       border: none !important;
+      text-align: left !important; /* Forces left alignment */
+      margin-left: 0 !important;
+      max-width: 100% !important;
+  }
+  
+  /* Force container to fill width */
+  .ml-form-embedWrapper.embedForm { 
+      max-width: 100% !important; 
+      width: 100% !important;
   }
 
   /* 2. HIDE INTERNAL TEXT (Title & Description) */
@@ -474,6 +483,7 @@
   /* Layout spacing fix for MailerLite groups */
   .ml-field-group {
       margin-bottom: 12px !important;
+      text-align: left !important;
   }
   /* --- END NEW CSS --- */
 
