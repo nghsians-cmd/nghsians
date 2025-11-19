@@ -425,12 +425,12 @@
       margin-bottom: 0 !important;
   }
   
-  /* Focus State */
+  /* Fix Focus State (Gold accent) */
   .ml-embedded input.form-control:focus,
   .ml-embedded select.form-control:focus {
-      border-color: var(--accent-deep) !important;
+      border-color: rgba(var(--accent-gold), 1) !important;
       outline: none !important;
-      box-shadow: 0 0 0 1px var(--accent-deep) !important;
+      box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7) !important;
   }
   
   /* Placeholder Text Color */
@@ -486,6 +486,14 @@
       text-align: left !important;
   }
   /* --- END NEW CSS --- */
+  
+  /* Custom Focus Ring for all other general inputs */
+  .card input:focus, .card select:focus, .card textarea:focus {
+    border-color: rgba(var(--accent-gold), 0.7); /* GOLD border */
+    box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7); /* GOLD glow */
+    outline: none;
+  }
+
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
   @media (max-width:900px){ .media-grid{ grid-template-columns:repeat(2,1fr) } }
