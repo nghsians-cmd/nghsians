@@ -7,9 +7,7 @@
 <link rel="icon" href="logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
-<!-- Supabase Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Canvas Confetti for Celebration -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -33,6 +31,7 @@
     opacity:0.15; mix-blend-mode:overlay;
   }
 
+  /* UPDATED: Wrap now handles scrolling properly on mobile */
   .wrap {
     min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
   }
@@ -250,17 +249,34 @@
   }
   .modal-overlay.show .modal-box { transform: scale(1); }
 
+  /* --- MOBILE RESPONSIVE FIX --- */
+  @media (max-width: 800px) {
+    .wrap {
+      /* Ensure content flows from top instead of center to prevent cut-off */
+      justify-content: flex-start;
+      padding-top: 80px; /* Space for header/back button */
+      padding-bottom: 40px;
+    }
+    .dashboard-grid {
+      gap: 16px;
+    }
+    .id-card, .network-card {
+      padding: 20px; /* Reduce internal padding for more space */
+    }
+    .network-card {
+        height: 500px; /* Reduce height slightly for mobile */
+    }
+  }
+
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <!-- Back Link -->
   <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:10;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
   </a>
 
-  <!-- LOGIN VIEW -->
   <div id="login-view" class="auth-card">
     <img src="logo.png" style="width:48px; border-radius:50%; margin-bottom:16px;">
     <h1 style="color:#fff; margin-bottom:8px;">Student Portal</h1>
@@ -283,7 +299,6 @@
     <button onclick="switchView('signup')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Create Account</button>
   </div>
 
-  <!-- SIGNUP VIEW -->
   <div id="signup-view" class="auth-card hidden">
     <h1 style="color:#fff; margin-bottom:8px;">Join NGHSIANS</h1>
     <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Register your identity.</p>
@@ -322,10 +337,8 @@
     <button onclick="switchView('login')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Login</button>
   </div>
 
-  <!-- DASHBOARD VIEW (Profile + Network) -->
   <div id="dashboard-view" class="dashboard-grid hidden">
     
-    <!-- LEFT: ID CARD -->
     <div id="profile-card" class="id-card">
       <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; margin-bottom:20px;">
         <span style="font-size:0.7rem; font-weight:800; color:rgba(var(--accent-gold),0.6); letter-spacing:1px;">IDENTITY</span>
@@ -340,7 +353,6 @@
       <h2 id="display-name" style="color:#fff; margin:0; font-size:1.6rem;">Student Name</h2>
       <div id="display-batch" style="color:var(--accent-deep); font-weight:700; font-size:0.9rem; margin-top:4px;">MEMBER</div>
 
-      <!-- Follower Stats (Editable for Admin) -->
       <div style="margin: 16px 0; cursor:default;" id="follower-stats-wrap">
         <span style="font-size:0.9rem; color:var(--muted);">Followers: </span>
         <span id="my-follower-count" style="color:#fff; font-weight:700; font-size:1rem;">0</span>
@@ -361,7 +373,6 @@
       <button onclick="handleLogout()" style="background:none; border:none; color:var(--muted); margin-top:12px; font-size:12px; cursor:pointer; text-decoration:underline;">Sign Out</button>
     </div>
 
-    <!-- RIGHT: NETWORK CARD -->
     <div class="network-card">
       <div class="network-header">
         <div class="network-title">
@@ -376,7 +387,6 @@
       </div>
 
       <div id="network-list" class="user-list">
-        <!-- Users injected here -->
         <div style="text-align:center; padding:20px; color:var(--muted);">Loading network...</div>
       </div>
     </div>
@@ -385,7 +395,6 @@
 
 </div>
 
-<!-- VERIFIED POPUP MODAL -->
 <div id="verified-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-icon">
