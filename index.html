@@ -22,7 +22,8 @@
 <meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
-<!-- MailerLite Universal -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
     (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
     .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
@@ -30,8 +31,6 @@
     (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
     ml('account', '1927434');
 </script>
-<!-- End MailerLite Universal -->
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -68,7 +67,6 @@
 
   /* ===========================
      Subtle grain texture (global)
-     - kept globally but hidden over .hero (per request)
      =========================== */
   body::before{
     content:"";
@@ -126,9 +124,15 @@
   header{ position:fixed; inset-inline:0; top:0; height:var(--header-h); display:flex; align-items:center; justify-content:center; padding:8px calc(var(--pad)+4px); z-index:1500; transition:background 160ms ease, box-shadow 160ms ease; background:transparent; }
   header.scrolled{ background: linear-gradient(180deg, rgba(8,8,9,0.92), rgba(6,6,7,0.95)); box-shadow: 0 10px 30px rgba(0,0,0,0.6) }
 
+  /* Modified Header Grid for flexible Mobile/Desktop layouts */
   .header-grid{ width:100%; max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:12px; }
+  
   .nav-left, .nav-right{ display:flex; gap:18px; align-items:center; }
-  .nav-left{ justify-content:flex-start } .nav-right{ justify-content:flex-end }
+  .nav-left{ justify-content:flex-start } 
+  .nav-right{ justify-content:flex-end }
+  
+  /* Container for Right Side Elements (Nav + User) */
+  .right-group { display: flex; align-items: center; justify-content: flex-end; gap: 18px; }
 
   .nav-link{ position:relative; color:var(--text); font-weight:600; font-size:14px; padding:6px 6px; white-space:nowrap; transition: color 140ms }
   .nav-link::after{ content:""; position:absolute; left:6px; right:6px; bottom:-6px; height:2px; background:var(--accent-deep); transform:scaleX(0); transform-origin:left center; transition:transform 140ms cubic-bezier(.2,.9,.2,1); opacity:.95 }
@@ -139,7 +143,7 @@
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
 
-  /* ADDED: Hamburger icon */
+  /* Hamburger icon */
   .menu-toggle {
     display: none; /* Default hidden */
     background: transparent;
@@ -157,7 +161,7 @@
     stroke: var(--text);
   }
 
-  /* ADDED: Mobile Menu Styles */
+  /* Mobile Menu Styles */
   #mobileMenu {
     position: fixed;
     top: var(--header-h);
@@ -193,21 +197,71 @@
       color: rgba(var(--accent-gold),1);
   }
 
+  /* USER DROPDOWN MENU */
+  .user-menu-wrap { position: relative; display: inline-block; }
+  .user-icon-btn { 
+    background: transparent; border: none; color: var(--text); cursor: pointer; padding: 8px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .user-icon-btn:hover { color: rgba(var(--accent-gold), 1); transform: scale(1.1); }
+  
+  .dropdown-menu {
+    position: absolute; top: 120%; right: 0; width: 220px;
+    background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 12px; margin-top: 8px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+    opacity: 0; transform: translateY(-10px); pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 2000;
+  }
+  .dropdown-menu.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  
+  .dropdown-header {
+      padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-align: left;
+  }
+  .dd-name { font-weight: 700; font-size: 1rem; color: #fff; display: block; }
+  .dd-batch { font-size: 0.8rem; color: var(--muted); display: block; margin-top: 2px; }
+  
+  .dropdown-item {
+    display: block; padding: 8px 10px; font-size: 14px; color: var(--muted);
+    transition: background 0.15s ease, color 0.15s ease; text-align:left; width: 100%; border-radius:4px;
+  }
+  .dropdown-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .dropdown-item.highlight { color: rgba(var(--accent-gold), 1); }
+
+  /* BADGES (Ported from account.html) */
+  .u-badge {
+    font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase;
+    display: inline-block; margin-top: 4px;
+  }
+  .u-badge.architect { color: #000; background: rgba(var(--accent-gold), 1); }
+  .u-badge.verified { color: rgba(var(--accent-gold), 1); background: rgba(var(--accent-gold), 0.15); border: 1px solid rgba(var(--accent-gold), 0.3); }
+
+
   /* Media Queries for Mobile Layout */
   @media (max-width: 800px) {
     .nav-left, .nav-right {
-      display: none; /* Hide desktop nav */
+      display: none; /* Hide desktop nav links */
     }
+    
     .header-grid {
-      grid-template-columns: auto 1fr auto; /* logo | gap | hamburger */
+      /* [Hamburger] [Logo] [Spacer] [Account] */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+    
     .menu-toggle {
       display: block; /* Show hamburger */
-      order: 3; /* Push to right */
+      order: 1; /* Leftmost */
+      margin-right: 12px;
     }
+    
     .brand-center {
-      order: 1; 
-      align-items: flex-start;
+      order: 2; /* After hamburger */
+      flex-direction: row;
+      gap: 12px;
     }
     .brand-title {
       display: none; /* Hide title to save space */
@@ -215,8 +269,20 @@
     .brand-logo {
       width: 52px;
       height: 52px;
-      margin-left: -8px; 
     }
+    
+    /* Move User Icon to far right */
+    .right-group {
+        display: flex;
+        order: 3;
+        margin-left: auto; /* Pushes it to the right */
+        justify-content: flex-end;
+    }
+    /* Specifically show the user-wrap inside right-group even if nav-right is hidden */
+    .user-menu-wrap {
+        display: block;
+    }
+
     header {
       height: 68px; /* Smaller header */
       padding-left: 12px;
@@ -236,7 +302,7 @@
   .hero{ position:relative; min-height:92vh; display:flex; align-items:center; justify-content:center; padding:0; margin:0; overflow:visible; z-index:20; }
   .hero-media{
     position:absolute; inset:0;
-    /* user-specified banner - replace banner.jpg in project folder if you change */
+    /* user-specified banner */
     background-image: url('banner.jpg');
     background-size:cover; background-position:center center;
     filter:grayscale(20%) contrast(96%) brightness(42%);
@@ -245,7 +311,7 @@
     mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) var(--hero-mask-stop,100%), rgba(0,0,0,0) 100%);
     will-change:transform, mask-image;
   }
-  /* gold mist along hero melt line (kept) */
+  /* gold mist along hero melt line */
   .hero-media::after{
     content:""; position:absolute; left:0; right:0; bottom:0; height:14%; pointer-events:none;
     background: linear-gradient(180deg, rgba(var(--accent-gold), calc(var(--gold-opacity) * 0.9)), rgba(0,0,0,0)); mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
@@ -282,7 +348,7 @@
   /* Gold text for hero title part */
   .accent-title-part{ color:rgba(var(--accent-gold),1); }
 
-  /* gold vertical rule to the left of section titles (A style) */
+  /* gold vertical rule to the left of section titles */
   h2.section-title::before{
     content:"";
     display:inline-block;
@@ -301,16 +367,14 @@
   @media (max-width:1100px){ .grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .grid{ grid-template-columns:1fr } }
 
-  /* Added hover motion for stats/alumni cards in grid */
   .grid .card { transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; will-change: transform; }
   .grid .card:hover { transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.6); border-color: rgba(255,255,255,0.08); }
 
-  /* --- NEW CSS FOR ABOUT SECTION --- */
   .about-grid{
     display:grid;
-    grid-template-columns: 0.8fr 1.2fr; /* 40% image, 60% content */
+    grid-template-columns: 0.8fr 1.2fr;
     gap: 24px;
-    align-items: center; /* vertically center aligns content with image */
+    align-items: center; 
   }
   .about-image-wrap{
     border-radius: 8px;
@@ -318,57 +382,30 @@
     border: 1px solid rgba(255,255,255,0.02);
     box-shadow: 0 10px 30px rgba(0,0,0,0.55);
   }
-  .about-image-wrap img{
-    width:100%;
-    height:auto;
-    object-fit:cover;
-  }
-  /* Responsive stack */
-  @media (max-width: 900px){
-    .about-grid{
-      grid-template-columns: 1fr; /* Stack on mobile */
-      gap: 20px;
-    }
-  }
+  .about-image-wrap img{ width:100%; height:auto; object-fit:cover; }
+  @media (max-width: 900px){ .about-grid{ grid-template-columns: 1fr; gap: 20px; } }
 
-  /* --- ADDED CSS FOR COLLAPSIBLE CONTENT --- */
   .collapsible-content-wrap{
     height: 220px; /* Initial height limit */
     overflow: hidden;
     position: relative;
     transition: height 500ms ease-in-out;
   }
-  /* Added padding-bottom to inner content to prevent card clipping */
   .collapsible-content { padding-bottom: 20px; }
-  
-  .collapsible-content-wrap.expanded{
-    height: auto;
-  }
+  .collapsible-content-wrap.expanded{ height: auto; }
   .collapsible-content-wrap::after{
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    pointer-events: none;
+    content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 60px; pointer-events: none;
     background: linear-gradient(0deg, var(--bg) 0%, rgba(8,9,10,0) 100%);
-    opacity: 1;
-    transition: opacity 500ms ease-in-out;
+    opacity: 1; transition: opacity 500ms ease-in-out;
   }
-  .collapsible-content-wrap.expanded::after{
-    opacity: 0;
-  }
+  .collapsible-content-wrap.expanded::after{ opacity: 0; }
   
-  /* --- NEW CSS FOR RANKINGS SECTION --- */
   .rankings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
   @media (max-width: 900px) { .rankings-grid { grid-template-columns: 1fr; } }
   .rank-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 8px;
-    padding: 24px 14px;
-    text-align: center;
+    border: 1px solid rgba(255,255,255,0.04); border-radius: 8px;
+    padding: 24px 14px; text-align: center;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
@@ -379,149 +416,35 @@
   .rank-label { font-size: 1.1rem; font-weight: 700; margin-top: 12px; color: var(--text); }
   .rank-sub { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
   .rank-score { font-size: 0.95rem; color: rgba(var(--accent-gold), 0.9); font-weight: 600; margin-top: 4px; }
-  
-  /* Topper Highlight Style */
   .topper-card { border-color: rgba(var(--accent-gold), 0.3); background: linear-gradient(180deg, rgba(var(--accent-gold), 0.05), rgba(0,0,0,0)); }
   
-  /* --- MAILERLITE FORM OVERRIDES (STRICT) --- */
-  /* 1. RESET CONTAINER BACKGROUNDS & ALIGNMENT */
-  .ml-embedded, 
-  .ml-embedded .ml-form-embedWrapper, 
-  .ml-embedded .ml-form-embedBody, 
-  .ml-embedded .ml-form-embedContent,
-  .ml-form-align-center {
-      background-color: transparent !important;
-      background: transparent !important;
-      padding: 0 !important;
-      box-shadow: none !important;
-      border: none !important;
-      text-align: left !important; /* Forces left alignment */
-      margin-left: 0 !important;
-      max-width: 100% !important;
+  /* --- MAILERLITE FORM OVERRIDES --- */
+  .ml-embedded, .ml-embedded .ml-form-embedWrapper, .ml-embedded .ml-form-embedBody, .ml-embedded .ml-form-embedContent, .ml-form-align-center {
+      background-color: transparent !important; background: transparent !important; padding: 0 !important; box-shadow: none !important; border: none !important; text-align: left !important; margin-left: 0 !important; max-width: 100% !important;
   }
-  
-  /* Force container to fill width */
-  .ml-form-embedWrapper.embedForm { 
-      max-width: 100% !important; 
-      width: 100% !important;
+  .ml-form-embedWrapper.embedForm { max-width: 100% !important; width: 100% !important; }
+  .ml-form-embedBody .ml-form-embedContent h4, .ml-form-embedBody .ml-form-embedContent p { display: none !important; }
+  .ml-embedded input.form-control, .ml-embedded select.form-control {
+      background-color: transparent !important; background-image: none !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 6px !important; color: var(--text) !important; padding: 12px !important; height: auto !important; font-family: var(--font-sans) !important; font-size: 15px !important; width: 100% !important; margin-bottom: 0 !important;
   }
-
-  /* 2. HIDE INTERNAL TEXT (Title & Description) */
-  .ml-form-embedBody .ml-form-embedContent h4, 
-  .ml-form-embedBody .ml-form-embedContent p {
-      display: none !important;
+  .ml-embedded input.form-control:focus, .ml-embedded select.form-control:focus {
+      border-color: rgba(var(--accent-gold), 1) !important; outline: none !important; box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7) !important;
   }
-
-  /* 3. STYLE INPUTS & SELECTS (Glass Theme) */
-  .ml-embedded input.form-control,
-  .ml-embedded select.form-control {
-      background-color: transparent !important;
-      background-image: none !important; 
-      border: 1px solid rgba(255,255,255,0.08) !important;
-      border-radius: 6px !important;
-      color: var(--text) !important;
-      padding: 12px !important;
-      height: auto !important;
-      font-family: var(--font-sans) !important;
-      font-size: 15px !important;
-      width: 100% !important;
-      margin-bottom: 0 !important;
-  }
-  
-  /* Fix Focus State (Gold accent) */
-  .ml-embedded input.form-control:focus,
-  .ml-embedded select.form-control:focus {
-      border-color: rgba(var(--accent-gold), 1) !important;
-      outline: none !important;
-      box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7) !important;
-  }
-  
-  /* Placeholder Text Color */
-  .ml-embedded input.form-control::placeholder {
-      color: var(--muted) !important;
-      opacity: 0.7;
-  }
-
-  /* Fix Dropdown Options (Country Code) */
-  .ml-embedded select option {
-      background-color: #0d0e10 !important;
-      color: var(--text) !important;
-  }
-
-  /* 4. STYLE SUBMIT BUTTON (Red/Gold Theme) */
+  .ml-embedded input.form-control::placeholder { color: var(--muted) !important; opacity: 0.7; }
+  .ml-embedded select option { background-color: #0d0e10 !important; color: var(--text) !important; }
   .ml-embedded .ml-button-horizontal { width: 100% !important; }
-  
   .ml-embedded button.primary {
-      background: var(--accent-muted) !important;
-      color: var(--text) !important;
-      border: 1px solid rgba(113,12,4,0.08) !important;
-      font-weight: 800 !important;
-      font-size: 14px !important;
-      border-radius: 6px !important;
-      padding: 12px !important;
-      cursor: pointer !important;
-      width: 100% !important;
-      font-family: var(--font-sans) !important;
-      transition: all 0.2s ease !important;
-      text-transform: none !important;
-      box-shadow: none !important;
+      background: var(--accent-muted) !important; color: var(--text) !important; border: 1px solid rgba(113,12,4,0.08) !important; font-weight: 800 !important; font-size: 14px !important; border-radius: 6px !important; padding: 12px !important; cursor: pointer !important; width: 100% !important; font-family: var(--font-sans) !important; transition: all 0.2s ease !important; text-transform: none !important; box-shadow: none !important;
   }
-  
   .ml-embedded button.primary:hover {
-      background: linear-gradient(0deg, rgba(113,12,4,0.28), rgba(113,12,4,0.28)) !important;
-      transform: translateY(-3px) !important;
-      color: #fff !important;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+      background: linear-gradient(0deg, rgba(113,12,4,0.28), rgba(113,12,4,0.28)) !important; transform: translateY(-3px) !important; color: #fff !important; box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
   }
-
-  /* 5. SUCCESS MESSAGE Styling */
-  .ml-form-successBody .ml-form-successContent h4,
-  .ml-form-successBody .ml-form-successContent p {
-      display: block !important; 
-      color: rgba(var(--accent-gold), 1) !important;
-      font-family: var(--font-sans) !important;
-      text-align: center !important;
-  }
+  .ml-form-successBody .ml-form-successContent h4, .ml-form-successBody .ml-form-successContent p { display: block !important; color: rgba(var(--accent-gold), 1) !important; font-family: var(--font-sans) !important; text-align: center !important; }
+  .ml-field-group { margin-bottom: 12px !important; text-align: left !important; }
   
-  /* Layout spacing fix for MailerLite groups */
-  .ml-field-group {
-      margin-bottom: 12px !important;
-      text-align: left !important;
-  }
-  /* --- END NEW CSS --- */
-  
-  /* Custom Focus Ring for all other general inputs */
   .card input:focus, .card select:focus, .card textarea:focus {
-    border-color: rgba(var(--accent-gold), 0.7); /* GOLD border */
-    box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7); /* GOLD glow */
-    outline: none;
+    border-color: rgba(var(--accent-gold), 0.7); box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7); outline: none;
   }
-  
-  /* USER DROPDOWN MENU */
-  .user-menu-wrap { position: relative; display: inline-block; margin-left: 12px; }
-  .user-icon-btn { 
-    background: transparent; border: none; color: var(--text); cursor: pointer; padding: 8px;
-    transition: transform 0.2s ease, color 0.2s ease;
-  }
-  .user-icon-btn:hover { color: rgba(var(--accent-gold), 1); transform: scale(1.1); }
-  
-  .dropdown-menu {
-    position: absolute; top: 100%; right: 0; width: 160px;
-    background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px; padding: 8px 0; margin-top: 8px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    opacity: 0; transform: translateY(-10px); pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 2000;
-  }
-  .dropdown-menu.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-  
-  .dropdown-item {
-    display: block; padding: 10px 16px; font-size: 14px; color: var(--muted);
-    transition: background 0.15s ease, color 0.15s ease; text-align:left; width: 100%;
-  }
-  .dropdown-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
-
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
   @media (max-width:900px){ .media-grid{ grid-template-columns:repeat(2,1fr) } }
@@ -532,77 +455,28 @@
   .gallery-item:hover{ transform: translateY(-6px); box-shadow:0 24px 48px rgba(0,0,0,0.6) }
   .gallery-item:hover img{ transform:scale(1.03); filter:grayscale(0%) }
 
-  .news-grid{ display:grid; gap:12px; grid-template-columns: repeat(2,1fr) }
-  @media (max-width:900px){ .news-grid{ grid-template-columns:1fr } }
-  .news-item{ padding:14px; border-radius:6px; background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008)); border:1px solid rgba(255,255,255,0.02) }
-  
-  /* --- NEW CSS FOR NEWS SECTION (OPTION A) --- */
-  .news-layout-grid{
-    display:grid;
-    grid-template-columns: 1.8fr 0.8fr; /* ~70% / 30% split */
-    gap: 20px;
-  }
-  .news-main-story img{
-    width:100%;
-    height:auto;
-    border-radius:6px;
-    margin-bottom:12px;
-    border:1px solid rgba(255,255,255,0.03);
-  }
-  .news-sidebar-box{
-    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008));
-    border: 1px solid rgba(255,255,255,0.02);
-    border-radius: 6px;
-    padding: 14px;
-    height: 100%; /* Fill the grid cell */
-  }
-  /* Responsive stack */
-  @media (max-width: 800px){
-    .news-layout-grid{
-      grid-template-columns: 1fr; /* Stack on mobile */
-      gap: 20px;
-    }
-  }
-  /* --- END NEW CSS --- */
+  .news-layout-grid{ display:grid; grid-template-columns: 1.8fr 0.8fr; gap: 20px; }
+  .news-main-story img{ width:100%; height:auto; border-radius:6px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.03); }
+  .news-sidebar-box{ background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.008)); border: 1px solid rgba(255,255,255,0.02); border-radius: 6px; padding: 14px; height: 100%; }
+  @media (max-width: 800px){ .news-layout-grid{ grid-template-columns: 1fr; gap: 20px; } }
 
   .alumni-grid{ display:grid; gap:12px; grid-template-columns: repeat(3,1fr) }
   @media (max-width:1100px){ .alumni-grid{ grid-template-columns:repeat(2,1fr) } }
   @media (max-width:700px){ .alumni-grid{ grid-template-columns:1fr } }
 
   .socials-above-footer{
-    max-width:var(--max-w);
-    margin:0 auto;
-    padding:0 var(--pad) 20px;
-    display:flex;
-    gap:24px;
-    justify-content:center;
-    border-top:1px solid rgba(255,255,255,0.03);
-    padding-top:20px;
+    max-width:var(--max-w); margin:0 auto; padding:0 var(--pad) 20px; display:flex; gap:24px; justify-content:center; border-top:1px solid rgba(255,255,255,0.03); padding-top:20px;
   }
 
   footer{ padding:36px 20px; color:var(--muted); text-align:center }
 
-  /* reveal animation */
   .reveal{ opacity:0; transform: translateY(18px) scale(.995); transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms cubic-bezier(.2,.9,.2,1) }
   .reveal.is-visible{ opacity:1; transform:translateY(0) scale(1) }
 
-  @media (max-width:560px){
-    .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px }
-  }
+  @media (max-width:560px){ .brand-logo{ width:52px; height:52px } .header-grid{ gap:8px } header{ padding:6px 12px } }
 
-  /* gold baseline under product/video cards (resting baseline under card, not hover)
-     thickness preserved exactly as before; only color opacity changed */
   .product-card::after, .video-card::after {
-    content:"";
-    display:block;
-    height:4px;
-    width:60%;
-    margin-top:12px;
-    background: rgba(var(--accent-gold), var(--gold-opacity));
-    border-radius:3px;
-    transform-origin:center;
-    opacity:1;
-    margin-left:auto; margin-right:auto;
+    content:""; display:block; height:4px; width:60%; margin-top:12px; background: rgba(var(--accent-gold), var(--gold-opacity)); border-radius:3px; transform-origin:center; opacity:1; margin-left:auto; margin-right:auto;
   }
 
 </style>
@@ -620,6 +494,11 @@
 
   <header id="siteHeader" class="">
     <div class="header-grid" role="navigation" aria-label="Main header">
+      
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      </button>
+
       <div class="nav-left" id="navLeft">
         <a class="nav-link" href="#about" data-target="about">About</a>
         <a class="nav-link" href="#news" data-target="news">News</a>
@@ -632,29 +511,40 @@
         <div class="brand-title">NGHSIANS</div>
       </div>
 
-      <div class="nav-right" id="navRight">
-        <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
-        <a class="nav-link" href="#submit" data-target="submit">Share</a>
-        <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
-        <a class="nav-link" href="#contact" data-target="contact">Contact</a>
-        <a class="nav-link" href="merch.html" data-external="true">Merch</a>
-        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+      <div class="right-group">
+        <div class="nav-right" id="navRight">
+          <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
+          <a class="nav-link" href="#submit" data-target="submit">Share</a>
+          <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
+          <a class="nav-link" href="#contact" data-target="contact">Contact</a>
+          <a class="nav-link" href="merch.html" data-external="true">Merch</a>
+          <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+        </div>
         
-        <!-- USER ICON (Dropdown) -->
         <div class="user-menu-wrap">
           <button id="userBtn" class="user-icon-btn" aria-label="User Account">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </button>
           <div id="userDropdown" class="dropdown-menu">
-             <a href="account.html" class="dropdown-item">My Account</a>
+             <div id="dd-content-guest">
+                 <div class="dropdown-header">
+                    <span class="dd-name">Guest</span>
+                 </div>
+                 <a href="account.html" class="dropdown-item highlight">Login / Sign Up</a>
+             </div>
+             <div id="dd-content-user" style="display:none;">
+                 <div class="dropdown-header">
+                    <span id="dd-username" class="dd-name">Student</span>
+                    <span id="dd-batch" class="dd-batch">Batch ---</span>
+                    <div id="dd-badges"></div>
+                 </div>
+                 <a href="account.html" class="dropdown-item">My Account</a>
+                 <button onclick="handleLogout()" class="dropdown-item" style="border:none;background:none;cursor:pointer;width:100%;text-align:left">Sign Out</button>
+             </div>
           </div>
         </div>
-
       </div>
       
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-      </button>
     </div>
   </header>
 
@@ -858,11 +748,8 @@
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
           
-          <!-- START MAILERLITE FORM -->
           <div style="margin-top:12px;" class="ml-embedded" data-form="Q1EYDP"></div>
-          <!-- END MAILERLITE FORM -->
-
-        </div>
+          </div>
       </section>
       <section id="submit" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Share Your Memory</h2>
@@ -889,7 +776,6 @@
               <strong style="color:var(--text)">Coming Soon.</strong> We are curating the initial alumni database.
           </p>
           
-          <!-- Added Alumni Interface Request Button -->
           <div style="text-align:center; margin-top:20px;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSchoxpQAGx30muyfju3mYC19qqelsW2DnM1d1tgEkUfrdeedQ/viewform?usp=dialog" target="_blank" style="text-decoration:none;">
                 <span class="magnetic" data-magnetic>
@@ -967,6 +853,55 @@
 <script>
 (function(){
   /* ===============
+     CONFIG & AUTH LOGIC
+     =============== */
+  const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  
+  // Auth Check on Load
+  async function initAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const guestView = document.getElementById('dd-content-guest');
+    const userView = document.getElementById('dd-content-user');
+
+    if (session) {
+      // Logged In
+      guestView.style.display = 'none';
+      userView.style.display = 'block';
+      
+      // Fetch Profile Details
+      const { data: profile } = await supabase.from('verified_profiles').select('*').eq('id', session.user.id).single();
+      if(profile) {
+          document.getElementById('dd-username').textContent = profile.username || 'Student';
+          document.getElementById('dd-batch').textContent = 'Batch: ' + (profile.batch_year || '---');
+          
+          // Render Badges
+          const badgesDiv = document.getElementById('dd-badges');
+          badgesDiv.innerHTML = '';
+          if (profile.role === 'architect') {
+              badgesDiv.innerHTML += `<span class="u-badge architect" style="margin-right:4px;">ARCHITECT</span>`;
+          }
+          if (profile.role === 'elite' || profile.role === 'architect') {
+              badgesDiv.innerHTML += `<span class="u-badge verified">VERIFIED</span>`;
+          }
+      }
+    } else {
+      // Guest
+      guestView.style.display = 'block';
+      userView.style.display = 'none';
+    }
+  }
+  
+  // Run immediately
+  initAuth();
+  
+  window.handleLogout = async () => {
+      await supabase.auth.signOut();
+      window.location.reload();
+  };
+
+  /* ===============
      CACHE ELEMENTS
      =============== */
   const header = document.getElementById('siteHeader');
@@ -983,49 +918,42 @@
   const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
 
   /* ===========================
-     Page wipe helper (plays on load and nav)
+     Page wipe helper
      =========================== */
   function showWipe(cb){
     if(!pageWipe){ if(cb) cb(); return; }
     pageWipe.classList.add('show');
-    // keep slightly shorter than CSS variable so content becomes visible after wipe
     setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980);
   }
 
-  // Trigger wipe on first load of index (fix for earlier issue)
   window.addEventListener('load', ()=> {
-    // run the cinematic wipe on first load
     setTimeout(()=> showWipe(()=>{}), 160);
   });
 
   /* ===========================
-     Mobile Menu Setup (ADDED)
+     Mobile Menu Setup
      =========================== */
   function buildMobileMenu(){
     const mobileNavList = document.getElementById('mobileNavList');
     mobileNavList.innerHTML = '';
     allDesktopLinks.forEach(link => {
       const clone = link.cloneNode(true);
-      // Ensure mobile link closes the menu
       clone.addEventListener('click', () => {
         if(clone.getAttribute('href').startsWith('#')) {
-            // Wait for smooth scroll
             setTimeout(toggleMobileMenu, 600);
         } else {
-            // For external links
             toggleMobileMenu();
         }
       });
       mobileNavList.appendChild(clone);
     });
   }
-  buildMobileMenu(); // Build the menu on load
+  buildMobileMenu();
 
   function toggleMobileMenu(){
     const isOpen = mobileMenu.classList.toggle('open');
     menuToggle.setAttribute('aria-expanded', isOpen);
     mobileMenu.setAttribute('aria-hidden', !isOpen);
-    // Prevent scrolling behind the menu
     document.body.style.overflow = isOpen ? 'hidden' : '';
   }
 
@@ -1067,7 +995,7 @@
   });
 
   /* ===========================
-     Header: transparent over hero, solid on scroll
+     Header Scroll Effect
      =========================== */
   if(heroSection){
     const heroObserver = new IntersectionObserver(entries => {
@@ -1086,14 +1014,13 @@
   reveals.forEach(r => revealObserver.observe(r));
 
   /* ===========================
-     Active nav highlighting (Updated to include mobile links)
+     Active nav highlighting
      =========================== */
   const sectionObserver = new IntersectionObserver((entries) => {
     entries.forEach(en => {
       if(en.isIntersecting && en.target.id){
         const id = en.target.id;
         navLinks.forEach(n => n.classList.toggle('active', (n.dataset.target || (n.getAttribute('href')||'').replace('#','')) === id));
-        // ADDED: Update mobile links too
         document.querySelectorAll('#mobileMenu .nav-link').forEach(n => {
             const linkId = (n.dataset.target || (n.getAttribute('href')||'').replace('#',''));
             n.classList.toggle('active', linkId === id);
@@ -1134,7 +1061,7 @@
   document.getElementById('modal').addEventListener('click', function(e){ if(e.target.id === 'modal') closeModal(); });
   
   /* ===========================
-     Number Counter Animation (ADDED)
+     Number Counter Animation
      =========================== */
   const counters = document.querySelectorAll('.counter');
   const counterObserver = new IntersectionObserver((entries, observer) => {
@@ -1143,24 +1070,16 @@
         const counter = entry.target;
         const target = +counter.getAttribute('data-target');
         const start = +counter.getAttribute('data-start');
-        const duration = 1500; // ms
+        const duration = 1500;
         const startTime = performance.now();
         
         function update(currentTime) {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          // Ease out cubic for "settling" effect
           const ease = 1 - Math.pow(1 - progress, 3);
-          
-          // Calculate current value (counting down from start to target)
           const currentVal = Math.floor(start - ((start - target) * ease));
           counter.innerText = currentVal;
-          
-          if (progress < 1) {
-            requestAnimationFrame(update);
-          } else {
-            counter.innerText = target;
-          }
+          if (progress < 1) requestAnimationFrame(update); else counter.innerText = target;
         }
         requestAnimationFrame(update);
         observer.unobserve(counter);
@@ -1169,12 +1088,7 @@
   }, { threshold: 0.5 });
   counters.forEach(c => counterObserver.observe(c));
 
-  /* ===========================
-     Demo form handlers (for hidden forms)
-     =========================== */
-  // The memory form is hidden, so this is just a fallback to prevent error
   window.submitMemory = function(e){ e.preventDefault(); document.getElementById('send-response').textContent = `Feature Coming Soon.`; e.target.reset(); };
-  // The contact form is hidden, so this is just a fallback to prevent error
   window.contactUs = function(e){ e.preventDefault(); document.getElementById('contact-response').textContent = `Please use the listed email or social media handles for now.`; e.target.reset(); };
 
   /* ===========================
@@ -1201,77 +1115,36 @@
   })();
 
   /* ===========================
-     Collapsible Content (See More/Less)
+     Collapsible Content
      =========================== */
   (function collapsibleContent(){
     const wrap = document.getElementById('collapsibleContent');
     const content = wrap ? wrap.querySelector('.collapsible-content') : null;
     const btn = document.getElementById('seeMoreBtn');
     if(!wrap || !content || !btn) return;
+    let isExpanded = false; let fullHeight = 0;
 
-    let isExpanded = false;
-    let fullHeight = 0;
-
-    // Calculate the full height of the content element
     function calculateHeight() {
-      // Temporarily remove constraints to get true content height
-      wrap.style.height = 'auto';
-      wrap.style.removeProperty('overflow');
-      fullHeight = content.offsetHeight;
-      
-      // Check if content is actually longer than the limit (220px)
-      if (fullHeight <= 220) {
-        // If content is short, hide the button and ensure no visual fade is applied
-        btn.style.display = 'none';
-        wrap.style.removeProperty('height');
-        wrap.classList.remove('collapsible-content-wrap'); // remove class that applies the :after fade
-        return;
-      } else {
-        btn.style.display = 'inline-flex';
-      }
-
-      // Restore initial limited height (if not expanded)
-      wrap.style.height = '220px';
-      wrap.style.overflow = 'hidden';
-      // Re-run expansion check since height may have changed on resize
-      if(isExpanded) {
-          wrap.style.height = `${fullHeight}px`;
-      }
+      wrap.style.height = 'auto'; wrap.style.removeProperty('overflow'); fullHeight = content.offsetHeight;
+      if (fullHeight <= 220) { btn.style.display = 'none'; wrap.style.removeProperty('height'); wrap.classList.remove('collapsible-content-wrap'); return; } 
+      else { btn.style.display = 'inline-flex'; }
+      wrap.style.height = '220px'; wrap.style.overflow = 'hidden';
+      if(isExpanded) wrap.style.height = `${fullHeight}px`;
     }
 
     function toggleExpansion(e) {
-      e.preventDefault();
-      isExpanded = !isExpanded;
-
-      if (isExpanded) {
-        wrap.style.height = `${fullHeight}px`;
-        wrap.classList.add('expanded');
-        btn.querySelector('.btn-inner').textContent = 'See Less';
-        btn.setAttribute('aria-expanded', 'true');
-      } else {
-        // To trigger CSS transition when collapsing from auto/full height:
+      e.preventDefault(); isExpanded = !isExpanded;
+      if (isExpanded) { wrap.style.height = `${fullHeight}px`; wrap.classList.add('expanded'); btn.querySelector('.btn-inner').textContent = 'See Less'; btn.setAttribute('aria-expanded', 'true'); } 
+      else {
         wrap.style.height = `${fullHeight}px`; 
-        setTimeout(()=> {
-          wrap.style.height = '220px';
-          wrap.classList.remove('expanded');
-          btn.querySelector('.btn-inner').textContent = 'See More';
-          btn.setAttribute('aria-expanded', 'false');
-        }, 10);
-        
-        // Smooth scroll to the top of the section when collapsing
+        setTimeout(()=> { wrap.style.height = '220px'; wrap.classList.remove('expanded'); btn.querySelector('.btn-inner').textContent = 'See More'; btn.setAttribute('aria-expanded', 'false'); }, 10);
         const aboutSection = document.getElementById('about');
-        // If the top of the content is out of view, scroll.
-        if (wrap.getBoundingClientRect().top < 0) {
-            aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        if (wrap.getBoundingClientRect().top < 0) aboutSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
-
-    // Initialize
     document.addEventListener('DOMContentLoaded', calculateHeight);
     window.addEventListener('resize', calculateHeight);
     btn.addEventListener('click', toggleExpansion);
-    // Initial state set to 'See Less' (was 'See More' before, changed here to reflect logic)
     btn.querySelector('.btn-inner').textContent = 'See More'; 
   })();
   
@@ -1280,7 +1153,6 @@
      =========================== */
   window.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape'){ closeModal(); toggleMobileMenu(); } });
 
-  /* Brand click -> home with wipe */
   brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });
 
   /* ===========================
@@ -1294,7 +1166,6 @@
       e.stopPropagation();
       userDropdown.classList.toggle('show');
     });
-    
     document.addEventListener('click', (e) => {
       if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
         userDropdown.classList.remove('show');
