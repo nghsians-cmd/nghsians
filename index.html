@@ -220,7 +220,7 @@
       padding-bottom: 10px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06);
       text-align: left;
   }
-  .dd-name { font-weight: 700; font-size: 1rem; color: #fff; display: block; }
+  .dd-name { font-weight: 700; font-size: 1rem; color: #fff; display: block; align-items:center; }
   .dd-batch { font-size: 0.8rem; color: var(--muted); display: block; margin-top: 2px; }
   
   .dropdown-item {
@@ -246,22 +246,17 @@
     }
     
     .header-grid {
-      /* [Hamburger] [Logo] [Spacer] [Account] */
+      /* [Logo] [Hamburger] ... [Account] */
       display: flex;
-      justify-content: space-between;
       align-items: center;
-    }
-    
-    .menu-toggle {
-      display: block; /* Show hamburger */
-      order: 1; /* Leftmost */
-      margin-right: 12px;
+      /* No justify-content:space-between; handled by margin-auto on right group */
     }
     
     .brand-center {
-      order: 2; /* After hamburger */
+      order: 1; /* Logo First */
       flex-direction: row;
       gap: 12px;
+      margin-right: 12px;
     }
     .brand-title {
       display: none; /* Hide title to save space */
@@ -269,6 +264,12 @@
     .brand-logo {
       width: 52px;
       height: 52px;
+    }
+    
+    .menu-toggle {
+      display: block; /* Show hamburger */
+      order: 2; /* Second */
+      margin-right: 0;
     }
     
     /* Move User Icon to far right */
@@ -873,7 +874,15 @@
       // Fetch Profile Details
       const { data: profile } = await supabase.from('verified_profiles').select('*').eq('id', session.user.id).single();
       if(profile) {
-          document.getElementById('dd-username').textContent = profile.username || 'Student';
+          const nameEl = document.getElementById('dd-username');
+          let nameHtml = (profile.username || 'Student');
+
+          // Add checkmark if verified
+          if (profile.role === 'elite' || profile.role === 'architect') {
+             nameHtml += `<svg style="width:14px;height:14px;color:rgba(var(--accent-gold), 1);margin-left:4px;vertical-align:middle;display:inline-block;" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+          }
+          nameEl.innerHTML = nameHtml;
+
           document.getElementById('dd-batch').textContent = 'Batch: ' + (profile.batch_year || '---');
           
           // Render Badges
