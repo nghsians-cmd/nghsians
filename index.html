@@ -22,6 +22,7 @@
 <meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
+<!-- MailerLite Universal -->
 <script>
     (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
     .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
@@ -29,6 +30,8 @@
     (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
     ml('account', '1927434');
 </script>
+<!-- End MailerLite Universal -->
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
@@ -493,6 +496,31 @@
     box-shadow: 0 0 0 1px rgba(var(--accent-gold), 0.7); /* GOLD glow */
     outline: none;
   }
+  
+  /* USER DROPDOWN MENU */
+  .user-menu-wrap { position: relative; display: inline-block; margin-left: 12px; }
+  .user-icon-btn { 
+    background: transparent; border: none; color: var(--text); cursor: pointer; padding: 8px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .user-icon-btn:hover { color: rgba(var(--accent-gold), 1); transform: scale(1.1); }
+  
+  .dropdown-menu {
+    position: absolute; top: 100%; right: 0; width: 160px;
+    background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 8px 0; margin-top: 8px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    opacity: 0; transform: translateY(-10px); pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 2000;
+  }
+  .dropdown-menu.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  
+  .dropdown-item {
+    display: block; padding: 10px 16px; font-size: 14px; color: var(--muted);
+    transition: background 0.15s ease, color 0.15s ease; text-align:left; width: 100%;
+  }
+  .dropdown-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
 
 
   .media-grid{ display:grid; gap:12px; grid-template-columns:repeat(3,1fr) }
@@ -611,6 +639,17 @@
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
         <a class="nav-link" href="merch.html" data-external="true">Merch</a>
         <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+        
+        <!-- USER ICON (Dropdown) -->
+        <div class="user-menu-wrap">
+          <button id="userBtn" class="user-icon-btn" aria-label="User Account">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </button>
+          <div id="userDropdown" class="dropdown-menu">
+             <a href="account.html" class="dropdown-item">My Account</a>
+          </div>
+        </div>
+
       </div>
       
       <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -819,8 +858,11 @@
         <div class="card">
           <p class="muted">Monthly throwbacks, meetups, and urgent announcements.</p>
           
+          <!-- START MAILERLITE FORM -->
           <div style="margin-top:12px;" class="ml-embedded" data-form="Q1EYDP"></div>
-          </div>
+          <!-- END MAILERLITE FORM -->
+
+        </div>
       </section>
       <section id="submit" class="reveal" style="margin-top:18px">
         <h2 class="section-title">Share Your Memory</h2>
@@ -847,6 +889,7 @@
               <strong style="color:var(--text)">Coming Soon.</strong> We are curating the initial alumni database.
           </p>
           
+          <!-- Added Alumni Interface Request Button -->
           <div style="text-align:center; margin-top:20px;">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSchoxpQAGx30muyfju3mYC19qqelsW2DnM1d1tgEkUfrdeedQ/viewform?usp=dialog" target="_blank" style="text-decoration:none;">
                 <span class="magnetic" data-magnetic>
@@ -1239,6 +1282,25 @@
 
   /* Brand click -> home with wipe */
   brandBtn && brandBtn.addEventListener('click', (e)=>{ e.preventDefault(); showWipe(()=> { document.getElementById('home').scrollIntoView({behavior:'smooth'}); history.replaceState(null,'','#home'); }); });
+
+  /* ===========================
+     User Dropdown Toggle
+     =========================== */
+  const userBtn = document.getElementById('userBtn');
+  const userDropdown = document.getElementById('userDropdown');
+  
+  if(userBtn && userDropdown) {
+    userBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!userDropdown.contains(e.target) && !userBtn.contains(e.target)) {
+        userDropdown.classList.remove('show');
+      }
+    });
+  }
 
 })();
 </script>
