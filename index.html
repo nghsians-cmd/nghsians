@@ -637,8 +637,8 @@
         <a class="nav-link" href="#submit" data-target="submit">Share</a>
         <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
         <a class="nav-link" href="#contact" data-target="contact">Contact</a>
-        <a class="nav-link" href="merch.html" data-external="true">Merch</a>
-        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+        <a class="nav-link" href="/merch/" data-external="true">Merch</a>
+        <a class="nav-link" href="/sign/" data-external="true">Sign Day</a>
         
         <!-- USER ICON (Dropdown) -->
         <div class="user-menu-wrap">
@@ -646,7 +646,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </button>
           <div id="userDropdown" class="dropdown-menu">
-             <a href="account.html" class="dropdown-item">My Account</a>
+             <a href="/portal/" class="dropdown-item">My Account</a>
           </div>
         </div>
 
@@ -983,6 +983,12 @@
   const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
 
   /* ===========================
+     Brevo API Configuration
+     =========================== */
+  const BREVO_API_KEY = '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';
+  const BREVO_LIST_ID = 2;
+
+  /* ===========================
      Page wipe helper (plays on load and nav)
      =========================== */
   function showWipe(cb){
@@ -1168,6 +1174,72 @@
     });
   }, { threshold: 0.5 });
   counters.forEach(c => counterObserver.observe(c));
+
+  /* ===========================
+     Live Brevo Form Handler
+     =========================== */
+  window.subscribeNews = function(e){
+    e.preventDefault();
+    const form = e.target;
+    const email = document.getElementById('email') ? document.getElementById('email').value : '';
+    const name = document.getElementById('name') ? document.getElementById('name').value : '';
+    const phone = document.getElementById('phone') ? document.getElementById('phone').value : '';
+    const batch = document.getElementById('batch') ? document.getElementById('batch').value : '';
+    const responseEl = document.getElementById('sub-response');
+    responseEl.textContent = 'Subscribing...';
+    responseEl.style.color = 'var(--muted)';
+
+    // Check for a valid email before API call
+    if (!email) {
+      responseEl.style.color = '#FF6060';
+      responseEl.textContent = 'Please provide an email address.';
+      return;
+    }
+
+    const url = 'https://api.brevo.com/v3/contacts';
+    
+    const data = {
+      email: email,
+      listIds: [BREVO_LIST_ID],
+      updateEnabled: true,
+      attributes: {
+        // NOTE: Brevo requires custom attributes to be created in their dashboard. 
+        // These keys (NAME, PHONE, BATCH) are used as standard assumptions.
+        NAME: name,
+        PHONE: phone,
+        BATCH: batch
+      }
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': BREVO_API_KEY
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (res.ok || res.status === 201 || res.status === 204) {
+        responseEl.style.color = 'rgba(var(--accent-gold), 1)';
+        responseEl.textContent = `Success! ${name || 'You'} have been subscribed. Check your email for a welcome message.`;
+        form.reset();
+      } else {
+        // Handle error response (e.g., already subscribed, invalid email, API key error)
+        return res.json().then(errorData => {
+          const msg = errorData.message || 'An unknown error occurred.';
+          responseEl.style.color = '#FF6060';
+          responseEl.textContent = `Subscription failed: ${msg.includes('already exists') ? 'This email is already subscribed.' : msg.includes('Invalid') ? 'Invalid Email or API Key.' : msg}`;
+        });
+      }
+    })
+    .catch(err => {
+      responseEl.style.color = '#FF6060';
+      responseEl.textContent = 'Network error. Please try again later.';
+      console.error('Brevo API error:', err);
+    });
+  };
 
   /* ===========================
      Demo form handlers (for hidden forms)
