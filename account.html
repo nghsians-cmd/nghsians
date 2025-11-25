@@ -86,6 +86,16 @@
     border-color: rgba(var(--accent-gold), 0.4);
     box-shadow: 0 0 50px rgba(var(--accent-gold), 0.1);
   }
+  
+  /* Alumni Theme */
+  .id-card.alumni-theme {
+    background: linear-gradient(160deg, rgba(20, 20, 22, 0.9), rgba(113, 12, 4, 0.15));
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 40px rgba(113, 12, 4, 0.1);
+  }
+  .id-card.alumni-theme::before {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  }
 
   /* --- NETWORK CARD STYLES --- */
   .network-card {
@@ -108,7 +118,8 @@
   .search-input {
     width: 100%; padding: 12px 12px 12px 40px;
     background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: #fff; font-family: inherit; font-size: 14px;
+    border-radius: 8px; color: #fff; font-family: inherit; 
+    font-size: 16px; /* FIXED: Increased to 16px to prevent zoom on mobile */
   }
   .search-input:focus { outline: none; border-color: rgba(var(--accent-gold), 0.6); }
   .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
@@ -143,13 +154,13 @@
   .u-batch { font-size: 0.8rem; color: var(--muted); }
   .u-followers { font-size: 0.75rem; color: rgba(var(--accent-gold), 0.8); font-weight: 600; margin-top: 2px; display:flex; align-items:center; gap:6px; }
   
-  /* Badge in List (Moved to Followers line) */
+  /* Badge in List */
   .u-badge {
-    font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase;
+    font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 4px;
   }
   .u-badge.architect { color: #000; background: rgba(var(--accent-gold), 1); }
   .u-badge.verified { color: rgba(var(--accent-gold), 1); background: rgba(var(--accent-gold), 0.15); border: 1px solid rgba(var(--accent-gold), 0.3); }
-
+  .u-badge.alumni { color: #fff; background: rgba(113, 12, 4, 0.5); border: 1px solid rgba(113, 12, 4, 0.8); }
 
   .btn-follow {
     padding: 6px 14px; border-radius: 6px; border: none;
@@ -169,7 +180,8 @@
   .input-box {
     width: 100%; padding: 12px 14px;
     background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px; color: #fff; font-family: inherit; font-size: 15px;
+    border-radius: 8px; color: #fff; font-family: inherit; 
+    font-size: 16px; /* FIXED: Increased to 16px to prevent zoom on mobile */
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   .input-box:focus {
@@ -222,14 +234,14 @@
 
   .data-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; align-items:center;}
   .data-val { color: #fff; font-weight: 600; font-family: monospace; text-align: right; }
-  .edit-input { background: transparent; border: none; border-bottom: 1px solid rgba(var(--accent-gold), 0.5); color: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 600; text-align: right; width: 140px; padding: 2px 0; outline: none; }
+  .edit-input { background: transparent; border: none; border-bottom: 1px solid rgba(var(--accent-gold), 0.5); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600; text-align: right; width: 140px; padding: 2px 0; outline: none; }
 
   .hidden { display: none !important; }
   .error-msg { color: #ff6060; font-size: 0.85rem; background: rgba(255,96,96,0.1); padding: 10px; border-radius: 6px; margin-bottom: 12px; display: none; }
   .success-msg { color: gold; font-size: 0.85rem; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 12px; display: none; }
 
   /* Verified Checkmark Small */
-  .v-check-sm { width: 14px; height: 14px; color: rgba(var(--accent-gold), 1); margin-left: 4px; }
+  .v-check-sm { width: 14px; height: 14px; margin-left: 4px; }
 
   /* --- MODAL POPUP --- */
   .modal-overlay {
@@ -256,8 +268,8 @@
       justify-content: flex-start;
       padding-top: 80px; /* Space for header/back button */
       padding-bottom: 40px;
-      padding-left: 10px; /* Reduced padding to give more space */
-      padding-right: 10px; /* Reduced padding to give more space */
+      padding-left: 20px; /* FIXED: Increased padding to prevent edge clipping */
+      padding-right: 20px; /* FIXED: Increased padding to prevent edge clipping */
     }
     .dashboard-grid {
       gap: 16px;
@@ -404,8 +416,8 @@
     <div class="modal-icon">
       <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
     </div>
-    <h2 class="modal-title">Congratulations!</h2>
-    <p style="color:#fff; line-height:1.6; margin-bottom:24px;">
+    <h2 class="modal-title" id="modal-title">Congratulations!</h2>
+    <p id="modal-msg" style="color:#fff; line-height:1.6; margin-bottom:24px;">
       You are now a <strong>Verified NGHSIAN!</strong><br>
       Your profile has been officially authenticated.
     </p>
@@ -500,10 +512,15 @@
         const batchTxt = document.getElementById('display-batch');
         const statusTxt = document.getElementById('status-text');
         const headerRole = document.getElementById('header-role');
+        const verifiedOverlay = document.querySelector('.verified-icon-overlay');
         
-        // Reset Classes
+        // Reset Classes and Icon
         avatar.classList.remove('is-verified');
         card.classList.remove('architect-theme');
+        card.classList.remove('alumni-theme');
+        // Reset standard verified icon
+        verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+        verifiedOverlay.style.color = 'rgba(var(--accent-gold), 1)';
 
         if (data.role === 'architect') {
              avatar.classList.add('is-verified');
@@ -514,6 +531,7 @@
              statusTxt.style.color = 'rgba(var(--accent-gold), 1)';
              statusTxt.style.fontWeight = '800';
              headerRole.textContent = '#ARCHITECT';
+
         } else if (data.role === 'elite') {
              avatar.classList.add('is-verified');
              batchTxt.textContent = 'NGHSIANS ELITE';
@@ -523,11 +541,31 @@
              statusTxt.style.fontWeight = '800';
              headerRole.textContent = '#VERIFIED';
              
-             // Check if we need to show the POPUP
-            if (!currentProfileData.notified_of_verification) {
-              triggerCelebration();
-              await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
-            }
+             // Check for Notification
+             if (!currentProfileData.notified_of_verification) {
+                triggerCelebration('elite');
+                await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
+             }
+
+        } else if (data.role === 'alumni') {
+             avatar.classList.add('is-verified');
+             card.classList.add('alumni-theme');
+             batchTxt.textContent = 'NGHSIANS ALUMNI';
+             batchTxt.style.color = '#eef0f2'; // White/Silverish
+             statusTxt.textContent = 'ALUMNI ACCOUNT';
+             statusTxt.style.color = 'rgba(255,255,255, 0.7)';
+             statusTxt.style.fontWeight = '600';
+             headerRole.textContent = '#ALUMNI';
+
+             // Alumni Icon (Graduation Cap)
+             verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>';
+             verifiedOverlay.style.color = '#fff';
+
+             // Check for Notification
+             if (!currentProfileData.notified_of_verification) {
+                triggerCelebration('alumni');
+                await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
+             }
 
         } else {
              batchTxt.textContent = 'NGHSIANS MEMBER';
@@ -610,15 +648,22 @@
         // Determine Badges (Placed in followers line)
         let badgesHtml = '';
         if (u.role === 'architect') {
-             badgesHtml += `<span class="u-badge architect" style="margin-left:6px;">ARCHITECT</span>`;
+             badgesHtml += `<span class="u-badge architect">ARCHITECT</span>`;
         }
         if (u.role === 'elite' || u.role === 'architect') {
-             badgesHtml += `<span class="u-badge verified" style="margin-left:4px;">VERIFIED</span>`;
+             badgesHtml += `<span class="u-badge verified">VERIFIED</span>`;
+        }
+        if (u.role === 'alumni') {
+             badgesHtml += `<span class="u-badge alumni">ALUMNI</span>`;
         }
         
         // Verified Checkmark (Beside Name)
-        const isVerified = u.role === 'elite' || u.role === 'architect';
-        const checkMark = isVerified ? `<svg class="v-check-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>` : '';
+        let checkMark = '';
+        if (u.role === 'elite' || u.role === 'architect') {
+            checkMark = `<svg class="v-check-sm" style="color:rgba(var(--accent-gold),1)" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+        } else if (u.role === 'alumni') {
+            checkMark = `<svg class="v-check-sm" style="color:#fff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
+        }
         
         const html = `
         <div class="user-item">
@@ -818,9 +863,25 @@
   window.handleLogout = async () => { await supabase.auth.signOut(); window.location.reload(); }
 
   // POPUP LOGIC
-  function triggerCelebration() {
-    document.getElementById('verified-modal').classList.add('show');
-    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFF39A', '#710C04', '#ffffff'] });
+  function triggerCelebration(type) {
+    const title = document.getElementById('modal-title');
+    const msg = document.getElementById('modal-msg');
+    const modal = document.getElementById('verified-modal');
+
+    modal.classList.add('show');
+
+    if (type === 'alumni') {
+        title.textContent = 'Welcome Home!';
+        msg.innerHTML = 'Your <strong>Alumni Status</strong> has been verified.<br>Thank you for your legacy.';
+        // Red and White Confetti
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#710C04', '#ffffff', '#cccccc'] });
+    } else {
+        // Elite/Architect
+        title.textContent = 'Congratulations!';
+        msg.innerHTML = 'You are now a <strong>Verified NGHSIAN!</strong><br>Your profile has been officially authenticated.';
+        // Gold and Red Confetti
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFF39A', '#710C04', '#ffffff'] });
+    }
   }
 
   window.closeModal = function() {
