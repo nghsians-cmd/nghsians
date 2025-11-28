@@ -288,6 +288,29 @@
 </head>
 <body>
 
+<!-- START: DEVELOPMENT OVERLAY (DELETE TO REVEAL) -->
+<div style="position:fixed; inset:0; z-index:999999; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+    <!-- Background Effect -->
+    <div style="position:absolute; inset:0; background:radial-gradient(circle at center, rgba(113,12,4,0.15), transparent 70%); pointer-events:none;"></div>
+    
+    <!-- Animated Icon -->
+    <svg style="width:64px; height:64px; color:rgba(var(--accent-gold),1); margin-bottom:24px; animation: pulse 3s infinite;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <path d="M8 11h8"></path><path d="M8 15h8"></path><path d="M10 7h4"></path>
+    </svg>
+    <style>@keyframes pulse { 0%{opacity:0.7; transform:scale(0.95);} 50%{opacity:1; transform:scale(1);} 100%{opacity:0.7; transform:scale(0.95);} }</style>
+
+    <!-- Content -->
+    <h1 style="font-size:2.2rem; color:var(--text); margin:0 0 16px 0; font-family:var(--font-sans); font-weight:800;">Oops, the page is under development!</h1>
+    <p style="color:var(--muted); font-size:1.1rem; max-width:400px; line-height:1.6; font-family:var(--font-sans); margin:0;">
+        We are making some classy updates to match the theme.<br>Check back later for the reveal.
+    </p>
+    
+    <!-- Gold Divider -->
+    <div style="margin-top:30px; height:3px; width:60px; background:linear-gradient(90deg, transparent, rgba(var(--accent-gold),0.8), transparent); border-radius:2px;"></div>
+</div>
+<!-- END: DEVELOPMENT OVERLAY -->
+
 <div class="wrap">
   <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:10;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
