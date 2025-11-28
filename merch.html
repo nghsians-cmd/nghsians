@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>NGHSIANS — Merch</title>
-<meta name="description" content="NGHSIANS Merch admin preview (coming soon). Put logo.png in same folder."/>
+<meta name="description" content="NGHSIANS Merch. Official gear."/>
 <link rel="icon" href="favLogo.ico" type="image/png"> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -171,42 +171,174 @@
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
   .container{ width:100%; max-width:1100px; padding:20px; position:relative; }
 
-  .coming-wrap{ display:flex; align-items:center; justify-content:center; min-height:48vh; padding:40px 12px; }
-  .coming-section{ text-align:center; transition: opacity 420ms cubic-bezier(.2,.9,.2,1), transform 420ms cubic-bezier(.2,.9,.2,1); will-change:opacity,transform; }
-  .coming-section.hide{ opacity:0; transform: translateY(18px); pointer-events:none; }
+  /* REMOVED: .coming-wrap, .access-row, .admin-label logic
+     ADDED: Single Product Styles 
+  */
+  
+  /* NEW: Page Title Style */
+  .page-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--text);
+    margin: 12px 0 0 0;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms ease, transform 600ms ease;
+    display: inline-block;
+    letter-spacing: -0.03em;
+  }
+  .page-title.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Gold accent dot */
+  .page-title::after {
+    content: ".";
+    color: rgba(var(--accent-gold), 1);
+  }
 
-  .coming-title{ font-weight:900; font-size:2.6rem; letter-spacing:-0.6px; margin:0; color:var(--text) }
-  @media (max-width:520px){ .coming-title{ font-size:1.8rem } }
+  .single-product-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* Keeps it centered vertically in available space */
+    padding-top: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 600ms cubic-bezier(.2,.9,.2,1), transform 600ms cubic-bezier(.2,.9,.2,1);
+  }
+  
+  .single-product-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-  .admin-label{ color:var(--muted); margin-top:12px; font-weight:600; font-size:13px }
-  .access-row{ display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
-  .access-row input{ padding:12px 14px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text); min-width:240px; }
-  .access-row button{ padding:12px 14px; border-radius:6px; border:1px solid transparent; background:var(--accent-muted); color:var(--text); font-weight:800; cursor:pointer; }
+  /* Bigger, featured card */
+  .featured-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.03);
+    transition: transform 320ms cubic-bezier(.2,.9,.2,1), box-shadow 320ms;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    width: 100%;
+    max-width: 520px; /* "A little big" but not overwhelming */
+    margin: 0 auto;
+  }
+  
+  .featured-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.7);
+    border-color: rgba(255,255,255,0.06);
+  }
 
-  /* .hint removed as per user request */
+  .featured-image {
+    width: 100%;
+    height: 360px; /* Taller image area */
+    border-radius: 8px;
+    background: #101113;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    border: 1px dashed rgba(255,255,255,0.05);
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Optional internal accent for image placeholder */
+  .featured-image::after {
+    content: "NO IMAGE";
+    position: absolute;
+    opacity: 0.2;
+    font-size: 12px;
+    bottom: 12px;
+  }
 
-  .merch-area{ opacity:0; transform: translateY(8px); transition: opacity 520ms cubic-bezier(.2,.9,.2,1), transform 520ms; pointer-events:none; margin-top:8px; }
-  .merch-area.visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
-  .merch-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
-  .products-grid{ display:grid; gap:18px; grid-template-columns: repeat(3,1fr); }
-  @media (max-width:1100px){ .products-grid{ grid-template-columns:repeat(2,1fr) } }
-  @media (max-width:700px){ .products-grid{ grid-template-columns:1fr } }
-  .product-card{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.006)); padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,0.02); transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms; display:flex; flex-direction:column; gap:8px; position:relative; }
-  .product-card:hover{ transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); }
-  .product-image{ width:100%; height:180px; border-radius:6px; background:#121212; display:flex; align-items:center; justify-content:center; color:var(--muted); font-weight:700; letter-spacing:0.6px; border:1px dashed rgba(255,255,255,0.03); }
-  .product-meta{ display:flex; justify-content:space-between; align-items:center; gap:12px; } .product-title{ font-weight:800; font-size:14px; } .product-price{ color:var(--muted); font-weight:800; font-size:13px; }
-  .product-actions{ display:flex; gap:10px; margin-top:6px; } .product-actions .btn{ flex:1; padding:10px 12px; border-radius:6px; font-weight:800; border:1px solid rgba(255,255,255,0.03); background:transparent; color:var(--text); cursor:pointer } .product-actions .btn.preview{ background:var(--accent-muted); border-color:rgba(113,12,4,0.06) } .product-actions .btn.add{ border:1px solid rgba(255,255,255,0.06) }
-  .product-card[data-hidden="true"]{ opacity:0; transform: translateY(12px); }
+  .featured-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .featured-title {
+    font-weight: 900;
+    font-size: 24px; /* Larger title */
+    color: var(--text);
+    margin-top: 4px;
+  }
+
+  .featured-price {
+    color: rgba(var(--accent-gold), 1);
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .featured-desc {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    padding: 0 10px;
+  }
+
+  .featured-actions {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .btn-big {
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .btn-big.secondary {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+  }
+  .btn-big.secondary:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  .btn-big.primary {
+    background: var(--accent-deep);
+    border: 1px solid transparent;
+    color: white;
+    box-shadow: 0 4px 20px rgba(113,12,4,0.3);
+  }
+  .btn-big.primary:hover {
+    background: #8a150b; /* slightly lighter */
+    transform: translateY(-1px);
+    box-shadow: 0 6px 25px rgba(113,12,4,0.5);
+  }
 
   footer{ text-align:center; color:var(--muted); margin-top:28px; padding-bottom:40px; font-size:13px; }
 
-  /* gold baseline under product cards */
-  .product-card::after{
+  /* Gold baseline preserved */
+  .featured-card::after{
     content:"";
     display:block;
     height:4px;
-    width:60%;
-    margin-top:12px;
+    width:50%;
+    margin-top:20px;
     background: rgba(var(--accent-gold), var(--gold-opacity));
     border-radius:3px;
     margin-left:auto;margin-right:auto;
@@ -258,70 +390,36 @@
 
   <main>
     <div class="container">
-      <div class="coming-wrap">
-        <div id="coming" class="coming-section">
-          <h1 class="coming-title">COMING SOON</h1>
-          <div class="admin-label">Admin Access Pass</div>
-          <form id="accessForm" onsubmit="return handleAccess(event)" aria-label="Admin access pass">
-            <div class="access-row">
-              <input id="accessCode" type="password" placeholder="Enter secret code" autocomplete="off" aria-label="Secret code" required />
-              <button type="submit">Enter</button>
+      
+      <!-- ADDED: Dynamic Page Title -->
+      <h1 id="pageTitle" class="page-title">Official Merch</h1>
+
+      <!-- SINGLE MERCH ITEM WRAPPER (Public) -->
+      <div id="merchWrapper" class="single-product-wrapper">
+        <div class="featured-card">
+          <!-- Placeholder Image Box -->
+          <div class="featured-image">
+            PRODUCT PREVIEW
+          </div>
+          
+          <!-- Details -->
+          <div class="featured-details">
+            <div class="featured-title">NGHSIANS Merch</div>
+            <div class="featured-price">৳ 850</div>
+            <div class="featured-desc">
+              Premium heavyweight cotton blend with embroidered crest. 
+              Limited edition batch for the 2025 celebration. 
+              (Description placeholder).
             </div>
-          </form>
+            
+            <div class="featured-actions">
+              <button class="btn-big secondary">Details</button>
+              <button class="btn-big primary">Pre-Order</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div id="merchArea" class="merch-area" aria-hidden="true">
-        <div class="merch-header">
-          <h2>Merch Preview</h2>
-          <div class="meta">Demo placeholders — copy blocks to add real products</div>
-        </div>
-
-        <div id="productsGrid" class="products-grid">
-          <div class="product-card" data-hidden="true">
-            <div class="product-image" aria-hidden="true">Product Image</div>
-            <div class="product-meta"><div class="product-title">NGHSIANS Tee — Sample</div><div class="product-price">৳ 450</div></div>
-            <div style="color:var(--muted);font-size:13px">Comfort fit tee — 100% cotton (placeholder text)</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-
-          <div class="product-card" data-hidden="true">
-            <div class="product-image">Product Image</div>
-            <div class="product-meta"><div class="product-title">NGHSIANS Hoodie</div><div class="product-price">৳ 850</div></div>
-            <div style="color:var(--muted);font-size:13px">Warm hoodie — sample description.</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-
-          <div class="product-card" data-hidden="true">
-            <div class="product-image">Product Image</div>
-            <div class="product-meta"><div class="product-title">Sticker Pack</div><div class="product-price">৳ 150</div></div>
-            <div style="color:var(--muted);font-size:13px">6 stickers — placeholder copy.</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-
-          <div class="product-card" data-hidden="true">
-            <div class="product-image">Product Image</div>
-            <div class="product-meta"><div class="product-title">NGHSIANS Cap</div><div class="product-price">৳ 320</div></div>
-            <div style="color:var(--muted);font-size:13px">Classic cap — placeholder.</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-
-          <div class="product-card" data-hidden="true">
-            <div class="product-image">Product Image</div>
-            <div class="product-meta"><div class="product-title">NGHSIANS Tote</div><div class="product-price">৳ 220</div></div>
-            <div style="color:var(--muted);font-size:13px">Tote bag sample text.</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-
-          <div class="product-card" data-hidden="true">
-            <div class="product-image">Product Image</div>
-            <div class="product-meta"><div class="product-title">Mug — NGHSIANS</div><div class="product-price">৳ 200</div></div>
-            <div style="color:var(--muted);font-size:13px">Ceramic mug placeholder description.</div>
-            <div class="product-actions"><button class="btn preview">Preview</button><button class="btn add">Add</button></div>
-          </div>
-        </div>
-
-      </div>
     </div>
   </main>
 
@@ -336,21 +434,28 @@
 (function(){
   const pageWipe = document.getElementById('pageWipe');
   const siteHeader = document.getElementById('siteHeader');
-  const accessForm = document.getElementById('accessForm');
-  const accessCode = document.getElementById('accessCode');
-  const comingSection = document.getElementById('coming');
-  const merchArea = document.getElementById('merchArea');
-  const productsGrid = document.getElementById('productsGrid');
-  const SECRET = 'nghs25admin';
   // ADDED: Mobile elements
   const menuToggle = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const navLeftLinks = Array.from(document.getElementById('navLeft').children);
   const navRightLinks = Array.from(document.getElementById('navRight').children);
   const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
+  
+  // MERCH ELEMENT
+  const merchWrapper = document.getElementById('merchWrapper');
+  const pageTitle = document.getElementById('pageTitle');
 
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
-  window.addEventListener('load', ()=> { setTimeout(()=> showWipe(()=>{}), 160); });
+  window.addEventListener('load', ()=> { 
+    setTimeout(()=> showWipe(()=>{
+      // Reveal the title and card smoothly after wipe
+      if(pageTitle) pageTitle.classList.add('visible');
+      if(merchWrapper) {
+          // Slight stagger for card
+          setTimeout(()=> merchWrapper.classList.add('visible'), 120);
+      }
+    }), 160); 
+  });
 
   (function headerScroll(){ function update(){ if(window.scrollY > 12) siteHeader.classList.add('scrolled'); else siteHeader.classList.remove('scrolled'); } window.addEventListener('scroll', update, { passive:true }); update(); })();
 
@@ -363,20 +468,17 @@
   });
 
   /* ===========================
-     Mobile Menu Setup (ADDED)
+     Mobile Menu Setup (Preserved)
      =========================== */
   function buildMobileMenu(){
     const mobileNavList = document.getElementById('mobileNavList');
     mobileNavList.innerHTML = '';
     allDesktopLinks.forEach(link => {
       const clone = link.cloneNode(true);
-      // Ensure mobile link closes the menu
       clone.addEventListener('click', () => {
         if(clone.getAttribute('href').startsWith('index.html#')) {
-            // No wait needed here, the index.html page will handle the wipe/scroll
             toggleMobileMenu();
         } else {
-            // For external links or merch.html itself
             toggleMobileMenu();
         }
       });
@@ -393,57 +495,7 @@
   }
 
   menuToggle.addEventListener('click', toggleMobileMenu);
-
-  // ADMIN access behavior (same as earlier)
-  window.handleAccess = function(e){
-    e.preventDefault();
-    const val = (accessCode.value || '').trim();
-    if(!val) return;
-    if(val === SECRET){
-      comingSection.classList.add('hide');
-      setTimeout(()=> {
-        merchArea.classList.add('visible');
-        merchArea.setAttribute('aria-hidden','false');
-        const first = productsGrid.querySelector('.product-card');
-        if(first) first.setAttribute('tabindex','-1');
-        setTimeout(()=> { merchArea.scrollIntoView({ behavior: 'smooth', block: 'start' }); if(first){ first.focus(); first.removeAttribute('tabindex'); } }, 140);
-        triggerProductStagger();
-      }, 460);
-      accessCode.value = '';
-      return false;
-    } else {
-      accessCode.style.borderColor = 'rgba(255,60,60,0.8)';
-      accessCode.classList.add('shake');
-      setTimeout(()=> { accessCode.style.borderColor=''; accessCode.classList.remove('shake'); }, 900);
-      accessCode.value = '';
-      return false;
-    }
-  };
-
-  function triggerProductStagger(){
-    const cards = Array.from(productsGrid.querySelectorAll('.product-card'));
-    cards.forEach((card, i)=>{
-      setTimeout(()=>{
-        card.dataset.hidden = 'false';
-        card.style.transition = `opacity 420ms cubic-bezier(.2,.9,.2,1) ${i * 80}ms, transform 420ms ${i * 80}ms`;
-        card.style.opacity = 1;
-        card.style.transform = 'translateY(0)';
-      }, 120 + i * 80);
-    });
-  }
-
-  (function initProductHidden(){
-    const cards = Array.from(productsGrid.querySelectorAll('.product-card'));
-    cards.forEach(card => {
-      if(card.dataset.hidden !== 'false'){
-        card.dataset.hidden = 'true';
-        card.style.opacity = 0;
-        card.style.transform = 'translateY(12px)';
-      }
-    });
-  })();
-
-  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ accessCode.value=''; toggleMobileMenu(); } });
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape'){ toggleMobileMenu(); } });
 })();
 </script>
 </body>
