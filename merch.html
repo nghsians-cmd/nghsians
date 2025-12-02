@@ -169,18 +169,14 @@
 
 
   main{ padding-top:calc(var(--header-h) + 16px); min-height:100vh; display:flex; align-items:flex-start; justify-content:center; }
-  .container{ width:100%; max-width:1100px; padding:20px; position:relative; }
+  .container{ width:100%; max-width:1100px; padding:20px; position:relative; display:flex; flex-direction:column; gap:60px; }
 
-  /* REMOVED: .coming-wrap, .access-row, .admin-label logic
-     ADDED: Single Product Styles 
-  */
-  
   /* NEW: Page Title Style */
   .page-title {
     font-size: 2.2rem;
     font-weight: 900;
     color: var(--text);
-    margin: 12px 0 0 0;
+    margin: 12px 0 -20px 0;
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 600ms ease, transform 600ms ease;
@@ -197,151 +193,149 @@
     color: rgba(var(--accent-gold), 1);
   }
 
+  /* ==================================
+     SECTION 1: COMING SOON (Big Card)
+     ================================== */
   .single-product-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 60vh; /* Keeps it centered vertically in available space */
-    padding-top: 20px;
+    /* Reduced min-height so it doesn't push archives too far down */
+    min-height: 40vh; 
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 600ms cubic-bezier(.2,.9,.2,1), transform 600ms cubic-bezier(.2,.9,.2,1);
   }
-  
-  .single-product-wrapper.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .single-product-wrapper.visible { opacity: 1; transform: translateY(0); }
 
-  /* Bigger, featured card */
   .featured-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));
-    padding: 24px;
+    padding: 32px;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.03);
     transition: transform 320ms cubic-bezier(.2,.9,.2,1), box-shadow 320ms;
     display: flex;
     flex-direction: column;
+    align-items:center;
     gap: 16px;
     position: relative;
     width: 100%;
-    max-width: 520px; /* "A little big" but not overwhelming */
+    max-width: 600px; 
     margin: 0 auto;
+    text-align: center;
   }
   
   .featured-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     box-shadow: 0 40px 80px rgba(0,0,0,0.7);
     border-color: rgba(255,255,255,0.06);
   }
 
-  .featured-image {
-    width: 100%;
-    height: 360px; /* Taller image area */
+  .featured-placeholder-icon {
+    width: 80px; height: 80px; 
+    border-radius: 50%;
+    background: rgba(var(--accent-gold), 0.1);
+    color: rgba(var(--accent-gold), 1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(var(--accent-gold), 0.2);
+    box-shadow: 0 0 30px rgba(var(--accent-gold), 0.05);
+  }
+
+  .featured-title { font-weight: 900; font-size: 26px; color: var(--text); }
+  .featured-desc { color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 400px; margin: 0 auto; }
+
+  /* Gold baseline under card */
+  .featured-card::after{
+    content:""; display:block; height:4px; width:120px;
+    margin-top:24px;
+    background: rgba(var(--accent-gold), var(--gold-opacity));
+    border-radius:3px;
+  }
+
+  /* ==================================
+     SECTION 2: ARCHIVE (Past Drops)
+     ================================== */
+  .archive-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 600ms ease, transform 600ms ease;
+  }
+  .archive-section.visible { opacity: 1; transform: translateY(0); }
+
+  .archive-header {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    font-weight: 700;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding-bottom: 8px;
+    display: inline-block;
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 700px) { .archive-grid{ grid-template-columns: 1fr; } }
+
+  .archive-card {
+    background: transparent; /* No bg as requested */
+    border: 1px solid rgba(255,255,255,0.04);
     border-radius: 8px;
-    background: #101113;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .archive-card:hover {
+    background: rgba(255,255,255,0.01);
+    border-color: rgba(255,255,255,0.1);
+    transform: translateY(-4px);
+  }
+
+  .archive-img-wrap {
+    width: 100%;
+    height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--muted);
-    font-weight: 700;
-    letter-spacing: 0.6px;
-    border: 1px dashed rgba(255,255,255,0.05);
-    font-size: 1.1rem;
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 16px;
+    /* Transparent background for PNGs */
+    background: transparent; 
   }
+  .archive-img-wrap img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); /* Adds depth to the PNG itself */
+    transition: transform 0.4s ease;
+  }
+  .archive-card:hover .archive-img-wrap img {
+    transform: scale(1.05);
+  }
+
+  .archive-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; color: var(--text); }
   
-  /* Optional internal accent for image placeholder */
-  .featured-image::after {
-    content: "NO IMAGE";
-    position: absolute;
-    opacity: 0.2;
-    font-size: 12px;
-    bottom: 12px;
-  }
-
-  .featured-details {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-
-  .featured-title {
-    font-weight: 900;
-    font-size: 24px; /* Larger title */
-    color: var(--text);
-    margin-top: 4px;
-  }
-
-  .featured-price {
-    color: rgba(var(--accent-gold), 1);
-    font-weight: 800;
-    font-size: 20px;
-    margin-bottom: 4px;
-  }
-
-  .featured-desc {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.5;
-    margin-bottom: 12px;
-    padding: 0 10px;
-  }
-
-  .featured-actions {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 12px;
-    margin-top: 8px;
-  }
-
-  .btn-big {
-    padding: 16px;
-    border-radius: 8px;
-    font-weight: 800;
-    font-size: 15px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
+  .status-badge {
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-  }
-  
-  .btn-big.secondary {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.1);
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
     color: var(--muted);
-  }
-  .btn-big.secondary:hover {
-    border-color: var(--text);
-    color: var(--text);
-  }
-
-  .btn-big.primary {
-    background: var(--accent-deep);
-    border: 1px solid transparent;
-    color: white;
-    box-shadow: 0 4px 20px rgba(113,12,4,0.3);
-  }
-  .btn-big.primary:hover {
-    background: #8a150b; /* slightly lighter */
-    transform: translateY(-1px);
-    box-shadow: 0 6px 25px rgba(113,12,4,0.5);
-  }
-
-  footer{ text-align:center; color:var(--muted); margin-top:28px; padding-bottom:40px; font-size:13px; }
-
-  /* Gold baseline preserved */
-  .featured-card::after{
-    content:"";
-    display:block;
-    height:4px;
-    width:50%;
-    margin-top:20px;
-    background: rgba(var(--accent-gold), var(--gold-opacity));
-    border-radius:3px;
-    margin-left:auto;margin-right:auto;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-top: 8px;
   }
 
 </style>
@@ -391,32 +385,47 @@
   <main>
     <div class="container">
       
-      <!-- ADDED: Dynamic Page Title -->
+      <!-- Dynamic Page Title -->
       <h1 id="pageTitle" class="page-title">Official Merch</h1>
 
-      <!-- SINGLE MERCH ITEM WRAPPER (Public) -->
+      <!-- FEATURE: COMING SOON -->
       <div id="merchWrapper" class="single-product-wrapper">
         <div class="featured-card">
-          <!-- Placeholder Image Box -->
-          <div class="featured-image">
-            PRODUCT PREVIEW
+          <div class="featured-placeholder-icon">
+            <!-- Simple sparkle icon -->
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
           </div>
+          <div class="featured-title">New Merch in Production</div>
+          <div class="featured-desc">
+            We are crafting something special for the 2025 celebration. 
+            High quality, premium materials. Stay tuned for the drop.
+          </div>
+        </div>
+      </div>
+
+      <!-- ARCHIVE SECTION -->
+      <div id="archiveSection" class="archive-section">
+        <div class="archive-header">Past Collections</div>
+        <div class="archive-grid">
           
-          <!-- Details -->
-          <div class="featured-details">
-            <div class="featured-title">NGHSIANS Merch</div>
-            <div class="featured-price">৳ 850</div>
-            <div class="featured-desc">
-              Premium heavyweight cotton blend with embroidered crest. 
-              Limited edition batch for the 2025 celebration. 
-              (Description placeholder).
+          <!-- ITEM 1: 24-25 Hoodie -->
+          <div class="archive-card">
+            <div class="archive-img-wrap">
+              <img src="Hoodie 24-25.png" alt="NGHS Hoodie 2024-25" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'color:#444\'>Image Unavailable</div>'">
             </div>
-            
-            <div class="featured-actions">
-              <button class="btn-big secondary">Details</button>
-              <button class="btn-big primary">Pre-Order</button>
-            </div>
+            <div class="archive-title">NGHS Hoodie '24-25 Edition</div>
+            <div class="status-badge">Not Available</div>
           </div>
+
+          <!-- ITEM 2: 23-24 Sweatshirt -->
+          <div class="archive-card">
+            <div class="archive-img-wrap">
+              <img src="Sweat 23-24.png" alt="NGHS Sweatshirt 2023-24" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'color:#444\'>Image Unavailable</div>'">
+            </div>
+            <div class="archive-title">NGHS Sweatshirt '23-24 Edition</div>
+            <div class="status-badge">Not Available</div>
+          </div>
+
         </div>
       </div>
 
@@ -441,18 +450,21 @@
   const navRightLinks = Array.from(document.getElementById('navRight').children);
   const allDesktopLinks = [...navLeftLinks, ...navRightLinks];
   
-  // MERCH ELEMENT
+  // MERCH ELEMENTS
   const merchWrapper = document.getElementById('merchWrapper');
   const pageTitle = document.getElementById('pageTitle');
+  const archiveSection = document.getElementById('archiveSection');
 
   function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
   window.addEventListener('load', ()=> { 
     setTimeout(()=> showWipe(()=>{
-      // Reveal the title and card smoothly after wipe
+      // Reveal elements in sequence
       if(pageTitle) pageTitle.classList.add('visible');
       if(merchWrapper) {
-          // Slight stagger for card
-          setTimeout(()=> merchWrapper.classList.add('visible'), 120);
+          setTimeout(()=> merchWrapper.classList.add('visible'), 150);
+      }
+      if(archiveSection) {
+          setTimeout(()=> archiveSection.classList.add('visible'), 300);
       }
     }), 160); 
   });
