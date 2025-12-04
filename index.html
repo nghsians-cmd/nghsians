@@ -511,6 +511,174 @@
 </head>
 <body>
 
+<!-- ==========================================
+     LAUNCH INTRO OVERLAY (START)
+     Remove this entire block to disable the intro
+     ========================================== -->
+<div id="intro-overlay">
+  <!-- Dynamic Background -->
+  <div class="intro-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <!-- Slides Container -->
+  <div class="intro-slides-container">
+    
+    <!-- Slide 1: Welcome -->
+    <div class="intro-slide active" data-index="0">
+      <div class="intro-content">
+        <h1 class="intro-title">Welcome to <span class="grad-text grad-gold">NGHSIANS</span></h1>
+        <h2 class="intro-subtitle">Nasirabadian's Connecting HUB</h2>
+        <p class="intro-desc">Representing Nasirabad Government High School within the most trusted community.</p>
+        <div class="intro-actions">
+          <button class="btn btn--primary intro-next-btn">Explore <svg style="width:16px;margin-left:8px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Information -->
+    <div class="intro-slide" data-index="1">
+      <div class="intro-content">
+        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold),1)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+        <h2 class="intro-subtitle">Stay Informed</h2>
+        <p class="intro-desc">No more confusion. Access official <strong>News</strong>, verified <strong>Rankings</strong>, and celebrate our Toppers in real-time.</p>
+        <div class="intro-actions">
+           <button class="btn btn--ghost intro-skip-btn">Skip</button>
+           <button class="btn btn--primary intro-next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Gallery -->
+    <div class="intro-slide" data-index="2">
+      <div class="intro-content">
+        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>
+        <h2 class="intro-subtitle">Relive the Glory</h2>
+        <p class="intro-desc">A digital museum of our best moments. Browse the <strong>Gallery</strong> and share your own stories to preserve the legacy.</p>
+        <div class="intro-actions">
+           <button class="btn btn--ghost intro-skip-btn">Skip</button>
+           <button class="btn btn--primary intro-next-btn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Final -->
+    <div class="intro-slide" data-index="3">
+      <div class="intro-content">
+        <h1 class="intro-title" style="font-size:2rem">You Are Ready.</h1>
+        <p class="intro-desc">Join the bond that never breaks.</p>
+        <div class="intro-actions">
+          <span class="magnetic" data-magnetic>
+            <button class="btn btn--primary intro-finish-btn" style="padding: 16px 32px; font-size:1.1rem;">Enter NGHSIANS</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Indicators -->
+  <div class="intro-indicators">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<style>
+/* INTRO STYLES */
+#intro-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #050505; color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.8s;
+}
+#intro-overlay.dismissed { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Animated Background Orbs */
+.intro-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: floatOrb 20s infinite alternate ease-in-out; }
+.orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(var(--accent-gold),0.3), transparent); top: -10%; left: -10%; }
+.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(113,12,4,0.3), transparent); bottom: -10%; right: -20%; animation-delay: -5s; }
+
+@keyframes floatOrb { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 80px); } }
+
+.intro-slides-container { position: relative; width: 100%; max-width: 600px; height: 400px; z-index: 2; perspective: 1000px; }
+
+.intro-slide {
+  position: absolute; inset: 0; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 20px;
+  opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+}
+.intro-slide.active { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); pointer-events: auto; }
+.intro-slide.exit { opacity: 0; transform: translateY(-20px) scale(1.05); filter: blur(10px); }
+
+.intro-icon { margin-bottom: 20px; animation: floatIcon 3s ease-in-out infinite; }
+@keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+.intro-title { font-size: 2.5rem; font-weight: 900; margin: 0 0 10px; line-height: 1.1; letter-spacing: -1px; }
+.intro-subtitle { font-size: 1.4rem; font-weight: 700; color: #eef0f2; margin: 0 0 16px; }
+.intro-desc { font-size: 1rem; color: #9aa0a6; line-height: 1.6; max-width: 450px; margin: 0 auto 30px; }
+
+.intro-actions { display: flex; gap: 12px; justify-content: center; margin-top: auto; }
+
+.intro-indicators { position: absolute; bottom: 40px; display: flex; gap: 8px; z-index: 2; }
+.intro-indicators .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
+.intro-indicators .dot.active { background: rgba(var(--accent-gold),1); width: 24px; border-radius: 4px; }
+</style>
+
+<script>
+(function(){
+  const overlay = document.getElementById('intro-overlay');
+  if(!overlay) return;
+  
+  const slides = Array.from(document.querySelectorAll('.intro-slide'));
+  const dots = Array.from(document.querySelectorAll('.intro-indicators .dot'));
+  let current = 0;
+
+  function updateSlide(index) {
+    slides.forEach(s => {
+      s.classList.remove('active', 'exit');
+      const sIndex = parseInt(s.dataset.index);
+      if(sIndex < index) s.classList.add('exit'); // Previous slides exit up
+    });
+    
+    slides[index].classList.add('active');
+    
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === index);
+    });
+    current = index;
+  }
+
+  // Next Buttons
+  document.querySelectorAll('.intro-next-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(current < slides.length - 1) updateSlide(current + 1);
+    });
+  });
+
+  // Skip / Finish
+  function finishIntro() {
+    overlay.classList.add('dismissed');
+    // Optional: trigger the page-wipe reveal logic if it hasn't happened yet
+    // but the CSS opacity transition handles the visual reveal smoothly.
+    setTimeout(() => { overlay.remove(); }, 1000); // Remove from DOM after fade
+  }
+
+  document.querySelectorAll('.intro-finish-btn, .intro-skip-btn').forEach(btn => {
+    btn.addEventListener('click', finishIntro);
+  });
+
+})();
+</script>
+<!-- ==========================================
+     LAUNCH INTRO OVERLAY (END)
+     ========================================== -->
+
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
