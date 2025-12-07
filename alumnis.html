@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NGHSIANS — Alumni</title>
+<meta name="description" content="NGHSIANS Alumni Network."/>
+<link rel="icon" href="favLogo.ico" type="image/png"> 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090a;
+    --panel:#0d0e10;
+    --text:#eef0f2;
+    --muted:#9aa0a6;
+    --accent-deep:#710C04;
+    --accent-gold:255,243,154;
+    --gold-opacity:0.7;
+    --accent-muted: rgba(113,12,4,0.12);
+    --max-w:1200px;
+    --pad:20px;
+    --header-h:86px;
+    --wipe-duration:1000ms;
+    --wipe-ease: cubic-bezier(.22,.9,.2,1);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  img{max-width:100%;height:auto;display:block}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* Global Grain Overlay */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.08;
+    mix-blend-mode:overlay;
+  }
+
+  /* PAGE WIPE TRANSITION */
+  .page-wipe{ position:fixed;inset:0;z-index:6000;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity 220ms linear;background:var(--bg); }
+  .page-wipe.show{ opacity:1; pointer-events:auto }
+  .page-wipe .wipe-layer{ position:absolute;inset:0;background:linear-gradient(180deg, rgba(8,8,9,0.98), rgba(2,2,2,0.98)); opacity:0; transition: opacity calc(var(--wipe-duration) * 0.9) var(--wipe-ease); }
+  .page-wipe.show .wipe-layer{ opacity:1 }
+  .page-wipe .pulse-wrap{ width:160px;height:160px; display:flex;align-items:center;justify-content:center; transform:scale(.82); opacity:0; transition: transform var(--wipe-duration) var(--wipe-ease), opacity calc(var(--wipe-duration) * 0.6) var(--wipe-ease); }
+  .page-wipe.show .pulse-wrap{ transform:scale(1); opacity:1 }
+  .pulse-img{ width:72px;height:72px;border-radius:50%;overflow:hidden;background:transparent; box-shadow:0 18px 60px rgba(0,0,0,0.6); }
+  .pulse-img img{ width:100%;height:100%;object-fit:contain }
+
+  /* HEADER (Matches Index/Merch) */
+  header{ position:fixed;inset-inline:0;top:0;height:var(--header-h);display:flex;align-items:center;justify-content:center;padding:8px calc(var(--pad)+4px);z-index:1500;transition:background 160ms ease, box-shadow 160ms ease;background:transparent; }
+  header.scrolled{ background: linear-gradient(180deg, rgba(8,8,9,0.92), rgba(6,6,7,0.95)); box-shadow:0 10px 30px rgba(0,0,0,0.6) }
+
+  .header-grid{ width:100%; max-width:var(--max-w); margin:0 auto; display:grid; grid-template-columns: 1fr auto 1fr; align-items:center; gap:12px; }
+  .nav-left, .nav-right{ display:flex;gap:18px;align-items:center; }
+  .nav-left{ justify-content:flex-start } .nav-right{ justify-content:flex-end }
+
+  .nav-link{ position:relative;color:var(--text);font-weight:600;font-size:14px;padding:6px 6px;white-space:nowrap; }
+  .nav-link::after{ content:""; position:absolute; left:6px; right:6px; bottom:-6px; height:2px; background:var(--accent-deep); transform:scaleX(0); transform-origin:left center; transition:transform 140ms cubic-bezier(.2,.9,.2,1); opacity:.95 }
+  .nav-link:hover::after, .nav-link.active::after{ transform:scaleX(1) }
+
+  .brand-center{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; }
+  .brand-logo{ width:64px; height:64px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,0.6); background:transparent }
+  .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
+  .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
+
+  .menu-toggle { display: none; background: transparent; border: none; color: var(--text); font-size: 24px; cursor: pointer; padding: 8px; z-index: 10; }
+  .menu-toggle svg { display: block; width: 24px; height: 24px; stroke: var(--text); }
+
+  #mobileMenu { position: fixed; top: var(--header-h); left: 0; right: 0; bottom: 0; z-index: 1400; background: var(--bg); opacity: 0; pointer-events: none; transition: opacity 280ms ease, transform 280ms ease; padding: 20px var(--pad); overflow-y: auto; transform: translateY(-10px); }
+  #mobileMenu.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #mobileMenu .nav-link { display: block; font-size: 18px; font-weight: 700; padding: 12px 0; margin-bottom: 4px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+  #mobileMenu .nav-link.active { color: rgba(var(--accent-gold),1); }
+
+  @media (max-width: 800px) {
+    .nav-left, .nav-right { display: none; }
+    .header-grid { grid-template-columns: auto 1fr auto; }
+    .menu-toggle { display: block; order: 3; }
+    .brand-center { order: 1; align-items: flex-start; }
+    .brand-title { display: none; }
+    .brand-logo { width: 52px; height: 52px; margin-left: -8px; }
+    header { height: 68px; padding-left: 12px; padding-right: 12px; }
+    :root { --header-h: 68px; }
+  }
+
+  /* ============================
+     MAIN ALUMNI LAYOUT
+     ============================ */
+  main{ padding-top:calc(var(--header-h) + 32px); padding-bottom: 80px; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  .container{ width:100%; max-width:1100px; padding:0 20px; }
+
+  .page-header { text-align: center; margin-bottom: 40px; }
+  .page-title {
+    font-size: 3rem; font-weight: 900; color: var(--text); margin: 0;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 600ms ease, transform 600ms ease;
+  }
+  .page-title.visible { opacity: 1; transform: translateY(0); }
+  .page-subtitle {
+    color: var(--muted); margin-top: 12px; max-width: 600px; margin-left: auto; margin-right: auto;
+    font-size: 1.1rem; line-height: 1.6;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 600ms ease 100ms, transform 600ms ease 100ms;
+  }
+  .page-subtitle.visible { opacity: 1; transform: translateY(0); }
+  
+  /* SEARCH BAR STYLES */
+  .search-wrapper {
+    width: 100%; max-width: 500px; margin: 32px auto 0;
+    opacity: 0; transform: translateY(12px);
+    transition: opacity 600ms ease 200ms, transform 600ms ease 200ms;
+    position: relative;
+  }
+  .search-wrapper.visible { opacity: 1; transform: translateY(0); }
+
+  .search-input-group {
+    position: relative;
+    width: 100%;
+  }
+  .search-input-group svg {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; color: var(--muted); pointer-events: none;
+    transition: color 0.2s ease;
+  }
+  .search-input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 20px 14px 50px;
+    border-radius: 100px;
+    font-size: 1rem; color: var(--text); font-family: inherit;
+    transition: all 0.25s ease;
+    outline: none;
+  }
+  .search-input:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(var(--accent-gold), 0.5);
+    box-shadow: 0 0 0 4px rgba(var(--accent-gold), 0.05);
+  }
+  .search-input:focus + svg { color: rgba(var(--accent-gold), 1); }
+  .search-input::placeholder { color: rgba(255,255,255,0.3); }
+
+
+  /* Mobile Typography Tweaks */
+  @media (max-width: 600px) {
+    .page-title { font-size: 2.2rem; }
+    .page-subtitle { font-size: 1rem; }
+    .page-header { margin-bottom: 30px; }
+  }
+
+  /* ALUMNI GRID 
+     Changed minmax from 320px to 280px to accommodate smaller phone screens (like iPhone SE/Mini) 
+     without causing horizontal overflow. 
+  */
+  .alumni-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    width: 100%;
+    margin-top: 40px; /* Space between search and grid */
+  }
+
+  /* ALUMNI CARD */
+  .alumni-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005));
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s;
+    
+    /* Scroll Reveal State */
+    opacity: 0; transform: translateY(30px) scale(0.98);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  
+  /* Reveal Active State */
+  .alumni-card.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* Hover Effects */
+  .alumni-card:hover {
+    transform: translateY(-8px) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    border-color: rgba(var(--accent-gold), 0.3);
+  }
+  .alumni-card:hover .card-img-placeholder, 
+  .alumni-card:hover .card-img {
+    transform: scale(1.05);
+  }
+
+  /* Card Image Area */
+  .card-header {
+    height: 200px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+  }
+  .card-img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(45deg, #1a1b1e, #141518);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.1);
+    font-weight: 700; font-size: 1.2rem; letter-spacing: 1px;
+    transition: transform 0.6s ease;
+  }
+  .card-img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  
+  /* Card Overlay Gradient (bottom up) */
+  .card-header::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(8,9,10,1) 0%, rgba(8,9,10,0.6) 20%, rgba(8,9,10,0) 100%);
+  }
+
+  /* Card Body */
+  .card-body {
+    padding: 20px;
+    position: relative;
+    margin-top: -40px; /* Pull up over image */
+    z-index: 2;
+  }
+
+  .name-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .alumni-name {
+    font-size: 1.3rem; font-weight: 800; color: var(--text);
+    text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+  }
+
+  /* Animated Alumni Badge */
+  .alumni-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(var(--accent-gold), 0.15);
+    border: 1px solid rgba(var(--accent-gold), 0.4);
+    color: rgba(var(--accent-gold), 1);
+    font-size: 0.65rem; font-weight: 900; text-transform: uppercase;
+    padding: 4px 8px; border-radius: 4px;
+    letter-spacing: 0.5px;
+    position: relative; overflow: hidden;
+  }
+  .alumni-badge::before {
+    content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-25deg);
+    animation: shine 4s infinite ease-in-out;
+  }
+  @keyframes shine {
+    0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; }
+  }
+
+  .alumni-batch { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; font-weight: 500; }
+  
+  /* Info Pills */
+  .info-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .pill {
+    font-size: 0.75rem; padding: 4px 10px; border-radius: 20px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    color: var(--muted); font-weight: 600;
+  }
+  .pill.blood { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.05); }
+
+  /* Detail Popup Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 5000;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  .modal-backdrop.active { opacity: 1; pointer-events: auto; }
+
+  .modal-content {
+    background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+    width: 90%; max-width: 600px; border-radius: 12px; padding: 32px;
+    position: relative;
+    transform: translateY(20px) scale(0.95); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+  .modal-backdrop.active .modal-content { transform: translateY(0) scale(1); }
+  
+  /* Mobile Modal Tweak: Wider and taller on small screens */
+  @media (max-width: 600px) {
+    .modal-content {
+       width: 94%;
+       padding: 24px;
+    }
+    .modal-body {
+       max-height: 75vh;
+    }
+  }
+
+  .close-modal {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: none; color: var(--muted);
+    font-size: 24px; cursor: pointer; transition: color 0.2s;
+  }
+  .close-modal:hover { color: var(--text); }
+
+  .modal-header h2 { margin: 0; font-size: 1.8rem; color: var(--text); }
+  .modal-subtitle { color: rgba(var(--accent-gold), 0.9); font-size: 0.95rem; margin-top: 4px; font-weight: 600; }
+  
+  .modal-body { margin-top: 24px; color: var(--muted); line-height: 1.6; max-height: 60vh; overflow-y: auto; }
+  .modal-body h4 { color: var(--text); margin: 0 0 8px 0; font-size: 1.1rem; }
+  .modal-body p { margin-bottom: 16px; font-size: 0.95rem; }
+  .modal-body ul { padding-left: 20px; margin-bottom: 16px; }
+  .modal-body li { margin-bottom: 8px; }
+
+  /* Footer */
+  footer{ padding:36px 20px; color:var(--muted); text-align:center; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.03); width: 100%; }
+
+</style>
+</head>
+<body>
+
+  <div id="pageWipe" class="page-wipe" aria-hidden="true">
+    <div class="wipe-layer"></div>
+    <div class="pulse-wrap" aria-hidden="true">
+      <div class="pulse-img"><img src="logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
+    </div>
+  </div>
+
+  <header id="siteHeader">
+    <div class="header-grid" role="navigation">
+      <div class="nav-left" id="navLeft">
+        <a class="nav-link" href="index.html">Home</a>
+        <a class="nav-link" href="index.html#about" data-target="about">About</a>
+        <a class="nav-link" href="index.html#gallery" data-target="gallery">Gallery</a>
+        <a class="nav-link" href="index.html#news" data-target="news">News</a>
+      </div>
+
+      <div class="brand-center" id="brandBtn">
+        <div class="brand-logo"><img src="logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
+        <div class="brand-title">NGHSIANS</div>
+      </div>
+
+      <div class="nav-right" id="navRight">
+        <a class="nav-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
+        <a class="nav-link" href="index.html#submit" data-target="submit">Share</a>
+        <a class="nav-link active" href="alumnis.html">Alumni</a>
+        <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
+        <a class="nav-link" href="merch.html">Merch</a>
+        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+      </div>
+      
+      <button class="menu-toggle" id="menuToggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+    </div>
+  </header>
+
+  <div id="mobileMenu" aria-hidden="true"><nav id="mobileNavList"></nav></div>
+
+  <main>
+    <div class="container">
+      
+      <div class="page-header">
+        <h1 id="pageTitle" class="page-title">The Network</h1>
+        <p id="pageSubtitle" class="page-subtitle">A growing directory of NGHSIANS who are making their mark. Connect, collaborate, and celebrate our legacy.</p>
+        
+        <!-- SEARCH BAR -->
+        <div id="searchWrapper" class="search-wrapper">
+          <div class="search-input-group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="alumniSearch" class="search-input" placeholder="Search by name, batch, blood group...">
+          </div>
+        </div>
+      </div>
+
+      <div class="alumni-grid" id="alumniGrid">
+        
+        <!-- CARD 1: Umair Hoque Chowdhury -->
+        <!-- Logic: "What he did" is empty, will handle in JS modal -->
+        <div class="alumni-card reveal" 
+             data-name="Umair Hoque Chowdhury" 
+             data-batch="2025" 
+             data-status="Student"
+             data-blood="O+"
+             data-email="umairhoquechowdhury13@gmail.com"
+             data-desc=""
+             onclick="openAlumniModal(this)">
+          
+          <div class="card-header">
+             <!-- Placeholder Image -->
+             <div class="card-img-placeholder">Picture</div>
+             <!-- <img src="umair.jpg" class="card-img" alt="Umair"> (Uncomment when you have image) -->
+          </div>
+          
+          <div class="card-body">
+            <div class="name-row">
+              <div class="alumni-name">Umair Hoque Chowdhury</div>
+              <div class="alumni-badge">Alumni</div>
+            </div>
+            <div class="alumni-batch">Batch 2025</div>
+            
+            <div class="info-pills">
+              <span class="pill">Student</span>
+              <span class="pill blood">O+</span>
+              <span class="pill">umairhoquechowdhury13@gmail.com</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: Mohammad Emaz Uddin -->
+        <div class="alumni-card reveal" 
+             data-name="Mohammad Emaz Uddin" 
+             data-batch="2016" 
+             data-status="Student"
+             data-blood="B+"
+             data-email="emazeeebuet83@gmail.com"
+             data-desc="Founding president of two clubs back in to the 2014-15 (I know those clubs are remaining off again).<br><br>1. Want to establish some basics and important clubs (Debate club, Science & Robotics club, Computer club) and conduct workshop, manage funding, letting new generation upgrade their skills<br>2. Connect students to global community through some global competitions<br>3. Let them experience quality content based education as I am myself an instructor."
+             onclick="openAlumniModal(this)">
+          
+          <div class="card-header">
+             <div class="card-img-placeholder">Picture</div>
+          </div>
+          
+          <div class="card-body">
+            <div class="name-row">
+              <div class="alumni-name">Mohammad Emaz Uddin</div>
+              <div class="alumni-badge">Alumni</div>
+            </div>
+            <div class="alumni-batch">Batch 2016</div>
+            
+            <div class="info-pills">
+              <span class="pill">Student</span>
+              <span class="pill blood">B+</span>
+              <span class="pill">emazeeebuet83@gmail.com</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div style="max-width:var(--max-w);margin:0 auto;padding:18px var(--pad);text-align:center;color:var(--muted);font-size:14px">
+      © NGHSIANS — Nasirabad Government High School • Built with ♥
+      <div style="margin-top:6px;color:var(--text);font-weight:600;">In developing by Umair Hoque Chowdhury</div>
+    </div>
+  </footer>
+
+  <!-- MODAL -->
+  <div id="alumniModal" class="modal-backdrop">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeAlumniModal()">×</button>
+      <div class="modal-header">
+        <h2 id="modalName">Name Here</h2>
+        <div id="modalSub" class="modal-subtitle">Batch 20XX</div>
+      </div>
+      <div class="modal-body">
+        <h4>Contributions & Vision</h4>
+        <p id="modalDesc">Details...</p>
+        
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.85rem;">
+          <strong style="color:var(--muted)">Contact:</strong> <span id="modalEmail" style="color:var(--text)"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  /* ===========================
+     PAGE INIT & TRANSITIONS
+     =========================== */
+  const pageWipe = document.getElementById('pageWipe');
+  const siteHeader = document.getElementById('siteHeader');
+  const pageTitle = document.getElementById('pageTitle');
+  const pageSubtitle = document.getElementById('pageSubtitle');
+  const searchWrapper = document.getElementById('searchWrapper');
+
+  function showWipe(cb){ if(!pageWipe){ if(cb) cb(); return; } pageWipe.classList.add('show'); setTimeout(()=>{ pageWipe.classList.remove('show'); if(cb) cb(); }, 980); }
+
+  window.addEventListener('load', ()=> { 
+    setTimeout(()=> showWipe(()=>{
+      if(pageTitle) pageTitle.classList.add('visible');
+      if(pageSubtitle) pageSubtitle.classList.add('visible');
+      if(searchWrapper) searchWrapper.classList.add('visible');
+    }), 160); 
+  });
+
+  (function headerScroll(){ function update(){ if(window.scrollY > 12) siteHeader.classList.add('scrolled'); else siteHeader.classList.remove('scrolled'); } window.addEventListener('scroll', update, { passive:true }); update(); })();
+
+  // Index anchor interception
+  document.querySelectorAll('a').forEach(a=>{
+    const href = (a.getAttribute('href') || '').trim();
+    if(href && (href.endsWith('index.html') || href === 'index.html' || href.startsWith('index.html#'))){
+      a.addEventListener('click', function(e){ e.preventDefault(); const url = href; showWipe(()=> { window.location.href = url; }); });
+    }
+  });
+
+  /* ===========================
+     MOBILE MENU
+     =========================== */
+  const menuToggle = document.getElementById('menuToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const mobileNavList = document.getElementById('mobileNavList');
+  const allDesktopLinks = [...Array.from(document.getElementById('navLeft').children), ...Array.from(document.getElementById('navRight').children)];
+
+  function buildMobileMenu(){
+    mobileNavList.innerHTML = '';
+    allDesktopLinks.forEach(link => {
+      const clone = link.cloneNode(true);
+      clone.addEventListener('click', () => { toggleMobileMenu(); });
+      mobileNavList.appendChild(clone);
+    });
+  }
+  buildMobileMenu();
+
+  function toggleMobileMenu(){
+    const isOpen = mobileMenu.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+  menuToggle.addEventListener('click', toggleMobileMenu);
+
+  /* ===========================
+     SEARCH FILTER LOGIC
+     =========================== */
+  const searchInput = document.getElementById('alumniSearch');
+  if(searchInput) {
+      searchInput.addEventListener('input', (e) => {
+          const term = e.target.value.toLowerCase().trim();
+          const cards = document.querySelectorAll('.alumni-card');
+          
+          cards.forEach(card => {
+              const name = (card.dataset.name || '').toLowerCase();
+              const batch = (card.dataset.batch || '').toLowerCase();
+              const blood = (card.dataset.blood || '').toLowerCase();
+              const status = (card.dataset.status || '').toLowerCase();
+              const email = (card.dataset.email || '').toLowerCase();
+              
+              if(name.includes(term) || batch.includes(term) || blood.includes(term) || status.includes(term) || email.includes(term)) {
+                  card.style.display = ''; // Reset to default (block/grid)
+              } else {
+                  card.style.display = 'none';
+              }
+          });
+      });
+  }
+
+  /* ===========================
+     SCROLL REVEAL (CARDS)
+     =========================== */
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => { 
+        if(entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            revealObserver.unobserve(entry.target); // Reveal once
+        }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  reveals.forEach(r => revealObserver.observe(r));
+
+  /* ===========================
+     MODAL LOGIC
+     =========================== */
+  const modal = document.getElementById('alumniModal');
+  const mName = document.getElementById('modalName');
+  const mSub = document.getElementById('modalSub');
+  const mDesc = document.getElementById('modalDesc');
+  const mEmail = document.getElementById('modalEmail');
+
+  window.openAlumniModal = function(card) {
+    const name = card.dataset.name;
+    const batch = card.dataset.batch;
+    const email = card.dataset.email;
+    const desc = card.dataset.desc;
+
+    mName.textContent = name;
+    mSub.textContent = `Batch ${batch} • ${card.dataset.status}`;
+    mEmail.textContent = email;
+    
+    // Handle Description
+    if (desc && desc.trim() !== "") {
+        mDesc.innerHTML = desc;
+    } else {
+        mDesc.innerHTML = "<em>No details provided yet.</em>";
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeAlumniModal = function() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeAlumniModal();
+  });
+  
+  // Close on Escape
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAlumniModal();
+      if(mobileMenu.classList.contains('open')) toggleMobileMenu();
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
