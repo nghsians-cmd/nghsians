@@ -511,199 +511,6 @@
 </head>
 <body>
 
-<!-- ==========================================
-     LAUNCH INTRO OVERLAY (START)
-     ========================================== -->
-<div id="intro-overlay">
-  <!-- Dynamic Background -->
-  <div class="intro-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-  </div>
-
-  <!-- Slides Container -->
-  <div class="intro-slides-container">
-    
-    <!-- Slide 1: Welcome -->
-    <div class="intro-slide active" data-index="0">
-      <div class="intro-content">
-        <h1 class="intro-title">Welcome to <span class="grad-text grad-gold">NGHSIANS</span></h1>
-        <h2 class="intro-subtitle">Nasirabadian's Connecting HUB</h2>
-        <p class="intro-desc">Representing Nasirabad Government High School within the most trusted community.</p>
-        <div class="intro-actions">
-          <button class="btn btn--primary intro-next-btn">Explore <svg style="width:16px;margin-left:8px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 2: Information -->
-    <div class="intro-slide" data-index="1">
-      <div class="intro-content">
-        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold),1)" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
-        <h2 class="intro-subtitle">Stay Informed</h2>
-        <p class="intro-desc">No more confusion. Access official <strong>News</strong>, verified <strong>Rankings</strong>, and celebrate our Toppers in real-time.</p>
-        <div class="intro-actions">
-           <button class="btn btn--ghost intro-skip-btn">Skip</button>
-           <button class="btn btn--primary intro-next-btn">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 3: Newsletter (New) -->
-    <div class="intro-slide" data-index="2">
-      <div class="intro-content">
-        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
-        <h2 class="intro-subtitle">Join the Inner Circle</h2>
-        <p class="intro-desc">Get monthly throwbacks, upcoming meetups, and urgent announcements delivered straight to your inbox via our <strong>Newsletter</strong>.</p>
-        <div class="intro-actions">
-           <button class="btn btn--ghost intro-skip-btn">Skip</button>
-           <button class="btn btn--primary intro-next-btn">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 4: Alumni -->
-    <div class="intro-slide" data-index="3">
-      <div class="intro-content">
-        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-        <h2 class="intro-subtitle">Global Network</h2>
-        <p class="intro-desc">Connecting ex students across. Our upcoming <strong>Alumni Database</strong> will help you find batchmates, mentors, and friends.</p>
-        <div class="intro-actions">
-           <button class="btn btn--ghost intro-skip-btn">Skip</button>
-           <button class="btn btn--primary intro-next-btn">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 5: Sign Day (New) -->
-    <div class="intro-slide" data-index="4">
-      <div class="intro-content">
-        <div class="intro-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold),1)" stroke-width="1.5"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
-        <h2 class="intro-subtitle">Mark Your Legacy</h2>
-        <p class="intro-desc">Tradition meets technology. The <strong>Sign Day Database</strong> preserves the signature moves and memories of every graduating batch.</p>
-        <div class="intro-actions">
-           <button class="btn btn--ghost intro-skip-btn">Skip</button>
-           <button class="btn btn--primary intro-next-btn">Next</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 6: Final -->
-    <div class="intro-slide" data-index="5">
-      <div class="intro-content">
-        <h1 class="intro-title" style="font-size:2rem">You Are Ready.</h1>
-        <p class="intro-desc">Join the bond that never breaks.</p>
-        <div class="intro-actions">
-          <span class="magnetic" data-magnetic>
-            <button class="btn btn--primary intro-finish-btn" style="padding: 16px 32px; font-size:1.1rem;">Enter NGHSIANS</button>
-          </span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Indicators -->
-  <div class="intro-indicators">
-    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-</div>
-
-<style>
-/* INTRO STYLES */
-#intro-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: #050505; color: #fff;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  overflow: hidden;
-  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.8s;
-}
-#intro-overlay.dismissed { opacity: 0; visibility: hidden; pointer-events: none; }
-
-/* Animated Background Orbs */
-.intro-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; animation: floatOrb 20s infinite alternate ease-in-out; }
-.orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(var(--accent-gold),0.3), transparent); top: -10%; left: -10%; }
-.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(113,12,4,0.3), transparent); bottom: -10%; right: -20%; animation-delay: -5s; }
-
-@keyframes floatOrb { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 80px); } }
-
-.intro-slides-container { position: relative; width: 100%; max-width: 600px; height: 400px; z-index: 2; perspective: 1000px; }
-
-.intro-slide {
-  position: absolute; inset: 0; 
-  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  padding: 20px;
-  opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px);
-  transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  pointer-events: none;
-}
-.intro-slide.active { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); pointer-events: auto; }
-.intro-slide.exit { opacity: 0; transform: translateY(-20px) scale(1.05); filter: blur(10px); }
-
-.intro-icon { margin-bottom: 20px; animation: floatIcon 3s ease-in-out infinite; }
-@keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-
-.intro-title { font-size: 2.5rem; font-weight: 900; margin: 0 0 10px; line-height: 1.1; letter-spacing: -1px; }
-.intro-subtitle { font-size: 1.4rem; font-weight: 700; color: #eef0f2; margin: 0 0 16px; }
-.intro-desc { font-size: 1rem; color: #9aa0a6; line-height: 1.6; max-width: 450px; margin: 0 auto 30px; }
-
-.intro-actions { display: flex; gap: 12px; justify-content: center; margin-top: auto; }
-
-.intro-indicators { position: absolute; bottom: 40px; display: flex; gap: 8px; z-index: 2; }
-.intro-indicators .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all 0.3s; }
-.intro-indicators .dot.active { background: rgba(var(--accent-gold),1); width: 24px; border-radius: 4px; }
-</style>
-
-<script>
-(function(){
-  const overlay = document.getElementById('intro-overlay');
-  if(!overlay) return;
-  
-  const slides = Array.from(document.querySelectorAll('.intro-slide'));
-  const dots = Array.from(document.querySelectorAll('.intro-indicators .dot'));
-  let current = 0;
-
-  function updateSlide(index) {
-    slides.forEach(s => {
-      s.classList.remove('active', 'exit');
-      const sIndex = parseInt(s.dataset.index);
-      if(sIndex < index) s.classList.add('exit'); // Previous slides exit up
-    });
-    
-    slides[index].classList.add('active');
-    
-    dots.forEach((d, i) => {
-      d.classList.toggle('active', i === index);
-    });
-    current = index;
-  }
-
-  // Next Buttons
-  document.querySelectorAll('.intro-next-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if(current < slides.length - 1) updateSlide(current + 1);
-    });
-  });
-
-  // Skip / Finish
-  function finishIntro() {
-    overlay.classList.add('dismissed');
-    // Optional: trigger the page-wipe reveal logic if it hasn't happened yet
-    // but the CSS opacity transition handles the visual reveal smoothly.
-    setTimeout(() => { overlay.remove(); }, 1000); // Remove from DOM after fade
-  }
-
-  document.querySelectorAll('.intro-finish-btn, .intro-skip-btn').forEach(btn => {
-    btn.addEventListener('click', finishIntro);
-  });
-
-})();
-</script>
-<!-- ==========================================
-     LAUNCH INTRO OVERLAY (END)
-     ========================================== -->
-
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
@@ -712,6 +519,76 @@
       </div>
     </div>
   </div>
+
+  <!-- =========================================================================
+       [START] EDITABLE FEATURE: NEWS POPUP
+       (Delete from here to the [END] tag to remove the popup completely)
+       ========================================================================= -->
+  <div id="newsPopup" class="popup-overlay" aria-hidden="true">
+    <div class="popup-card reveal">
+      <button class="popup-close" onclick="closeNewsPopup()" aria-label="Close popup">✕</button>
+      
+      <!-- POPUP IMAGE: Change 'src' to your new image -->
+      <div class="popup-image">
+        <img src="news11thsign.jpg" alt="Sign Day Teaser">
+        <div class="popup-badge">UPCOMING EVENT</div>
+      </div>
+
+      <!-- POPUP TEXT CONTENT -->
+      <div class="popup-content">
+        <h3 class="popup-title">Batch '26 Sign Day & 59th Celebration</h3>
+        <p class="popup-text">Join us for the most anticipated event of the year.</p>
+        <button class="btn btn--primary" onclick="goToNews()" style="width:100%">See News</button>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    /* --- POPUP CSS START (You can edit colors/sizes here) --- */
+    .popup-overlay {
+      position: fixed; inset: 0; z-index: 8000;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+    }
+    .popup-overlay.show { opacity: 1; pointer-events: auto; }
+    
+    .popup-card {
+      background: var(--panel); border: 1px solid rgba(255,255,255,0.1);
+      width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      transform: translateY(20px) scale(0.95); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+    }
+    .popup-overlay.show .popup-card { transform: translateY(0) scale(1); }
+
+    .popup-close {
+      position: absolute; top: 12px; right: 12px; z-index: 10;
+      background: rgba(0,0,0,0.5); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;
+      transition: background 0.2s;
+    }
+    .popup-close:hover { background: rgba(var(--accent-gold), 0.8); color: #000; }
+
+    .popup-image { position: relative; height: 200px; overflow: hidden; }
+    .popup-image img { width: 100%; height: 100%; object-fit: cover; } /* Removed transition/zoom */
+    /* .popup-card:hover .popup-image img { transform: scale(1.1); } */ /* Disabled zoom hover */
+    
+    .popup-badge {
+      position: absolute; bottom: 10px; left: 10px;
+      background: rgba(var(--accent-gold), 1); color: #000;
+      font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 4px; text-transform: uppercase;
+    }
+
+    .popup-content { padding: 20px; text-align: center; }
+    .popup-title { font-size: 1.2rem; margin: 0 0 8px; color: var(--text); font-weight: 700; line-height: 1.3; }
+    .popup-text { font-size: 0.9rem; color: var(--muted); margin: 0 0 16px; }
+    /* --- POPUP CSS END --- */
+  </style>
+  <!-- =========================================================================
+       [END] EDITABLE FEATURE: NEWS POPUP
+       ========================================================================= -->
 
   <header id="siteHeader" class="">
     <div class="header-grid" role="navigation" aria-label="Main header">
@@ -946,27 +823,150 @@
           </div>
         </div>
       </section>
+
+      <!-- =========================================================================
+           [START] EDITABLE SECTION: REDESIGNED NEWS
+           (This block contains the new Hero News card and the Past News grid)
+           ========================================================================= -->
       <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
-        <div class="card">
-          <div class="news-layout-grid" style="margin-top:12px">
-            <div class="news-main-story reveal">
-              <img src="launchnews.jpg" alt="NGHSIANS Website Launch">
-              <div style="font-size:1.05rem;font-weight:600;line-height:1.4;margin-top:8px;">
-                NGHSIANS and নাসিরাবাদিয়ানস্ launched a stunning first website for the community.
+        
+        <!-- === HERO NEWS CARD (The big featured story) === -->
+        <div class="news-hero-card reveal">
+          <div class="news-hero-bg">
+            <!-- Featured Image -->
+            <img src="news11thsign.jpg" alt="Sign Day Background">
+            <div class="news-gradient-overlay"></div>
+          </div>
+          <div class="news-hero-content">
+            <div class="news-meta-badge">UPCOMING EVENT</div>
+            <h3 class="news-hero-title">Upcoming NGHS 59th and Batch 26 Sign Day</h3>
+            
+            <!-- Event Details -->
+            <div class="news-details-grid">
+              <div class="detail-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span>11th December, 2025</span>
               </div>
-              <div class="muted" style="font-size:13px;margin-top:6px;">Posted: 5 Dec 2025</div>
+              <div class="detail-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>11:00 AM</span>
+              </div>
+              <div class="detail-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Nasirabad Govt. High School</span>
+              </div>
             </div>
             
-            <div class="news-sidebar reveal">
-              <div class="news-sidebar-box">
-                <strong style="font-size:1.1rem;">NNN: No New News</strong>
-                <div class="muted" style="margin-top:8px;font-size:14px;">Check back later for more updates, event info, and spotlights.</div>
-              </div>
+            <div class="news-footer">
+              <span class="muted" style="font-size:12px">Posted: 9 Dec 2025</span>
             </div>
           </div>
         </div>
+
+        <!-- === PAST NEWS GRID (Smaller items below hero) === -->
+        <div class="news-sub-grid" style="margin-top: 20px;">
+          <!-- Past News Item 1 -->
+          <div class="news-small-card reveal">
+            <div class="news-small-img">
+              <img src="launchnews.jpg" alt="Website Launch">
+            </div>
+            <div class="news-small-content">
+              <div class="news-tag">PAST NEWS</div>
+              <h4 class="news-small-title">NGHSIANS Website Launch</h4>
+              <p class="news-small-excerpt muted">NGHSIANS and নাসিরাবাদিয়ানস্ launched a stunning first website for the community.</p>
+              <div class="muted" style="font-size:12px; margin-top:auto">15 Nov 2025</div>
+            </div>
+          </div>
+          
+          <!-- Sidebar / Info Box -->
+          <div class="news-info-box reveal">
+            <strong style="font-size:1.1rem; display:block; margin-bottom:8px; color:var(--text);">NNN: No New News</strong>
+            <p class="muted" style="font-size:14px; line-height:1.5; margin:0;">Check back later for more updates, event info, and spotlights.</p>
+          </div>
+        </div>
+
       </section>
+
+      <style>
+        /* --- NEWS SECTION CSS START --- */
+        /* Hero Card Styles */
+        .news-hero-card {
+          position: relative; border-radius: 12px; overflow: hidden;
+          background: #000; min-height: 380px; display: flex; align-items: flex-end;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
+          transition: transform 0.3s ease;
+        }
+        .news-hero-card:hover { transform: translateY(-4px); }
+        
+        .news-hero-bg { position: absolute; inset: 0; z-index: 0; }
+        .news-hero-bg img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; opacity: 0.8; }
+        .news-hero-card:hover .news-hero-bg img { transform: scale(1.05); opacity: 0.6; }
+        
+        .news-gradient-overlay {
+          position: absolute; inset: 0;
+          background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+        }
+
+        .news-hero-content {
+          position: relative; z-index: 2; padding: 30px; width: 100%;
+        }
+
+        .news-meta-badge {
+          display: inline-block; background: rgba(var(--accent-gold), 1); color: #000;
+          font-weight: 800; font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-bottom: 12px;
+          letter-spacing: 0.5px;
+        }
+
+        .news-hero-title {
+          font-size: 1.8rem; font-weight: 800; color: #fff; margin: 0 0 16px;
+          line-height: 1.2; max-width: 800px;
+        }
+
+        .news-details-grid {
+          display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        
+        .detail-item {
+          display: flex; align-items: center; gap: 8px; color: #eef0f2; font-size: 14px; font-weight: 500;
+          background: rgba(255,255,255,0.06); padding: 6px 12px; border-radius: 6px; backdrop-filter: blur(4px);
+        }
+
+        /* Sub Grid & Small Cards */
+        .news-sub-grid {
+          display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
+        }
+        @media (max-width: 768px) {
+          .news-sub-grid { grid-template-columns: 1fr; }
+          .news-hero-title { font-size: 1.4rem; }
+        }
+
+        .news-small-card {
+          display: flex; gap: 16px; background: var(--panel); padding: 16px;
+          border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);
+          align-items: center; transition: background 0.2s;
+        }
+        .news-small-card:hover { background: rgba(255,255,255,0.03); }
+        
+        .news-small-img { width: 100px; height: 100px; border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+        .news-small-img img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .news-small-content { display: flex; flex-direction: column; justify-content: center; }
+        .news-tag { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.5px; margin-bottom: 4px; }
+        .news-small-title { font-size: 1rem; font-weight: 700; margin: 0 0 6px; color: var(--text); }
+        .news-small-excerpt { font-size: 13px; margin: 0 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .news-info-box {
+          background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          border: 1px solid rgba(255,255,255,0.03); padding: 20px; border-radius: 8px;
+          display: flex; flex-direction: column; justify-content: center;
+        }
+        /* --- NEWS SECTION CSS END --- */
+      </style>
+      <!-- =========================================================================
+           [END] EDITABLE SECTION: REDESIGNED NEWS
+           ========================================================================= -->
+
       <section id="newsletter" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">Newsletter</h2>
         <div class="card">
@@ -1411,43 +1411,46 @@
      HERO TEXT ROTATOR
      =========================== */
   (function initHeroRotator(){
-    const titleEl = document.getElementById('dynamicHeroTitle');
-    if(!titleEl) return;
-
-    // Defined taglines with HTML for gradients
-    // Added 'long-tagline' span to the 3rd one to shrink it so it fits
-    const taglines = [
-      `Once an <span class="grad-text grad-gold">NGHSIAN</span> — Always an <span class="grad-text grad-gold">NGHSIAN</span>`,
-      `Once in <span class="grad-text grad-red">Dreams</span>, Now in <span class="grad-text grad-red">Memories</span>`,
-      `<span class="long-tagline">Once a <span class="grad-text grad-modern">NASIRABADIAN</span> — Always a <span class="grad-text grad-modern">NASIRABADIAN</span></span>`
-    ];
-
-    // Pick random start index
-    let currentIndex = Math.floor(Math.random() * taglines.length);
-
-    // Function to set text
-    function setText() {
-      titleEl.innerHTML = taglines[currentIndex];
-    }
-
-    // Initialize immediately
-    setText();
-
-    // Rotate every 10 seconds
-    setInterval(() => {
-      // 1. Fade out
-      titleEl.classList.add('fade-out');
-
-      // 2. Wait for transition (800ms matches CSS) then swap & fade in
-      setTimeout(() => {
-        currentIndex = (currentIndex + 1) % taglines.length;
-        setText();
-        titleEl.classList.remove('fade-out');
-      }, 800);
-
-    }, 10000); 
-
+    // ... existing rotator code ...
   })();
+
+  /* ===========================================================================
+     [START] EDITABLE SCRIPT: NEWS POPUP LOGIC
+     (Handles opening/closing the popup and the smooth scroll)
+     =========================================================================== */
+  (function initNewsPopup(){
+    const popup = document.getElementById('newsPopup');
+    if(!popup) return;
+
+    // CHANGE: 1500 is the delay in milliseconds (1.5 seconds)
+    setTimeout(() => {
+      popup.classList.add('show');
+    }, 1500);
+
+    window.closeNewsPopup = function() {
+      popup.classList.remove('show');
+    };
+    
+    window.goToNews = function() {
+      closeNewsPopup();
+      // Smooth scroll to news section
+      const newsSection = document.getElementById('news');
+      if(newsSection) {
+        // Wait for popup fade out
+        setTimeout(() => {
+            newsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    };
+    
+    // Close on click outside
+    popup.addEventListener('click', (e) => {
+        if(e.target === popup) closeNewsPopup();
+    });
+  })();
+  /* ===========================================================================
+     [END] EDITABLE SCRIPT: NEWS POPUP LOGIC
+     =========================================================================== */
 
 })();
 </script>
