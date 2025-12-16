@@ -511,6 +511,30 @@
 </head>
 <body>
 
+  <!-- =========================================================================
+       [START] VICTORY DAY THEME OVERLAY
+       (Beautiful, subtle red/green gradient mix for 16th December)
+       ========================================================================= -->
+  <style>
+    .victory-theme-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 5;
+      background: radial-gradient(circle at 10% 10%, rgba(244, 42, 65, 0.08), transparent 40%),
+                  radial-gradient(circle at 90% 90%, rgba(0, 106, 78, 0.12), transparent 40%);
+      mix-blend-mode: screen;
+    }
+    /* Accents on the page borders */
+    body::after {
+      content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999;
+      background: linear-gradient(90deg, #006a4e 0%, #f42a41 100%);
+      pointer-events: none;
+    }
+  </style>
+  <div class="victory-theme-overlay"></div>
+  <!-- =========================================================================
+       [END] VICTORY DAY THEME OVERLAY
+       ========================================================================= -->
+
+
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
@@ -528,17 +552,17 @@
     <div class="popup-card reveal">
       <button class="popup-close" onclick="closeNewsPopup()" aria-label="Close popup">✕</button>
       
-      <!-- POPUP IMAGE: Change 'src' to your new image -->
-      <div class="popup-image">
-        <img src="news11thsign.jpg" alt="Sign Day Teaser">
-        <div class="popup-badge">UPCOMING EVENT</div>
+      <!-- POPUP IMAGE: Placeholder pattern since no image requested -->
+      <div class="popup-image" style="background: linear-gradient(135deg, #0d0e10, #1c1e22); display:flex; align-items:center; justify-content:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,243,154,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <div class="popup-badge">LATEST UPDATE</div>
       </div>
 
       <!-- POPUP TEXT CONTENT -->
       <div class="popup-content">
-        <h3 class="popup-title">Batch '26 Sign Day & 59th Celebration</h3>
-        <p class="popup-text">Join us for the most anticipated event of the year.</p>
-        <button class="btn btn--primary" onclick="goToNews()" style="width:100%">See News</button>
+        <h3 class="popup-title">Alumni Panel Has Appeared</h3>
+        <p class="popup-text">The long-awaited Alumni Panel is now live. Connect with batchmates today.</p>
+        <button class="btn btn--primary" onclick="goToNews()" style="width:100%">Read More</button>
       </div>
 
     </div>
@@ -613,7 +637,8 @@
         <div class="nav-right" id="navRight">
           <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
           <a class="nav-link" href="#submit" data-target="submit">Share</a>
-          <a class="nav-link" href="#alumni" data-target="alumni">Alumni</a>
+          <!-- UPDATED ALUMNI LINK: Redirects to alumnis.html -->
+          <a class="nav-link" href="alumnis.html">Alumni</a>
           <a class="nav-link" href="#contact" data-target="contact">Contact</a>
           <a class="nav-link" href="merch.html" data-external="true">Merch</a>
           <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
@@ -656,7 +681,7 @@
 
       <div class="hero-inner reveal is-visible" style="transition-delay:60ms">
         <h1 class="hero-title" id="dynamicHeroTitle">
-          <!-- Text injected by JS -->
+          <!-- Text injected by JS (Restored from OldIndex) -->
           Once an <span class="grad-text grad-gold">NGHSIAN</span> — Always an <span class="grad-text grad-gold">NGHSIAN</span>
         </h1>
         <p class="hero-sub">A timeless bond connecting students, memories, and legacy of Nasirabad Government High School.</p>
@@ -826,47 +851,56 @@
 
       <!-- =========================================================================
            [START] EDITABLE SECTION: REDESIGNED NEWS
-           (This block contains the new Hero News card and the Past News grid)
            ========================================================================= -->
       <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         
-        <!-- === HERO NEWS CARD (The big featured story) === -->
+        <!-- === HERO NEWS CARD (New Alumni Panel News) === -->
         <div class="news-hero-card reveal">
           <div class="news-hero-bg">
-            <!-- Featured Image -->
-            <img src="news11thsign.jpg" alt="Sign Day Background">
+            <!-- No image needed, using abstract dark gradient -->
+            <div style="width:100%;height:100%;background:linear-gradient(120deg, #111, #08090a);"></div>
             <div class="news-gradient-overlay"></div>
           </div>
           <div class="news-hero-content">
-            <div class="news-meta-badge">UPCOMING EVENT</div>
-            <h3 class="news-hero-title">Upcoming NGHS 59th and Batch 26 Sign Day</h3>
+            <div class="news-meta-badge">LATEST UPDATE</div>
+            <h3 class="news-hero-title">Alumni Panel Has Appeared</h3>
             
             <!-- Event Details -->
             <div class="news-details-grid">
               <div class="detail-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span>11th December, 2025</span>
-              </div>
-              <div class="detail-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                <span>11:00 AM</span>
-              </div>
-              <div class="detail-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                <span>Nasirabad Govt. High School</span>
+                <span>16th December, 2025</span>
               </div>
             </div>
             
+            <p style="color:var(--text); max-width:600px; margin-bottom:12px; font-size:1.05rem;">
+                The much-anticipated Alumni Panel is now accessible. Connect with fellow Nasirabadians from your batch.
+            </p>
             <div class="news-footer">
-              <span class="muted" style="font-size:12px">Posted: 9 Dec 2025</span>
+              <span class="muted" style="font-size:12px">Posted: 16 Dec 2025</span>
             </div>
           </div>
         </div>
 
         <!-- === PAST NEWS GRID (Smaller items below hero) === -->
         <div class="news-sub-grid" style="margin-top: 20px;">
-          <!-- Past News Item 1 -->
+          
+          <!-- Moved: Sign Day (Marked Past) -->
+          <div class="news-small-card reveal">
+            <div class="news-small-img">
+               <!-- Greyscale applied via CSS generally, but keeping same image -->
+              <img src="news11thsign.jpg" alt="Sign Day Past">
+            </div>
+            <div class="news-small-content">
+              <div class="news-tag" style="color:var(--muted)">PAST EVENT</div>
+              <h4 class="news-small-title">Batch '26 Sign Day</h4>
+              <p class="news-small-excerpt muted">The celebration has successfully concluded. Thank you all for joining.</p>
+              <div class="muted" style="font-size:12px; margin-top:auto">11 Dec 2025 (Already Happened)</div>
+            </div>
+          </div>
+
+          <!-- Past News Item 2: Launch -->
           <div class="news-small-card reveal">
             <div class="news-small-img">
               <img src="launchnews.jpg" alt="Website Launch">
@@ -875,15 +909,10 @@
               <div class="news-tag">PAST NEWS</div>
               <h4 class="news-small-title">NGHSIANS Website Launch</h4>
               <p class="news-small-excerpt muted">NGHSIANS and নাসিরাবাদিয়ানস্ launched a stunning first website for the community.</p>
-              <div class="muted" style="font-size:12px; margin-top:auto">15 Nov 2025</div>
+              <div class="muted" style="font-size:12px; margin-top:auto">5th December, 2025</div>
             </div>
           </div>
           
-          <!-- Sidebar / Info Box -->
-          <div class="news-info-box reveal">
-            <strong style="font-size:1.1rem; display:block; margin-bottom:8px; color:var(--text);">NNN: No New News</strong>
-            <p class="muted" style="font-size:14px; line-height:1.5; margin:0;">Check back later for more updates, event info, and spotlights.</p>
-          </div>
         </div>
 
       </section>
@@ -934,7 +963,7 @@
 
         /* Sub Grid & Small Cards */
         .news-sub-grid {
-          display: grid; grid-template-columns: 2fr 1fr; gap: 20px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
         }
         @media (max-width: 768px) {
           .news-sub-grid { grid-template-columns: 1fr; }
@@ -1000,10 +1029,17 @@
               <strong style="color:var(--text)">Coming Soon.</strong> We are curating the initial alumni database.
           </p>
           
-          <div style="text-align:center; margin-top:20px;">
+          <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:12px; align-items:center;">
+             <!-- NEW ALUMNI BUTTON -->
+             <a href="alumnis.html" style="text-decoration:none;">
+                <span class="magnetic" data-magnetic>
+                    <button class="btn btn--primary"><span class="btn-inner">Visit Alumni Network</span></button>
+                </span>
+             </a>
+
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSchoxpQAGx30muyfju3mYC19qqelsW2DnM1d1tgEkUfrdeedQ/viewform?usp=dialog" target="_blank" style="text-decoration:none;">
                 <span class="magnetic" data-magnetic>
-                    <button class="btn btn--primary"><span class="btn-inner">Request for Alumni Interface</span></button>
+                    <button class="btn btn--ghost" style="font-size:0.9rem; padding:8px 12px;"><span class="btn-inner">Request for Alumni Interface</span></button>
                 </span>
             </a>
           </div>
@@ -1411,7 +1447,40 @@
      HERO TEXT ROTATOR
      =========================== */
   (function initHeroRotator(){
-    // ... existing rotator code ...
+    const titleEl = document.getElementById('dynamicHeroTitle');
+    if(!titleEl) return;
+
+    // Defined taglines from OldIndex.html
+    const taglines = [
+      `Once an <span class="grad-text grad-gold">NGHSIAN</span> — Always an <span class="grad-text grad-gold">NGHSIAN</span>`,
+      `Once in <span class="grad-text grad-red">Dreams</span>, Now in <span class="grad-text grad-red">Memories</span>`,
+      `<span class="long-tagline">Once a <span class="grad-text grad-modern">NASIRABADIAN</span> — Always a <span class="grad-text grad-modern">NASIRABADIAN</span></span>`
+    ];
+
+    // Pick random start index
+    let currentIndex = Math.floor(Math.random() * taglines.length);
+
+    // Function to set text
+    function setText() {
+      titleEl.innerHTML = taglines[currentIndex];
+    }
+
+    // Initialize immediately
+    setText();
+
+    // Rotate every 10 seconds (restored old logic)
+    setInterval(() => {
+      // 1. Fade out
+      titleEl.classList.add('fade-out');
+
+      // 2. Wait for transition (800ms matches CSS) then swap & fade in
+      setTimeout(() => {
+        currentIndex = (currentIndex + 1) % taglines.length;
+        setText();
+        titleEl.classList.remove('fade-out');
+      }, 800);
+
+    }, 10000);
   })();
 
   /* ===========================================================================
