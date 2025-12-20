@@ -35,7 +35,6 @@
   canvas { pointer-events: none !important; }
 
   /* UPDATED: Wrap now handles scrolling properly on mobile */
-  /* FIX: Added position relative and z-index to ensure it sits above background on mobile */
   .wrap {
     min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
     position: relative; z-index: 1;
@@ -52,7 +51,6 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     text-align: center; position: relative; overflow: hidden;
     transition: all 0.3s ease;
-    /* FIX: Ensure card is above background interactions on mobile */
     z-index: 10;
   }
   .auth-card::before {
@@ -128,7 +126,7 @@
     width: 100%; padding: 12px 12px 12px 40px;
     background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; color: #fff; font-family: inherit; 
-    font-size: 16px; /* FIXED: Increased to 16px to prevent zoom on mobile */
+    font-size: 16px; 
   }
   .search-input:focus { outline: none; border-color: rgba(var(--accent-gold), 0.6); }
   .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
@@ -190,12 +188,11 @@
     width: 100%; padding: 12px 14px;
     background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px; color: #fff; font-family: inherit; 
-    font-size: 16px; /* FIXED: Increased to 16px to prevent zoom on mobile */
+    font-size: 16px; 
     transition: border-color 0.2s, box-shadow 0.2s;
-    /* FIX: Position relative and z-index to ensure clickability */
     position: relative; z-index: 20;
   }
-  /* FIX: Add right padding to password inputs so text doesn't hide behind eye icon */
+  /* Padding to prevent text hiding behind eye icon */
   input[type="password"], input[type="text"].password-visible {
       padding-right: 40px; 
   }
@@ -211,7 +208,7 @@
     background: none; border: none; padding: 0;
     color: var(--muted); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    z-index: 21; /* FIX: Ensure button is above input */
+    z-index: 21; 
   }
   .toggle-pass:hover { color: var(--text); }
 
@@ -224,7 +221,6 @@
     font-weight: 800; font-size: 15px; color: #fff;
     background: linear-gradient(180deg, rgba(113,12,4,0.4), rgba(113,12,4,0.6));
     border: 1px solid rgba(113,12,4,0.4); cursor: pointer; transition: 0.2s;
-    /* FIX: Improve touch response */
     touch-action: manipulation;
   }
   .btn-action:hover { background: linear-gradient(180deg, rgba(113,12,4,0.6), rgba(113,12,4,0.8)); }
@@ -318,7 +314,9 @@
     <h1 style="color:#fff; margin-bottom:8px;">Student Portal</h1>
     <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Login to access your profile.</p>
     <div id="login-error" class="error-msg"></div>
-    <form id="login-form">
+    
+    <!-- FIX: Added onsubmit="handleLogin(event)" directly -->
+    <form id="login-form" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>Email Address</label>
         <input type="email" id="log-email" class="input-box" placeholder="" required>
@@ -349,7 +347,9 @@
     <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Register your identity.</p>
     <div id="signup-error" class="error-msg"></div>
     <div id="signup-success" class="success-msg"></div>
-    <form id="signup-form">
+    
+    <!-- FIX: Added onsubmit="handleSignup(event)" directly -->
+    <form id="signup-form" onsubmit="handleSignup(event)">
       <div class="input-group">
         <label>Full Name (Username)</label>
         <input type="text" id="sign-name" class="input-box" placeholder="" required>
@@ -390,7 +390,8 @@
     <div id="forgot-error" class="error-msg"></div>
     <div id="forgot-success" class="success-msg"></div>
 
-    <form id="forgot-form">
+    <!-- FIX: Added onsubmit="handleForgot(event)" directly -->
+    <form id="forgot-form" onsubmit="handleForgot(event)">
         <div class="input-group">
             <label>Email Address</label>
             <input type="email" id="forgot-email" class="input-box" placeholder="" required>
@@ -407,7 +408,8 @@
     
     <div id="update-pass-error" class="error-msg"></div>
 
-    <form id="update-pass-form">
+    <!-- FIX: Added onsubmit="handleUpdatePass(event)" directly -->
+    <form id="update-pass-form" onsubmit="handleUpdatePass(event)">
         <div class="input-group">
             <label>New Password</label>
             <input type="password" id="new-password" class="input-box" placeholder="" required>
@@ -495,9 +497,8 @@
 
 <script>
   /* ===========================
-     CONFIG
+     CONFIG & GLOBALS
      =========================== */
-  
   if (typeof window.supabase === 'undefined') {
       alert("Error: Connection to system failed. Please refresh the page.");
   }
@@ -505,19 +506,121 @@
   const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  // Admin Emails for "Pinning" and "Flexing"
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
 
   let currentUser = null;
   let currentProfileData = null;
   let allUsers = [];
-  // MOVED UP: Capture recovery state BEFORE Supabase client potentially clears the URL hash
   const isRecoveryFlow = window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=magiclink'));
 
   /* ===========================
-     GLOBAL HELPERS (Must be available to onclick)
+     GLOBAL HANDLERS (EXPOSED TO HTML)
      =========================== */
+
+  // 1. LOGIN HANDLER
+  async function handleLogin(e) {
+      e.preventDefault(); // STOP PAGE RELOAD
+      
+      const email = document.getElementById('log-email').value;
+      const password = document.getElementById('log-pass').value;
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: password
+      });
+
+      if(error) {
+          document.getElementById('login-error').textContent = "Invalid credentials.";
+          document.getElementById('login-error').style.display = 'block';
+      } else { 
+          currentUser = data.user; 
+          loadProfile(data.user); 
+          loadNetwork(); 
+      }
+  }
+
+  // 2. SIGNUP HANDLER
+  async function handleSignup(e) {
+      e.preventDefault(); // STOP PAGE RELOAD
+      
+      const email = document.getElementById('sign-email').value;
+      const password = document.getElementById('sign-pass').value;
+
+      const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: password
+      });
+
+      if(error) {
+          document.getElementById('signup-error').textContent = error.message;
+          document.getElementById('signup-error').style.display = 'block';
+      } else if(data.user) {
+          await supabase.from('verified_profiles').insert([{
+              id: data.user.id,
+              username: document.getElementById('sign-name').value,
+              school_id: document.getElementById('sign-id').value,
+              batch_year: document.getElementById('sign-batch').value,
+              email: email
+          }]);
+          alert("Account created! Please login.");
+          switchView('login');
+      }
+  }
+
+  // 3. FORGOT PASSWORD HANDLER
+  async function handleForgot(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value;
+      const btn = document.getElementById('forgot-btn');
+      const errEl = document.getElementById('forgot-error');
+      const succEl = document.getElementById('forgot-success');
+      
+      btn.textContent = "SENDING...";
+      errEl.style.display = 'none';
+      succEl.style.display = 'none';
+
+      const redirectUrl = window.location.origin + window.location.pathname;
+
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl, 
+      });
+
+      if (error) {
+          errEl.textContent = error.message;
+          errEl.style.display = 'block';
+          btn.textContent = "SEND RESET LINK";
+      } else {
+          succEl.textContent = "Check your email for the reset link!";
+          succEl.style.display = 'block';
+          btn.textContent = "SENT";
+      }
+  }
+
+  // 4. UPDATE PASSWORD HANDLER
+  async function handleUpdatePass(e) {
+      e.preventDefault();
+      const newPassword = document.getElementById('new-password').value;
+      const btn = document.getElementById('update-pass-btn');
+      const errEl = document.getElementById('update-pass-error');
+
+      btn.textContent = "UPDATING...";
+      errEl.style.display = 'none';
+
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+      if (error) {
+          errEl.textContent = error.message;
+          errEl.style.display = 'block';
+          btn.textContent = "UPDATE PASSWORD";
+      } else {
+          alert("Password updated successfully!");
+          switchView('dashboard');
+          loadProfile(data.user);
+          loadNetwork();
+      }
+  }
+
+  // UI HELPERS
   function switchView(view) {
     ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'].forEach(id => {
         const el = document.getElementById(id);
@@ -545,7 +648,6 @@
     const input = document.getElementById(id);
     const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
     input.setAttribute('type', type);
-    // Add class for padding adjustment in CSS
     if (type === 'text') {
         input.classList.add('password-visible');
     } else {
@@ -553,171 +655,62 @@
     }
   }
 
-  window.handleLogout = async () => { await supabase.auth.signOut(); window.location.reload(); }
-  window.closeModal = function() {
-    document.getElementById('verified-modal').classList.remove('show');
+  async function handleLogout() { 
+      await supabase.auth.signOut(); 
+      window.location.reload(); 
+  }
+  
+  function closeModal() {
+      document.getElementById('verified-modal').classList.remove('show');
   }
 
   /* ===========================
-     STARTUP (Wrapped in DOMContentLoaded for Mobile Safety)
+     STARTUP LOGIC
      =========================== */
-  document.addEventListener('DOMContentLoaded', () => {
-      
-      /* ===========================
-         INIT
-         =========================== */
-      async function init() {
-        const { data: { session } } = await supabase.auth.getSession();
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
 
-        if (session && !isRecoveryFlow) {
-          // Normal login flow
-          currentUser = session.user;
-          loadProfile(session.user);
-          loadNetwork();
-        } else if (session && isRecoveryFlow) {
-          // Recovery flow - do NOT load profile yet
-          // Wait for onAuthStateChange to trigger PASSWORD_RECOVERY
-          currentUser = session.user;
-          switchView('update-password'); 
-        } else {
-          // No session
-          switchView('login');
-        }
-      }
-      init();
-
-      /* ===========================
-         AUTH LISTENER (Password Recovery)
-         =========================== */
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'PASSWORD_RECOVERY') {
-            switchView('update-password');
-            currentUser = session.user; 
-        } else if (event === 'SIGNED_OUT') {
-            switchView('login');
-            currentUser = null;
-        }
-      });
-
-      /* ===========================
-         AUTH HANDLERS 
-         =========================== */
-      const loginForm = document.getElementById('login-form');
-      if (loginForm) {
-          loginForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const { data, error } = await supabase.auth.signInWithPassword({
-                  email: document.getElementById('log-email').value,
-                  password: document.getElementById('log-pass').value
-              });
-              if(error) document.getElementById('login-error').textContent = "Invalid credentials.";
-              else { currentUser = data.user; loadProfile(data.user); loadNetwork(); }
-          });
-      }
-
-      const signupForm = document.getElementById('signup-form');
-      if (signupForm) {
-          signupForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const { data, error } = await supabase.auth.signUp({
-                  email: document.getElementById('sign-email').value,
-                  password: document.getElementById('sign-pass').value
-              });
-              if(error) {
-                  document.getElementById('signup-error').textContent = error.message;
-                  document.getElementById('signup-error').style.display = 'block';
-              } else if(data.user) {
-                  await supabase.from('verified_profiles').insert([{
-                      id: data.user.id,
-                      username: document.getElementById('sign-name').value,
-                      school_id: document.getElementById('sign-id').value,
-                      batch_year: document.getElementById('sign-batch').value,
-                      email: document.getElementById('sign-email').value
-                  }]);
-                  alert("Account created! Please login.");
-                  switchView('login');
-              }
-          });
-      }
-
-      // FORGOT PASSWORD HANDLER
-      const forgotForm = document.getElementById('forgot-form');
-      if (forgotForm) {
-          forgotForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const email = document.getElementById('forgot-email').value;
-              const btn = document.getElementById('forgot-btn');
-              const errEl = document.getElementById('forgot-error');
-              const succEl = document.getElementById('forgot-success');
-              
-              btn.textContent = "SENDING...";
-              errEl.style.display = 'none';
-              succEl.style.display = 'none';
-
-              const redirectUrl = window.location.origin + window.location.pathname;
-
-              const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: redirectUrl, 
-              });
-
-              if (error) {
-                  errEl.textContent = error.message;
-                  errEl.style.display = 'block';
-                  btn.textContent = "SEND RESET LINK";
-              } else {
-                  succEl.textContent = "Check your email for the reset link!";
-                  succEl.style.display = 'block';
-                  btn.textContent = "SENT";
-              }
-          });
-      }
-
-      // UPDATE PASSWORD HANDLER
-      const updatePassForm = document.getElementById('update-pass-form');
-      if (updatePassForm) {
-          updatePassForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const newPassword = document.getElementById('new-password').value;
-              const btn = document.getElementById('update-pass-btn');
-              const errEl = document.getElementById('update-pass-error');
-
-              btn.textContent = "UPDATING...";
-              errEl.style.display = 'none';
-
-              const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-              if (error) {
-                  errEl.textContent = error.message;
-                  errEl.style.display = 'block';
-                  btn.textContent = "UPDATE PASSWORD";
-              } else {
-                  alert("Password updated successfully!");
-                  switchView('dashboard');
-                  loadProfile(data.user);
-                  loadNetwork();
-              }
-          });
-      }
+    if (session && !isRecoveryFlow) {
+      currentUser = session.user;
+      loadProfile(session.user);
+      loadNetwork();
+    } else if (session && isRecoveryFlow) {
+      currentUser = session.user;
+      switchView('update-password'); 
+    } else {
+      switchView('login');
+    }
+  }
+  
+  // Listen for Password Recovery events (User clicks email link)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+        switchView('update-password');
+        currentUser = session.user; 
+    } else if (event === 'SIGNED_OUT') {
+        switchView('login');
+        currentUser = null;
+    }
   });
+
+  // Run Init
+  init();
 
 
   /* ===========================
      PROFILE LOGIC
      =========================== */
   async function loadProfile(user) {
-    // SECURITY CHECK: If we are in recovery mode, STOP. Do not show dashboard.
     if(isRecoveryFlow) return;
 
     switchView('dashboard');
     document.getElementById('display-email').textContent = user.email;
 
-    // 1. Get Profile Data
     const { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).single();
     
     currentProfileData = data || {}; 
 
     if (currentProfileData) {
-        // Update Email in DB if missing (Self-healing)
         if (!data.email) {
             await supabase.from('verified_profiles').update({ email: user.email }).eq('id', user.id);
         }
@@ -725,11 +718,8 @@
         document.getElementById('display-name').textContent = data.username || 'Student';
         document.getElementById('display-id').textContent = data.school_id || '---';
         document.getElementById('display-year').textContent = data.batch_year || '---';
-        
-        // Live Update from Network
         document.getElementById('my-follower-count').textContent = data.follower_count || 0;
 
-        // Styling for Roles
         const card = document.getElementById('profile-card');
         const avatar = document.getElementById('profile-avatar-container');
         const batchTxt = document.getElementById('display-batch');
@@ -737,11 +727,9 @@
         const headerRole = document.getElementById('header-role');
         const verifiedOverlay = document.querySelector('.verified-icon-overlay');
         
-        // Reset Classes and Icon
         avatar.classList.remove('is-verified');
         card.classList.remove('architect-theme');
         card.classList.remove('alumni-theme');
-        // Reset standard verified icon
         verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
         verifiedOverlay.style.color = 'rgba(var(--accent-gold), 1)';
 
@@ -764,7 +752,6 @@
              statusTxt.style.fontWeight = '800';
              headerRole.textContent = '#VERIFIED';
              
-             // Check for Notification
              if (!currentProfileData.notified_of_verification) {
                 triggerCelebration('elite');
                 await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
@@ -780,11 +767,9 @@
              statusTxt.style.fontWeight = '600';
              headerRole.textContent = '#ALUMNI';
 
-             // Alumni Icon (Graduation Cap)
              verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>';
              verifiedOverlay.style.color = '#fff';
 
-             // Check for Notification
              if (!currentProfileData.notified_of_verification) {
                 triggerCelebration('alumni');
                 await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
@@ -798,7 +783,6 @@
              headerRole.textContent = '#STUDENT';
         }
 
-        // ENABLE FLEX MODE (Edit Follower Count) if Admin
         if (ADMIN_EMAILS.includes(user.email)) {
             const countEl = document.getElementById('my-follower-count');
             countEl.style.cursor = 'pointer';
@@ -809,7 +793,6 @@
                     const { error } = await supabase.from('verified_profiles').update({ follower_count: parseInt(newCount) }).eq('id', user.id);
                     if (!error) {
                          countEl.textContent = newCount;
-                         // Optionally reload to sync network view, though trigger handles it
                          loadNetwork(); 
                     }
                 }
@@ -822,25 +805,22 @@
   }
 
   /* ===========================
-     NETWORK LOGIC (The "Other NGHSIANS" Card)
+     NETWORK LOGIC
      =========================== */
   async function loadNetwork() {
     const listEl = document.getElementById('network-list');
     
-    // 1. Fetch All Profiles
     const { data: profiles, error } = await supabase.from('verified_profiles').select('*');
     if(error) { listEl.innerHTML = '<div style="padding:20px">Failed to load network.</div>'; return; }
 
-    // 2. Fetch My Following List
     const { data: relationships } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
     const followingIds = new Set(relationships?.map(r => r.following_id) || []);
 
-    // 3. Separate Pinned & Regular Users
     let pinned = [];
     let others = [];
 
     profiles.forEach(p => {
-        if(p.id === currentUser.id) return; // Don't show self
+        if(p.id === currentUser.id) return; 
         if(p.email && ADMIN_EMAILS.includes(p.email)) {
             pinned.push(p);
         } else {
@@ -848,11 +828,8 @@
         }
     });
 
-    // 4. Shuffle Others
     others.sort(() => Math.random() - 0.5);
-
-    // 5. Combine
-    allUsers = [...pinned, ...others]; // Save global for search
+    allUsers = [...pinned, ...others]; 
     renderUsers(allUsers, followingIds);
   }
 
@@ -868,7 +845,6 @@
     users.forEach(u => {
         const isFollowing = followingSet.has(u.id);
         
-        // Determine Badges (Placed in followers line)
         let badgesHtml = '';
         if (u.role === 'architect') {
              badgesHtml += `<span class="u-badge architect">ARCHITECT</span>`;
@@ -880,7 +856,6 @@
              badgesHtml += `<span class="u-badge alumni">ALUMNI</span>`;
         }
         
-        // Verified Checkmark (Beside Name)
         let checkMark = '';
         if (u.role === 'elite' || u.role === 'architect') {
             checkMark = `<svg class="v-check-sm" style="color:rgba(var(--accent-gold),1)" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
@@ -915,43 +890,32 @@
 
   async function toggleFollow(targetId, btn) {
     const isFollowing = btn.classList.contains('following');
-    btn.disabled = true; // Prevent spam clicks
+    btn.disabled = true; 
 
-    // Optimistic UI Update
     const countSpan = document.getElementById(`count-${targetId}`);
     let currentCount = parseInt(countSpan.textContent) || 0;
 
     if(isFollowing) {
-        // Unfollow
-        // Optimistically update UI
         btn.classList.remove('following');
         btn.textContent = 'Follow';
         if (countSpan) countSpan.textContent = Math.max(0, currentCount - 1);
 
-        // Backend Request
         const { error } = await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
         
         if(error) {
-           // Revert if failed
-           console.error("Unfollow failed", error);
            btn.classList.add('following');
            btn.textContent = 'Following';
            if (countSpan) countSpan.textContent = currentCount; 
         }
 
     } else {
-        // Follow
-        // Optimistically update UI
         btn.classList.add('following');
         btn.textContent = 'Following';
         if (countSpan) countSpan.textContent = currentCount + 1;
 
-        // Backend Request
         const { error } = await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
         
          if(error) {
-           // Revert if failed
-           console.error("Follow failed", error);
            btn.classList.remove('following');
            btn.textContent = 'Follow';
            if (countSpan) countSpan.textContent = currentCount; 
@@ -975,9 +939,6 @@
       });
   }
 
-  /* ===========================
-     EDIT PROFILE (Frontend Only Toggle)
-     =========================== */
   function enableEdit() {
     document.getElementById('edit-btn').classList.add('hidden');
     document.getElementById('save-btn').classList.remove('hidden');
@@ -1048,7 +1009,6 @@
       }
   }
 
-  // POPUP LOGIC
   function triggerCelebration(type) {
     const title = document.getElementById('modal-title');
     const msg = document.getElementById('modal-msg');
@@ -1059,13 +1019,10 @@
     if (type === 'alumni') {
         title.textContent = 'Welcome Home!';
         msg.innerHTML = 'Your <strong>Alumni Status</strong> has been verified.<br>Thank you for your legacy.';
-        // Red and White Confetti
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#710C04', '#ffffff', '#cccccc'] });
     } else {
-        // Elite/Architect
         title.textContent = 'Congratulations!';
         msg.innerHTML = 'You are now a <strong>Verified NGHSIAN!</strong><br>Your profile has been officially authenticated.';
-        // Gold and Red Confetti
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFF39A', '#710C04', '#ffffff'] });
     }
   }
