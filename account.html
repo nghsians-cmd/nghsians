@@ -31,6 +31,9 @@
     opacity:0.15; mix-blend-mode:overlay;
   }
 
+  /* Safety for Confetti Canvas - ensures it never blocks clicks */
+  canvas { pointer-events: none !important; }
+
   /* UPDATED: Wrap now handles scrolling properly on mobile */
   /* FIX: Added position relative and z-index to ensure it sits above background on mobile */
   .wrap {
@@ -49,6 +52,8 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     text-align: center; position: relative; overflow: hidden;
     transition: all 0.3s ease;
+    /* FIX: Ensure card is above background interactions on mobile */
+    z-index: 10;
   }
   .auth-card::before {
     content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -76,6 +81,7 @@
     backdrop-filter: blur(12px);
     text-align: center; position: relative;
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    z-index: 10;
   }
   .id-card::before {
     content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
@@ -107,6 +113,7 @@
     backdrop-filter: blur(12px);
     display: flex; flex-direction: column;
     height: 600px; /* Fixed height for scrolling */
+    z-index: 10;
   }
   .network-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -185,7 +192,14 @@
     border-radius: 8px; color: #fff; font-family: inherit; 
     font-size: 16px; /* FIXED: Increased to 16px to prevent zoom on mobile */
     transition: border-color 0.2s, box-shadow 0.2s;
+    /* FIX: Position relative and z-index to ensure clickability */
+    position: relative; z-index: 20;
   }
+  /* FIX: Add right padding to password inputs so text doesn't hide behind eye icon */
+  input[type="password"], input[type="text"].password-visible {
+      padding-right: 40px; 
+  }
+  
   .input-box:focus {
     outline: none; border-color: rgba(var(--accent-gold), 0.8);
     box-shadow: 0 0 0 2px rgba(var(--accent-gold), 0.15);
@@ -197,6 +211,7 @@
     background: none; border: none; padding: 0;
     color: var(--muted); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
+    z-index: 21; /* FIX: Ensure button is above input */
   }
   .toggle-pass:hover { color: var(--text); }
 
@@ -209,6 +224,8 @@
     font-weight: 800; font-size: 15px; color: #fff;
     background: linear-gradient(180deg, rgba(113,12,4,0.4), rgba(113,12,4,0.6));
     border: 1px solid rgba(113,12,4,0.4); cursor: pointer; transition: 0.2s;
+    /* FIX: Improve touch response */
+    touch-action: manipulation;
   }
   .btn-action:hover { background: linear-gradient(180deg, rgba(113,12,4,0.6), rgba(113,12,4,0.8)); }
   
@@ -480,9 +497,7 @@
   /* ===========================
      CONFIG
      =========================== */
-  // MOVED UP: Capture recovery state BEFORE Supabase client potentially clears the URL hash
-  const isRecoveryFlow = window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=magiclink'));
-
+  
   if (typeof window.supabase === 'undefined') {
       alert("Error: Connection to system failed. Please refresh the page.");
   }
@@ -497,45 +512,12 @@
   let currentUser = null;
   let currentProfileData = null;
   let allUsers = [];
+  // MOVED UP: Capture recovery state BEFORE Supabase client potentially clears the URL hash
+  const isRecoveryFlow = window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=magiclink'));
 
   /* ===========================
-     AUTH LISTENER (Password Recovery)
+     GLOBAL HELPERS (Must be available to onclick)
      =========================== */
-  // Listen for Password Recovery events (User clicks email link)
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-        // User clicked email link. Session is active. Show password update form.
-        switchView('update-password');
-        currentUser = session.user; // Ensure user is set to allow update
-    } else if (event === 'SIGNED_OUT') {
-        switchView('login');
-        currentUser = null;
-    }
-  });
-
-  /* ===========================
-     INIT
-     =========================== */
-  async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (session && !isRecoveryFlow) {
-      // Normal login flow
-      currentUser = session.user;
-      loadProfile(session.user);
-      loadNetwork();
-    } else if (session && isRecoveryFlow) {
-      // Recovery flow - do NOT load profile yet
-      // Wait for onAuthStateChange to trigger PASSWORD_RECOVERY
-      currentUser = session.user;
-      switchView('update-password'); 
-    } else {
-      // No session
-      switchView('login');
-    }
-  }
-  init();
-
   function switchView(view) {
     ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'].forEach(id => {
         const el = document.getElementById(id);
@@ -563,7 +545,160 @@
     const input = document.getElementById(id);
     const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
     input.setAttribute('type', type);
+    // Add class for padding adjustment in CSS
+    if (type === 'text') {
+        input.classList.add('password-visible');
+    } else {
+        input.classList.remove('password-visible');
+    }
   }
+
+  window.handleLogout = async () => { await supabase.auth.signOut(); window.location.reload(); }
+  window.closeModal = function() {
+    document.getElementById('verified-modal').classList.remove('show');
+  }
+
+  /* ===========================
+     STARTUP (Wrapped in DOMContentLoaded for Mobile Safety)
+     =========================== */
+  document.addEventListener('DOMContentLoaded', () => {
+      
+      /* ===========================
+         INIT
+         =========================== */
+      async function init() {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session && !isRecoveryFlow) {
+          // Normal login flow
+          currentUser = session.user;
+          loadProfile(session.user);
+          loadNetwork();
+        } else if (session && isRecoveryFlow) {
+          // Recovery flow - do NOT load profile yet
+          // Wait for onAuthStateChange to trigger PASSWORD_RECOVERY
+          currentUser = session.user;
+          switchView('update-password'); 
+        } else {
+          // No session
+          switchView('login');
+        }
+      }
+      init();
+
+      /* ===========================
+         AUTH LISTENER (Password Recovery)
+         =========================== */
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'PASSWORD_RECOVERY') {
+            switchView('update-password');
+            currentUser = session.user; 
+        } else if (event === 'SIGNED_OUT') {
+            switchView('login');
+            currentUser = null;
+        }
+      });
+
+      /* ===========================
+         AUTH HANDLERS 
+         =========================== */
+      const loginForm = document.getElementById('login-form');
+      if (loginForm) {
+          loginForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const { data, error } = await supabase.auth.signInWithPassword({
+                  email: document.getElementById('log-email').value,
+                  password: document.getElementById('log-pass').value
+              });
+              if(error) document.getElementById('login-error').textContent = "Invalid credentials.";
+              else { currentUser = data.user; loadProfile(data.user); loadNetwork(); }
+          });
+      }
+
+      const signupForm = document.getElementById('signup-form');
+      if (signupForm) {
+          signupForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const { data, error } = await supabase.auth.signUp({
+                  email: document.getElementById('sign-email').value,
+                  password: document.getElementById('sign-pass').value
+              });
+              if(error) {
+                  document.getElementById('signup-error').textContent = error.message;
+                  document.getElementById('signup-error').style.display = 'block';
+              } else if(data.user) {
+                  await supabase.from('verified_profiles').insert([{
+                      id: data.user.id,
+                      username: document.getElementById('sign-name').value,
+                      school_id: document.getElementById('sign-id').value,
+                      batch_year: document.getElementById('sign-batch').value,
+                      email: document.getElementById('sign-email').value
+                  }]);
+                  alert("Account created! Please login.");
+                  switchView('login');
+              }
+          });
+      }
+
+      // FORGOT PASSWORD HANDLER
+      const forgotForm = document.getElementById('forgot-form');
+      if (forgotForm) {
+          forgotForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const email = document.getElementById('forgot-email').value;
+              const btn = document.getElementById('forgot-btn');
+              const errEl = document.getElementById('forgot-error');
+              const succEl = document.getElementById('forgot-success');
+              
+              btn.textContent = "SENDING...";
+              errEl.style.display = 'none';
+              succEl.style.display = 'none';
+
+              const redirectUrl = window.location.origin + window.location.pathname;
+
+              const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: redirectUrl, 
+              });
+
+              if (error) {
+                  errEl.textContent = error.message;
+                  errEl.style.display = 'block';
+                  btn.textContent = "SEND RESET LINK";
+              } else {
+                  succEl.textContent = "Check your email for the reset link!";
+                  succEl.style.display = 'block';
+                  btn.textContent = "SENT";
+              }
+          });
+      }
+
+      // UPDATE PASSWORD HANDLER
+      const updatePassForm = document.getElementById('update-pass-form');
+      if (updatePassForm) {
+          updatePassForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const newPassword = document.getElementById('new-password').value;
+              const btn = document.getElementById('update-pass-btn');
+              const errEl = document.getElementById('update-pass-error');
+
+              btn.textContent = "UPDATING...";
+              errEl.style.display = 'none';
+
+              const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+              if (error) {
+                  errEl.textContent = error.message;
+                  errEl.style.display = 'block';
+                  btn.textContent = "UPDATE PASSWORD";
+              } else {
+                  alert("Password updated successfully!");
+                  switchView('dashboard');
+                  loadProfile(data.user);
+                  loadNetwork();
+              }
+          });
+      }
+  });
 
 
   /* ===========================
@@ -841,97 +976,6 @@
   }
 
   /* ===========================
-     AUTH HANDLERS 
-     =========================== */
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { data, error } = await supabase.auth.signInWithPassword({
-          email: document.getElementById('log-email').value,
-          password: document.getElementById('log-pass').value
-      });
-      if(error) document.getElementById('login-error').textContent = "Invalid credentials.";
-      else { currentUser = data.user; loadProfile(data.user); loadNetwork(); }
-  });
-
-  document.getElementById('signup-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const { data, error } = await supabase.auth.signUp({
-          email: document.getElementById('sign-email').value,
-          password: document.getElementById('sign-pass').value
-      });
-      if(error) {
-          document.getElementById('signup-error').textContent = error.message;
-          document.getElementById('signup-error').style.display = 'block';
-      } else if(data.user) {
-          await supabase.from('verified_profiles').insert([{
-              id: data.user.id,
-              username: document.getElementById('sign-name').value,
-              school_id: document.getElementById('sign-id').value,
-              batch_year: document.getElementById('sign-batch').value,
-              email: document.getElementById('sign-email').value
-          }]);
-          alert("Account created! Please login.");
-          switchView('login');
-      }
-  });
-
-  // FORGOT PASSWORD HANDLER
-  document.getElementById('forgot-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('forgot-email').value;
-      const btn = document.getElementById('forgot-btn');
-      const errEl = document.getElementById('forgot-error');
-      const succEl = document.getElementById('forgot-success');
-      
-      btn.textContent = "SENDING...";
-      errEl.style.display = 'none';
-      succEl.style.display = 'none';
-
-      // UPDATED: Using origin + pathname to be cleaner and safer
-      const redirectUrl = window.location.origin + window.location.pathname;
-
-      // Supabase Reset Logic
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl, 
-      });
-
-      if (error) {
-          errEl.textContent = error.message;
-          errEl.style.display = 'block';
-          btn.textContent = "SEND RESET LINK";
-      } else {
-          succEl.textContent = "Check your email for the reset link!";
-          succEl.style.display = 'block';
-          btn.textContent = "SENT";
-          // Optional: switchView('login') after delay
-      }
-  });
-
-  // UPDATE PASSWORD HANDLER
-  document.getElementById('update-pass-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const newPassword = document.getElementById('new-password').value;
-      const btn = document.getElementById('update-pass-btn');
-      const errEl = document.getElementById('update-pass-error');
-
-      btn.textContent = "UPDATING...";
-      errEl.style.display = 'none';
-
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-      if (error) {
-          errEl.textContent = error.message;
-          errEl.style.display = 'block';
-          btn.textContent = "UPDATE PASSWORD";
-      } else {
-          alert("Password updated successfully!");
-          switchView('dashboard');
-          loadProfile(data.user);
-          loadNetwork();
-      }
-  });
-
-  /* ===========================
      EDIT PROFILE (Frontend Only Toggle)
      =========================== */
   function enableEdit() {
@@ -1004,8 +1048,6 @@
       }
   }
 
-  window.handleLogout = async () => { await supabase.auth.signOut(); window.location.reload(); }
-
   // POPUP LOGIC
   function triggerCelebration(type) {
     const title = document.getElementById('modal-title');
@@ -1026,10 +1068,6 @@
         // Gold and Red Confetti
         confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFF39A', '#710C04', '#ffffff'] });
     }
-  }
-
-  window.closeModal = function() {
-    document.getElementById('verified-modal').classList.remove('show');
   }
 
 </script>
