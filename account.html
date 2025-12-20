@@ -489,6 +489,10 @@
   let currentProfileData = null;
   let allUsers = [];
 
+  // Check URL immediately for recovery flag to prevent auto-login glitch
+  // Only detect #type=recovery explicitly
+  const isRecoveryFlow = window.location.hash && window.location.hash.includes('type=recovery');
+
   /* ===========================
      AUTH LISTENER (Password Recovery)
      =========================== */
@@ -509,18 +513,21 @@
      =========================== */
   async function init() {
     const { data: { session } } = await supabase.auth.getSession();
-    
-    // Check if we are in recovery mode (hash in URL) to prevent auto-login to dashboard
-    const isRecoveryMode = window.location.hash && window.location.hash.includes('type=recovery');
 
-    if (session && !isRecoveryMode) {
+    if (session && !isRecoveryFlow) {
+      // Normal login flow
       currentUser = session.user;
       loadProfile(session.user);
       loadNetwork();
-    } else if (!session && !isRecoveryMode) {
+    } else if (session && isRecoveryFlow) {
+      // Recovery flow - do NOT load profile yet
+      // Wait for onAuthStateChange to trigger PASSWORD_RECOVERY
+      currentUser = session.user;
+      switchView('update-password'); 
+    } else {
+      // No session
       switchView('login');
     }
-    // If isRecoveryMode, onAuthStateChange handles it
   }
   init();
 
@@ -558,6 +565,9 @@
      PROFILE LOGIC
      =========================== */
   async function loadProfile(user) {
+    // SECURITY CHECK: If we are in recovery mode, STOP. Do not show dashboard.
+    if(isRecoveryFlow) return;
+
     switchView('dashboard');
     document.getElementById('display-email').textContent = user.email;
 
