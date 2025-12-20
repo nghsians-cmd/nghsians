@@ -36,7 +36,7 @@
     min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
   }
 
-  /* --- AUTH CARD (Login/Signup) --- */
+  /* --- AUTH CARD (Login/Signup/Forgot) --- */
   .auth-card {
     width: 100%; max-width: 450px;
     background: rgba(20, 20, 22, 0.6);
@@ -288,34 +288,12 @@
 </head>
 <body>
 
-<!-- START: DEVELOPMENT OVERLAY (DELETE TO REVEAL) -->
-<div style="position:fixed; inset:0; z-index:999999; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
-    <!-- Background Effect -->
-    <div style="position:absolute; inset:0; background:radial-gradient(circle at center, rgba(113,12,4,0.15), transparent 70%); pointer-events:none;"></div>
-    
-    <!-- Animated Icon -->
-    <svg style="width:64px; height:64px; color:rgba(var(--accent-gold),1); margin-bottom:24px; animation: pulse 3s infinite;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        <path d="M8 11h8"></path><path d="M8 15h8"></path><path d="M10 7h4"></path>
-    </svg>
-    <style>@keyframes pulse { 0%{opacity:0.7; transform:scale(0.95);} 50%{opacity:1; transform:scale(1);} 100%{opacity:0.7; transform:scale(0.95);} }</style>
-
-    <!-- Content -->
-    <h1 style="font-size:2.2rem; color:var(--text); margin:0 0 16px 0; font-family:var(--font-sans); font-weight:800;">Oops, the page is under development!</h1>
-    <p style="color:var(--muted); font-size:1.1rem; max-width:400px; line-height:1.6; font-family:var(--font-sans); margin:0;">
-        We are making some classy updates to match the theme.<br>Check back later for the reveal.
-    </p>
-    
-    <!-- Gold Divider -->
-    <div style="margin-top:30px; height:3px; width:60px; background:linear-gradient(90deg, transparent, rgba(var(--accent-gold),0.8), transparent); border-radius:2px;"></div>
-</div>
-<!-- END: DEVELOPMENT OVERLAY -->
-
 <div class="wrap">
   <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:10;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
   </a>
 
+  <!-- LOGIN VIEW -->
   <div id="login-view" class="auth-card">
     <img src="logo.png" style="width:48px; border-radius:50%; margin-bottom:16px;">
     <h1 style="color:#fff; margin-bottom:8px;">Student Portal</h1>
@@ -333,11 +311,20 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
+      
+      <!-- Forgot Password Link -->
+      <div style="text-align:right; margin-bottom:20px; margin-top:-10px;">
+          <button type="button" onclick="switchView('forgot')" style="background:none; border:none; color:var(--muted); font-size:0.85rem; cursor:pointer; text-decoration:underline; padding:0;">
+              Forgot Password?
+          </button>
+      </div>
+
       <button type="submit" id="login-btn" class="btn-action">SECURE LOGIN</button>
     </form>
     <button onclick="switchView('signup')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Create Account</button>
   </div>
 
+  <!-- SIGNUP VIEW -->
   <div id="signup-view" class="auth-card hidden">
     <h1 style="color:#fff; margin-bottom:8px;">Join NGHSIANS</h1>
     <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Register your identity.</p>
@@ -376,6 +363,45 @@
     <button onclick="switchView('login')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Login</button>
   </div>
 
+  <!-- FORGOT PASSWORD VIEW -->
+  <div id="forgot-view" class="auth-card hidden">
+    <h1 style="color:#fff; margin-bottom:8px;">Reset Password</h1>
+    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Enter your email to receive a reset link.</p>
+    
+    <div id="forgot-error" class="error-msg"></div>
+    <div id="forgot-success" class="success-msg"></div>
+
+    <form id="forgot-form">
+        <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="forgot-email" class="input-box" placeholder="" required>
+        </div>
+        <button type="submit" id="forgot-btn" class="btn-action">SEND RESET LINK</button>
+    </form>
+    <button onclick="switchView('login')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Back to Login</button>
+  </div>
+
+  <!-- UPDATE PASSWORD VIEW (Triggered from Email Link) -->
+  <div id="update-password-view" class="auth-card hidden">
+    <h1 style="color:#fff; margin-bottom:8px;">New Password</h1>
+    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Secure your account with a new password.</p>
+    
+    <div id="update-pass-error" class="error-msg"></div>
+
+    <form id="update-pass-form">
+        <div class="input-group">
+            <label>New Password</label>
+            <input type="password" id="new-password" class="input-box" placeholder="" required>
+             <button type="button" class="toggle-pass" onclick="togglePassword('new-password')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </div>
+        <button type="submit" id="update-pass-btn" class="btn-action">UPDATE PASSWORD</button>
+    </form>
+  </div>
+
+
+  <!-- DASHBOARD VIEW -->
   <div id="dashboard-view" class="dashboard-grid hidden">
     
     <div id="profile-card" class="id-card">
@@ -464,23 +490,47 @@
   let allUsers = [];
 
   /* ===========================
-     AUTH FLOW
+     AUTH LISTENER (Password Recovery)
+     =========================== */
+  // Listen for Password Recovery events (User clicks email link)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+        // User clicked email link. Session is active. Show password update form.
+        switchView('update-password');
+        currentUser = session.user; // Ensure user is set to allow update
+    } else if (event === 'SIGNED_OUT') {
+        switchView('login');
+        currentUser = null;
+    }
+  });
+
+  /* ===========================
+     INIT
      =========================== */
   async function init() {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
+    
+    // Check if we are in recovery mode (hash in URL) to prevent auto-login to dashboard
+    const isRecoveryMode = window.location.hash && window.location.hash.includes('type=recovery');
+
+    if (session && !isRecoveryMode) {
       currentUser = session.user;
       loadProfile(session.user);
       loadNetwork();
-    } else {
+    } else if (!session && !isRecoveryMode) {
       switchView('login');
     }
+    // If isRecoveryMode, onAuthStateChange handles it
   }
   init();
 
   function switchView(view) {
-    ['login-view', 'signup-view', 'dashboard-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
-    document.getElementById(view + '-view').classList.remove('hidden');
+    ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+    const target = document.getElementById(view + '-view');
+    if(target) target.classList.remove('hidden');
   }
   
   function toggleIdField() {
@@ -776,7 +826,7 @@
   }
 
   /* ===========================
-     LOGIN / SIGNUP HANDLERS 
+     AUTH HANDLERS 
      =========================== */
   document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -803,10 +853,66 @@
               username: document.getElementById('sign-name').value,
               school_id: document.getElementById('sign-id').value,
               batch_year: document.getElementById('sign-batch').value,
-              email: document.getElementById('sign-email').value // Save email for pinning
+              email: document.getElementById('sign-email').value
           }]);
           alert("Account created! Please login.");
           switchView('login');
+      }
+  });
+
+  // FORGOT PASSWORD HANDLER
+  document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value;
+      const btn = document.getElementById('forgot-btn');
+      const errEl = document.getElementById('forgot-error');
+      const succEl = document.getElementById('forgot-success');
+      
+      btn.textContent = "SENDING...";
+      errEl.style.display = 'none';
+      succEl.style.display = 'none';
+
+      // UPDATED: Using origin + pathname to be cleaner and safer
+      const redirectUrl = window.location.origin + window.location.pathname;
+
+      // Supabase Reset Logic
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl, 
+      });
+
+      if (error) {
+          errEl.textContent = error.message;
+          errEl.style.display = 'block';
+          btn.textContent = "SEND RESET LINK";
+      } else {
+          succEl.textContent = "Check your email for the reset link!";
+          succEl.style.display = 'block';
+          btn.textContent = "SENT";
+          // Optional: switchView('login') after delay
+      }
+  });
+
+  // UPDATE PASSWORD HANDLER
+  document.getElementById('update-pass-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newPassword = document.getElementById('new-password').value;
+      const btn = document.getElementById('update-pass-btn');
+      const errEl = document.getElementById('update-pass-error');
+
+      btn.textContent = "UPDATING...";
+      errEl.style.display = 'none';
+
+      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+
+      if (error) {
+          errEl.textContent = error.message;
+          errEl.style.display = 'block';
+          btn.textContent = "UPDATE PASSWORD";
+      } else {
+          alert("Password updated successfully!");
+          switchView('dashboard');
+          loadProfile(data.user);
+          loadNetwork();
       }
   });
 
