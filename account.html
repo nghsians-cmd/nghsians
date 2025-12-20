@@ -32,8 +32,10 @@
   }
 
   /* UPDATED: Wrap now handles scrolling properly on mobile */
+  /* FIX: Added position relative and z-index to ensure it sits above background on mobile */
   .wrap {
     min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+    position: relative; z-index: 1;
   }
 
   /* --- AUTH CARD (Login/Signup/Forgot) --- */
@@ -289,7 +291,7 @@
 <body>
 
 <div class="wrap">
-  <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:10;">
+  <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:20; max-width:fit-content;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
   </a>
 
@@ -478,6 +480,13 @@
   /* ===========================
      CONFIG
      =========================== */
+  // MOVED UP: Capture recovery state BEFORE Supabase client potentially clears the URL hash
+  const isRecoveryFlow = window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=magiclink'));
+
+  if (typeof window.supabase === 'undefined') {
+      alert("Error: Connection to system failed. Please refresh the page.");
+  }
+
   const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -488,10 +497,6 @@
   let currentUser = null;
   let currentProfileData = null;
   let allUsers = [];
-
-  // Check URL immediately for recovery flag to prevent auto-login glitch
-  // Only detect #type=recovery explicitly
-  const isRecoveryFlow = window.location.hash && window.location.hash.includes('type=recovery');
 
   /* ===========================
      AUTH LISTENER (Password Recovery)
