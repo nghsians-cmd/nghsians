@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NGHSIANS — Secure Reset</title>
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --bg: #050505;
+    --panel: #0d0e10;
+    --text: #eef0f2;
+    --muted: #9aa0a6;
+    --accent-gold: 255,243,154; 
+    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;}
+  
+  /* Background Texture */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
+    opacity:0.15; mix-blend-mode:overlay;
+  }
+
+  .card {
+    width: 100%; max-width: 400px;
+    background: rgba(20, 20, 22, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 40px;
+    backdrop-filter: blur(12px);
+    text-align: center; position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  
+  .card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(var(--accent-gold), 0.8), transparent);
+  }
+
+  h1 { margin: 0 0 10px 0; font-size: 1.5rem; color: #fff; }
+  p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+  .input-box {
+    width: 100%; padding: 12px 14px; margin-bottom: 16px;
+    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; color: #fff; font-size: 16px; font-family: inherit;
+    outline: none; transition: 0.2s;
+  }
+  .input-box:focus { border-color: rgba(var(--accent-gold), 0.8); }
+
+  .btn {
+    width: 100%; padding: 14px; border-radius: 8px; border: none;
+    font-weight: 800; font-size: 15px; color: #000;
+    background: rgba(var(--accent-gold), 0.9);
+    cursor: pointer; transition: 0.2s;
+  }
+  .btn:hover { background: #fff; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .hidden { display: none; }
+  .error-msg { color: #ff6060; background: rgba(255,96,96,0.1); padding: 10px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; }
+
+</style>
+</head>
+<body>
+
+  <!-- LOADING STATE -->
+  <div id="view-loading" class="card">
+    <h1 style="color:var(--muted)">Verifying Link...</h1>
+  </div>
+
+  <!-- ERROR STATE (Invalid link or direct access) -->
+  <div id="view-error" class="card hidden">
+    <h1 style="color:#ff6060">Access Denied</h1>
+    <p>This link is invalid, expired, or was accessed directly.</p>
+    <button onclick="window.location.href='account.html'" class="btn" style="background:rgba(255,255,255,0.1); color:#fff;">Return to Login</button>
+  </div>
+
+  <!-- SUCCESS FORM -->
+  <div id="view-form" class="card hidden">
+    <h1>New Password</h1>
+    <p>Secure account for: <br><strong id="user-email" style="color:#fff">...</strong></p>
+    
+    <div id="error-msg" class="error-msg hidden"></div>
+
+    <form onsubmit="handleReset(event)">
+      <input type="password" id="new-pass" class="input-box" placeholder="Enter new password" required minlength="6">
+      <button type="submit" id="submit-btn" class="btn">UPDATE PASSWORD</button>
+    </form>
+  </div>
+
+<script>
+  // 1. CONFIG
+  const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // 2. DETECT AUTH STATE
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    const loadingEl = document.getElementById('view-loading');
+    const errorEl = document.getElementById('view-error');
+    const formEl = document.getElementById('view-form');
+
+    // HIDE LOADING
+    loadingEl.classList.add('hidden');
+
+    // CHECK IF VALID RECOVERY SESSION
+    // "PASSWORD_RECOVERY" event happens when user clicks the email link.
+    // "SIGNED_IN" happens if the link auto-logs them in.
+    if (event === 'PASSWORD_RECOVERY' || (session && window.location.hash.includes('type=recovery'))) {
+      
+      // Valid Link! Show Form
+      formEl.classList.remove('hidden');
+      document.getElementById('user-email').textContent = session.user.email;
+    
+    } else {
+      // Invalid or Direct Access
+      // If there is no session, or if the event is just a regular INITIAL_SESSION without recovery params
+      errorEl.classList.remove('hidden');
+      
+      // Auto-redirect after 3 seconds for UX
+      setTimeout(() => {
+         window.location.href = 'account.html';
+      }, 4000);
+    }
+  });
+
+  // 3. HANDLE UPDATE
+  async function handleReset(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    const pass = document.getElementById('new-pass').value;
+    const errBox = document.getElementById('error-msg');
+
+    btn.textContent = "UPDATING...";
+    btn.disabled = true;
+    errBox.classList.add('hidden');
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pass });
+      
+      if (error) throw error;
+
+      alert("Success! Your password has been changed.");
+      
+      // Sign out to force clean login with new password
+      await supabase.auth.signOut();
+      window.location.href = 'account.html';
+
+    } catch (err) {
+      errBox.textContent = err.message;
+      errBox.classList.remove('hidden');
+      btn.textContent = "UPDATE PASSWORD";
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
