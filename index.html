@@ -552,17 +552,17 @@
     <div class="popup-card reveal">
       <button class="popup-close" onclick="closeNewsPopup()" aria-label="Close popup">✕</button>
       
-      <!-- POPUP IMAGE: Placeholder pattern since no image requested -->
-      <div class="popup-image" style="background: linear-gradient(135deg, #0d0e10, #1c1e22); display:flex; align-items:center; justify-content:center;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,243,154,0.3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        <div class="popup-badge">LATEST UPDATE</div>
+      <!-- POPUP IMAGE: Updated to Trailer image -->
+      <div class="popup-image">
+        <img src="nghs26.jpg" alt="Trailer Image" style="object-fit:cover;">
+        <div class="popup-badge">OFFICIAL TRAILER</div>
       </div>
 
       <!-- POPUP TEXT CONTENT -->
       <div class="popup-content">
-        <h3 class="popup-title">Alumni Panel Has Appeared</h3>
-        <p class="popup-text">The long-awaited Alumni Panel is now live. Connect with batchmates today.</p>
-        <button class="btn btn--primary" onclick="goToNews()" style="width:100%">Read More</button>
+        <h3 class="popup-title">Official Trailer Out Now</h3>
+        <p class="popup-text">Watch the cinematic trailer for Batch '26 Sign Day.</p>
+        <button class="btn btn--primary" onclick="goToNews()" style="width:100%">Watch Now</button>
       </div>
 
     </div>
@@ -644,7 +644,8 @@
           <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
         </div>
         
-        <div class="user-menu-wrap" style="display:none;">
+        <!-- [MODIFIED] Account Icon now visible (Removed display:none) -->
+        <div class="user-menu-wrap">
           <button id="userBtn" class="user-icon-btn" aria-label="User Account">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </button>
@@ -707,6 +708,41 @@
     </section>
 
     <div class="wrap">
+
+      <!-- =========================================================================
+           [START] REMOVABLE TRAILER SECTION
+           ========================================================================= -->
+      <section id="trailer-premiere" class="reveal" style="margin-bottom: 40px; position: relative;">
+        <div class="trailer-container" style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(var(--accent-gold), 0.3); box-shadow: 0 0 40px rgba(var(--accent-gold), 0.15);">
+          <!-- Header/Title Overlay -->
+          <div style="padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position: absolute; top: 0; left: 0; right: 0; z-index: 5; pointer-events: none;">
+              <h3 style="margin:0; color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
+                  <span style="width: 8px; height: 8px; background: red; border-radius: 50%; box-shadow: 0 0 10px red;"></span>
+                  Official Trailer Premiere
+              </h3>
+          </div>
+          <!-- Video Wrapper for 16:9 -->
+          <div style="position: relative; padding-bottom: 56.25%; height: 0; background: #000;">
+              <iframe 
+                  src="https://www.youtube.com/embed/8gul1l6QVfw?rel=0&modestbranding=1" 
+                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+              </iframe>
+          </div>
+          <!-- Bottom Info -->
+          <div style="padding: 15px 20px; background: #0d0e10; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+              <div>
+                  <div style="color: #fff; font-weight: 700; font-size: 1.1rem;">Batch '26 & 59th Celebration</div>
+                  <div style="color: var(--muted); font-size: 0.85rem; margin-top: 4px;">Official Trailer • Watch Now</div>
+              </div>
+              <a href="https://youtu.be/8gul1l6QVfw" target="_blank" class="btn btn--primary" style="padding: 8px 16px; font-size: 0.8rem;">Open in App</a>
+          </div>
+        </div>
+      </section>
+      <!-- =========================================================================
+           [END] REMOVABLE TRAILER SECTION
+           ========================================================================= -->
 
       <section id="about" class="reveal diag-feather">
         <div class="card">
@@ -855,30 +891,30 @@
       <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         
-        <!-- === HERO NEWS CARD (New Alumni Panel News) === -->
+        <!-- === HERO NEWS CARD (Updated to Trailer) === -->
         <div class="news-hero-card reveal">
           <div class="news-hero-bg">
-            <!-- No image needed, using abstract dark gradient -->
-            <div style="width:100%;height:100%;background:linear-gradient(120deg, #111, #08090a);"></div>
+            <!-- Adjusted image to fit nicely regardless of res -->
+            <img src="nghs26.jpg" alt="Sign Day Official Trailer" style="object-fit:cover; object-position: center;">
             <div class="news-gradient-overlay"></div>
           </div>
           <div class="news-hero-content">
-            <div class="news-meta-badge">LATEST UPDATE</div>
-            <h3 class="news-hero-title">Alumni Panel Has Appeared</h3>
+            <div class="news-meta-badge">LATEST TRAILER</div>
+            <h3 class="news-hero-title">NGHSIANS Presents NGHS 59th Sign Day Official Trailer</h3>
             
             <!-- Event Details -->
             <div class="news-details-grid">
               <div class="detail-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span>16th December, 2025</span>
+                <span>3 Jan, 2026</span>
               </div>
             </div>
             
             <p style="color:var(--text); max-width:600px; margin-bottom:12px; font-size:1.05rem;">
-                The much-anticipated Alumni Panel is now accessible. Connect with fellow Nasirabadians from your batch.
+                Witness the legacy. The official cinematic trailer for Batch '26 Celebration is out now.
             </p>
             <div class="news-footer">
-              <span class="muted" style="font-size:12px">Posted: 16 Dec 2025</span>
+              <span class="muted" style="font-size:12px">Posted: 3 Jan 2026</span>
             </div>
           </div>
         </div>
@@ -886,30 +922,29 @@
         <!-- === PAST NEWS GRID (Smaller items below hero) === -->
         <div class="news-sub-grid" style="margin-top: 20px;">
           
-          <!-- Moved: Sign Day (Marked Past) -->
+          <!-- Moved: Alumni Panel (Marked Past) -->
+          <div class="news-small-card reveal">
+            <div class="news-small-img" style="background:linear-gradient(120deg, #111, #08090a); display:flex; align-items:center; justify-content:center;">
+               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="news-small-content">
+              <div class="news-tag" style="color:var(--muted)">PAST NEWS</div>
+              <h4 class="news-small-title">Alumni Panel Has Appeared</h4>
+              <p class="news-small-excerpt muted">The long-awaited Alumni Panel is now live.</p>
+              <div class="muted" style="font-size:12px; margin-top:auto">16 Dec 2025</div>
+            </div>
+          </div>
+
+          <!-- Past News Item 2: Sign Day -->
           <div class="news-small-card reveal">
             <div class="news-small-img">
-               <!-- Greyscale applied via CSS generally, but keeping same image -->
               <img src="news11thsign.jpg" alt="Sign Day Past">
             </div>
             <div class="news-small-content">
               <div class="news-tag" style="color:var(--muted)">PAST EVENT</div>
               <h4 class="news-small-title">Batch '26 Sign Day</h4>
-              <p class="news-small-excerpt muted">The celebration has successfully concluded. Thank you all for joining.</p>
-              <div class="muted" style="font-size:12px; margin-top:auto">11 Dec 2025 (Already Happened)</div>
-            </div>
-          </div>
-
-          <!-- Past News Item 2: Launch -->
-          <div class="news-small-card reveal">
-            <div class="news-small-img">
-              <img src="launchnews.jpg" alt="Website Launch">
-            </div>
-            <div class="news-small-content">
-              <div class="news-tag">PAST NEWS</div>
-              <h4 class="news-small-title">NGHSIANS Website Launch</h4>
-              <p class="news-small-excerpt muted">NGHSIANS and নাসিরাবাদিয়ানস্ launched a stunning first website for the community.</p>
-              <div class="muted" style="font-size:12px; margin-top:auto">5th December, 2025</div>
+              <p class="news-small-excerpt muted">The celebration has successfully concluded.</p>
+              <div class="muted" style="font-size:12px; margin-top:auto">11 Dec 2025</div>
             </div>
           </div>
           
