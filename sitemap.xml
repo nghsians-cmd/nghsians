@@ -18,4 +18,16 @@
     <priority>0.80</priority>
   </url>
   
+  <url>
+    <loc>https://nghsians.com/account.html</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.80</priority>
+  </url>
+  
+  <url>
+    <loc>https://nghsians.com/alumnis.html</loc>
+    <lastmod>2025-11-20</lastmod>
+    <priority>0.80</priority>
+  </url>
+ 
 </urlset>
