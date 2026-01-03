@@ -496,537 +496,495 @@
 </div>
 
 <script>
-  /* ===========================
-     CONFIG & GLOBALS
-     =========================== */
-  if (typeof window.supabase === 'undefined') {
-      alert("Error: Connection to system failed. Please refresh the page.");
-  }
+// --- GLOBAL HELPER FUNCTIONS (Must be defined before they are used in HTML) ---
 
-  const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
+function getEl(id) {
+  return document.getElementById(id);
+}
 
-  let currentUser = null;
-  let currentProfileData = null;
-  let allUsers = [];
-  const isRecoveryFlow = window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=magiclink'));
-
-  /* ===========================
-     GLOBAL HANDLERS (EXPOSED TO HTML)
-     =========================== */
-
-  // 1. LOGIN HANDLER
-  async function handleLogin(e) {
-      e.preventDefault(); // STOP PAGE RELOAD
-      
-      const email = document.getElementById('log-email').value;
-      const password = document.getElementById('log-pass').value;
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-          email: email,
-          password: password
-      });
-
-      if(error) {
-          document.getElementById('login-error').textContent = "Invalid credentials.";
-          document.getElementById('login-error').style.display = 'block';
-      } else { 
-          currentUser = data.user; 
-          loadProfile(data.user); 
-          loadNetwork(); 
-      }
-  }
-
-  // 2. SIGNUP HANDLER
-  async function handleSignup(e) {
-      e.preventDefault(); // STOP PAGE RELOAD
-      
-      const email = document.getElementById('sign-email').value;
-      const password = document.getElementById('sign-pass').value;
-
-      const { data, error } = await supabase.auth.signUp({
-          email: email,
-          password: password
-      });
-
-      if(error) {
-          document.getElementById('signup-error').textContent = error.message;
-          document.getElementById('signup-error').style.display = 'block';
-      } else if(data.user) {
-          await supabase.from('verified_profiles').insert([{
-              id: data.user.id,
-              username: document.getElementById('sign-name').value,
-              school_id: document.getElementById('sign-id').value,
-              batch_year: document.getElementById('sign-batch').value,
-              email: email
-          }]);
-          alert("Account created! Please login.");
-          switchView('login');
-      }
-  }
-
-  // 3. FORGOT PASSWORD HANDLER
-  async function handleForgot(e) {
-      e.preventDefault();
-      const email = document.getElementById('forgot-email').value;
-      const btn = document.getElementById('forgot-btn');
-      const errEl = document.getElementById('forgot-error');
-      const succEl = document.getElementById('forgot-success');
-      
-      btn.textContent = "SENDING...";
-      errEl.style.display = 'none';
-      succEl.style.display = 'none';
-
-      const redirectUrl = window.location.origin + window.location.pathname;
-
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl, 
-      });
-
-      if (error) {
-          errEl.textContent = error.message;
-          errEl.style.display = 'block';
-          btn.textContent = "SEND RESET LINK";
-      } else {
-          succEl.textContent = "Check your email for the reset link!";
-          succEl.style.display = 'block';
-          btn.textContent = "SENT";
-      }
-  }
-
-  // 4. UPDATE PASSWORD HANDLER
-  async function handleUpdatePass(e) {
-      e.preventDefault();
-      const newPassword = document.getElementById('new-password').value;
-      const btn = document.getElementById('update-pass-btn');
-      const errEl = document.getElementById('update-pass-error');
-
-      btn.textContent = "UPDATING...";
-      errEl.style.display = 'none';
-
-      const { data, error } = await supabase.auth.updateUser({ password: newPassword });
-
-      if (error) {
-          errEl.textContent = error.message;
-          errEl.style.display = 'block';
-          btn.textContent = "UPDATE PASSWORD";
-      } else {
-          alert("Password updated successfully!");
-          switchView('dashboard');
-          loadProfile(data.user);
-          loadNetwork();
-      }
-  }
-
-  // UI HELPERS
-  function switchView(view) {
-    ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.classList.add('hidden');
-    });
-    const target = document.getElementById(view + '-view');
-    if(target) target.classList.remove('hidden');
-  }
-  
-  function toggleIdField() {
-    const checkbox = document.getElementById('no-id-check');
-    const input = document.getElementById('sign-id');
-    if(checkbox.checked) {
-      input.value = 'No ID Provided';
-      input.disabled = true;
-      input.style.opacity = '0.5';
-    } else {
-      input.value = '';
-      input.disabled = false;
-      input.style.opacity = '1';
-    }
-  }
-  
-  function togglePassword(id) {
-    const input = document.getElementById(id);
-    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-    input.setAttribute('type', type);
-    if (type === 'text') {
-        input.classList.add('password-visible');
-    } else {
-        input.classList.remove('password-visible');
-    }
-  }
-
-  async function handleLogout() { 
-      await supabase.auth.signOut(); 
-      window.location.reload(); 
-  }
-  
-  function closeModal() {
-      document.getElementById('verified-modal').classList.remove('show');
-  }
-
-  /* ===========================
-     STARTUP LOGIC
-     =========================== */
-  async function init() {
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (session && !isRecoveryFlow) {
-      currentUser = session.user;
-      loadProfile(session.user);
-      loadNetwork();
-    } else if (session && isRecoveryFlow) {
-      currentUser = session.user;
-      switchView('update-password'); 
-    } else {
-      switchView('login');
-    }
-  }
-  
-  // Listen for Password Recovery events (User clicks email link)
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'PASSWORD_RECOVERY') {
-        switchView('update-password');
-        currentUser = session.user; 
-    } else if (event === 'SIGNED_OUT') {
-        switchView('login');
-        currentUser = null;
-    }
+function switchView(viewName) {
+  // Hide all views
+  const views = ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'];
+  views.forEach(v => {
+    const el = document.getElementById(v);
+    if(el) el.classList.add('hidden');
   });
 
-  // Run Init
-  init();
+  // Show target
+  const target = document.getElementById(viewName + '-view');
+  if(target) {
+    target.classList.remove('hidden');
+  } else {
+    console.error("View not found:", viewName);
+  }
+}
+
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  if(input) {
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
+    input.classList.toggle('password-visible', type === 'text');
+  }
+}
+
+function toggleIdField() {
+  const chk = document.getElementById('no-id-check');
+  const inp = document.getElementById('sign-id');
+  if (chk.checked) {
+    inp.value = 'No ID Provided';
+    inp.disabled = true;
+    inp.style.opacity = '0.5';
+  } else {
+    inp.value = '';
+    inp.disabled = false;
+    inp.style.opacity = '1';
+  }
+}
+
+function closeModal() {
+  const m = document.getElementById('verified-modal');
+  if(m) m.classList.remove('show');
+}
 
 
-  /* ===========================
-     PROFILE LOGIC
-     =========================== */
-  async function loadProfile(user) {
-    if(isRecoveryFlow) return;
+// --- MAIN APP LOGIC ---
 
-    switchView('dashboard');
-    document.getElementById('display-email').textContent = user.email;
+document.addEventListener('DOMContentLoaded', async () => {
+  
+  // 1. SUPABASE SETUP
+  const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+  
+  if (!window.supabase) {
+    alert("System Error: Supabase SDK failed to load.");
+    return;
+  }
+  
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
+  
+  let currentUser = null;
+  let currentProfile = null;
 
-    const { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).single();
+
+  // 2. EXPORT FUNCTIONS TO WINDOW (So HTML onclick="..." works)
+  
+  window.handleLogin = async function(e) {
+    e.preventDefault();
+    const btn = getEl('login-btn');
+    const errEl = getEl('login-error');
     
-    currentProfileData = data || {}; 
+    // UI Loading State
+    btn.textContent = 'VERIFYING...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
 
-    if (currentProfileData) {
-        if (!data.email) {
-            await supabase.from('verified_profiles').update({ email: user.email }).eq('id', user.id);
-        }
+    const email = getEl('log-email').value;
+    const password = getEl('log-pass').value;
 
-        document.getElementById('display-name').textContent = data.username || 'Student';
-        document.getElementById('display-id').textContent = data.school_id || '---';
-        document.getElementById('display-year').textContent = data.batch_year || '---';
-        document.getElementById('my-follower-count').textContent = data.follower_count || 0;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-        const card = document.getElementById('profile-card');
-        const avatar = document.getElementById('profile-avatar-container');
-        const batchTxt = document.getElementById('display-batch');
-        const statusTxt = document.getElementById('status-text');
-        const headerRole = document.getElementById('header-role');
-        const verifiedOverlay = document.querySelector('.verified-icon-overlay');
-        
-        avatar.classList.remove('is-verified');
-        card.classList.remove('architect-theme');
-        card.classList.remove('alumni-theme');
-        verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
-        verifiedOverlay.style.color = 'rgba(var(--accent-gold), 1)';
+      if (error) throw error;
+      
+      // Success
+      currentUser = data.user;
+      await loadProfile(currentUser);
 
-        if (data.role === 'architect') {
-             avatar.classList.add('is-verified');
-             card.classList.add('architect-theme');
-             batchTxt.textContent = 'WEBSITE ARCHITECT';
-             batchTxt.style.color = 'rgba(var(--accent-gold), 1)';
-             statusTxt.textContent = 'SYSTEM ADMIN';
-             statusTxt.style.color = 'rgba(var(--accent-gold), 1)';
-             statusTxt.style.fontWeight = '800';
-             headerRole.textContent = '#ARCHITECT';
-
-        } else if (data.role === 'elite') {
-             avatar.classList.add('is-verified');
-             batchTxt.textContent = 'NGHSIANS ELITE';
-             batchTxt.style.color = 'rgba(var(--accent-gold), 1)';
-             statusTxt.textContent = 'VERIFIED NGHSIANS';
-             statusTxt.style.color = 'rgba(var(--accent-gold), 1)';
-             statusTxt.style.fontWeight = '800';
-             headerRole.textContent = '#VERIFIED';
-             
-             if (!currentProfileData.notified_of_verification) {
-                triggerCelebration('elite');
-                await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
-             }
-
-        } else if (data.role === 'alumni') {
-             avatar.classList.add('is-verified');
-             card.classList.add('alumni-theme');
-             batchTxt.textContent = 'NGHSIANS ALUMNI';
-             batchTxt.style.color = '#eef0f2'; // White/Silverish
-             statusTxt.textContent = 'ALUMNI ACCOUNT';
-             statusTxt.style.color = 'rgba(255,255,255, 0.7)';
-             statusTxt.style.fontWeight = '600';
-             headerRole.textContent = '#ALUMNI';
-
-             verifiedOverlay.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>';
-             verifiedOverlay.style.color = '#fff';
-
-             if (!currentProfileData.notified_of_verification) {
-                triggerCelebration('alumni');
-                await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', user.id);
-             }
-
-        } else {
-             batchTxt.textContent = 'NGHSIANS MEMBER';
-             statusTxt.textContent = 'NGHSIANS';
-             statusTxt.style.color = 'var(--muted)';
-             statusTxt.style.fontWeight = '400';
-             headerRole.textContent = '#STUDENT';
-        }
-
-        if (ADMIN_EMAILS.includes(user.email)) {
-            const countEl = document.getElementById('my-follower-count');
-            countEl.style.cursor = 'pointer';
-            countEl.title = "Click to edit (Admin Only)";
-            countEl.onclick = async () => {
-                const newCount = prompt("Flex Mode: Enter new follower count:", data.follower_count);
-                if (newCount !== null && !isNaN(newCount)) {
-                    const { error } = await supabase.from('verified_profiles').update({ follower_count: parseInt(newCount) }).eq('id', user.id);
-                    if (!error) {
-                         countEl.textContent = newCount;
-                         loadNetwork(); 
-                    }
-                }
-            };
-        }
-    } else {
-        document.getElementById('display-name').textContent = 'Update Profile';
-        document.getElementById('display-id').textContent = 'N/A';
+    } catch (err) {
+      console.error(err);
+      errEl.textContent = "Invalid email or password.";
+      errEl.style.display = 'block';
+    } finally {
+      btn.textContent = 'SECURE LOGIN';
+      btn.disabled = false;
     }
-  }
+  };
 
-  /* ===========================
-     NETWORK LOGIC
-     =========================== */
-  async function loadNetwork() {
-    const listEl = document.getElementById('network-list');
+
+  window.handleSignup = async function(e) {
+    e.preventDefault();
+    const btn = getEl('sign-btn');
+    const errEl = getEl('signup-error');
     
-    const { data: profiles, error } = await supabase.from('verified_profiles').select('*');
-    if(error) { listEl.innerHTML = '<div style="padding:20px">Failed to load network.</div>'; return; }
+    btn.textContent = 'CREATING...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
 
-    const { data: relationships } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
-    const followingIds = new Set(relationships?.map(r => r.following_id) || []);
+    const email = getEl('sign-email').value;
+    const password = getEl('sign-pass').value;
+    const name = getEl('sign-name').value;
+    const sid = getEl('sign-id').value;
+    const batch = getEl('sign-batch').value;
 
-    let pinned = [];
-    let others = [];
+    try {
+      // 1. Auth Signup
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password
+      });
 
-    profiles.forEach(p => {
-        if(p.id === currentUser.id) return; 
-        if(p.email && ADMIN_EMAILS.includes(p.email)) {
-            pinned.push(p);
-        } else {
-            others.push(p);
-        }
-    });
+      if (error) throw error;
+      if (!data.user) throw new Error("Signup failed. Please try again.");
 
-    others.sort(() => Math.random() - 0.5);
-    allUsers = [...pinned, ...others]; 
-    renderUsers(allUsers, followingIds);
-  }
+      // 2. Create Profile
+      const { error: dbError } = await supabase.from('verified_profiles').insert([{
+        id: data.user.id,
+        username: name,
+        school_id: sid,
+        batch_year: batch,
+        email: email
+      }]);
 
-  function renderUsers(users, followingSet) {
-    const listEl = document.getElementById('network-list');
-    listEl.innerHTML = '';
+      if (dbError) throw dbError;
 
-    if(users.length === 0) {
-        listEl.innerHTML = '<div style="padding:20px; color:var(--muted); text-align:center">No other students found.</div>';
-        return;
+      alert("Account created! Please log in.");
+      switchView('login');
+
+    } catch (err) {
+      console.error(err);
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.textContent = 'CREATE ACCOUNT';
+      btn.disabled = false;
     }
+  };
 
-    users.forEach(u => {
-        const isFollowing = followingSet.has(u.id);
-        
-        let badgesHtml = '';
-        if (u.role === 'architect') {
-             badgesHtml += `<span class="u-badge architect">ARCHITECT</span>`;
-        }
-        if (u.role === 'elite' || u.role === 'architect') {
-             badgesHtml += `<span class="u-badge verified">VERIFIED</span>`;
-        }
-        if (u.role === 'alumni') {
-             badgesHtml += `<span class="u-badge alumni">ALUMNI</span>`;
-        }
-        
-        let checkMark = '';
-        if (u.role === 'elite' || u.role === 'architect') {
-            checkMark = `<svg class="v-check-sm" style="color:rgba(var(--accent-gold),1)" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-        } else if (u.role === 'alumni') {
-            checkMark = `<svg class="v-check-sm" style="color:#fff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
-        }
-        
-        const html = `
-        <div class="user-item">
-            <div class="u-avatar">
-                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="u-info">
-                <div class="u-name">
-                  ${u.username || 'Unknown'} 
-                  ${checkMark}
-                </div>
-                <div class="u-batch">Batch: ${u.batch_year || 'N/A'}</div>
-                <div class="u-followers">
-                    <span id="count-${u.id}">${u.follower_count || 0}</span> followers
-                    ${badgesHtml}
-                </div>
-            </div>
-            <button class="btn-follow ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${u.id}', this)">
-                ${isFollowing ? 'Following' : 'Follow'}
-            </button>
-        </div>
-        `;
-        listEl.insertAdjacentHTML('beforeend', html);
-    });
+
+  window.handleForgot = async function(e) {
+    e.preventDefault();
+    const btn = getEl('forgot-btn');
+    const errEl = getEl('forgot-error');
+    const sucEl = getEl('forgot-success');
+    
+    btn.textContent = 'SENDING...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+    sucEl.style.display = 'none';
+
+    const email = getEl('forgot-email').value;
+    const redirectUrl = window.location.href; // Current page
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl
+      });
+      
+      if (error) throw error;
+      
+      sucEl.textContent = "Check your email for the reset link!";
+      sucEl.style.display = 'block';
+      btn.textContent = 'SENT';
+
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'SEND RESET LINK';
+      btn.disabled = false;
+    }
+  };
+
+
+  window.handleUpdatePass = async function(e) {
+    e.preventDefault();
+    const btn = getEl('update-pass-btn');
+    const errEl = getEl('update-pass-error');
+    
+    btn.textContent = 'UPDATING...';
+    btn.disabled = true;
+    errEl.style.display = 'none';
+
+    const newPass = getEl('new-password').value;
+
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        password: newPass
+      });
+
+      if (error) throw error;
+
+      alert("Password updated! Accessing dashboard...");
+      currentUser = data.user;
+      await loadProfile(currentUser);
+
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'UPDATE PASSWORD';
+      btn.disabled = false;
+    }
+  };
+
+
+  window.handleLogout = async function() {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
+
+  // Profile Edit Functions
+  window.enableEdit = function() {
+    getEl('edit-btn').classList.add('hidden');
+    getEl('save-btn').classList.remove('hidden');
+    getEl('cancel-btn').classList.remove('hidden');
+
+    const p = currentProfile || {};
+    getEl('display-name').innerHTML = `<input id="e-name" class="edit-input" value="${p.username||''}" style="width:100%;text-align:center;font-size:1.6rem">`;
+    getEl('display-id').innerHTML = `<input id="e-id" class="edit-input" value="${p.school_id||''}">`;
+    getEl('display-year').innerHTML = `<input id="e-year" class="edit-input" value="${p.batch_year||''}" maxlength="4">`;
+  };
+
+  window.cancelEdit = function() {
+    renderProfile(currentProfile); // Reset UI
+    resetEditBtns();
+  };
+
+  window.saveProfile = async function() {
+    const btn = getEl('save-btn');
+    btn.textContent = 'Saving...';
+    
+    const newName = getEl('e-name').value;
+    const newId = getEl('e-id').value;
+    const newYear = getEl('e-year').value;
+
+    try {
+      const updates = { username: newName, school_id: newId, batch_year: newYear };
+      const { error } = await supabase.from('verified_profiles').update(updates).eq('id', currentUser.id);
+      
+      if (error) throw error;
+      
+      currentProfile = { ...currentProfile, ...updates };
+      renderProfile(currentProfile);
+      resetEditBtns();
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save.");
+    } finally {
+      btn.textContent = 'Save';
+    }
+  };
+
+  function resetEditBtns() {
+    getEl('edit-btn').classList.remove('hidden');
+    getEl('save-btn').classList.add('hidden');
+    getEl('cancel-btn').classList.add('hidden');
   }
 
-  async function toggleFollow(targetId, btn) {
+  // Follow Logic
+  window.toggleFollow = async function(targetId, btn) {
+    if(btn.disabled) return;
+    btn.disabled = true;
+
+    // Check if currently following by class
     const isFollowing = btn.classList.contains('following');
-    btn.disabled = true; 
+    const countEl = document.getElementById(`count-${targetId}`);
+    let c = parseInt(countEl.innerText) || 0;
 
-    const countSpan = document.getElementById(`count-${targetId}`);
-    let currentCount = parseInt(countSpan.textContent) || 0;
-
+    // Optimistic Update
     if(isFollowing) {
-        btn.classList.remove('following');
-        btn.textContent = 'Follow';
-        if (countSpan) countSpan.textContent = Math.max(0, currentCount - 1);
-
-        const { error } = await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
-        
-        if(error) {
-           btn.classList.add('following');
-           btn.textContent = 'Following';
-           if (countSpan) countSpan.textContent = currentCount; 
-        }
-
+      // Unfollow
+      btn.classList.remove('following');
+      btn.innerText = 'Follow';
+      c = Math.max(0, c - 1);
+      countEl.innerText = c;
+      
+      await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
     } else {
-        btn.classList.add('following');
-        btn.textContent = 'Following';
-        if (countSpan) countSpan.textContent = currentCount + 1;
+      // Follow
+      btn.classList.add('following');
+      btn.innerText = 'Following';
+      c++;
+      countEl.innerText = c;
 
-        const { error } = await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
-        
-         if(error) {
-           btn.classList.remove('following');
-           btn.textContent = 'Follow';
-           if (countSpan) countSpan.textContent = currentCount; 
-        }
+      await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
     }
     
     btn.disabled = false;
-  }
+  };
 
-  function filterUsers() {
-      const term = document.getElementById('user-search').value.toLowerCase();
-      const items = document.querySelectorAll('.user-item');
-      items.forEach(item => {
-          const name = item.querySelector('.u-name').textContent.toLowerCase();
-          const batch = item.querySelector('.u-batch').textContent.toLowerCase();
-          if(name.includes(term) || batch.includes(term)) {
-              item.style.display = 'flex';
-          } else {
-              item.style.display = 'none';
-          }
-      });
-  }
+  window.filterUsers = function() {
+    const term = getEl('user-search').value.toLowerCase();
+    const items = document.querySelectorAll('.user-item');
+    items.forEach(i => {
+      const txt = i.innerText.toLowerCase();
+      i.style.display = txt.includes(term) ? 'flex' : 'none';
+    });
+  };
 
-  function enableEdit() {
-    document.getElementById('edit-btn').classList.add('hidden');
-    document.getElementById('save-btn').classList.remove('hidden');
-    document.getElementById('cancel-btn').classList.remove('hidden');
 
-    const nameEl = document.getElementById('display-name');
-    const idEl = document.getElementById('display-id');
-    const yearEl = document.getElementById('display-year');
-    
-    const currentName = nameEl.textContent;
-    const currentId = idEl.textContent === 'N/A' ? '' : idEl.textContent;
-    const currentYear = yearEl.textContent === '----' ? '' : yearEl.textContent;
+  // 3. INTERNAL LOADERS
 
-    nameEl.innerHTML = `<input type="text" id="edit-name-input" class="edit-input" value="${currentName}" style="text-align:center; font-size:1.6rem; width:100%">`;
-    idEl.innerHTML = `<input type="text" id="edit-id-input" class="edit-input" value="${currentId}">`;
-    yearEl.innerHTML = `<input type="text" id="edit-year-input" class="edit-input" value="${currentYear}" maxlength="4" pattern="\\d{4}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">`;
-  }
+  async function loadProfile(user) {
+    switchView('dashboard');
+    getEl('display-email').innerText = user.email;
 
-  function cancelEdit() {
-     const name = currentProfileData && currentProfileData.username ? currentProfileData.username : 'Student';
-     const sid = currentProfileData && currentProfileData.school_id ? currentProfileData.school_id : 'N/A';
-     const batch = currentProfileData && currentProfileData.batch_year ? currentProfileData.batch_year : '----';
-     
-     document.getElementById('display-name').textContent = name;
-     document.getElementById('display-id').textContent = sid;
-     document.getElementById('display-year').textContent = batch;
-
-     document.getElementById('edit-btn').classList.remove('hidden');
-     document.getElementById('save-btn').classList.add('hidden');
-     document.getElementById('cancel-btn').classList.add('hidden');
-  }
-
-  async function saveProfile() {
-      const newName = document.getElementById('edit-name-input').value;
-      const newId = document.getElementById('edit-id-input').value;
-      const newYear = document.getElementById('edit-year-input').value;
-      const saveBtn = document.getElementById('save-btn');
-
-      saveBtn.textContent = 'Saving...';
+    try {
+      let { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).single();
       
-      try {
-          const { error } = await supabase.from('verified_profiles').update({
-              username: newName,
-              school_id: newId,
-              batch_year: newYear
-          }).eq('id', currentUser.id);
-
-          if (error) throw error;
-
-          if(!currentProfileData) currentProfileData = {};
-          currentProfileData.username = newName;
-          currentProfileData.school_id = newId;
-          currentProfileData.batch_year = newYear;
-
-          document.getElementById('display-name').textContent = newName;
-          document.getElementById('display-id').textContent = newId || 'N/A';
-          document.getElementById('display-year').textContent = newYear || '----';
-
-          document.getElementById('edit-btn').classList.remove('hidden');
-          document.getElementById('save-btn').classList.add('hidden');
-          document.getElementById('cancel-btn').classList.add('hidden');
-          saveBtn.textContent = 'Save Changes';
-
-      } catch (err) {
-          console.error(err);
-          alert('Failed to save profile.');
-          saveBtn.textContent = 'Save Changes';
+      if (error) {
+        console.warn("Profile fetch error or no profile:", error);
+        // Create skeleton if missing
+        data = { username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
       }
-  }
 
-  function triggerCelebration(type) {
-    const title = document.getElementById('modal-title');
-    const msg = document.getElementById('modal-msg');
-    const modal = document.getElementById('verified-modal');
+      currentProfile = data;
+      renderProfile(data);
+      loadNetwork();
 
-    modal.classList.add('show');
-
-    if (type === 'alumni') {
-        title.textContent = 'Welcome Home!';
-        msg.innerHTML = 'Your <strong>Alumni Status</strong> has been verified.<br>Thank you for your legacy.';
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#710C04', '#ffffff', '#cccccc'] });
-    } else {
-        title.textContent = 'Congratulations!';
-        msg.innerHTML = 'You are now a <strong>Verified NGHSIAN!</strong><br>Your profile has been officially authenticated.';
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#FFF39A', '#710C04', '#ffffff'] });
+    } catch(err) {
+      console.error(err);
     }
   }
 
+  function renderProfile(p) {
+    if(!p) return;
+    getEl('display-name').innerText = p.username || 'Student';
+    getEl('display-id').innerText = p.school_id || '---';
+    getEl('display-year').innerText = p.batch_year || '---';
+    getEl('my-follower-count').innerText = p.follower_count || 0;
+
+    const card = getEl('profile-card');
+    const avatar = getEl('profile-avatar-container');
+    const batchLbl = getEl('display-batch');
+    const roleLbl = getEl('header-role');
+    const vIcon = document.querySelector('.verified-icon-overlay');
+
+    // Reset
+    card.className = 'id-card';
+    avatar.classList.remove('is-verified');
+    vIcon.innerHTML = '';
+
+    if(p.role === 'architect') {
+      card.classList.add('architect-theme');
+      avatar.classList.add('is-verified');
+      batchLbl.innerHTML = '<span style="color:rgba(var(--accent-gold),1)">WEBSITE ARCHITECT</span>';
+      roleLbl.innerText = '#ARCHITECT';
+      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+    } else if (p.role === 'elite') {
+      avatar.classList.add('is-verified');
+      batchLbl.innerHTML = '<span style="color:rgba(var(--accent-gold),1)">NGHSIANS ELITE</span>';
+      roleLbl.innerText = '#VERIFIED';
+      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+      checkCeleb(p, 'elite');
+    } else if (p.role === 'alumni') {
+      card.classList.add('alumni-theme');
+      avatar.classList.add('is-verified');
+      batchLbl.innerHTML = '<span style="color:#eef0f2">NGHSIANS ALUMNI</span>';
+      roleLbl.innerText = '#ALUMNI';
+      vIcon.innerHTML = `<svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
+      checkCeleb(p, 'alumni');
+    } else {
+      batchLbl.innerText = 'NGHSIANS MEMBER';
+      roleLbl.innerText = '#STUDENT';
+      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+    }
+
+    // Admin Edit Follower Count
+    if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
+       const fc = getEl('my-follower-count');
+       fc.style.cursor = 'pointer';
+       fc.onclick = async () => {
+         const n = prompt("Admin: Set Followers", p.follower_count);
+         if(n) {
+           await supabase.from('verified_profiles').update({follower_count: parseInt(n)}).eq('id', currentUser.id);
+           fc.innerText = n;
+         }
+       };
+    }
+  }
+
+  async function checkCeleb(p, type) {
+    if(p.notified_of_verification) return;
+    const modal = getEl('verified-modal');
+    modal.classList.add('show');
+    if(type === 'alumni') {
+       getEl('modal-title').innerText = "Welcome Home!";
+       getEl('modal-msg').innerHTML = "Your Alumni Status is verified.";
+       confetti({ colors: ['#710C04', '#fff']});
+    } else {
+       confetti({ colors: ['#FFF39A', '#710C04']});
+    }
+    await supabase.from('verified_profiles').update({notified_of_verification: true}).eq('id', p.id);
+  }
+
+  async function loadNetwork() {
+    const list = getEl('network-list');
+    
+    // Get all profiles
+    const { data: all, error } = await supabase.from('verified_profiles').select('*');
+    if(error) {
+       list.innerHTML = '<div style="padding:20px;text-align:center">Network Error</div>';
+       return;
+    }
+
+    // Get who I follow
+    const { data: following } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
+    const followingIds = new Set(following ? following.map(x => x.following_id) : []);
+
+    // Filter myself out
+    const others = all.filter(x => x.id !== currentUser.id);
+    
+    // Render
+    if(others.length === 0) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:#666">No other students yet.</div>';
+    } else {
+      list.innerHTML = '';
+      others.forEach(u => {
+        const isFollow = followingIds.has(u.id);
+        list.innerHTML += createUserHTML(u, isFollow);
+      });
+    }
+  }
+
+  function createUserHTML(u, isFollow) {
+     let badges = '';
+     if(u.role==='architect') badges='<span class="u-badge architect">ARCHITECT</span>';
+     else if(u.role==='elite') badges='<span class="u-badge verified">VERIFIED</span>';
+     else if(u.role==='alumni') badges='<span class="u-badge alumni">ALUMNI</span>';
+     
+     const btnState = isFollow ? 'following' : '';
+     const btnTxt = isFollow ? 'Following' : 'Follow';
+     
+     return `
+     <div class="user-item">
+        <div class="u-avatar">
+           <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="u-info">
+           <div class="u-name">${u.username}</div>
+           <div class="u-batch">Batch: ${u.batch_year}</div>
+           <div class="u-followers"><span id="count-${u.id}">${u.follower_count||0}</span> followers ${badges}</div>
+        </div>
+        <button class="btn-follow ${btnState}" onclick="toggleFollow('${u.id}', this)">${btnTxt}</button>
+     </div>`;
+  }
+
+
+  // 4. STARTUP CHECK
+  const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
+  if (isRecovery) {
+     supabase.auth.onAuthStateChange((evt, session) => {
+        if (evt === 'PASSWORD_RECOVERY' || session) {
+           currentUser = session.user;
+           switchView('update-password');
+        }
+     });
+  } else {
+     const { data } = await supabase.auth.getSession();
+     if (data.session) {
+        currentUser = data.session.user;
+        loadProfile(currentUser);
+     } else {
+        switchView('login');
+     }
+  }
+
+});
 </script>
 </body>
 </html>
