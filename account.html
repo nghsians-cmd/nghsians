@@ -668,7 +668,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     sucEl.style.display = 'none';
 
     const email = getEl('forgot-email').value;
-    const redirectUrl = window.location.href; // Current page
+    // UPDATED: Point to the new secure reset page
+    const redirectUrl = window.location.origin + '/reset.html'; 
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
