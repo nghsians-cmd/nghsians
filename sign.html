@@ -79,9 +79,8 @@
   .brand-logo img{ width:100%; height:100%; object-fit:contain; display:block }
   .brand-title{ font-weight:800; font-size:14px; letter-spacing:0.6px; color:var(--text); margin-top:4px }
   
-  /* ADDED: Hamburger icon */
   .menu-toggle {
-    display: none; /* Default hidden */
+    display: none; 
     background: transparent;
     border: none;
     color: var(--text);
@@ -97,7 +96,6 @@
     stroke: var(--text);
   }
 
-  /* ADDED: Mobile Menu Styles */
   #mobileMenu {
     position: fixed;
     top: var(--header-h);
@@ -127,30 +125,29 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
   #mobileMenu .nav-link::after {
-    display: none; /* Hide hover underline */
+    display: none;
   }
   #mobileMenu .nav-link.active {
       color: rgba(var(--accent-gold),1);
   }
 
-  /* Media Queries for Mobile Layout */
   @media (max-width: 800px) {
     .nav-left, .nav-right {
-      display: none; /* Hide desktop nav */
+      display: none;
     }
     .header-grid {
-      grid-template-columns: auto 1fr auto; /* logo | gap | hamburger */
+      grid-template-columns: auto 1fr auto; 
     }
     .menu-toggle {
-      display: block; /* Show hamburger */
-      order: 3; /* Push to right */
+      display: block; 
+      order: 3; 
     }
     .brand-center {
       order: 1; 
       align-items: flex-start;
     }
     .brand-title {
-      display: none; /* Hide title to save space */
+      display: none;
     }
     .brand-logo {
       width: 52px;
@@ -158,12 +155,12 @@
       margin-left: -8px; 
     }
     header {
-      height: 68px; /* Smaller header */
+      height: 68px; 
       padding-left: 12px;
       padding-right: 12px;
     }
     :root {
-      --header-h: 68px; /* Update variable */
+      --header-h: 68px;
     }
   }
 
@@ -172,6 +169,42 @@
   .wrap{ width:100%; max-width:1100px; padding:20px; position:relative; }
 
   h1.page-title{ font-size:2rem; margin:0 0 12px 0; font-weight:900 }
+  .section-label{ color:var(--muted); font-size:13px; letter-spacing:1px; text-transform:uppercase; margin:40px 0 16px 0; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; display:inline-block; }
+
+  /* --- NEW GROUP STYLES --- */
+  .batch-showcase {
+    background: rgba(255,255,255,0.015);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .batch-showcase::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: rgba(var(--accent-gold), 0.6);
+  }
+  .batch-header {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .batch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width:700px) {
+    .batch-grid { grid-template-columns: 1fr; }
+    .batch-showcase { padding: 16px; }
+  }
 
   /* video cards */
   .videos-grid{ display:grid; gap:18px; grid-template-columns: repeat(3,1fr); margin-top:18px; }
@@ -213,7 +246,7 @@
 
   footer{ padding:36px 20px; color:var(--muted); text-align:center }
   
-  /* ADDED: Dynamic Coming Soon styles */
+  /* Dynamic Coming Soon styles */
   .coming-soon-thumb{ background:#0a0a0a; position:relative; overflow:hidden; }
   .coming-soon-thumb::after{ content:""; position:absolute; top:0; left:-100%; width:50%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform:skewX(-25deg); animation: shimmer 3s infinite; }
   @keyframes shimmer{ 100%{ left:200% } }
@@ -263,37 +296,72 @@
   <main>
     <div class="wrap">
       <h1 class="page-title">Sign Day — Films</h1>
-      <p class="muted">Nasirabad Government High School Sign Day Official Films</p>
+      <p class="muted" style="margin-bottom:32px">Nasirabad Government High School Sign Day Official Films</p>
 
+      <!-- GROUP 1: Batch 26 & NGHS 59 -->
+      <div class="batch-showcase reveal">
+        <div class="batch-header">
+          Batch 26 & NGHS 59
+        </div>
+        <div class="batch-grid">
+          <!-- Main Video (Dynamic) -->
+          <div class="video-card">
+            <div class="video-thumb coming-soon-thumb" style="border:1px solid rgba(var(--accent-gold),0.15)">
+               <div class="dynamic-text">Airing Soon<br><span style="color:rgb(var(--accent-gold)); -webkit-text-fill-color: initial;">Dec 11, 2025</span></div>
+            </div>
+            <div class="video-meta">
+              <div><div class="video-title">Main Film</div><div class="video-desc">The next chapter is unfolding.</div></div>
+              <div class="muted" style="font-weight:700">SOON</div>
+            </div>
+          </div>
+           <!-- Trailer -->
+           <div class="video-card" data-video-id="8gul1l6QVfw">
+            <div class="video-thumb" role="button" tabindex="0" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
+              <img src="https://img.youtube.com/vi/8gul1l6QVfw/hqdefault.jpg" alt="Batch 26 Trailer">
+              <div class="play-overlay"><div class="play-button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="video-meta">
+              <div><div class="video-title">Official Trailer</div><div class="video-desc">First look at the new chapter.</div></div>
+              <div class="muted" style="font-weight:700">TRAILER</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROUP 2: Batch 25 & NGHS 58 -->
+      <div class="batch-showcase reveal">
+        <div class="batch-header">
+          Batch 25 & NGHS 58
+        </div>
+        <div class="batch-grid">
+          <!-- Main Video -->
+          <div class="video-card" data-video-id="RyxnEuFfzxU">
+            <div class="video-thumb" role="button" tabindex="0" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
+              <img src="https://img.youtube.com/vi/RyxnEuFfzxU/hqdefault.jpg" alt="Batch 25 Main Film">
+              <div class="play-overlay"><div class="play-button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="video-meta">
+              <div><div class="video-title">Main Film</div><div class="video-desc">The ultimate film experience.</div></div>
+              <div class="muted" style="font-weight:700">5:56</div>
+            </div>
+          </div>
+           <!-- Trailer -->
+           <div class="video-card" data-video-id="qvzrtd7h_OE">
+            <div class="video-thumb" role="button" tabindex="0" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
+              <img src="https://img.youtube.com/vi/qvzrtd7h_OE/hqdefault.jpg" alt="Batch 25 Trailer">
+              <div class="play-overlay"><div class="play-button"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+            </div>
+            <div class="video-meta">
+              <div><div class="video-title">Official Trailer</div><div class="video-desc">The teaser that started it all.</div></div>
+              <div class="muted" style="font-weight:700">TRAILER</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OLDER BATCHES -->
+      <div class="section-label">Previous Years</div>
       <div id="videosGrid" class="videos-grid">
-        <!-- ADDED: New Dynamic Card -->
-        <div class="video-card reveal">
-          <div class="video-thumb coming-soon-thumb" style="border:1px solid rgba(var(--accent-gold),0.15)">
-             <div class="dynamic-text">Happening this<br><span style="color:rgb(var(--accent-gold)); -webkit-text-fill-color: initial;">December</span></div>
-          </div>
-          <div class="video-meta">
-            <div>
-              <div class="video-title">Batch 26 & NGHS 59</div>
-              <div class="video-desc">The next chapter is unfolding.</div>
-            </div>
-            <div class="muted" style="font-weight:700">SOON</div>
-          </div>
-        </div>
-
-        <div class="video-card reveal" data-video-id="RyxnEuFfzxU"> 
-          <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 1" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
-            <img src="https://img.youtube.com/vi/RyxnEuFfzxU/hqdefault.jpg" alt="Batch 25 & NGHS 58 thumbnail">
-            <div class="play-overlay"><div class="play-button" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
-          </div>
-          <div class="video-meta">
-            <div>
-              <div class="video-title">Batch 25 & NGHS 58</div>
-              <div class="video-desc">Come Watch and feel the ultimate film experience of Bangladeshi Sign Day.</div>
-            </div>
-            <div class="muted" style="font-weight:700">5:56</div>
-          </div>
-        </div>
-
         <div class="video-card reveal" data-video-id="ClZKWorUQNk">
           <div class="video-thumb" role="button" tabindex="0" aria-label="Play video 2" onclick="playInline(this)" onkeydown="if(event.key==='Enter') playInline(this)">
             <img src="https://img.youtube.com/vi/ClZKWorUQNk/hqdefault.jpg" alt="Batch 23 & NGHS 56 thumbnail">
