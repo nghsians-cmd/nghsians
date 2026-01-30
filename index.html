@@ -515,6 +515,29 @@
 </head>
 <body>
 
+  <!-- =========================================================================
+       [START] VICTORY DAY THEME OVERLAY
+       (Beautiful, subtle red/green gradient mix for 16th December)
+       ========================================================================= -->
+  <style>
+    .victory-theme-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 5;
+      background: radial-gradient(circle at 10% 10%, rgba(244, 42, 65, 0.08), transparent 40%),
+                  radial-gradient(circle at 90% 90%, rgba(0, 106, 78, 0.12), transparent 40%);
+      mix-blend-mode: screen;
+    }
+    /* Accents on the page borders */
+    body::after {
+      content: ""; position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999;
+      background: linear-gradient(90deg, #006a4e 0%, #f42a41 100%);
+      pointer-events: none;
+    }
+  </style>
+  <div class="victory-theme-overlay"></div>
+  <!-- =========================================================================
+       [END] VICTORY DAY THEME OVERLAY
+       ========================================================================= -->
+
   <div id="pageWipe" class="page-wipe" aria-hidden="true">
     <div class="wipe-layer"></div>
     <div class="pulse-wrap" aria-hidden="true">
