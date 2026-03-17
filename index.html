@@ -32,6 +32,7 @@
     ml('account', '1927434');
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
   /* ===========================
@@ -50,10 +51,11 @@
     --pad: 20px;
     --header-h: 86px;
     --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    --font-bangla: "Hind Siliguri", "Kalpurush", "Siyam Rupali", sans-serif;
 
-    /* Official Film Theme Vars */
-    --film-gold: #d4af37;
-    --film-shadow: rgba(212, 175, 55, 0.15);
+    /* Iftar Film Theme Vars (Sunset/Twilight) */
+    --film-accent: #fb923c;
+    --film-shadow: rgba(251, 146, 60, 0.15);
 
     /* page-wipe timing */
     --wipe-duration: 1000ms;
@@ -68,6 +70,10 @@
   img{max-width:100%;height:auto;display:block}
   a{color:inherit;text-decoration:none}
   button{font-family:inherit;cursor:pointer}
+
+  /* Font helpers */
+  .bangla-title { font-family: var(--font-bangla); font-weight: 800; line-height: 1.3; }
+  .bangla-text { font-family: var(--font-bangla); font-weight: 400; line-height: 1.5; }
 
   /* ===========================
      Subtle grain texture (global)
@@ -549,7 +555,7 @@
 
   <!-- =========================================================================
        [START] EDITABLE FEATURE: FILM PREMIERE POPUP
-       (A unique, once-in-a-year style popup for the Official Film)
+       (A unique, once-in-a-year style popup for the Official Film / Iftar)
        ========================================================================= -->
   <div id="newsPopup" class="popup-overlay" aria-hidden="true">
     <div class="popup-card reveal film-premiere-popup">
@@ -557,15 +563,15 @@
       
       <!-- POPUP IMAGE: Film Cover -->
       <div class="popup-image film-poster-fx">
-        <img src="nghsfilm.jpg" alt="Official Film Poster" style="object-fit:cover;">
-        <div class="popup-badge film-badge">WORLD PREMIERE</div>
+        <img src="iftaar.jpg" alt="Iftar 2026 Poster" style="object-fit:cover;">
+        <div class="popup-badge film-badge" style="background: var(--film-accent); color: #000;">LATEST RELEASE</div>
       </div>
 
       <!-- POPUP TEXT CONTENT -->
       <div class="popup-content film-content">
-        <h3 class="popup-title film-title">NGHS 59th Sign Day Official Film</h3>
-        <p class="popup-text">The wait is over. Experience the legacy in 4K.</p>
-        <button class="btn btn--primary film-btn" onclick="goToNews()" style="width:100%">Watch The Film</button>
+        <h3 class="popup-title film-title bangla-title" style="background: linear-gradient(135deg, #fff, #fed7aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ফিরে দেখা প্রিয় প্রাঙ্গণ: ইফতার ও পুনর্মিলনী ২০২৬</h3>
+        <p class="popup-text bangla-text">“বন্ধু মানে হৃদয়ের টান,<br>সময় যত দূরে যাক, স্মৃতি থাকে অম্লান।”</p>
+        <button class="btn btn--primary film-btn" onclick="goToNews()" style="width:100%; background: linear-gradient(45deg, #ea580c, #fb923c) !important;">Watch Highlights</button>
       </div>
 
     </div>
@@ -588,9 +594,9 @@
       transform: translateY(20px) scale(0.95); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
       position: relative;
     }
-    /* Special Film Styles */
+    /* Special Film Styles - Sunset Theme */
     .film-premiere-popup {
-        border: 1px solid var(--film-gold);
+        border: 1px solid var(--film-accent);
         box-shadow: 0 0 50px var(--film-shadow);
     }
     .popup-overlay.show .popup-card { transform: translateY(0) scale(1); }
@@ -601,7 +607,7 @@
       cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;
       transition: background 0.2s;
     }
-    .popup-close:hover { background: var(--film-gold); color: #000; }
+    .popup-close:hover { background: var(--film-accent); color: #000; }
 
     .popup-image { position: relative; height: 240px; overflow: hidden; }
     .popup-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -613,17 +619,14 @@
     
     .popup-badge {
       position: absolute; bottom: 10px; left: 10px;
-      background: var(--film-gold); color: #000; z-index: 2;
       font-size: 10px; font-weight: 900; padding: 5px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;
     }
 
     .popup-content { padding: 24px; text-align: center; }
-    .popup-title { font-size: 1.4rem; margin: 0 0 8px; color: var(--text); font-weight: 800; line-height: 1.2; }
-    .film-title { background: linear-gradient(135deg, #fff, #ccc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .popup-title { font-size: 1.4rem; margin: 0 0 8px; color: var(--text); }
     .popup-text { font-size: 0.95rem; color: var(--muted); margin: 0 0 20px; }
     
     .film-btn { 
-        background: linear-gradient(45deg, #b8860b, #d4af37) !important; 
         color: #000 !important; border: none !important;
         font-weight: 900 !important; letter-spacing: 0.5px;
     }
@@ -727,24 +730,24 @@
     <div class="wrap">
 
       <!-- =========================================================================
-           [START] REMOVABLE SECTION: OFFICIAL FILM PREMIERE
-           (Replaced trailer section with new theme)
+           [START] REMOVABLE SECTION: OFFICIAL FILM PREMIERE (IFTAAR EDITION)
+           (New Sunset/Twilight Theme for Iftar Film)
            ========================================================================= -->
-      <section id="film-premiere" class="reveal" style="margin-bottom: 40px; position: relative;">
-        <div class="film-container" style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(212, 175, 55, 0.4); box-shadow: 0 0 60px rgba(212, 175, 55, 0.1);">
+      <section id="iftar-film" class="reveal" style="margin-bottom: 40px; position: relative;">
+        <div class="film-container" style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(251, 146, 60, 0.4); box-shadow: 0 0 60px rgba(234, 88, 12, 0.15);">
           
           <!-- Header/Title Overlay -->
-          <div style="padding: 20px; background: linear-gradient(to bottom, #1a1510, transparent); position: absolute; top: 0; left: 0; right: 0; z-index: 5; pointer-events: none;">
+          <div style="padding: 20px; background: linear-gradient(to bottom, rgba(15, 23, 42, 0.9), transparent); position: absolute; top: 0; left: 0; right: 0; z-index: 5; pointer-events: none;">
               <h3 style="margin:0; color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
-                  <span style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%; box-shadow: 0 0 15px #d4af37;"></span>
-                  OFFICIAL FILM PREMIERE
+                  <span style="width: 8px; height: 8px; background: #fb923c; border-radius: 50%; box-shadow: 0 0 15px #fb923c;"></span>
+                  NGHS IFTAAR 2026 FILM
               </h3>
           </div>
           
           <!-- Video Wrapper for 16:9 -->
           <div style="position: relative; padding-bottom: 56.25%; height: 0; background: #08090a;">
               <iframe 
-                  src="https://www.youtube.com/embed/RnoFS9dIMxE?rel=0&modestbranding=1" 
+                  src="https://www.youtube.com/embed/K9UMprOpW1g?rel=0&modestbranding=1" 
                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowfullscreen>
@@ -752,17 +755,17 @@
           </div>
           
           <!-- Bottom Info -->
-          <div style="padding: 15px 20px; background: linear-gradient(90deg, #1a1510 0%, #2a2018 100%); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="padding: 15px 20px; background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div>
-                  <div style="color: #fff; font-weight: 700; font-size: 1.1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Batch '26 Sign Day: The Official Film</div>
-                  <div style="color: #d4af37; font-size: 0.85rem; margin-top: 4px; font-weight:600;">Experience the moments again.</div>
+                  <div style="color: #fff; font-size: 1.15rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);" class="bangla-title">প্রাক্তন ছাত্র পুনর্মিলনী ও ইফতার মাহফিল ২০২৬</div>
+                  <div style="color: #fb923c; font-size: 0.85rem; margin-top: 4px; font-weight:600;">Relive the warmth, nostalgia, and brotherhood.</div>
               </div>
-              <a href="https://youtu.be/RnoFS9dIMxE" target="_blank" class="btn btn--primary" style="padding: 8px 24px; font-size: 0.9rem; background: #d4af37; color:#000; border:none; box-shadow: 0 4px 15px rgba(212,175,55,0.3);">Watch in 4K</a>
+              <a href="https://youtu.be/K9UMprOpW1g" target="_blank" class="btn btn--primary" style="padding: 8px 24px; font-size: 0.9rem; background: #fb923c; color:#000; border:none; box-shadow: 0 4px 15px rgba(251,146,60,0.3);">Watch Highlights</a>
           </div>
         </div>
       </section>
       <!-- =========================================================================
-           [END] REMOVABLE SECTION: OFFICIAL FILM PREMIERE
+           [END] REMOVABLE SECTION: OFFICIAL FILM PREMIERE (IFTAAR EDITION)
            ========================================================================= -->
 
       <section id="about" class="reveal diag-feather">
@@ -912,30 +915,30 @@
       <section id="news" class="reveal diag-feather" style="margin-top:18px">
         <h2 class="section-title">News & Events</h2>
         
-        <!-- === HERO NEWS CARD (New Official Film) === -->
+        <!-- === HERO NEWS CARD (Iftar 2026) === -->
         <div class="news-hero-card reveal">
           <div class="news-hero-bg">
             <!-- Adjusted image to fit nicely regardless of res -->
-            <img src="nghsfilm.jpg" alt="Official Film" style="object-fit:cover; object-position: center;">
+            <img src="iftaar.jpg" alt="Iftar 2026 Reunion" style="object-fit:cover; object-position: center;">
             <div class="news-gradient-overlay"></div>
           </div>
           <div class="news-hero-content">
-            <div class="news-meta-badge" style="background:#d4af37; color:#000;">OFFICIAL FILM RELEASE</div>
-            <h3 class="news-hero-title">NGHS 59th Sign Day Official Film</h3>
+            <div class="news-meta-badge" style="background:#fb923c; color:#000;">LATEST EVENT</div>
+            <h3 class="news-hero-title bangla-title">ফিরে দেখা প্রিয় প্রাঙ্গণ: ইফতার ও পুনর্মিলনী ২০২৬</h3>
             
             <!-- Event Details -->
             <div class="news-details-grid">
               <div class="detail-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <span>Now Streaming</span>
+                <span>Highlights Streaming</span>
               </div>
             </div>
             
-            <p style="color:var(--text); max-width:600px; margin-bottom:12px; font-size:1.05rem;">
-                Relive the emotions, the glory, and the brotherhood. The official film is finally here.
+            <p style="color:var(--text); max-width:650px; margin-bottom:12px; font-size:1.05rem;" class="bangla-text">
+                সময় আমাদের অনেক দূরে নিয়ে গেলেও সেই মাঠ, সেই ভবন, আর সেই বন্ধুত্ব যেন আজও ঠিক আগের মতোই আছে। হাসি, স্মৃতি আর আবেগে ভরা সেই সন্ধ্যাটা আমাদের মনে করিয়ে দিল— স্কুল শুধু একটি প্রতিষ্ঠান নয়, এটি আমাদের শৈশব, আমাদের বন্ধুত্ব আর আমাদের জীবনের এক অমূল্য অধ্যায়।
             </p>
             <div class="news-footer">
-              <span class="muted" style="font-size:12px">Posted: 29 Jan 2026</span>
+              <span class="muted" style="font-size:12px">Posted: 17 Mar 2026</span>
             </div>
           </div>
         </div>
@@ -943,7 +946,20 @@
         <!-- === PAST NEWS GRID (Smaller items below hero) === -->
         <div class="news-sub-grid" style="margin-top: 20px;">
           
-          <!-- Moved: Official Trailer (Marked Past) -->
+          <!-- Moved: Sign Day Official Film (Marked Past) -->
+          <div class="news-small-card reveal">
+            <div class="news-small-img" style="overflow:hidden;">
+               <img src="nghsfilm.jpg" alt="Sign Day Official Film" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="news-small-content">
+              <div class="news-tag" style="color:var(--muted)">PAST NEWS</div>
+              <h4 class="news-small-title">NGHS 59th Sign Day Official Film</h4>
+              <p class="news-small-excerpt muted">Relive the emotions, the glory, and the brotherhood.</p>
+              <div class="muted" style="font-size:12px; margin-top:auto">29 Jan 2026</div>
+            </div>
+          </div>
+
+          <!-- Moved: Official Trailer Premiere (Marked Past) -->
           <div class="news-small-card reveal">
             <div class="news-small-img" style="overflow:hidden;">
                <img src="nghs26.jpg" alt="Official Trailer" style="width:100%;height:100%;object-fit:cover;">
@@ -953,19 +969,6 @@
               <h4 class="news-small-title">Official Trailer Premiere</h4>
               <p class="news-small-excerpt muted">The cinematic trailer for Batch '26 Celebration.</p>
               <div class="muted" style="font-size:12px; margin-top:auto">3 Jan 2026</div>
-            </div>
-          </div>
-
-          <!-- Moved: Alumni Panel (Marked Past) -->
-          <div class="news-small-card reveal">
-            <div class="news-small-img" style="background:linear-gradient(120deg, #111, #08090a); display:flex; align-items:center; justify-content:center;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            </div>
-            <div class="news-small-content">
-              <div class="news-tag" style="color:var(--muted)">PAST NEWS</div>
-              <h4 class="news-small-title">Alumni Panel Live</h4>
-              <p class="news-small-excerpt muted">Connect with your batchmates now.</p>
-              <div class="muted" style="font-size:12px; margin-top:auto">16 Dec 2025</div>
             </div>
           </div>
           
