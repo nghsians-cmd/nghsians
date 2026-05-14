@@ -5,983 +5,991 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>NGHSIANS — Account</title>
 <link rel="icon" href="favLogo.ico">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-  :root{
-    --bg: #050505;
-    --panel: #0d0e10;
-    --text: #eef0f2;
-    --muted: #9aa0a6;
-    --accent-deep: #710C04;
-    --accent-gold: 255,243,154; 
-    --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  }
+/* ============================================================
+   DESIGN SYSTEM — matches index.html redesign
+   ============================================================ */
+:root {
+  --bg:          #060708;
+  --surface:     #0a0b0d;
+  --panel:       #0e1012;
+  --border:      rgba(255,255,255,0.06);
+  --border-hi:   rgba(255,255,255,0.12);
+  --text:        #e8eaed;
+  --text-dim:    #8a9099;
+  --gold:        255,235,128;
+  --gold-solid:  #ffeb80;
+  --gold-dim:    rgba(255,235,128,0.12);
+  --gold-glow:   rgba(255,235,128,0.06);
+  --red:         #8b0e06;
+  --red-muted:   rgba(139,14,6,0.28);
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body:    "DM Sans", system-ui, sans-serif;
+  --r:            12px;
+}
 
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);overflow-x:hidden;}
-  
-  /* Background */
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='2'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.055'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08' /></svg>");
-    opacity:0.15; mix-blend-mode:overlay;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body {
+  min-height: 100%; background: var(--bg); color: var(--text);
+  font-family: var(--font-body); -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
 
-  /* Safety for Confetti Canvas - ensures it never blocks clicks */
-  canvas { pointer-events: none !important; }
+/* Noise texture */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.04'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.5; mix-blend-mode: overlay;
+}
 
-  /* UPDATED: Wrap now handles scrolling properly on mobile */
-  .wrap {
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
-    position: relative; z-index: 1;
-  }
+/* Ambient radial glows */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(139,14,6,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(255,235,128,0.04) 0%, transparent 50%);
+}
 
-  /* --- AUTH CARD (Login/Signup/Forgot) --- */
-  .auth-card {
-    width: 100%; max-width: 450px;
-    background: rgba(20, 20, 22, 0.6);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 40px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    text-align: center; position: relative; overflow: hidden;
-    transition: all 0.3s ease;
-    z-index: 10;
-  }
-  .auth-card::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, rgba(var(--accent-gold), 0.8), transparent);
-  }
+/* Safety for confetti canvas */
+canvas { pointer-events: none !important; }
 
-  /* --- DASHBOARD LAYOUT (Profile + Network) --- */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    width: 100%;
-    max-width: 1000px;
-    align-items: start;
-  }
-  @media(min-width: 850px) {
-    .dashboard-grid { grid-template-columns: 380px 1fr; }
-  }
+/* ---- BACK LINK ---- */
+.back-link {
+  position: fixed; top: 20px; left: 20px; z-index: 100;
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--text-dim); font-size: 13px; font-weight: 500;
+  padding: 8px 14px; border-radius: 20px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  text-decoration: none; transition: color 150ms, border-color 150ms, background 150ms;
+}
+.back-link:hover { color: var(--text); border-color: var(--border-hi); background: rgba(255,255,255,0.07); }
+.back-link svg { flex-shrink: 0; }
 
-  /* --- ID CARD STYLES --- */
-  .id-card {
-    background: rgba(20, 20, 22, 0.6);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px; padding: 30px;
-    backdrop-filter: blur(12px);
-    text-align: center; position: relative;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    z-index: 10;
-  }
-  .id-card::before {
-    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, rgba(var(--accent-gold), 0.8), transparent);
-  }
-  
-  /* Architect Theme */
-  .id-card.architect-theme {
-    background: linear-gradient(180deg, rgba(20, 20, 22, 0.8), rgba(25, 20, 10, 0.3));
-    border-color: rgba(var(--accent-gold), 0.4);
-    box-shadow: 0 0 50px rgba(var(--accent-gold), 0.1);
-  }
-  
-  /* Alumni Theme */
-  .id-card.alumni-theme {
-    background: linear-gradient(160deg, rgba(20, 20, 22, 0.9), rgba(113, 12, 4, 0.15));
-    border-color: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 40px rgba(113, 12, 4, 0.1);
-  }
-  .id-card.alumni-theme::before {
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  }
+/* ---- PAGE WRAPPER ---- */
+.page {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 16px 48px;
+  position: relative; z-index: 1;
+}
+/* On mobile, don't try to vertically center the tall dashboard */
+@media (max-width: 860px) {
+  .page { justify-content: flex-start; padding-top: 72px; }
+}
 
-  /* --- NETWORK CARD STYLES --- */
-  .network-card {
-    background: rgba(20, 20, 22, 0.6);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px; padding: 24px;
-    backdrop-filter: blur(12px);
-    display: flex; flex-direction: column;
-    height: 600px; /* Fixed height for scrolling */
-    z-index: 10;
-  }
-  .network-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
-    margin-bottom: 16px;
-  }
-  .network-title { font-size: 1.2rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
-  
-  /* Search Bar */
-  .search-wrap { position: relative; width: 100%; margin-bottom: 16px; }
-  .search-input {
-    width: 100%; padding: 12px 12px 12px 40px;
-    background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: #fff; font-family: inherit; 
-    font-size: 16px; 
-  }
-  .search-input:focus { outline: none; border-color: rgba(var(--accent-gold), 0.6); }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+/* ============================================================
+   AUTH CARDS (Login / Signup / Forgot / Update-Password)
+   ============================================================ */
+.auth-card {
+  width: 100%; max-width: 420px;
+  background: rgba(14,16,18,0.75);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px;
+  padding: clamp(28px, 5vw, 44px);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+  text-align: center; position: relative; overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+/* Gold top shimmer line */
+.auth-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.6) 50%, transparent 100%);
+}
 
-  /* User List */
-  .user-list {
-    flex: 1; overflow-y: auto; padding-right: 4px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  /* Custom Scrollbar */
-  .user-list::-webkit-scrollbar { width: 4px; }
-  .user-list::-webkit-scrollbar-track { background: transparent; }
-  .user-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+.auth-logo {
+  width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+  margin: 0 auto 20px;
+  border: 1px solid rgba(var(--gold),0.2);
+  box-shadow: 0 0 24px rgba(var(--gold),0.08), 0 8px 24px rgba(0,0,0,0.4);
+}
+.auth-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
-  .user-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px; border-radius: 8px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.03);
-    transition: background 0.2s;
-  }
-  .user-item:hover { background: rgba(255,255,255,0.05); }
-  
-  .u-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: #151515; border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center; color: var(--muted);
-    position: relative; flex-shrink: 0;
-  }
-  .u-info { flex: 1; min-width: 0; }
-  .u-name { font-weight: 700; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display:flex; align-items:center; gap:6px;}
-  .u-batch { font-size: 0.8rem; color: var(--muted); }
-  .u-followers { font-size: 0.75rem; color: rgba(var(--accent-gold), 0.8); font-weight: 600; margin-top: 2px; display:flex; align-items:center; gap:6px; }
-  
-  /* Badge in List */
-  .u-badge {
-    font-size: 0.6rem; font-weight: 800; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; margin-left: 4px;
-  }
-  .u-badge.architect { color: #000; background: rgba(var(--accent-gold), 1); }
-  .u-badge.verified { color: rgba(var(--accent-gold), 1); background: rgba(var(--accent-gold), 0.15); border: 1px solid rgba(var(--accent-gold), 0.3); }
-  .u-badge.alumni { color: #fff; background: rgba(113, 12, 4, 0.5); border: 1px solid rgba(113, 12, 4, 0.8); }
+.auth-title {
+  font-family: var(--font-display); font-size: clamp(1.5rem, 5vw, 1.9rem);
+  font-weight: 900; color: var(--text); line-height: 1.15; margin-bottom: 6px;
+}
+.auth-sub { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 28px; line-height: 1.5; }
 
-  .btn-follow {
-    padding: 6px 14px; border-radius: 6px; border: none;
-    font-weight: 700; font-size: 0.8rem; cursor: pointer;
-    background: rgba(255,255,255,0.08); color: var(--text);
-    transition: all 0.2s;
-  }
-  .btn-follow:hover { background: rgba(255,255,255,0.15); }
-  .btn-follow.following {
-    background: transparent; border: 1px solid rgba(var(--accent-gold), 0.4); color: rgba(var(--accent-gold), 1);
-  }
+/* ---- FORM ELEMENTS ---- */
+.input-group { margin-bottom: 16px; text-align: left; position: relative; }
+label {
+  font-size: 10px; font-weight: 700; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 7px; display: block;
+}
+.input-box {
+  width: 100%; padding: 12px 14px;
+  background: rgba(0,0,0,0.35); border: 1px solid var(--border-hi);
+  border-radius: 9px; color: var(--text); font-family: var(--font-body);
+  font-size: 15px; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-box:focus {
+  outline: none; border-color: rgba(var(--gold),0.7);
+  box-shadow: 0 0 0 3px rgba(var(--gold),0.1);
+}
+.input-box::placeholder { color: rgba(138,144,153,0.45); }
+input[type="password"], input[type="text"].password-visible { padding-right: 44px; }
 
-  /* --- GENERAL UI --- */
-  .input-group { margin-bottom: 16px; text-align: left; position:relative; }
-  label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+.toggle-pass {
+  position: absolute; right: 12px; top: 36px;
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; display: flex; align-items: center;
+  padding: 4px; z-index: 5; transition: color 0.15s;
+}
+.toggle-pass:hover { color: var(--text); }
 
-  .input-box {
-    width: 100%; padding: 12px 14px;
-    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px; color: #fff; font-family: inherit; 
-    font-size: 16px; 
-    transition: border-color 0.2s, box-shadow 0.2s;
-    position: relative; z-index: 20;
-  }
-  /* Padding to prevent text hiding behind eye icon */
-  input[type="password"], input[type="text"].password-visible {
-      padding-right: 40px; 
-  }
-  
-  .input-box:focus {
-    outline: none; border-color: rgba(var(--accent-gold), 0.8);
-    box-shadow: 0 0 0 2px rgba(var(--accent-gold), 0.15);
-  }
-  
-  /* Toggle Eye */
-  .toggle-pass {
-    position: absolute; right: 12px; top: 38px;
-    background: none; border: none; padding: 0;
-    color: var(--muted); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 21; 
-  }
-  .toggle-pass:hover { color: var(--text); }
+.checkbox-wrap {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: -8px; margin-bottom: 16px; cursor: pointer;
+}
+.checkbox-wrap input { cursor: pointer; accent-color: rgba(var(--gold),1); width: 15px; height: 15px; }
+.checkbox-wrap span { color: var(--text-dim); font-size: 0.83rem; }
 
-  .checkbox-wrap { display: flex; align-items: center; gap: 10px; margin-top: -8px; cursor: pointer; margin-bottom:16px;}
-  .checkbox-wrap input { cursor: pointer; accent-color: rgba(var(--accent-gold), 1); width: 16px; height: 16px; }
-  .checkbox-wrap span { color: var(--muted); font-size: 0.85rem; }
+.forgot-link {
+  text-align: right; margin-bottom: 20px; margin-top: -8px;
+}
+.forgot-link button {
+  background: none; border: none; color: var(--text-dim);
+  font-size: 0.82rem; cursor: pointer; font-family: var(--font-body);
+  text-underline-offset: 3px; text-decoration: underline;
+  padding: 0; transition: color 0.15s;
+}
+.forgot-link button:hover { color: rgba(var(--gold),0.9); }
 
-  .btn-action {
-    width: 100%; padding: 14px; border-radius: 8px; border: none;
-    font-weight: 800; font-size: 15px; color: #fff;
-    background: linear-gradient(180deg, rgba(113,12,4,0.4), rgba(113,12,4,0.6));
-    border: 1px solid rgba(113,12,4,0.4); cursor: pointer; transition: 0.2s;
-    touch-action: manipulation;
-  }
-  .btn-action:hover { background: linear-gradient(180deg, rgba(113,12,4,0.6), rgba(113,12,4,0.8)); }
-  
-  /* --- PROFILE ELEMENTS --- */
-  .avatar-large {
-    width: 90px; height: 90px; border-radius: 50%;
-    background: #111; border: 2px solid rgba(255,255,255,0.1);
-    margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; color: #333; position: relative;
-  }
-  
-  /* Architect Avatar Special Styling */
-  .architect-theme .avatar-large {
-    border-color: rgba(var(--accent-gold), 0.8);
-    box-shadow: 0 0 30px rgba(var(--accent-gold), 0.2);
-  }
+.btn-action {
+  width: 100%; padding: 13px; border-radius: 9px; border: none;
+  font-family: var(--font-body); font-weight: 700; font-size: 14px;
+  letter-spacing: 1px; color: var(--text); cursor: pointer;
+  background: linear-gradient(135deg, rgba(139,14,6,0.4), rgba(139,14,6,0.6));
+  border: 1px solid rgba(139,14,6,0.3);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  touch-action: manipulation;
+}
+.btn-action:hover {
+  background: linear-gradient(135deg, rgba(139,14,6,0.6), rgba(139,14,6,0.8));
+  transform: translateY(-1px); box-shadow: 0 8px 24px rgba(139,14,6,0.25);
+}
+.btn-action:active { transform: translateY(0); }
 
-  .verified-icon-overlay {
-    position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
-    background: #000; border-radius: 50%; border: 2px solid #08090a;
-    color: rgba(var(--accent-gold), 1); display: flex; align-items: center; justify-content: center;
-    opacity: 0; transform: scale(0.5); transition: all 0.3s;
-  }
-  .is-verified .verified-icon-overlay { opacity: 1; transform: scale(1); }
+.switch-link {
+  background: none; border: none; color: var(--text-dim);
+  margin-top: 18px; cursor: pointer; font-family: var(--font-body);
+  font-size: 0.85rem; text-decoration: underline; text-underline-offset: 3px;
+  display: inline-block; transition: color 0.15s;
+}
+.switch-link:hover { color: rgba(var(--gold),0.9); }
 
-  .data-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; align-items:center;}
-  .data-val { color: #fff; font-weight: 600; font-family: monospace; text-align: right; }
-  .edit-input { background: transparent; border: none; border-bottom: 1px solid rgba(var(--accent-gold), 0.5); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600; text-align: right; width: 140px; padding: 2px 0; outline: none; }
+/* Error / Success messages */
+.error-msg {
+  color: #ff6b6b; font-size: 0.83rem; background: rgba(255,107,107,0.1);
+  border: 1px solid rgba(255,107,107,0.2); padding: 10px 14px;
+  border-radius: 8px; margin-bottom: 14px; display: none; text-align: left;
+}
+.success-msg {
+  color: rgba(var(--gold),1); font-size: 0.83rem; background: var(--gold-dim);
+  border: 1px solid rgba(var(--gold),0.2); padding: 10px 14px;
+  border-radius: 8px; margin-bottom: 14px; display: none; text-align: left;
+}
 
-  .hidden { display: none !important; }
-  .error-msg { color: #ff6060; font-size: 0.85rem; background: rgba(255,96,96,0.1); padding: 10px; border-radius: 6px; margin-bottom: 12px; display: none; }
-  .success-msg { color: gold; font-size: 0.85rem; background: rgba(255,215,0,0.1); padding: 10px; border-radius: 6px; margin-bottom: 12px; display: none; }
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+.dashboard-grid {
+  display: grid; grid-template-columns: 1fr;
+  gap: 20px; width: 100%; max-width: 1000px; align-items: start;
+}
+@media (min-width: 860px) {
+  .dashboard-grid { grid-template-columns: 340px 1fr; gap: 24px; }
+}
 
-  /* Verified Checkmark Small */
-  .v-check-sm { width: 14px; height: 14px; margin-left: 4px; }
+/* ============================================================
+   ID / PROFILE CARD
+   ============================================================ */
+.id-card {
+  background: rgba(14,16,18,0.75);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px; padding: clamp(20px, 4vw, 30px);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  text-align: center; position: relative; overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.id-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.5) 50%, transparent 100%);
+}
 
-  /* --- MODAL POPUP --- */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.4s;
-    backdrop-filter: blur(5px);
-  }
-  .modal-overlay.show { opacity: 1; pointer-events: auto; }
-  
-  .modal-box {
-    background: #0d0e10; border: 1px solid rgba(var(--accent-gold), 0.3);
-    width: 90%; max-width: 400px;
-    padding: 40px 30px; border-radius: 16px; text-align: center;
-    transform: scale(0.9); transition: transform 0.4s;
-    box-shadow: 0 0 50px rgba(var(--accent-gold), 0.15);
-  }
-  .modal-overlay.show .modal-box { transform: scale(1); }
+/* Architect theme */
+.id-card.architect-theme {
+  border-color: rgba(var(--gold),0.35);
+  box-shadow: 0 0 60px rgba(var(--gold),0.08), 0 24px 60px rgba(0,0,0,0.5);
+  background: linear-gradient(160deg, rgba(14,16,18,0.85), rgba(30,25,10,0.4));
+}
+.id-card.architect-theme::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.8) 50%, transparent 100%);
+}
 
-  /* --- MOBILE RESPONSIVE FIX --- */
-  @media (max-width: 800px) {
-    .wrap {
-      /* Ensure content flows from top instead of center to prevent cut-off */
-      justify-content: flex-start;
-      padding-top: 80px; /* Space for header/back button */
-      padding-bottom: 40px;
-      padding-left: 20px; /* FIXED: Increased padding to prevent edge clipping */
-      padding-right: 20px; /* FIXED: Increased padding to prevent edge clipping */
-    }
-    .dashboard-grid {
-      gap: 16px;
-      width: 100%;
-    }
-    .id-card, .network-card {
-      padding: 20px; /* Reduce internal padding for more space */
-      width: 100%; /* Ensure full width usage */
-    }
-    .network-card {
-        height: 500px; /* Reduce height slightly for mobile */
-    }
-  }
+/* Alumni theme */
+.id-card.alumni-theme {
+  border-color: rgba(255,255,255,0.14);
+  box-shadow: 0 0 50px rgba(139,14,6,0.12), 0 24px 60px rgba(0,0,0,0.5);
+  background: linear-gradient(160deg, rgba(14,16,18,0.9), rgba(139,14,6,0.12));
+}
+.id-card.alumni-theme::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
+}
 
+/* Card header row */
+.card-header-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 14px; margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+.card-eyebrow {
+  font-size: 9px; font-weight: 800; color: rgba(var(--gold),0.6);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.card-role {
+  font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.3);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* Avatar */
+.avatar-large {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(0,0,0,0.4); border: 2px solid var(--border-hi);
+  margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--text-dim); position: relative;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.architect-theme .avatar-large {
+  border-color: rgba(var(--gold),0.6);
+  box-shadow: 0 0 32px rgba(var(--gold),0.18);
+}
+.verified-icon-overlay {
+  position: absolute; bottom: 0; right: 0; width: 26px; height: 26px;
+  background: var(--panel); border-radius: 50%; border: 2px solid var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.5);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.is-verified .verified-icon-overlay { opacity: 1; transform: scale(1); }
+
+/* Name & role */
+#display-name {
+  color: var(--text); font-family: var(--font-display);
+  font-size: clamp(1.35rem, 4vw, 1.65rem); font-weight: 900; line-height: 1.2;
+}
+#display-batch {
+  color: var(--red); font-weight: 700; font-size: 0.78rem;
+  margin-top: 5px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+
+/* Follower count */
+.follower-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--gold-dim); border: 1px solid rgba(var(--gold),0.18);
+  border-radius: 20px; padding: 5px 14px; margin: 14px auto 0;
+  font-size: 0.82rem; color: rgba(var(--gold),0.9); font-weight: 600;
+}
+.follower-pill svg { opacity: 0.7; }
+
+/* Data rows */
+.data-table { margin-top: 22px; text-align: left; }
+.data-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem;
+}
+.data-row:last-child { border-bottom: none; }
+.data-lbl { color: var(--text-dim); font-size: 0.78rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
+.data-val { color: var(--text); font-weight: 600; font-family: "DM Sans", monospace; text-align: right; font-size: 0.88rem; }
+.edit-input {
+  background: transparent; border: none; border-bottom: 1px solid rgba(var(--gold),0.5);
+  color: var(--text); font-family: var(--font-body); font-size: 0.88rem; font-weight: 600;
+  text-align: right; width: 140px; padding: 2px 0; outline: none;
+}
+
+/* Action buttons row */
+.card-actions {
+  display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
+}
+.btn-edit {
+  background: transparent; border: 1px solid var(--border-hi);
+  color: var(--text-dim); padding: 8px 18px; border-radius: 7px;
+  cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.btn-edit:hover { color: var(--text); border-color: var(--border-hi); background: rgba(255,255,255,0.04); }
+.btn-save {
+  background: rgba(var(--gold),0.85); border: none;
+  color: #000; padding: 8px 18px; border-radius: 7px;
+  cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 800;
+  transition: background 0.15s; display: none;
+}
+.btn-save:hover { background: rgba(var(--gold),1); }
+.btn-cancel {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); padding: 8px 12px; border-radius: 7px;
+  cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  display: none; transition: color 0.15s;
+}
+.btn-cancel:hover { color: var(--text); }
+
+.signout-link {
+  background: none; border: none; color: var(--text-dim);
+  margin-top: 14px; font-size: 12px; cursor: pointer;
+  font-family: var(--font-body); text-decoration: underline;
+  text-underline-offset: 2px; display: block; width: 100%;
+  transition: color 0.15s;
+}
+.signout-link:hover { color: #ff6b6b; }
+
+/* ============================================================
+   NETWORK CARD
+   ============================================================ */
+.network-card {
+  background: rgba(14,16,18,0.75);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px; padding: clamp(18px, 4vw, 24px);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  display: flex; flex-direction: column;
+  /* Height: tall on desktop, natural on mobile */
+  height: 560px;
+  position: relative; overflow: hidden;
+}
+.network-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.3) 50%, transparent 100%);
+}
+@media (max-width: 860px) {
+  .network-card { height: 480px; }
+}
+
+.network-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  margin-bottom: 14px; flex-shrink: 0;
+}
+.network-title {
+  font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; font-style: italic;
+  color: var(--text); display: flex; align-items: center; gap: 8px;
+}
+.network-title svg { color: rgba(var(--gold),0.8); flex-shrink: 0; }
+
+/* Search */
+.search-wrap { position: relative; margin-bottom: 12px; flex-shrink: 0; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
+.search-input {
+  width: 100%; padding: 10px 10px 10px 38px;
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border-hi);
+  border-radius: 8px; color: var(--text); font-family: var(--font-body);
+  font-size: 14px; transition: border-color 0.2s;
+}
+.search-input:focus { outline: none; border-color: rgba(var(--gold),0.5); }
+.search-input::placeholder { color: rgba(138,144,153,0.5); }
+
+/* User list */
+.user-list {
+  flex: 1; overflow-y: auto; padding-right: 4px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.user-list::-webkit-scrollbar { width: 3px; }
+.user-list::-webkit-scrollbar-track { background: transparent; }
+.user-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+.user-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px; border-radius: 10px;
+  background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+  transition: background 0.18s, border-color 0.18s;
+}
+.user-item:hover { background: rgba(255,255,255,0.045); border-color: var(--border-hi); }
+
+.u-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(0,0,0,0.4); border: 1px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim);
+}
+.u-info { flex: 1; min-width: 0; }
+.u-name {
+  font-weight: 700; font-size: 0.88rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 5px;
+}
+.u-batch { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.u-followers {
+  font-size: 0.72rem; color: rgba(var(--gold),0.75); font-weight: 600;
+  margin-top: 3px; display: flex; align-items: center; gap: 5px;
+}
+
+/* Badges */
+.u-badge {
+  font-size: 8px; font-weight: 900; padding: 2px 5px; border-radius: 3px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+}
+.u-badge.architect { color: #000; background: rgba(var(--gold),1); }
+.u-badge.verified { color: rgba(var(--gold),1); background: rgba(var(--gold),0.12); border: 1px solid rgba(var(--gold),0.3); }
+.u-badge.alumni { color: #fff; background: rgba(139,14,6,0.5); border: 1px solid rgba(139,14,6,0.7); }
+
+.btn-follow {
+  padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-hi);
+  font-family: var(--font-body); font-weight: 700; font-size: 11px;
+  letter-spacing: 0.5px; cursor: pointer;
+  background: rgba(255,255,255,0.06); color: var(--text-dim);
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  flex-shrink: 0;
+}
+.btn-follow:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.btn-follow.following {
+  background: transparent; border-color: rgba(var(--gold),0.35);
+  color: rgba(var(--gold),1);
+}
+
+/* ============================================================
+   VERIFIED / CELEBRATION MODAL
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.87);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; opacity: 0; pointer-events: none;
+  transition: opacity 0.35s; backdrop-filter: blur(12px);
+  padding: 16px;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+.modal-box {
+  background: var(--panel); border: 1px solid rgba(var(--gold),0.25);
+  width: 100%; max-width: 380px; padding: clamp(28px, 6vw, 44px) clamp(20px, 5vw, 36px);
+  border-radius: 20px; text-align: center;
+  box-shadow: 0 0 60px rgba(var(--gold),0.12), 0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06);
+  transform: scale(0.92) translateY(12px); transition: transform 0.4s cubic-bezier(.2,.9,.2,1);
+  position: relative; overflow: hidden;
+}
+.modal-box::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--gold),0.7), transparent);
+}
+.modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
+
+.modal-icon {
+  width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 18px;
+  background: var(--gold-dim); border: 1px solid rgba(var(--gold),0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-icon svg { width: 28px; height: 28px; stroke: rgba(var(--gold),0.9); }
+
+.modal-title {
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 900;
+  color: var(--text); margin-bottom: 10px; line-height: 1.2;
+}
+#modal-msg { color: var(--text-dim); line-height: 1.65; margin-bottom: 24px; font-size: 0.92rem; }
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <a href="index.html" style="position:absolute; top:24px; left:24px; color:var(--muted); text-decoration:none; font-weight:600; display:flex; align-items:center; gap:6px; font-size:14px; z-index:20; max-width:fit-content;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back
-  </a>
+<!-- Back to Home -->
+<a href="index.html" class="back-link">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  Back
+</a>
 
-  <!-- LOGIN VIEW -->
+<div class="page">
+
+  <!-- ===== LOGIN VIEW ===== -->
   <div id="login-view" class="auth-card">
-    <img src="logo.png" style="width:48px; border-radius:50%; margin-bottom:16px;">
-    <h1 style="color:#fff; margin-bottom:8px;">Student Portal</h1>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Login to access your profile.</p>
+    <div class="auth-logo"><img src="logo.png" alt="NGHSIANS Logo" onerror="this.style.opacity=0"></div>
+    <h1 class="auth-title">Student Portal</h1>
+    <p class="auth-sub">Login to access your profile.</p>
     <div id="login-error" class="error-msg"></div>
-    
-    <!-- FIX: Added onsubmit="handleLogin(event)" directly -->
     <form id="login-form" onsubmit="handleLogin(event)">
       <div class="input-group">
         <label>Email Address</label>
-        <input type="email" id="log-email" class="input-box" placeholder="" required>
+        <input type="email" id="log-email" class="input-box" required autocomplete="email">
       </div>
       <div class="input-group">
         <label>Password</label>
-        <input type="password" id="log-pass" class="input-box" placeholder="" required>
+        <input type="password" id="log-pass" class="input-box" required autocomplete="current-password">
         <button type="button" class="toggle-pass" onclick="togglePassword('log-pass')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
-      
-      <!-- Forgot Password Link -->
-      <div style="text-align:right; margin-bottom:20px; margin-top:-10px;">
-          <button type="button" onclick="switchView('forgot')" style="background:none; border:none; color:var(--muted); font-size:0.85rem; cursor:pointer; text-decoration:underline; padding:0;">
-              Forgot Password?
-          </button>
+      <div class="forgot-link">
+        <button type="button" onclick="switchView('forgot')">Forgot Password?</button>
       </div>
-
       <button type="submit" id="login-btn" class="btn-action">SECURE LOGIN</button>
     </form>
-    <button onclick="switchView('signup')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Create Account</button>
+    <button onclick="switchView('signup')" class="switch-link">Create Account</button>
   </div>
 
-  <!-- SIGNUP VIEW -->
+  <!-- ===== SIGNUP VIEW ===== -->
   <div id="signup-view" class="auth-card hidden">
-    <h1 style="color:#fff; margin-bottom:8px;">Join NGHSIANS</h1>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Register your identity.</p>
-    <div id="signup-error" class="error-msg"></div>
+    <h1 class="auth-title">Join NGHSIANS</h1>
+    <p class="auth-sub">Register your identity.</p>
+    <div id="signup-error"   class="error-msg"></div>
     <div id="signup-success" class="success-msg"></div>
-    
-    <!-- FIX: Added onsubmit="handleSignup(event)" directly -->
     <form id="signup-form" onsubmit="handleSignup(event)">
       <div class="input-group">
         <label>Full Name (Username)</label>
-        <input type="text" id="sign-name" class="input-box" placeholder="" required>
+        <input type="text" id="sign-name" class="input-box" required autocomplete="name">
       </div>
       <div class="input-group">
         <label>School ID Number</label>
-        <input type="text" id="sign-id" class="input-box" placeholder="" required>
+        <input type="text" id="sign-id" class="input-box" required>
       </div>
       <label class="checkbox-wrap">
-          <input type="checkbox" id="no-id-check" onchange="toggleIdField()">
-          <span>I don't have an ID number</span>
+        <input type="checkbox" id="no-id-check" onchange="toggleIdField()">
+        <span>I don't have an ID number</span>
       </label>
       <div class="input-group">
         <label>Batch Year (4 Digits)</label>
-        <input type="text" id="sign-batch" class="input-box" placeholder="e.g. 2025" required maxlength="4" pattern="\d{4}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 4);">
+        <input type="text" id="sign-batch" class="input-box" required maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="e.g. 2025" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
       </div>
       <div class="input-group">
         <label>Email Address</label>
-        <input type="email" id="sign-email" class="input-box" placeholder="" required>
+        <input type="email" id="sign-email" class="input-box" required autocomplete="email">
       </div>
       <div class="input-group">
         <label>Create Password</label>
-        <input type="password" id="sign-pass" class="input-box" placeholder="" required>
+        <input type="password" id="sign-pass" class="input-box" required autocomplete="new-password">
         <button type="button" class="toggle-pass" onclick="togglePassword('sign-pass')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
       </div>
       <button type="submit" id="sign-btn" class="btn-action">CREATE ACCOUNT</button>
     </form>
-    <button onclick="switchView('login')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Login</button>
+    <button onclick="switchView('login')" class="switch-link">Back to Login</button>
   </div>
 
-  <!-- FORGOT PASSWORD VIEW -->
+  <!-- ===== FORGOT PASSWORD VIEW ===== -->
   <div id="forgot-view" class="auth-card hidden">
-    <h1 style="color:#fff; margin-bottom:8px;">Reset Password</h1>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Enter your email to receive a reset link.</p>
-    
-    <div id="forgot-error" class="error-msg"></div>
+    <h1 class="auth-title">Reset Password</h1>
+    <p class="auth-sub">Enter your email to receive a reset link.</p>
+    <div id="forgot-error"   class="error-msg"></div>
     <div id="forgot-success" class="success-msg"></div>
-
-    <!-- FIX: Added onsubmit="handleForgot(event)" directly -->
     <form id="forgot-form" onsubmit="handleForgot(event)">
-        <div class="input-group">
-            <label>Email Address</label>
-            <input type="email" id="forgot-email" class="input-box" placeholder="" required>
-        </div>
-        <button type="submit" id="forgot-btn" class="btn-action">SEND RESET LINK</button>
+      <div class="input-group">
+        <label>Email Address</label>
+        <input type="email" id="forgot-email" class="input-box" required autocomplete="email">
+      </div>
+      <button type="submit" id="forgot-btn" class="btn-action">SEND RESET LINK</button>
     </form>
-    <button onclick="switchView('login')" style="background:none; border:none; color:var(--muted); margin-top:16px; cursor:pointer; text-decoration:underline;">Back to Login</button>
+    <button onclick="switchView('login')" class="switch-link">Back to Login</button>
   </div>
 
-  <!-- UPDATE PASSWORD VIEW (Triggered from Email Link) -->
+  <!-- ===== UPDATE PASSWORD VIEW ===== -->
   <div id="update-password-view" class="auth-card hidden">
-    <h1 style="color:#fff; margin-bottom:8px;">New Password</h1>
-    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Secure your account with a new password.</p>
-    
+    <h1 class="auth-title">New Password</h1>
+    <p class="auth-sub">Secure your account with a new password.</p>
     <div id="update-pass-error" class="error-msg"></div>
-
-    <!-- FIX: Added onsubmit="handleUpdatePass(event)" directly -->
     <form id="update-pass-form" onsubmit="handleUpdatePass(event)">
-        <div class="input-group">
-            <label>New Password</label>
-            <input type="password" id="new-password" class="input-box" placeholder="" required>
-             <button type="button" class="toggle-pass" onclick="togglePassword('new-password')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-        </div>
-        <button type="submit" id="update-pass-btn" class="btn-action">UPDATE PASSWORD</button>
+      <div class="input-group">
+        <label>New Password</label>
+        <input type="password" id="new-password" class="input-box" required autocomplete="new-password">
+        <button type="button" class="toggle-pass" onclick="togglePassword('new-password')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button type="submit" id="update-pass-btn" class="btn-action">UPDATE PASSWORD</button>
     </form>
   </div>
 
-
-  <!-- DASHBOARD VIEW -->
+  <!-- ===== DASHBOARD VIEW ===== -->
   <div id="dashboard-view" class="dashboard-grid hidden">
-    
+
+    <!-- Profile / ID Card -->
     <div id="profile-card" class="id-card">
-      <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:16px; margin-bottom:20px;">
-        <span style="font-size:0.7rem; font-weight:800; color:rgba(var(--accent-gold),0.6); letter-spacing:1px;">IDENTITY</span>
-        <span id="header-role" style="font-size:0.7rem; font-weight:800; color:rgba(255,255,255,0.4); letter-spacing:1px;">#STUDENT</span>
+      <div class="card-header-row">
+        <span class="card-eyebrow">Identity</span>
+        <span id="header-role" class="card-role">#STUDENT</span>
       </div>
 
       <div id="profile-avatar-container" class="avatar-large">
-        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <div class="verified-icon-overlay"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <div class="verified-icon-overlay">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
       </div>
 
-      <h2 id="display-name" style="color:#fff; margin:0; font-size:1.6rem;">Student Name</h2>
-      <div id="display-batch" style="color:var(--accent-deep); font-weight:700; font-size:0.9rem; margin-top:4px;">MEMBER</div>
+      <h2 id="display-name">Student Name</h2>
+      <div id="display-batch">MEMBER</div>
 
-      <div style="margin: 16px 0; cursor:default;" id="follower-stats-wrap">
-        <span style="font-size:0.9rem; color:var(--muted);">Followers: </span>
-        <span id="my-follower-count" style="color:#fff; font-weight:700; font-size:1rem;">0</span>
+      <div class="follower-pill" id="follower-stats-wrap">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="my-follower-count">0</span>
+        <span style="opacity:0.6;font-weight:400">followers</span>
       </div>
 
-      <div style="margin-top:30px; text-align:left;">
-        <div class="data-row"><span style="color:var(--muted)">ID</span><span id="display-id" class="data-val">---</span></div>
-        <div class="data-row"><span style="color:var(--muted)">Batch</span><span id="display-year" class="data-val">---</span></div>
-        <div class="data-row"><span style="color:var(--muted)">Email</span><span id="display-email" class="data-val" style="font-size:0.8rem;">---</span></div>
-        <div class="data-row" style="border:none"><span style="color:var(--muted)">Status</span><span id="status-text" class="data-val" style="color:var(--muted)">NGHSIANS</span></div>
+      <div class="data-table">
+        <div class="data-row">
+          <span class="data-lbl">ID</span>
+          <span id="display-id" class="data-val">---</span>
+        </div>
+        <div class="data-row">
+          <span class="data-lbl">Batch</span>
+          <span id="display-year" class="data-val">---</span>
+        </div>
+        <div class="data-row">
+          <span class="data-lbl">Email</span>
+          <span id="display-email" class="data-val" style="font-size:0.78rem;word-break:break-all">---</span>
+        </div>
+        <div class="data-row">
+          <span class="data-lbl">Status</span>
+          <span id="status-text" class="data-val" style="color:var(--text-dim)">NGHSIANS</span>
+        </div>
       </div>
 
-      <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-        <button onclick="enableEdit()" id="edit-btn" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:#fff; padding:8px 16px; border-radius:6px; cursor:pointer;">Edit</button>
-        <button onclick="saveProfile()" id="save-btn" class="hidden" style="background:rgba(var(--accent-gold),0.8); border:none; padding:8px 16px; border-radius:6px; cursor:pointer; color:#000; font-weight:700;">Save</button>
-        <button onclick="cancelEdit()" id="cancel-btn" class="hidden" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--muted); padding:8px 10px; border-radius:6px; cursor:pointer;">Cancel</button>
+      <div class="card-actions">
+        <button onclick="enableEdit()"  id="edit-btn"   class="btn-edit">Edit</button>
+        <button onclick="saveProfile()" id="save-btn"   class="btn-save hidden">Save</button>
+        <button onclick="cancelEdit()"  id="cancel-btn" class="btn-cancel hidden">Cancel</button>
       </div>
-      <button onclick="handleLogout()" style="background:none; border:none; color:var(--muted); margin-top:12px; font-size:12px; cursor:pointer; text-decoration:underline;">Sign Out</button>
+      <button onclick="handleLogout()" class="signout-link">Sign Out</button>
     </div>
 
+    <!-- Network Card -->
     <div class="network-card">
       <div class="network-header">
         <div class="network-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(var(--accent-gold),1)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Other NGHSIANS
         </div>
       </div>
 
       <div class="search-wrap">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="user-search" class="search-input" placeholder="Search name or batch..." onkeyup="filterUsers()">
+        <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="user-search" class="search-input" placeholder="Search name or batch…" onkeyup="filterUsers()">
       </div>
 
       <div id="network-list" class="user-list">
-        <div style="text-align:center; padding:20px; color:var(--muted);">Loading network...</div>
+        <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:0.88rem">Loading network…</div>
       </div>
     </div>
 
-  </div>
+  </div><!-- /dashboard-grid -->
 
-</div>
+</div><!-- /page -->
 
+<!-- ===== VERIFIED CELEBRATION MODAL ===== -->
 <div id="verified-modal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-icon">
-      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     </div>
     <h2 class="modal-title" id="modal-title">Congratulations!</h2>
-    <p id="modal-msg" style="color:#fff; line-height:1.6; margin-bottom:24px;">
-      You are now a <strong>Verified NGHSIAN!</strong><br>
+    <p id="modal-msg">
+      You are now a <strong style="color:rgba(var(--gold),1)">Verified NGHSIAN!</strong><br>
       Your profile has been officially authenticated.
     </p>
-    <button onclick="closeModal()" class="btn-action" style="width:auto; padding: 10px 30px;">AWESOME</button>
+    <button onclick="closeModal()" class="btn-action" style="width:auto;padding:11px 36px;font-size:13px">AWESOME!</button>
   </div>
 </div>
 
 <script>
-// --- GLOBAL HELPER FUNCTIONS (Must be defined before they are used in HTML) ---
-
-function getEl(id) {
-  return document.getElementById(id);
-}
+/* =============================================
+   GLOBAL HELPERS
+   ============================================= */
+function getEl(id) { return document.getElementById(id); }
 
 function switchView(viewName) {
-  // Hide all views
-  const views = ['login-view', 'signup-view', 'forgot-view', 'update-password-view', 'dashboard-view'];
-  views.forEach(v => {
-    const el = document.getElementById(v);
-    if(el) el.classList.add('hidden');
+  ['login','signup','forgot','update-password','dashboard'].forEach(v => {
+    const el = getEl(v + '-view');
+    if (el) el.classList.add('hidden');
   });
-
-  // Show target
-  const target = document.getElementById(viewName + '-view');
-  if(target) {
-    target.classList.remove('hidden');
-  } else {
-    console.error("View not found:", viewName);
-  }
+  const target = getEl(viewName + '-view');
+  if (target) target.classList.remove('hidden');
 }
 
 function togglePassword(id) {
-  const input = document.getElementById(id);
-  if(input) {
-    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-    input.setAttribute('type', type);
-    input.classList.toggle('password-visible', type === 'text');
-  }
+  const inp = getEl(id);
+  if (!inp) return;
+  const type = inp.getAttribute('type') === 'password' ? 'text' : 'password';
+  inp.setAttribute('type', type);
+  inp.classList.toggle('password-visible', type === 'text');
 }
 
 function toggleIdField() {
-  const chk = document.getElementById('no-id-check');
-  const inp = document.getElementById('sign-id');
-  if (chk.checked) {
-    inp.value = 'No ID Provided';
-    inp.disabled = true;
-    inp.style.opacity = '0.5';
-  } else {
-    inp.value = '';
-    inp.disabled = false;
-    inp.style.opacity = '1';
-  }
+  const chk = getEl('no-id-check');
+  const inp = getEl('sign-id');
+  if (chk.checked) { inp.value = 'No ID Provided'; inp.disabled = true; inp.style.opacity = '0.5'; }
+  else             { inp.value = ''; inp.disabled = false; inp.style.opacity = '1'; }
 }
 
 function closeModal() {
-  const m = document.getElementById('verified-modal');
-  if(m) m.classList.remove('show');
+  const m = getEl('verified-modal');
+  if (m) m.classList.remove('show');
 }
 
-
-// --- MAIN APP LOGIC ---
-
+/* =============================================
+   MAIN APP
+   ============================================= */
 document.addEventListener('DOMContentLoaded', async () => {
-  
-  // 1. SUPABASE SETUP
+
   const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
-  
-  if (!window.supabase) {
-    alert("System Error: Supabase SDK failed to load.");
-    return;
-  }
-  
+
+  if (!window.supabase) { alert("System Error: Supabase SDK failed to load."); return; }
+
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
-  
-  let currentUser = null;
+
+  let currentUser    = null;
   let currentProfile = null;
 
+  /* ---- AUTH HANDLERS ---- */
 
-  // 2. EXPORT FUNCTIONS TO WINDOW (So HTML onclick="..." works)
-  
   window.handleLogin = async function(e) {
     e.preventDefault();
-    const btn = getEl('login-btn');
-    const errEl = getEl('login-error');
-    
-    // UI Loading State
-    btn.textContent = 'VERIFYING...';
-    btn.disabled = true;
-    errEl.style.display = 'none';
-
-    const email = getEl('log-email').value;
-    const password = getEl('log-pass').value;
-
+    const btn = getEl('login-btn'); const errEl = getEl('login-error');
+    btn.textContent = 'VERIFYING…'; btn.disabled = true; errEl.style.display = 'none';
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email: getEl('log-email').value, password: getEl('log-pass').value });
       if (error) throw error;
-      
-      // Success
       currentUser = data.user;
       await loadProfile(currentUser);
-
     } catch (err) {
-      console.error(err);
-      errEl.textContent = "Invalid email or password.";
-      errEl.style.display = 'block';
-    } finally {
-      btn.textContent = 'SECURE LOGIN';
-      btn.disabled = false;
-    }
+      errEl.textContent = "Invalid email or password."; errEl.style.display = 'block';
+    } finally { btn.textContent = 'SECURE LOGIN'; btn.disabled = false; }
   };
-
 
   window.handleSignup = async function(e) {
     e.preventDefault();
-    const btn = getEl('sign-btn');
-    const errEl = getEl('signup-error');
-    
-    btn.textContent = 'CREATING...';
-    btn.disabled = true;
-    errEl.style.display = 'none';
-
-    const email = getEl('sign-email').value;
-    const password = getEl('sign-pass').value;
-    const name = getEl('sign-name').value;
-    const sid = getEl('sign-id').value;
-    const batch = getEl('sign-batch').value;
-
+    const btn = getEl('sign-btn'); const errEl = getEl('signup-error');
+    btn.textContent = 'CREATING…'; btn.disabled = true; errEl.style.display = 'none';
+    const email = getEl('sign-email').value, password = getEl('sign-pass').value;
+    const name = getEl('sign-name').value, sid = getEl('sign-id').value, batch = getEl('sign-batch').value;
     try {
-      // 1. Auth Signup
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password
-      });
-
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       if (!data.user) throw new Error("Signup failed. Please try again.");
-
-      // 2. Create Profile
-      const { error: dbError } = await supabase.from('verified_profiles').insert([{
-        id: data.user.id,
-        username: name,
-        school_id: sid,
-        batch_year: batch,
-        email: email
-      }]);
-
+      const { error: dbError } = await supabase.from('verified_profiles').insert([{ id: data.user.id, username: name, school_id: sid, batch_year: batch, email }]);
       if (dbError) throw dbError;
-
-      alert("Account created! Please log in.");
-      switchView('login');
-
-    } catch (err) {
-      console.error(err);
-      errEl.textContent = err.message;
-      errEl.style.display = 'block';
-    } finally {
-      btn.textContent = 'CREATE ACCOUNT';
-      btn.disabled = false;
-    }
+      alert("Account created! Please log in."); switchView('login');
+    } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+    finally { btn.textContent = 'CREATE ACCOUNT'; btn.disabled = false; }
   };
-
 
   window.handleForgot = async function(e) {
     e.preventDefault();
-    const btn = getEl('forgot-btn');
-    const errEl = getEl('forgot-error');
-    const sucEl = getEl('forgot-success');
-    
-    btn.textContent = 'SENDING...';
-    btn.disabled = true;
-    errEl.style.display = 'none';
-    sucEl.style.display = 'none';
-
-    const email = getEl('forgot-email').value;
-    const redirectUrl = window.location.href; // Current page
-
+    const btn = getEl('forgot-btn'); const errEl = getEl('forgot-error'); const sucEl = getEl('forgot-success');
+    btn.textContent = 'SENDING…'; btn.disabled = true; errEl.style.display = 'none'; sucEl.style.display = 'none';
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: redirectUrl
-      });
-      
+      const { error } = await supabase.auth.resetPasswordForEmail(getEl('forgot-email').value, { redirectTo: window.location.href });
       if (error) throw error;
-      
-      sucEl.textContent = "Check your email for the reset link!";
-      sucEl.style.display = 'block';
-      btn.textContent = 'SENT';
-
-    } catch (err) {
-      errEl.textContent = err.message;
-      errEl.style.display = 'block';
-      btn.textContent = 'SEND RESET LINK';
-      btn.disabled = false;
-    }
+      sucEl.textContent = "Check your email for the reset link!"; sucEl.style.display = 'block'; btn.textContent = 'SENT';
+    } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; btn.textContent = 'SEND RESET LINK'; btn.disabled = false; }
   };
-
 
   window.handleUpdatePass = async function(e) {
     e.preventDefault();
-    const btn = getEl('update-pass-btn');
-    const errEl = getEl('update-pass-error');
-    
-    btn.textContent = 'UPDATING...';
-    btn.disabled = true;
-    errEl.style.display = 'none';
-
-    const newPass = getEl('new-password').value;
-
+    const btn = getEl('update-pass-btn'); const errEl = getEl('update-pass-error');
+    btn.textContent = 'UPDATING…'; btn.disabled = true; errEl.style.display = 'none';
     try {
-      const { data, error } = await supabase.auth.updateUser({
-        password: newPass
-      });
-
+      const { data, error } = await supabase.auth.updateUser({ password: getEl('new-password').value });
       if (error) throw error;
-
-      alert("Password updated! Accessing dashboard...");
-      currentUser = data.user;
-      await loadProfile(currentUser);
-
-    } catch (err) {
-      errEl.textContent = err.message;
-      errEl.style.display = 'block';
-      btn.textContent = 'UPDATE PASSWORD';
-      btn.disabled = false;
-    }
+      alert("Password updated! Accessing dashboard…"); currentUser = data.user; await loadProfile(currentUser);
+    } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; btn.textContent = 'UPDATE PASSWORD'; btn.disabled = false; }
   };
 
+  window.handleLogout = async function() { await supabase.auth.signOut(); window.location.reload(); };
 
-  window.handleLogout = async function() {
-    await supabase.auth.signOut();
-    window.location.reload();
-  };
+  /* ---- PROFILE EDIT ---- */
 
-  // Profile Edit Functions
   window.enableEdit = function() {
-    getEl('edit-btn').classList.add('hidden');
-    getEl('save-btn').classList.remove('hidden');
-    getEl('cancel-btn').classList.remove('hidden');
-
+    getEl('edit-btn').style.display   = 'none';
+    getEl('save-btn').style.display   = 'inline-block';
+    getEl('cancel-btn').style.display = 'inline-block';
     const p = currentProfile || {};
-    getEl('display-name').innerHTML = `<input id="e-name" class="edit-input" value="${p.username||''}" style="width:100%;text-align:center;font-size:1.6rem">`;
-    getEl('display-id').innerHTML = `<input id="e-id" class="edit-input" value="${p.school_id||''}">`;
-    getEl('display-year').innerHTML = `<input id="e-year" class="edit-input" value="${p.batch_year||''}" maxlength="4">`;
+    getEl('display-name').innerHTML  = `<input id="e-name" class="edit-input" value="${p.username||''}" style="width:100%;text-align:center;font-size:1.35rem;font-family:var(--font-display);font-weight:900">`;
+    getEl('display-id').innerHTML    = `<input id="e-id" class="edit-input" value="${p.school_id||''}">`;
+    getEl('display-year').innerHTML  = `<input id="e-year" class="edit-input" value="${p.batch_year||''}" maxlength="4">`;
   };
 
-  window.cancelEdit = function() {
-    renderProfile(currentProfile); // Reset UI
-    resetEditBtns();
-  };
+  window.cancelEdit = function() { renderProfile(currentProfile); resetEditBtns(); };
 
   window.saveProfile = async function() {
-    const btn = getEl('save-btn');
-    btn.textContent = 'Saving...';
-    
-    const newName = getEl('e-name').value;
-    const newId = getEl('e-id').value;
-    const newYear = getEl('e-year').value;
-
+    const btn = getEl('save-btn'); btn.textContent = 'Saving…';
+    const updates = { username: getEl('e-name').value, school_id: getEl('e-id').value, batch_year: getEl('e-year').value };
     try {
-      const updates = { username: newName, school_id: newId, batch_year: newYear };
       const { error } = await supabase.from('verified_profiles').update(updates).eq('id', currentUser.id);
-      
       if (error) throw error;
-      
-      currentProfile = { ...currentProfile, ...updates };
-      renderProfile(currentProfile);
-      resetEditBtns();
-
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save.");
-    } finally {
-      btn.textContent = 'Save';
-    }
+      currentProfile = { ...currentProfile, ...updates }; renderProfile(currentProfile); resetEditBtns();
+    } catch (err) { console.error(err); alert("Failed to save."); }
+    finally { btn.textContent = 'Save'; }
   };
 
   function resetEditBtns() {
-    getEl('edit-btn').classList.remove('hidden');
-    getEl('save-btn').classList.add('hidden');
-    getEl('cancel-btn').classList.add('hidden');
+    getEl('edit-btn').style.display   = '';
+    getEl('save-btn').style.display   = 'none';
+    getEl('cancel-btn').style.display = 'none';
   }
 
-  // Follow Logic
+  /* ---- FOLLOW ---- */
+
   window.toggleFollow = async function(targetId, btn) {
-    if(btn.disabled) return;
-    btn.disabled = true;
-
-    // Check if currently following by class
+    if (btn.disabled) return; btn.disabled = true;
     const isFollowing = btn.classList.contains('following');
-    const countEl = document.getElementById(`count-${targetId}`);
+    const countEl = document.getElementById('count-' + targetId);
     let c = parseInt(countEl.innerText) || 0;
-
-    // Optimistic Update
-    if(isFollowing) {
-      // Unfollow
-      btn.classList.remove('following');
-      btn.innerText = 'Follow';
-      c = Math.max(0, c - 1);
-      countEl.innerText = c;
-      
+    if (isFollowing) {
+      btn.classList.remove('following'); btn.innerText = 'Follow'; c = Math.max(0, c - 1); countEl.innerText = c;
       await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
     } else {
-      // Follow
-      btn.classList.add('following');
-      btn.innerText = 'Following';
-      c++;
-      countEl.innerText = c;
-
+      btn.classList.add('following'); btn.innerText = 'Following'; c++; countEl.innerText = c;
       await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
     }
-    
     btn.disabled = false;
   };
 
   window.filterUsers = function() {
     const term = getEl('user-search').value.toLowerCase();
-    const items = document.querySelectorAll('.user-item');
-    items.forEach(i => {
-      const txt = i.innerText.toLowerCase();
-      i.style.display = txt.includes(term) ? 'flex' : 'none';
-    });
+    document.querySelectorAll('.user-item').forEach(i => { i.style.display = i.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; });
   };
 
-
-  // 3. INTERNAL LOADERS
+  /* ---- LOADERS ---- */
 
   async function loadProfile(user) {
     switchView('dashboard');
     getEl('display-email').innerText = user.email;
-
     try {
       let { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).single();
-      
-      if (error) {
-        console.warn("Profile fetch error or no profile:", error);
-        // Create skeleton if missing
-        data = { username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
-      }
-
+      if (error) data = { username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
       currentProfile = data;
       renderProfile(data);
       loadNetwork();
-
-    } catch(err) {
-      console.error(err);
-    }
+    } catch(err) { console.error(err); }
   }
 
   function renderProfile(p) {
-    if(!p) return;
-    getEl('display-name').innerText = p.username || 'Student';
-    getEl('display-id').innerText = p.school_id || '---';
-    getEl('display-year').innerText = p.batch_year || '---';
+    if (!p) return;
+    getEl('display-name').innerText  = p.username || 'Student';
+    getEl('display-id').innerText    = p.school_id || '---';
+    getEl('display-year').innerText  = p.batch_year || '---';
     getEl('my-follower-count').innerText = p.follower_count || 0;
 
-    const card = getEl('profile-card');
-    const avatar = getEl('profile-avatar-container');
-    const batchLbl = getEl('display-batch');
-    const roleLbl = getEl('header-role');
-    const vIcon = document.querySelector('.verified-icon-overlay');
+    const card    = getEl('profile-card');
+    const avatar  = getEl('profile-avatar-container');
+    const batchEl = getEl('display-batch');
+    const roleEl  = getEl('header-role');
+    const vIcon   = document.querySelector('.verified-icon-overlay');
 
-    // Reset
     card.className = 'id-card';
     avatar.classList.remove('is-verified');
     vIcon.innerHTML = '';
 
-    if(p.role === 'architect') {
+    const goldCheck = `<svg width="14" height="14" fill="rgba(${getComputedStyle(document.documentElement).getPropertyValue('--gold')},1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+
+    if (p.role === 'architect') {
       card.classList.add('architect-theme');
       avatar.classList.add('is-verified');
-      batchLbl.innerHTML = '<span style="color:rgba(var(--accent-gold),1)">WEBSITE ARCHITECT</span>';
-      roleLbl.innerText = '#ARCHITECT';
-      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+      batchEl.innerHTML = `<span style="color:rgba(var(--gold),1)">WEBSITE ARCHITECT</span>`;
+      roleEl.innerText  = '#ARCHITECT';
+      vIcon.innerHTML   = goldCheck;
     } else if (p.role === 'elite') {
       avatar.classList.add('is-verified');
-      batchLbl.innerHTML = '<span style="color:rgba(var(--accent-gold),1)">NGHSIANS ELITE</span>';
-      roleLbl.innerText = '#VERIFIED';
-      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+      batchEl.innerHTML = `<span style="color:rgba(var(--gold),1)">NGHSIANS ELITE</span>`;
+      roleEl.innerText  = '#VERIFIED';
+      vIcon.innerHTML   = goldCheck;
       checkCeleb(p, 'elite');
     } else if (p.role === 'alumni') {
       card.classList.add('alumni-theme');
       avatar.classList.add('is-verified');
-      batchLbl.innerHTML = '<span style="color:#eef0f2">NGHSIANS ALUMNI</span>';
-      roleLbl.innerText = '#ALUMNI';
-      vIcon.innerHTML = `<svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
+      batchEl.innerHTML = `<span style="color:var(--text)">NGHSIANS ALUMNI</span>`;
+      roleEl.innerText  = '#ALUMNI';
+      vIcon.innerHTML   = `<svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
       checkCeleb(p, 'alumni');
     } else {
-      batchLbl.innerText = 'NGHSIANS MEMBER';
-      roleLbl.innerText = '#STUDENT';
-      vIcon.innerHTML = `<svg width="16" height="16" fill="rgba(var(--accent-gold),1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+      batchEl.innerText = 'NGHSIANS MEMBER';
+      roleEl.innerText  = '#STUDENT';
+      vIcon.innerHTML   = goldCheck;
     }
 
-    // Admin Edit Follower Count
+    // Admin: editable follower count
     if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
-       const fc = getEl('my-follower-count');
-       fc.style.cursor = 'pointer';
-       fc.onclick = async () => {
-         const n = prompt("Admin: Set Followers", p.follower_count);
-         if(n) {
-           await supabase.from('verified_profiles').update({follower_count: parseInt(n)}).eq('id', currentUser.id);
-           fc.innerText = n;
-         }
-       };
+      const fc = getEl('my-follower-count');
+      fc.style.cursor = 'pointer';
+      fc.onclick = async () => {
+        const n = prompt("Admin: Set Followers", p.follower_count);
+        if (n) { await supabase.from('verified_profiles').update({ follower_count: parseInt(n) }).eq('id', currentUser.id); fc.innerText = n; }
+      };
     }
   }
 
   async function checkCeleb(p, type) {
-    if(p.notified_of_verification) return;
+    if (p.notified_of_verification) return;
     const modal = getEl('verified-modal');
     modal.classList.add('show');
-    if(type === 'alumni') {
-       getEl('modal-title').innerText = "Welcome Home!";
-       getEl('modal-msg').innerHTML = "Your Alumni Status is verified.";
-       confetti({ colors: ['#710C04', '#fff']});
-    } else {
-       confetti({ colors: ['#FFF39A', '#710C04']});
-    }
-    await supabase.from('verified_profiles').update({notified_of_verification: true}).eq('id', p.id);
+    if (type === 'alumni') { getEl('modal-title').innerText = "Welcome Home!"; getEl('modal-msg').innerHTML = "Your Alumni Status is verified."; confetti({ colors: ['#710C04','#fff'] }); }
+    else { confetti({ colors: ['#FFF39A','#710C04'] }); }
+    await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', p.id);
   }
 
   async function loadNetwork() {
     const list = getEl('network-list');
-    
-    // Get all profiles
     const { data: all, error } = await supabase.from('verified_profiles').select('*');
-    if(error) {
-       list.innerHTML = '<div style="padding:20px;text-align:center">Network Error</div>';
-       return;
-    }
-
-    // Get who I follow
+    if (error) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim)">Network Error</div>'; return; }
     const { data: following } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
     const followingIds = new Set(following ? following.map(x => x.following_id) : []);
-
-    // Filter myself out
     const others = all.filter(x => x.id !== currentUser.id);
-    
-    // Render
-    if(others.length === 0) {
-      list.innerHTML = '<div style="padding:20px;text-align:center;color:#666">No other students yet.</div>';
+    if (others.length === 0) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:0.88rem">No other students yet.</div>';
     } else {
       list.innerHTML = '';
-      others.forEach(u => {
-        const isFollow = followingIds.has(u.id);
-        list.innerHTML += createUserHTML(u, isFollow);
-      });
+      others.forEach(u => { list.innerHTML += createUserHTML(u, followingIds.has(u.id)); });
     }
   }
 
   function createUserHTML(u, isFollow) {
-     let badges = '';
-     if(u.role==='architect') badges='<span class="u-badge architect">ARCHITECT</span>';
-     else if(u.role==='elite') badges='<span class="u-badge verified">VERIFIED</span>';
-     else if(u.role==='alumni') badges='<span class="u-badge alumni">ALUMNI</span>';
-     
-     const btnState = isFollow ? 'following' : '';
-     const btnTxt = isFollow ? 'Following' : 'Follow';
-     
-     return `
-     <div class="user-item">
-        <div class="u-avatar">
-           <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <div class="u-info">
-           <div class="u-name">${u.username}</div>
-           <div class="u-batch">Batch: ${u.batch_year}</div>
-           <div class="u-followers"><span id="count-${u.id}">${u.follower_count||0}</span> followers ${badges}</div>
-        </div>
-        <button class="btn-follow ${btnState}" onclick="toggleFollow('${u.id}', this)">${btnTxt}</button>
-     </div>`;
+    let badges = '';
+    if (u.role === 'architect') badges = '<span class="u-badge architect">ARCHITECT</span>';
+    else if (u.role === 'elite') badges = '<span class="u-badge verified">VERIFIED</span>';
+    else if (u.role === 'alumni') badges = '<span class="u-badge alumni">ALUMNI</span>';
+    const btnState = isFollow ? 'following' : '';
+    const btnTxt   = isFollow ? 'Following'  : 'Follow';
+    return `
+    <div class="user-item">
+      <div class="u-avatar">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="u-info">
+        <div class="u-name">${u.username}</div>
+        <div class="u-batch">Batch: ${u.batch_year}</div>
+        <div class="u-followers"><span id="count-${u.id}">${u.follower_count||0}</span>&nbsp;followers ${badges}</div>
+      </div>
+      <button class="btn-follow ${btnState}" onclick="toggleFollow('${u.id}', this)">${btnTxt}</button>
+    </div>`;
   }
 
+  /* ---- STARTUP ---- */
 
-  // 4. STARTUP CHECK
   const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
   if (isRecovery) {
-     supabase.auth.onAuthStateChange((evt, session) => {
-        if (evt === 'PASSWORD_RECOVERY' || session) {
-           currentUser = session.user;
-           switchView('update-password');
-        }
-     });
+    supabase.auth.onAuthStateChange((evt, session) => {
+      if (evt === 'PASSWORD_RECOVERY' || session) { currentUser = session.user; switchView('update-password'); }
+    });
   } else {
-     const { data } = await supabase.auth.getSession();
-     if (data.session) {
-        currentUser = data.session.user;
-        loadProfile(currentUser);
-     } else {
-        switchView('login');
-     }
+    const { data } = await supabase.auth.getSession();
+    if (data.session) { currentUser = data.session.user; loadProfile(currentUser); }
+    else { switchView('login'); }
   }
 
 });
