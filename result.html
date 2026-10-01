@@ -1414,15 +1414,17 @@ window.addEventListener('hashchange',followHash);followHash();
         const nameEl = document.getElementById('dd-username');
         const escapeProfileName = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         let nameHtml = escapeProfileName(profile.username || 'Student');
-        if (profile.is_verified) nameHtml += ' <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,235,128,1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        // "is_verified" is deprecated — the current flag is role = 'elite' | 'architect'
+        const isVerified = profile.role === 'elite' || profile.role === 'architect' || profile.is_verified === true;
+        if (isVerified) nameHtml += ' <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,235,128,1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px"><polyline points="20 6 9 17 4 12"></polyline></svg>';
         nameEl.innerHTML = nameHtml;
         const batchEl = document.getElementById('dd-batch');
-        if (batchEl && profile.batch) batchEl.textContent = 'Batch ' + profile.batch;
+        if (batchEl && (profile.batch_year || profile.batch)) batchEl.textContent = 'Batch ' + (profile.batch_year || profile.batch);
         const badgesEl = document.getElementById('dd-badges');
         if (badgesEl) {
           let badgeHtml = '';
           if (profile.role === 'architect') badgeHtml += '<span class="u-badge architect">ARCHITECT</span> ';
-          if (profile.is_verified) badgeHtml += '<span class="u-badge verified">✓ VERIFIED</span>';
+          if (isVerified) badgeHtml += '<span class="u-badge verified">✓ VERIFIED</span>';
           badgesEl.innerHTML = badgeHtml;
         }
       }

@@ -333,14 +333,15 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   background: rgba(var(--gold),0.85); border: none;
   color: #000; padding: 8px 18px; border-radius: 7px;
   cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 800;
-  transition: background 0.15s; display: none;
+  transition: background 0.15s; display: inline-block;
 }
 .btn-save:hover { background: rgba(var(--gold),1); }
+.btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-cancel {
   background: transparent; border: 1px solid var(--border);
   color: var(--text-dim); padding: 8px 12px; border-radius: 7px;
   cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600;
-  display: none; transition: color 0.15s;
+  display: inline-block; transition: color 0.15s;
 }
 .btn-cancel:hover { color: var(--text); }
 
@@ -497,6 +498,74 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 #modal-msg { color: var(--text-dim); line-height: 1.65; margin-bottom: 24px; font-size: 0.92rem; }
 
 /* ============================================================
+   CONTACT LINKS (WhatsApp / Instagram)
+   ============================================================ */
+.contact-link {
+  color: rgba(var(--gold),0.92); text-decoration: none;
+  border-bottom: 1px dashed rgba(var(--gold),0.35);
+  word-break: break-all;
+}
+.contact-link:hover { color: rgba(var(--gold),1); border-bottom-color: rgba(var(--gold),0.8); }
+.contact-link.is-empty { color: var(--text-dim); border-bottom-color: transparent; pointer-events: none; }
+
+.network-contacts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
+.network-contacts a {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+  text-decoration: none; transition: color 0.15s;
+}
+.network-contacts a:hover { color: rgba(var(--gold),0.95); }
+.network-contacts a svg { flex-shrink: 0; opacity: 0.85; }
+
+/* ============================================================
+   REQUIRED DETAILS GATE (WhatsApp + Instagram)
+   ============================================================ */
+.details-overlay { z-index: 10000; background: rgba(0,0,0,0.94); }
+.details-box {
+  max-width: 420px; border-color: rgba(var(--gold),0.3);
+  /* never taller than the phone screen — scroll inside instead */
+  max-height: calc(100vh - 32px); overflow-y: auto;
+}
+.details-box .input-group { margin-bottom: 14px; }
+.details-why {
+  background: var(--gold-glow); border: 1px solid rgba(var(--gold),0.14);
+  border-radius: 10px; padding: 11px 14px; margin-bottom: 20px;
+  color: var(--text-dim); font-size: 0.8rem; line-height: 1.6; text-align: left;
+}
+.details-why strong { color: rgba(var(--gold),0.95); }
+.details-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+  color: rgba(var(--gold),0.85); background: var(--gold-dim);
+  border: 1px solid rgba(var(--gold),0.2); border-radius: 20px;
+  padding: 4px 11px; margin-bottom: 16px;
+}
+.details-foot {
+  margin-top: 16px; font-size: 0.75rem; color: var(--text-dim); line-height: 1.5;
+}
+.details-foot button {
+  background: none; border: none; color: var(--text-dim); cursor: pointer;
+  font-family: var(--font-body); font-size: 0.75rem; text-decoration: underline;
+  text-underline-offset: 2px; padding: 0;
+}
+.details-foot button:hover { color: #ff6b6b; }
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+#toast {
+  position: fixed; left: 50%; bottom: 26px; z-index: 10001;
+  transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+  background: rgba(14,16,18,0.96); border: 1px solid rgba(var(--gold),0.35);
+  color: var(--text); border-radius: 10px; padding: 11px 20px;
+  font-size: 0.85rem; font-weight: 600; text-align: center;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+  transition: opacity 0.25s, transform 0.25s; max-width: calc(100vw - 32px);
+}
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+#toast.err { border-color: rgba(255,107,107,0.5); color: #ff9b9b; }
+
+/* ============================================================
    UTILITY
    ============================================================ */
 .hidden { display: none !important; }
@@ -560,6 +629,14 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <div class="input-group">
         <label>Batch Year (4 Digits)</label>
         <input type="text" id="sign-batch" class="input-box" required maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="e.g. 2025" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">
+      </div>
+      <div class="input-group">
+        <label>WhatsApp Number</label>
+        <input type="tel" id="sign-whatsapp" class="input-box" required inputmode="tel" autocomplete="tel" placeholder="+8801XXXXXXXXX">
+      </div>
+      <div class="input-group">
+        <label>Instagram Username</label>
+        <input type="text" id="sign-instagram" class="input-box" required autocapitalize="none" spellcheck="false" maxlength="31" placeholder="@yourusername" oninput="this.value=this.value.replace(/^@+/,'')">
       </div>
       <div class="input-group">
         <label>Email Address</label>
@@ -653,6 +730,14 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
           <span id="display-email" class="data-val" style="font-size:0.78rem;word-break:break-all">---</span>
         </div>
         <div class="data-row">
+          <span class="data-lbl">WhatsApp</span>
+          <span id="display-whatsapp" class="data-val">---</span>
+        </div>
+        <div class="data-row">
+          <span class="data-lbl">Instagram</span>
+          <span id="display-instagram" class="data-val">---</span>
+        </div>
+        <div class="data-row">
           <span class="data-lbl">Status</span>
           <span id="status-text" class="data-val" style="color:var(--text-dim)">NGHSIANS</span>
         </div>
@@ -704,6 +789,41 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   </div>
 </div>
 
+<!-- ===== REQUIRED DETAILS GATE (WhatsApp + Instagram) ===== -->
+<div id="details-modal" class="modal-overlay details-overlay" role="dialog" aria-modal="true" aria-labelledby="details-title">
+  <div class="modal-box details-box">
+    <div class="details-badge">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Required Step
+    </div>
+    <h2 class="modal-title" id="details-title">Complete Your Profile</h2>
+    <p id="details-msg" style="color:var(--text-dim);line-height:1.6;margin-bottom:18px;font-size:0.9rem">
+      Add your WhatsApp number and Instagram username to continue to your account.
+    </p>
+    <div class="details-why">
+      <strong>Why?</strong> These details connect you with the NGHSIANS network. Only signed-in members can see them, and you can change them anytime from <em>Edit</em>.
+    </div>
+    <div id="details-error" class="error-msg"></div>
+    <form id="details-form" onsubmit="handleSaveDetails(event)">
+      <div class="input-group">
+        <label>WhatsApp Number</label>
+        <input type="tel" id="d-whatsapp" class="input-box" required inputmode="tel" autocomplete="tel" placeholder="+8801XXXXXXXXX">
+      </div>
+      <div class="input-group">
+        <label>Instagram Username</label>
+        <input type="text" id="d-instagram" class="input-box" required autocapitalize="none" spellcheck="false" maxlength="31" placeholder="@yourusername" oninput="this.value=this.value.replace(/^@+/,'')">
+      </div>
+      <button type="submit" id="details-btn" class="btn-action">SAVE &amp; CONTINUE</button>
+    </form>
+    <p class="details-foot">
+      Wrong account? <button type="button" onclick="handleLogout()">Sign out</button>
+    </p>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" role="status" aria-live="polite"></div>
+
 <script>
 /* =============================================
    GLOBAL HELPERS
@@ -739,6 +859,77 @@ function closeModal() {
   if (m) m.classList.remove('show');
 }
 
+/* ---------- Toast feedback ---------- */
+let toastTimer = null;
+function showToast(msg, isError) {
+  const t = getEl('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.toggle('err', !!isError);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ---------- WhatsApp / Instagram helpers ---------- */
+// Stored form: "+8801700000000" (digits only, optional leading +)
+function normalizeWhatsApp(raw) {
+  let v = String(raw || '').trim().replace(/[\s\-().]/g, '');
+  if (v.startsWith('00')) v = v.slice(2);
+  v = v.replace(/[^\d+]/g, '');
+  v = v.replace(/(?!^)\+/g, '');           // keep a leading + only
+  if (!v.startsWith('+')) v = '+' + v.replace(/^\+/, '');
+  return v;
+}
+function isValidWhatsApp(v) {
+  return /^\+\d{8,15}$/.test(normalizeWhatsApp(v));
+}
+// Stored form: "nghsians" (no @, no URL)
+function normalizeInstagram(raw) {
+  let v = String(raw || '').trim();
+  v = v.replace(/^https?:\/\/(www\.)?instagram\.com\//i, '');
+  v = v.replace(/[/?#].*$/, '');
+  v = v.replace(/^@+/, '').replace(/\/+$/, '');
+  return v.trim();
+}
+function isValidInstagram(v) {
+  return /^[A-Za-z0-9._]{1,30}$/.test(normalizeInstagram(v));
+}
+function whatsappLink(v) {
+  const digits = normalizeWhatsApp(v).replace(/[^\d]/g, '');
+  return digits.length >= 8 ? 'https://wa.me/' + digits : '';
+}
+function instagramLink(v) {
+  const handle = normalizeInstagram(v);
+  return handle ? 'https://instagram.com/' + encodeURIComponent(handle) : '';
+}
+
+/* ---------- Misc ---------- */
+function escapeAttr(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+// True when PostgREST/Postgres says a column is missing (migration not run yet)
+function isMissingColumnError(err) {
+  if (!err) return false;
+  const msg = (err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '');
+  return err.code === '42703' || err.code === 'PGRST204' || /column .* does not exist/i.test(msg);
+}
+
+/* ---------- Contact row rendering on the ID card ---------- */
+function renderContactCell(el, type, value) {
+  if (!el) return;
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) { el.innerHTML = '<span style="color:var(--text-dim)">---</span>'; return; }
+  const href = type === 'whatsapp' ? whatsappLink(raw) : instagramLink(raw);
+  const label = type === 'whatsapp' ? raw : '@' + normalizeInstagram(raw);
+  const fallback = '<span class="contact-link is-empty">' + escapeAttr(label) + '</span>';
+  el.innerHTML = href
+    ? '<a class="contact-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + escapeAttr(label) + '</a>'
+    : fallback;
+}
+
 /* =============================================
    MAIN APP
    ============================================= */
@@ -754,6 +945,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentUser    = null;
   let currentProfile = null;
+  // Becomes false only if the DB is missing the new columns (SQL migration not
+  // run yet). In that case the gate stays open so nobody gets locked out.
+  let hasContactColumns = true;
+
+  /* ---- NEW COLUMNS PROBE ----------------------------------------------
+     The WhatsApp / Instagram fields live in two new columns. If that SQL
+     hasn't been applied yet, we must not block anyone from their account.  */
+  async function probeContactColumns() {
+    try {
+      const { error } = await supabase
+        .from('verified_profiles')
+        .select('whatsapp_number, instagram_username')
+        .limit(1);
+      if (error && isMissingColumnError(error)) hasContactColumns = false;
+    } catch (err) { /* network hiccup — assume columns exist */ }
+    return hasContactColumns;
+  }
 
   /* ---- AUTH HANDLERS ---- */
 
@@ -775,16 +983,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const btn = getEl('sign-btn'); const errEl = getEl('signup-error');
     btn.textContent = 'CREATING…'; btn.disabled = true; errEl.style.display = 'none';
-    const email = getEl('sign-email').value, password = getEl('sign-pass').value;
-    const name = getEl('sign-name').value, sid = getEl('sign-id').value, batch = getEl('sign-batch').value;
+    const email = getEl('sign-email').value.trim(), password = getEl('sign-pass').value;
+    const name = getEl('sign-name').value.trim(), sid = getEl('sign-id').value, batch = getEl('sign-batch').value.trim();
+    const whatsapp  = normalizeWhatsApp(getEl('sign-whatsapp').value);
+    const instagram = normalizeInstagram(getEl('sign-instagram').value);
+    const fail = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
     try {
+      if (!isValidWhatsApp(whatsapp)) throw new Error("Please enter a valid WhatsApp number, e.g. +8801700000000 (country code included).");
+      if (!isValidInstagram(instagram)) throw new Error("Please enter a valid Instagram username (letters, numbers, dot or underscore — no @ or URL).");
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       if (!data.user) throw new Error("Signup failed. Please try again.");
-      const { error: dbError } = await supabase.from('verified_profiles').insert([{ id: data.user.id, username: name, school_id: sid, batch_year: batch, email }]);
+      const row = { id: data.user.id, username: name, school_id: sid, batch_year: batch, email };
+      if (hasContactColumns) { row.whatsapp_number = whatsapp; row.instagram_username = instagram; }
+      const { error: dbError } = await supabase.from('verified_profiles').upsert([row], { onConflict: 'id' });
       if (dbError) throw dbError;
-      alert("Account created! Please log in."); switchView('login');
-    } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+      if (!hasContactColumns) {
+        showToast("Account created. Ask the admin to run the Supabase migration to enable WhatsApp/Instagram.", true);
+      } else {
+        showToast("Account created! Please log in.");
+      }
+      switchView('login');
+    } catch (err) {
+      if (isMissingColumnError(err)) {
+        fail("The database is missing the new WhatsApp/Instagram columns. The admin must run the updated SQL migration first.");
+      } else { fail(err.message); }
+    }
     finally { btn.textContent = 'CREATE ACCOUNT'; btn.disabled = false; }
   };
 
@@ -814,34 +1038,104 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* ---- PROFILE EDIT ---- */
 
+  /* NOTE: these buttons use the `.hidden` class (which is `display:none
+     !important`) instead of inline styles — that was the old bug that made the
+     Save / Cancel buttons impossible to show. */
+
   window.enableEdit = function() {
-    getEl('edit-btn').style.display   = 'none';
-    getEl('save-btn').style.display   = 'inline-block';
-    getEl('cancel-btn').style.display = 'inline-block';
+    getEl('edit-btn').classList.add('hidden');
+    getEl('save-btn').classList.remove('hidden');
+    getEl('cancel-btn').classList.remove('hidden');
     const p = currentProfile || {};
-    getEl('display-name').innerHTML  = `<input id="e-name" class="edit-input" value="${p.username||''}" style="width:100%;text-align:center;font-size:1.35rem;font-family:var(--font-display);font-weight:900">`;
-    getEl('display-id').innerHTML    = `<input id="e-id" class="edit-input" value="${p.school_id||''}">`;
-    getEl('display-year').innerHTML  = `<input id="e-year" class="edit-input" value="${p.batch_year||''}" maxlength="4">`;
+    getEl('display-name').innerHTML = `<input id="e-name" class="edit-input" value="${escapeAttr(p.username)}" style="width:100%;text-align:center;font-size:1.35rem;font-family:var(--font-display);font-weight:900">`;
+    getEl('display-id').innerHTML   = `<input id="e-id" class="edit-input" value="${escapeAttr(p.school_id)}">`;
+    getEl('display-year').innerHTML = `<input id="e-year" class="edit-input" value="${escapeAttr(p.batch_year)}" maxlength="4" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">`;
+    getEl('display-whatsapp').innerHTML  = `<input id="e-whatsapp" class="edit-input" type="tel" value="${escapeAttr(p.whatsapp_number)}" placeholder="+8801…">`;
+    getEl('display-instagram').innerHTML = `<input id="e-instagram" class="edit-input" value="${escapeAttr(p.instagram_username)}" spellcheck="false" placeholder="username">`;
   };
 
   window.cancelEdit = function() { renderProfile(currentProfile); resetEditBtns(); };
 
   window.saveProfile = async function() {
-    const btn = getEl('save-btn'); btn.textContent = 'Saving…';
-    const updates = { username: getEl('e-name').value, school_id: getEl('e-id').value, batch_year: getEl('e-year').value };
+    if (!currentUser) return;
+    const btn = getEl('save-btn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    const updates = {
+      username:   getEl('e-name') ? getEl('e-name').value.trim() : '',
+      school_id:  getEl('e-id') ? getEl('e-id').value.trim() : '',
+      batch_year: getEl('e-year') ? getEl('e-year').value.trim() : '',
+      whatsapp_number:    normalizeWhatsApp(getEl('e-whatsapp') ? getEl('e-whatsapp').value : ''),
+      instagram_username: normalizeInstagram(getEl('e-instagram') ? getEl('e-instagram').value : '')
+    };
     try {
-      const { error } = await supabase.from('verified_profiles').update(updates).eq('id', currentUser.id);
+      if (!updates.username) throw new Error("Name can't be empty.");
+      if (updates.batch_year && !/^\d{4}$/.test(updates.batch_year)) throw new Error("Batch year must be 4 digits.");
+      if (!isValidWhatsApp(updates.whatsapp_number)) throw new Error("WhatsApp number looks invalid. Use the full number with country code, e.g. +8801700000000.");
+      if (!isValidInstagram(updates.instagram_username)) throw new Error("Instagram username looks invalid (letters, numbers, dot, underscore only).");
+      // upsert → also works for accounts whose profile row is missing
+      const { error } = await supabase.from('verified_profiles')
+        .upsert([{ id: currentUser.id, email: currentUser.email, ...updates }], { onConflict: 'id' });
       if (error) throw error;
-      currentProfile = { ...currentProfile, ...updates }; renderProfile(currentProfile); resetEditBtns();
-    } catch (err) { console.error(err); alert("Failed to save."); }
-    finally { btn.textContent = 'Save'; }
+      currentProfile = { ...(currentProfile || {}), ...updates };
+      renderProfile(currentProfile);
+      resetEditBtns();
+      showToast("Profile saved ✓");
+    } catch (err) {
+      console.error(err);
+      let msg = err.message || "Failed to save.";
+      if (isMissingColumnError(err)) msg = "Database not updated yet — run the WhatsApp/Instagram SQL migration in Supabase.";
+      showToast(msg, true);
+      renderProfile(currentProfile); resetEditBtns();
+    } finally { btn.textContent = 'Save'; btn.disabled = false; }
   };
 
   function resetEditBtns() {
-    getEl('edit-btn').style.display   = '';
-    getEl('save-btn').style.display   = 'none';
-    getEl('cancel-btn').style.display = 'none';
+    getEl('edit-btn').classList.remove('hidden');
+    getEl('save-btn').classList.add('hidden');
+    getEl('cancel-btn').classList.add('hidden');
   }
+
+  /* ---- REQUIRED DETAILS GATE (WhatsApp + Instagram) ---- */
+
+  function openDetailsGate() {
+    const modal = getEl('details-modal');
+    getEl('details-error').style.display = 'none';
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { try { getEl('d-whatsapp').focus(); } catch(e){} }, 350);
+  }
+
+  function closeDetailsGate() {
+    getEl('details-modal').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  window.handleSaveDetails = async function(e) {
+    if (e) e.preventDefault();
+    if (!currentUser) return;
+    const btn = getEl('details-btn'); const errEl = getEl('details-error');
+    const whatsapp  = normalizeWhatsApp(getEl('d-whatsapp').value);
+    const instagram = normalizeInstagram(getEl('d-instagram').value);
+    const fail = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
+    btn.textContent = 'SAVING…'; btn.disabled = true; errEl.style.display = 'none';
+    try {
+      if (!isValidWhatsApp(whatsapp)) throw new Error("Enter a valid WhatsApp number with country code, e.g. +8801700000000.");
+      if (!isValidInstagram(instagram)) throw new Error("Enter a valid Instagram username (no @, no spaces).");
+      const row = { id: currentUser.id, email: currentUser.email, whatsapp_number: whatsapp, instagram_username: instagram };
+      const { error } = await supabase.from('verified_profiles').upsert([row], { onConflict: 'id' });
+      if (error) throw error;
+      currentProfile = { ...(currentProfile || {}), whatsapp_number: whatsapp, instagram_username: instagram };
+      closeDetailsGate();
+      renderProfile(currentProfile);
+      showToast("You're all set ✓");
+      loadNetwork();
+      flushCeleb();
+    } catch (err) {
+      console.error(err);
+      if (isMissingColumnError(err)) fail("The database is missing the new columns. The admin must run the updated SQL migration in Supabase first.");
+      else fail(err.message || "Could not save. Please try again.");
+    } finally { btn.textContent = 'SAVE & CONTINUE'; btn.disabled = false; }
+  };
 
   /* ---- FOLLOW ---- */
 
@@ -869,14 +1163,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function loadProfile(user) {
     switchView('dashboard');
+    resetEditBtns();
     getEl('display-email').innerText = user.email;
     try {
-      let { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).single();
-      if (error) data = { username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
+      let { data, error } = await supabase.from('verified_profiles').select('*').eq('id', user.id).maybeSingle();
+      if (error) throw error;
+      if (!data) data = { id: user.id, email: user.email, username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
       currentProfile = data;
+
+      // ---- Required details gate -------------------------------
+      // Members who have not added WhatsApp + Instagram yet must add them
+      // before they can use the account. Skipped automatically if the new
+      // columns do not exist yet (migration not run), so nobody is locked out.
+      // Opened BEFORE renderProfile so any "you are verified!" celebration is
+      // deferred until after the gate is completed (no stacked modals).
+      const needsDetails = hasContactColumns &&
+        (!String(data.whatsapp_number || '').trim() || !String(data.instagram_username || '').trim());
+      if (needsDetails) {
+        getEl('d-whatsapp').value  = String(data.whatsapp_number || '').trim();
+        getEl('d-instagram').value = String(data.instagram_username || '').trim();
+        openDetailsGate();
+      } else {
+        closeDetailsGate();
+      }
+      // ----------------------------------------------------------
+
       renderProfile(data);
       loadNetwork();
-    } catch(err) { console.error(err); }
+    } catch(err) {
+      console.error(err);
+      showToast("Could not load your profile. Please refresh.", true);
+    }
   }
 
   function renderProfile(p) {
@@ -885,6 +1202,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     getEl('display-id').innerText    = p.school_id || '---';
     getEl('display-year').innerText  = p.batch_year || '---';
     getEl('my-follower-count').innerText = p.follower_count || 0;
+    renderContactCell(getEl('display-whatsapp'),  'whatsapp',  p.whatsapp_number);
+    renderContactCell(getEl('display-instagram'), 'instagram', p.instagram_username);
 
     const card    = getEl('profile-card');
     const avatar  = getEl('profile-avatar-container');
@@ -934,8 +1253,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  async function checkCeleb(p, type) {
-    if (p.notified_of_verification) return;
+  let pendingCeleb = null;   // celebration deferred while the details gate is open
+
+  function flushCeleb() {
+    if (!pendingCeleb) return;
+    const { p, type } = pendingCeleb;
+    pendingCeleb = null;
+    checkCeleb(p, type, true);
+  }
+
+  async function checkCeleb(p, type, force) {
+    if (!force && p.notified_of_verification) return;
+    // Don't stack two modals: show the celebration after the details gate.
+    if (!force && getEl('details-modal').classList.contains('show')) {
+      pendingCeleb = { p, type };
+      return;
+    }
+    if (!force) pendingCeleb = null;   // shown normally — nothing left to flush
     const modal = getEl('verified-modal');
     modal.classList.add('show');
     if (type === 'alumni') { getEl('modal-title').innerText = "Welcome Home!"; getEl('modal-msg').innerHTML = "Your Alumni Status is verified."; confetti({ colors: ['#710C04','#fff'] }); }
@@ -959,27 +1293,42 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function createUserHTML(u, isFollow) {
+    const waIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.02c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.12.82.83-3.04-.2-.32a8.06 8.06 0 0 1-1.24-4.3c0-4.46 3.63-8.09 8.09-8.09s8.09 3.63 8.09 8.09-3.63 8.1-8.09 8.1zm4.44-6.06c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.29.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.14-.24-.02-.37.1-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.47-.4-.41-.55-.41h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg>';
+    const igIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
     let badges = '';
     if (u.role === 'architect') badges = '<span class="u-badge architect">ARCHITECT</span>';
     else if (u.role === 'elite') badges = '<span class="u-badge verified">VERIFIED</span>';
     else if (u.role === 'alumni') badges = '<span class="u-badge alumni">ALUMNI</span>';
     const btnState = isFollow ? 'following' : '';
     const btnTxt   = isFollow ? 'Following'  : 'Follow';
+
+    // Contact links (visible to signed-in members only, since they live in the dashboard)
+    const waHref = whatsappLink(u.whatsapp_number);
+    const igHref = instagramLink(u.instagram_username);
+    let contacts = '';
+    if (waHref) contacts += `<a href="${waHref}" target="_blank" rel="noopener noreferrer" title="WhatsApp">${waIcon}</a>`;
+    if (igHref) contacts += `<a href="${igHref}" target="_blank" rel="noopener noreferrer" title="Instagram">${igIcon}</a>`;
+
     return `
     <div class="user-item">
       <div class="u-avatar">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div class="u-info">
-        <div class="u-name">${u.username}</div>
-        <div class="u-batch">Batch: ${u.batch_year}</div>
-        <div class="u-followers"><span id="count-${u.id}">${u.follower_count||0}</span>&nbsp;followers ${badges}</div>
+        <div class="u-name">${escapeAttr(u.username)}</div>
+        <div class="u-batch">Batch: ${escapeAttr(u.batch_year)}</div>
+        <div class="u-followers"><span id="count-${escapeAttr(u.id)}">${u.follower_count||0}</span>&nbsp;followers ${badges}</div>
+        ${contacts ? `<div class="network-contacts">${contacts}</div>` : ''}
       </div>
-      <button class="btn-follow ${btnState}" onclick="toggleFollow('${u.id}', this)">${btnTxt}</button>
+      <button class="btn-follow ${btnState}" onclick="toggleFollow('${escapeAttr(u.id)}', this)">${btnTxt}</button>
     </div>`;
   }
 
   /* ---- STARTUP ---- */
+
+  // Check once whether the new contact columns exist (SQL migration applied).
+  await probeContactColumns();
+  closeDetailsGate();
 
   const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
   if (isRecovery) {
@@ -988,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } else {
     const { data } = await supabase.auth.getSession();
-    if (data.session) { currentUser = data.session.user; loadProfile(currentUser); }
+    if (data.session) { currentUser = data.session.user; await loadProfile(currentUser); }
     else { switchView('login'); }
   }
 
