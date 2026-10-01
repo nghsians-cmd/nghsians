@@ -3,10 +3,32 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NGHSIANS — Secure Reset</title>
+<title>NGHSIANS — Reset Password</title>
 <link rel="icon" href="favLogo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  /* ------------------------------------------------------------------
+     Capture the URL BEFORE supabase-js rewrites it. The SDK removes the
+     recovery tokens from the address bar once it consumes them, so we
+     keep our own copy to decide which screen to show.
+     ------------------------------------------------------------------ */
+  window.__INITIAL_SEARCH = window.location.search || '';
+  window.__INITIAL_HASH   = window.location.hash   || '';
+
+  /* If account.html was reached with a recovery link (old emails, links
+     already in inboxes), hand the whole URL over to this page. */
+  (function () {
+    var page = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (page === 'reset.html') return;
+    var h = window.__INITIAL_HASH, q = window.__INITIAL_SEARCH;
+    var recovery = /type=recovery/.test(h) || /type=recovery/.test(q) ||
+                   /(^|[?&#])(code|token_hash)=/.test(q + h) ||
+                   /error=access_denied/.test(q + h);
+    if (recovery) window.location.replace('reset.html' + q + h);
+  })();
+</script>
 
 <style>
   :root{
@@ -14,13 +36,14 @@
     --panel: #0d0e10;
     --text: #eef0f2;
     --muted: #9aa0a6;
-    --accent-gold: 255,243,154; 
+    --accent-gold: 255,243,154;
     --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   }
 
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);display:flex;align-items:center;justify-content:center;}
-  
+  html,body{min-height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--font-sans);}
+  body{display:flex;align-items:center;justify-content:center;padding:24px 16px;}
+
   /* Background Texture */
   body::before{
     content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
@@ -37,14 +60,18 @@
     text-align: center; position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   }
-  
+
   .card::before {
     content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 16px 16px 0 0;
     background: linear-gradient(90deg, transparent, rgba(var(--accent-gold), 0.8), transparent);
   }
 
   h1 { margin: 0 0 10px 0; font-size: 1.5rem; color: #fff; }
-  p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+  p { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px 0; line-height: 1.6; }
+  p.tight { margin-bottom: 16px; }
+
+  label{display:block;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:0 0 6px 2px}
 
   .input-box {
     width: 100%; padding: 12px 14px; margin-bottom: 16px;
@@ -53,113 +80,402 @@
     outline: none; transition: 0.2s;
   }
   .input-box:focus { border-color: rgba(var(--accent-gold), 0.8); }
+  .input-box::placeholder { color: rgba(154,160,166,0.5); }
 
   .btn {
     width: 100%; padding: 14px; border-radius: 8px; border: none;
     font-weight: 800; font-size: 15px; color: #000;
     background: rgba(var(--accent-gold), 0.9);
-    cursor: pointer; transition: 0.2s;
+    cursor: pointer; transition: 0.2s; font-family: inherit;
+    touch-action: manipulation;
   }
   .btn:hover { background: #fff; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.ghost { background: rgba(255,255,255,0.1); color: #fff; }
+  .btn.ghost:hover { background: rgba(255,255,255,0.18); }
 
-  .hidden { display: none; }
-  .error-msg { color: #ff6060; background: rgba(255,96,96,0.1); padding: 10px; border-radius: 6px; margin-bottom: 16px; font-size: 0.85rem; }
+  .link-btn {
+    background: none; border: none; color: var(--muted); font-family: inherit;
+    font-size: 0.82rem; cursor: pointer; text-decoration: underline;
+    text-underline-offset: 3px; padding: 0; margin-top: 18px;
+  }
+  .link-btn:hover { color: rgba(var(--accent-gold),0.95); }
 
+  .hidden { display: none !important; }
+
+  .msg { padding: 11px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; text-align: left; line-height: 1.5; }
+  .error-msg   { color: #ff6060; background: rgba(255,96,96,0.1);  border: 1px solid rgba(255,96,96,0.2); }
+  .success-msg { color: rgba(var(--accent-gold),1); background: rgba(var(--accent-gold),0.1); border: 1px solid rgba(var(--accent-gold),0.2); }
+
+  .spinner {
+    width: 34px; height: 34px; margin: 8px auto 4px;
+    border: 3px solid rgba(255,255,255,0.12); border-top-color: rgba(var(--accent-gold),0.85);
+    border-radius: 50%; animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .icon-circle {
+    width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,243,154,0.1); border: 1px solid rgba(255,243,154,0.2);
+  }
+  .icon-circle.bad { background: rgba(255,96,96,0.1); border-color: rgba(255,96,96,0.25); }
+
+  .meta { font-size: 0.8rem; color: var(--muted); margin: -8px 0 18px; word-break: break-all; }
+  .foot { margin-top: 20px; font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+  .foot a { color: var(--muted); text-underline-offset: 3px; }
+  .foot a:hover { color: rgba(var(--accent-gold),0.95); }
+
+  .pw-wrap { position: relative; }
+  .pw-wrap .input-box { padding-right: 46px; }
+  .toggle-pw {
+    position: absolute; right: 10px; top: 8px; background: none; border: none;
+    color: var(--muted); cursor: pointer; padding: 6px; line-height: 0;
+  }
+  .toggle-pw:hover { color: #fff; }
 </style>
 </head>
 <body>
 
-  <!-- LOADING STATE -->
+  <!-- 1. LOADING -->
   <div id="view-loading" class="card">
-    <h1 style="color:var(--muted)">Verifying Link...</h1>
+    <div class="spinner"></div>
+    <h1 style="font-size:1.15rem;margin-top:14px">Checking your link…</h1>
+    <p class="tight" style="margin-bottom:0">One moment please.</p>
   </div>
 
-  <!-- ERROR STATE (Invalid link or direct access) -->
-  <div id="view-error" class="card hidden">
-    <h1 style="color:#ff6060">Access Denied</h1>
-    <p>This link is invalid, expired, or was accessed directly.</p>
-    <button onclick="window.location.href='account.html'" class="btn" style="background:rgba(255,255,255,0.1); color:#fff;">Return to Login</button>
-  </div>
-
-  <!-- SUCCESS FORM -->
+  <!-- 2. NEW PASSWORD -->
   <div id="view-form" class="card hidden">
     <h1>New Password</h1>
-    <p>Secure account for: <br><strong id="user-email" style="color:#fff">...</strong></p>
-    
-    <div id="error-msg" class="error-msg hidden"></div>
+    <p class="tight">Choose a new password for</p>
+    <div class="meta" id="user-email">…</div>
 
-    <form onsubmit="handleReset(event)">
-      <input type="password" id="new-pass" class="input-box" placeholder="Enter new password" required minlength="6">
+    <div id="form-msg" class="msg error-msg hidden"></div>
+
+    <form id="reset-form" onsubmit="handleReset(event)">
+      <label for="new-pass">New Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="new-pass" class="input-box" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+        <button type="button" class="toggle-pw" onclick="togglePw('new-pass', this)" aria-label="Show password">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <label for="confirm-pass">Confirm Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="confirm-pass" class="input-box" placeholder="Repeat the password" required minlength="6" autocomplete="new-password">
+        <button type="button" class="toggle-pw" onclick="togglePw('confirm-pass', this)" aria-label="Show password">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
       <button type="submit" id="submit-btn" class="btn">UPDATE PASSWORD</button>
     </form>
+    <button class="link-btn" onclick="window.location.href='account.html'">Cancel and go back</button>
+  </div>
+
+  <!-- 3. SUCCESS -->
+  <div id="view-success" class="card hidden">
+    <div class="icon-circle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,243,154,1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <h1>Password updated</h1>
+    <p>Your password has been changed. You can now sign in with your new password.</p>
+    <button class="btn" onclick="window.location.href='account.html'">GO TO LOGIN</button>
+  </div>
+
+  <!-- 4. EXPIRED / INVALID LINK -->
+  <div id="view-expired" class="card hidden">
+    <div class="icon-circle bad">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ff6060" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1 style="font-size:1.3rem">Link expired</h1>
+    <p id="expired-reason">This reset link is invalid, has expired, or was already used.</p>
+
+    <div id="resend-msg" class="msg hidden"></div>
+
+    <form id="resend-form" onsubmit="handleResend(event)">
+      <label for="resend-email">Send a fresh link to</label>
+      <input type="email" id="resend-email" class="input-box" placeholder="you@example.com" required autocomplete="email">
+      <button type="submit" id="resend-btn" class="btn">SEND NEW LINK</button>
+    </form>
+    <button class="link-btn" onclick="window.location.href='account.html'">Back to Login</button>
+  </div>
+
+  <!-- 5. DIRECT VISIT (no link) -->
+  <div id="view-request" class="card hidden">
+    <h1>Reset Password</h1>
+    <p class="tight">Enter your email and we'll send you a reset link.</p>
+
+    <div id="request-msg" class="msg hidden"></div>
+
+    <form id="request-form" onsubmit="handleRequest(event)">
+      <label for="request-email">Email Address</label>
+      <input type="email" id="request-email" class="input-box" placeholder="you@example.com" required autocomplete="email">
+      <button type="submit" id="request-btn" class="btn">SEND RESET LINK</button>
+    </form>
+    <button class="link-btn" onclick="window.location.href='account.html'">Back to Login</button>
+  </div>
+
+  <!-- 6. SDK FAILED / SOMETHING BROKE -->
+  <div id="view-fatal" class="card hidden">
+    <h1 style="font-size:1.3rem">Something went wrong</h1>
+    <p id="fatal-reason">We couldn't load the reset tools. Please check your connection and try again.</p>
+    <button class="btn ghost" onclick="window.location.reload()">TRY AGAIN</button>
   </div>
 
 <script>
-  // 1. CONFIG
-  const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+(function () {
+  'use strict';
 
-  // 2. DETECT AUTH STATE
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    const loadingEl = document.getElementById('view-loading');
-    const errorEl = document.getElementById('view-error');
-    const formEl = document.getElementById('view-form');
+  var SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
 
-    // HIDE LOADING
-    loadingEl.classList.add('hidden');
+  /* Always send the recovery link to this page — never to the page the user
+     happened to be on (that is what used to send people to a bad host). */
+  var RESET_URL = siteBase() + '/reset.html';
 
-    // CHECK IF VALID RECOVERY SESSION
-    // "PASSWORD_RECOVERY" event happens when user clicks the email link.
-    // "SIGNED_IN" happens if the link auto-logs them in.
-    if (event === 'PASSWORD_RECOVERY' || (session && window.location.hash.includes('type=recovery'))) {
-      
-      // Valid Link! Show Form
-      formEl.classList.remove('hidden');
-      document.getElementById('user-email').textContent = session.user.email;
-    
-    } else {
-      // Invalid or Direct Access
-      // If there is no session, or if the event is just a regular INITIAL_SESSION without recovery params
-      errorEl.classList.remove('hidden');
-      
-      // Auto-redirect after 3 seconds for UX
-      setTimeout(() => {
-         window.location.href = 'account.html';
-      }, 4000);
+  function siteBase() {
+    var h = (window.location.hostname || '').toLowerCase();
+    // Canonical production domain (works for www and the bare domain)
+    if (h === 'nghsians.com' || h === 'www.nghsians.com') return 'https://nghsians.com';
+    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') return window.location.origin;
+    return 'https://nghsians.com';
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var VIEWS = ['loading', 'form', 'success', 'expired', 'request', 'fatal'];
+  var currentView = 'loading';
+
+  function show(view) {
+    currentView = view;
+    VIEWS.forEach(function (v) {
+      var el = $('view-' + v);
+      if (el) el.classList.toggle('hidden', v !== view);
+    });
+  }
+
+  function setMsg(id, text, kind) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'msg ' + (kind === 'ok' ? 'success-msg' : 'error-msg');
+    if (!text) el.classList.add('hidden');
+  }
+
+  window.togglePw = function (id, btn) {
+    var inp = $(id);
+    if (!inp) return;
+    var show = inp.getAttribute('type') === 'password';
+    inp.setAttribute('type', show ? 'text' : 'password');
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  };
+
+  /* ---------- read the recovery parameters ---------- */
+  function readParams() {
+    var out = {};
+    [window.__INITIAL_SEARCH || '', window.__INITIAL_HASH || ''].forEach(function (raw) {
+      var s = String(raw).replace(/^[?#]/, '');
+      if (!s) return;
+      s.split('&').forEach(function (kv) {
+        if (!kv) return;
+        var i = kv.indexOf('=');
+        var k = decodeURIComponent((i < 0 ? kv : kv.slice(0, i)).replace(/\+/g, ' '));
+        var v = i < 0 ? '' : decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' '));
+        out[k] = v;                       // hash wins over query
+      });
+    });
+    // Supabase sometimes nests the error in a JSON "error_description"
+    if (out.error_description && !out.error) out.error = out.error_description;
+    return out;
+  }
+
+  function friendlyError(p) {
+    var code = (p.error_code || p.error || '') + '';
+    var desc = (p.error_description || '') + '';
+    if (/expired/i.test(code) || /expired/i.test(desc)) return 'This reset link has expired. Links are valid for a limited time — request a new one below.';
+    if (/already/i.test(desc))                          return 'This reset link was already used. Request a new one below.';
+    if (/access_denied/i.test(code))                    return 'This reset link is invalid or has already been used. Request a new one below.';
+    return desc || 'This reset link is invalid, has expired, or was already used.';
+  }
+
+  /* ---------- boot ---------- */
+  function boot() {
+    if (!window.supabase || !window.supabase.createClient) {
+      $('fatal-reason').textContent = 'We couldn\'t load the reset tools (the Supabase library was blocked). Check your connection or disable any blocker, then try again.';
+      return show('fatal');
     }
-  });
 
-  // 3. HANDLE UPDATE
-  async function handleReset(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submit-btn');
-    const pass = document.getElementById('new-pass').value;
-    const errBox = document.getElementById('error-msg');
+    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        // Implicit flow keeps the recovery tokens in the link itself, so a link
+        // opened on a phone (or in a different browser) still works.
+        flowType: 'implicit',
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+    window.__sb = supabase;
 
-    btn.textContent = "UPDATING...";
-    btn.disabled = true;
-    errBox.classList.add('hidden');
+    /* ---------- set the new password ---------- */
+    window.handleReset = async function (e) {
+      e.preventDefault();
+      var pass = $('new-pass').value;
+      var confirm = $('confirm-pass').value;
+      var btn = $('submit-btn');
 
-    try {
-      const { error } = await supabase.auth.updateUser({ password: pass });
-      
-      if (error) throw error;
+      if (pass.length < 6)  return setMsg('form-msg', 'Your password must be at least 6 characters.', 'err');
+      if (pass !== confirm) return setMsg('form-msg', 'The two passwords do not match.', 'err');
 
-      alert("Success! Your password has been changed.");
-      
-      // Sign out to force clean login with new password
-      await supabase.auth.signOut();
-      window.location.href = 'account.html';
+      setMsg('form-msg', '');
+      btn.textContent = 'UPDATING…';
+      btn.disabled = true;
+      try {
+        var res = await supabase.auth.updateUser({ password: pass });
+        if (res.error) throw res.error;
+        try { await supabase.auth.signOut(); } catch (e) {}
+        show('success');
+      } catch (err) {
+        var m = (err && err.message) || 'Could not update the password.';
+        if (/session|jwt|expired/i.test(m)) {
+          m = 'Your reset session expired. Please request a new link below.';
+          setMsg('resend-msg', '', 'err');
+        }
+        setMsg('form-msg', m, 'err');
+        btn.textContent = 'UPDATE PASSWORD';
+        btn.disabled = false;
+      }
+    };
 
-    } catch (err) {
-      errBox.textContent = err.message;
-      errBox.classList.remove('hidden');
-      btn.textContent = "UPDATE PASSWORD";
-      btn.disabled = false;
+    /* ---------- request a link (direct visit) ---------- */
+    window.handleRequest = async function (e) {
+      e.preventDefault();
+      var email = ($('request-email').value || '').trim();
+      var btn = $('request-btn');
+      btn.textContent = 'SENDING…'; btn.disabled = true;
+      setMsg('request-msg', '');
+      try {
+        var res = await supabase.auth.resetPasswordForEmail(email, { redirectTo: RESET_URL });
+        if (res.error) throw res.error;
+        setMsg('request-msg', 'Reset link sent to ' + email + '. Check your inbox (and your spam folder).', 'ok');
+        btn.textContent = 'RESEND LINK';
+      } catch (err) {
+        setMsg('request-msg', sendError(err), 'err');
+        btn.textContent = 'SEND RESET LINK';
+      } finally { btn.disabled = false; }
+    };
+
+    /* ---------- request a new link (expired screen) ---------- */
+    window.handleResend = async function (e) {
+      e.preventDefault();
+      var email = ($('resend-email').value || '').trim();
+      var btn = $('resend-btn');
+      btn.textContent = 'SENDING…'; btn.disabled = true;
+      setMsg('resend-msg', '');
+      try {
+        var res = await supabase.auth.resetPasswordForEmail(email, { redirectTo: RESET_URL });
+        if (res.error) throw res.error;
+        setMsg('resend-msg', 'New link sent to ' + email + '. Check your inbox (and your spam folder).', 'ok');
+        btn.textContent = 'RESEND LINK';
+      } catch (err) {
+        setMsg('resend-msg', sendError(err), 'err');
+        btn.textContent = 'SEND NEW LINK';
+      } finally { btn.disabled = false; }
+    };
+
+
+    var p = readParams();
+    var hasToken = !!(p.access_token || p.token_hash || p.code);
+    var isRecovery = p.type === 'recovery' || hasToken;
+
+    // An error in the link (expired / already used)
+    if (p.error || p.error_code) {
+      $('expired-reason').textContent = friendlyError(p);
+      if (p.email) $('resend-email').value = p.email;
+      show('expired');
+      return;
+    }
+
+    // Direct visit, not from an email link
+    if (!isRecovery) {
+      show('request');
+      return;
+    }
+
+    var settled = false;
+    function goToForm(email) {
+      if (settled) return;
+      settled = true;
+      $('user-email').textContent = email || 'your account';
+      show('form');
+      setTimeout(function () { try { $('new-pass').focus(); } catch (e) {} }, 200);
+    }
+    function goToExpired(reason) {
+      if (settled) return;
+      settled = true;
+      $('expired-reason').textContent = reason;
+      show('expired');
+    }
+
+    // Catch the event if the SDK emits it (normal path)
+    var finished = false;
+    supabase.auth.onAuthStateChange(function (event, session) {
+      if (session && (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        finished = true;
+        goToForm(session.user && session.user.email);
+      }
+    });
+
+    (async function resolve() {
+      try {
+        // 1) did supabase-js already consume the link? (hash / query)
+        var s = (await supabase.auth.getSession()).data.session;
+        if (s) return goToForm(s.user && s.user.email);
+
+        // 2) explicit fallbacks for every link style Supabase can send
+        if (p.token_hash) {
+          const { data, error } = await supabase.auth.verifyOtp({ type: 'recovery', token_hash: p.token_hash });
+          if (error) throw error;
+          if (data && data.session) return goToForm(data.session.user && data.session.user.email);
+        }
+        if (p.code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(p.code);
+          if (error) throw error;
+          if (data && data.session) return goToForm(data.session.user && data.session.user.email);
+        }
+        if (p.access_token) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: p.access_token,
+            refresh_token: p.refresh_token || ''
+          });
+          if (error) throw error;
+          if (data && data.session) return goToForm(data.session.user && data.session.user.email);
+        }
+
+        // 3) give the SDK a last chance, then explain what happened
+        setTimeout(function () {
+          if (finished || settled) return;
+          goToExpired('We could not verify this link. It may have expired or already been used — request a new one below.');
+        }, 2500);
+      } catch (err) {
+        goToExpired(friendlyError({ error_description: (err && err.message) || '' }) ||
+                    'We could not verify this link. Request a new one below.');
+      }
+    })();
+
+    function sendError(err) {
+      var m = ((err && err.message) || '').toLowerCase();
+      if (m.indexOf('rate limit') > -1 || m.indexOf('too many') > -1 || (err && err.status === 429)) {
+        return 'Please wait about a minute before requesting another link.';
+      }
+      return (err && err.message) || 'Could not send the email. Please try again.';
     }
   }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
 </script>
 </body>
 </html>
