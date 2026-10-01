@@ -439,6 +439,8 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .user-item:hover { background: rgba(255,255,255,0.045); border-color: var(--border-hi); }
 .user-item:focus-visible { outline: 2px solid rgba(var(--gold),0.6); outline-offset: 2px; }
 .user-item:hover .u-chevron { opacity: 1; transform: translateX(0); }
+.user-item.locked { cursor: default; }
+.user-item.locked:hover { background: rgba(255,255,255,0.025); border-color: var(--border); }
 .u-chevron {
   flex-shrink: 0; color: var(--text-dim); opacity: 0.35;
   transform: translateX(-3px); transition: opacity 0.18s, transform 0.18s;
@@ -1052,6 +1054,43 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
 
+  /* ---- PRIVATE / TEST ACCOUNTS ------------------------------------------
+     These accounts still appear in "Other NGHSIANS" (name, batch, followers,
+     Follow button) but they can't be opened: no full-profile card and no
+     WhatsApp / Instagram links, so their email and contact details stay
+     private. They can still sign in and use their own account normally.
+
+       - To lock another account, add its name to PRIVATE_MEMBER_NAMES.
+         Capital letters, extra spaces and a stray "-" or "." at the start or
+         end are ignored, so "-Test Acc" also matches "test acc".
+       - Or add its account id to PRIVATE_MEMBER_IDS (Supabase -> Table editor
+         -> verified_profiles -> id column). IDs never change, names can.
+       - Matching is by NAME: if one of these accounts is renamed, add the new
+         name here as well.                                                    */
+  const PRIVATE_MEMBER_NAMES = ['Lionel Messi', 'Neymar Jr', 'Kakir', '-Test Acc', 'Random'];
+  const PRIVATE_MEMBER_IDS   = [];
+
+  // Built with new RegExp (not a /literal/) so a very old browser falls back
+  // quietly instead of failing to read this whole page.
+  const EDGE_JUNK = (function () {
+    try { return new RegExp('^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}]+$', 'gu'); }
+    catch (e) { return /^[^a-z0-9]+|[^a-z0-9]+$/g; }
+  })();
+  function nameKey(s) {
+    return String(s == null ? '' : s)
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')     // e-acute -> e
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .replace(EDGE_JUNK, '');                               // ignore stray - . spaces / emoji at the ends
+  }
+  const PRIVATE_NAME_KEYS = new Set(PRIVATE_MEMBER_NAMES.map(nameKey).filter(Boolean));
+  const PRIVATE_ID_SET    = new Set(PRIVATE_MEMBER_IDS.map(String));
+  function isPrivateMember(p) {
+    if (!p) return false;
+    if (p.id != null && PRIVATE_ID_SET.has(String(p.id))) return true;
+    return PRIVATE_NAME_KEYS.has(nameKey(p.username));
+  }
+
   // reset.html owns every password-recovery link.
   const RESET_PAGE = 'reset.html';
 
@@ -1276,7 +1315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   window.openMember = async function(id) {
     const member = networkMembers.find(x => x.id === id);
-    if (!member) return;
+    if (!member || isPrivateMember(member)) return;
     window.currentMemberId = id;
     renderMemberModal(member);
     renderMemberFollowBtn(id);
@@ -1286,6 +1325,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Refresh with fresh data (follower count can change while the list is open)
     try {
       const { data, error } = await supabase.from('verified_profiles').select('*').eq('id', id).maybeSingle();
+      if (!error && data && isPrivateMember(data)) {
+        // Renamed to a private name while the card was open: never show the fresh data.
+        const i = networkMembers.findIndex(x => x.id === id);
+        if (i > -1) networkMembers[i] = data;
+        const rowBtn = document.querySelector(`.user-item [data-follow-id="${id}"]`);
+        const item = rowBtn && rowBtn.closest ? rowBtn.closest('.user-item') : null;
+        if (item) item.outerHTML = createUserHTML(data, rowBtn.classList.contains('following'));
+        getEl('member-table').innerHTML = '';
+        closeMember();
+        return;
+      }
       if (!error && data && window.currentMemberId === id) {
         const idx = networkMembers.findIndex(x => x.id === id);
         if (idx > -1) networkMembers[idx] = data; else networkMembers.push(data);
@@ -1565,19 +1615,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnState = isFollow ? 'following' : '';
     const btnTxt   = isFollow ? 'Following'  : 'Follow';
 
+    // Private/test accounts: the same row, but not clickable and with no contact links.
+    const locked = isPrivateMember(u);
+
     // Contact links (visible to signed-in members only, since they live in the dashboard)
-    const waHref = whatsappLink(u.whatsapp_number);
-    const igHref = instagramLink(u.instagram_username);
+    const waHref = locked ? '' : whatsappLink(u.whatsapp_number);
+    const igHref = locked ? '' : instagramLink(u.instagram_username);
     // stopPropagation so opening WhatsApp/Instagram doesn't also open the detail view
     let contacts = '';
     if (waHref) contacts += `<a href="${waHref}" target="_blank" rel="noopener noreferrer" title="WhatsApp" onclick="event.stopPropagation()">${waIcon}</a>`;
     if (igHref) contacts += `<a href="${igHref}" target="_blank" rel="noopener noreferrer" title="Instagram" onclick="event.stopPropagation()">${igIcon}</a>`;
 
     const uid = escapeAttr(u.id);
-    return `
-    <div class="user-item" role="button" tabindex="0" title="View full profile"
+    const rowAttrs = locked ? '' : `role="button" tabindex="0" title="View full profile"
          onclick="openMember('${uid}')"
-         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMember('${uid}');}">
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMember('${uid}');}"`;
+    const chevron = locked ? '' : `<svg class="u-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>`;
+    return `
+    <div class="user-item${locked ? ' locked' : ''}" ${rowAttrs}>
       <div class="u-avatar">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
@@ -1589,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
       <button class="btn-follow ${btnState}" data-follow-id="${uid}"
               onclick="event.stopPropagation(); toggleFollow('${uid}', this)">${btnTxt}</button>
-      <svg class="u-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+      ${chevron}
     </div>`;
   }
 
