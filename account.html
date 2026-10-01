@@ -8,6 +8,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  /* Password-recovery links belong to reset.html. This runs BEFORE supabase-js
+     touches the URL — the SDK strips the recovery tokens from the address bar,
+     which is why redirecting later was unreliable.
+     recoveryRedirectTarget() returns where to send the visitor, or null.      */
+  window.recoveryRedirectTarget = function () {
+    var q = window.location.search || '', h = window.location.hash || '';
+    var isRecovery = /type=recovery/.test(h) ||
+                     /(^|[?&#])(code|token_hash|access_token)=/.test(q + h) ||
+                     /error=access_denied/.test(q + h);
+    return isRecovery ? ('reset.html' + q + h) : null;
+  };
+  (function () {
+    var target = window.recoveryRedirectTarget();
+    if (target) window.location.replace(target);
+  })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -414,8 +432,67 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   padding: 11px 12px; border-radius: 10px;
   background: rgba(255,255,255,0.025); border: 1px solid var(--border);
   transition: background 0.18s, border-color 0.18s;
+  cursor: pointer; text-align: left;
+  font-family: var(--font-body); color: var(--text);
+  width: 100%;
 }
 .user-item:hover { background: rgba(255,255,255,0.045); border-color: var(--border-hi); }
+.user-item:focus-visible { outline: 2px solid rgba(var(--gold),0.6); outline-offset: 2px; }
+.user-item:hover .u-chevron { opacity: 1; transform: translateX(0); }
+.u-chevron {
+  flex-shrink: 0; color: var(--text-dim); opacity: 0.35;
+  transform: translateX(-3px); transition: opacity 0.18s, transform 0.18s;
+}
+
+/* ============================================================
+   MEMBER DETAIL MODAL (click a member in the network list)
+   ============================================================ */
+.member-box {
+  max-width: 480px; text-align: left;
+  max-height: calc(100vh - 32px); overflow-y: auto;
+  border-color: rgba(var(--gold),0.22);
+}
+.member-close {
+  position: absolute; top: 12px; right: 12px; z-index: 3;
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer; transition: color 0.15s, background 0.15s;
+}
+.member-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+
+.member-head { text-align: center; margin-bottom: 20px; }
+.member-head .member-avatar {
+  width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 14px;
+  background: rgba(0,0,0,0.4); border: 2px solid var(--border-hi);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim); position: relative;
+}
+.member-head.tier-architect .member-avatar { border-color: rgba(var(--gold),0.6); box-shadow: 0 0 30px rgba(var(--gold),0.18); }
+.member-head.tier-alumni .member-avatar { border-color: rgba(255,255,255,0.2); box-shadow: 0 0 30px rgba(139,14,6,0.25); }
+.member-name {
+  font-family: var(--font-display); font-size: clamp(1.3rem, 5vw, 1.55rem);
+  font-weight: 900; color: var(--text); line-height: 1.2; word-break: break-word;
+  padding: 0 28px;
+}
+.member-tier {
+  margin-top: 7px; font-size: 0.78rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; display: flex;
+  align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+}
+.member-tier .tier-architect-txt { color: rgba(var(--gold),1); }
+.member-tier .tier-elite-txt    { color: rgba(var(--gold),1); }
+.member-tier .tier-alumni-txt   { color: var(--text); }
+.member-tier .tier-member-txt   { color: var(--text-dim); }
+
+.member-table { margin-bottom: 6px; }
+.member-table .data-val { max-width: 62%; word-break: break-word; }
+.member-table .data-lbl { flex-shrink: 0; margin-right: 12px; }
+.member-empty { color: var(--text-dim); font-style: italic; font-weight: 500; }
+
+.member-actions { display: flex; gap: 10px; margin-top: 20px; }
+.member-actions .btn-follow { flex: 1; padding: 11px; font-size: 13px; border-radius: 8px; }
+.member-loading { text-align: center; color: var(--text-dim); font-size: 0.85rem; padding: 10px 0 2px; }
 
 .u-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
@@ -758,6 +835,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Other NGHSIANS
         </div>
+        <span style="font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);opacity:0.75">View details</span>
       </div>
 
       <div class="search-wrap">
@@ -818,6 +896,28 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     <p class="details-foot">
       Wrong account? <button type="button" onclick="handleLogout()">Sign out</button>
     </p>
+  </div>
+</div>
+
+<!-- ===== MEMBER DETAIL MODAL ===== -->
+<div id="member-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="member-name"
+     onclick="if(event.target===this) closeMember()">
+  <div class="modal-box member-box">
+    <button class="member-close" onclick="closeMember()" aria-label="Close profile">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="member-head" id="member-head">
+      <div class="member-avatar">
+        <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h2 class="member-name" id="member-name">Member</h2>
+      <div class="member-tier" id="member-tier"></div>
+    </div>
+    <div class="member-table" id="member-table"></div>
+    <div class="member-actions">
+      <button id="member-follow-btn" class="btn-follow" onclick="toggleMemberFollow(this)">Follow</button>
+      <button class="btn-cancel" style="flex:0 0 auto;padding:11px 18px;border-radius:8px;font-size:13px" onclick="closeMember()">Close</button>
+    </div>
   </div>
 </div>
 
@@ -940,14 +1040,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (!window.supabase) { alert("System Error: Supabase SDK failed to load."); return; }
 
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      // Implicit flow: recovery tokens travel inside the emailed link, so the
+      // link works on a phone or in a different browser than the request.
+      flowType: 'implicit',
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true
+    }
+  });
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
+
+  // reset.html owns every password-recovery link.
+  const RESET_PAGE = 'reset.html';
+
+  function siteBase() {
+    const h = (window.location.hostname || '').toLowerCase();
+    if (h === 'nghsians.com' || h === 'www.nghsians.com') return 'https://nghsians.com';
+    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') return window.location.origin;
+    return 'https://nghsians.com';
+  }
 
   let currentUser    = null;
   let currentProfile = null;
   // Becomes false only if the DB is missing the new columns (SQL migration not
   // run yet). In that case the gate stays open so nobody gets locked out.
   let hasContactColumns = true;
+
+  // Network list cache + the member currently open in the detail modal
+  let networkMembers = [];
+  window.currentMemberId = null;
 
   /* ---- NEW COLUMNS PROBE ----------------------------------------------
      The WhatsApp / Instagram fields live in two new columns. If that SQL
@@ -1015,12 +1138,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.handleForgot = async function(e) {
     e.preventDefault();
     const btn = getEl('forgot-btn'); const errEl = getEl('forgot-error'); const sucEl = getEl('forgot-success');
+    const email = (getEl('forgot-email').value || '').trim();
     btn.textContent = 'SENDING…'; btn.disabled = true; errEl.style.display = 'none'; sucEl.style.display = 'none';
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(getEl('forgot-email').value, { redirectTo: window.location.href });
+      // Always send the user to reset.html — never to the page they happened
+      // to be on. A wrong/relative redirect is what produced "no host found".
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: siteBase() + '/' + RESET_PAGE
+      });
       if (error) throw error;
-      sucEl.textContent = "Check your email for the reset link!"; sucEl.style.display = 'block'; btn.textContent = 'SENT';
-    } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; btn.textContent = 'SEND RESET LINK'; btn.disabled = false; }
+      sucEl.innerHTML = "Check your email for the reset link!<br><span style='opacity:0.75;font-size:0.8rem'>Sent to " + escapeAttr(email) + " — also check your spam folder.</span>";
+      sucEl.style.display = 'block';
+      btn.textContent = 'SENT';
+    } catch (err) {
+      let msg = err.message || 'Could not send the reset email.';
+      if (/rate limit|too many/i.test(msg) || err.status === 429) msg = 'Please wait about a minute before requesting another link.';
+      errEl.textContent = msg; errEl.style.display = 'block';
+      btn.textContent = 'SEND RESET LINK';
+    } finally { btn.disabled = false; }
   };
 
   window.handleUpdatePass = async function(e) {
@@ -1137,19 +1272,144 @@ document.addEventListener('DOMContentLoaded', async () => {
     } finally { btn.textContent = 'SAVE & CONTINUE'; btn.disabled = false; }
   };
 
+  /* ---- MEMBER DETAIL VIEW ---- */
+
+  window.openMember = async function(id) {
+    const member = networkMembers.find(x => x.id === id);
+    if (!member) return;
+    window.currentMemberId = id;
+    renderMemberModal(member);
+    renderMemberFollowBtn(id);
+    getEl('member-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { const b = getEl('member-follow-btn'); if (b) b.focus(); }, 250);
+    // Refresh with fresh data (follower count can change while the list is open)
+    try {
+      const { data, error } = await supabase.from('verified_profiles').select('*').eq('id', id).maybeSingle();
+      if (!error && data && window.currentMemberId === id) {
+        const idx = networkMembers.findIndex(x => x.id === id);
+        if (idx > -1) networkMembers[idx] = data; else networkMembers.push(data);
+        renderMemberModal(data);
+        renderMemberFollowBtn(id);
+        const countEl = document.getElementById('count-' + id);
+        if (countEl) countEl.innerText = data.follower_count || 0;
+      }
+    } catch (err) { /* keep showing cached data */ }
+  };
+
+  window.closeMember = function() {
+    window.currentMemberId = null;
+    getEl('member-modal').classList.remove('show');
+    document.body.style.overflow = '';
+  };
+
+  // Follow button inside the detail modal
+  window.toggleMemberFollow = function(btn) {
+    if (!window.currentMemberId) return;
+    toggleFollow(window.currentMemberId, btn);
+  };
+
+  function memberRow(label, valueHtml) {
+    return `<div class="data-row"><span class="data-lbl">${label}</span><span class="data-val">${valueHtml}</span></div>`;
+  }
+
+  function renderMemberModal(u) {
+    const head = getEl('member-head');
+    head.className = 'member-head';
+    if (u.role === 'architect') head.classList.add('tier-architect');
+    else if (u.role === 'alumni') head.classList.add('tier-alumni');
+
+    getEl('member-name').textContent = u.username || 'Student';
+
+    // Tier / status badge line
+    let tierHtml = '', statusTxt = 'NGHSIANS MEMBER', statusClass = 'tier-member-txt';
+    if (u.role === 'architect') {
+      tierHtml = '<span class="u-badge architect">ARCHITECT</span>';
+      statusTxt = 'WEBSITE ARCHITECT'; statusClass = 'tier-architect-txt';
+    } else if (u.role === 'elite') {
+      tierHtml = '<span class="u-badge verified">VERIFIED</span>';
+      statusTxt = 'NGHSIANS ELITE'; statusClass = 'tier-elite-txt';
+    } else if (u.role === 'alumni') {
+      tierHtml = '<span class="u-badge alumni">ALUMNI</span>';
+      statusTxt = 'NGHSIANS ALUMNI'; statusClass = 'tier-alumni-txt';
+    }
+    const followers = parseInt(u.follower_count) || 0;
+    getEl('member-tier').innerHTML =
+      `<span class="${statusClass}">${statusTxt}</span>` +
+      `<span style="color:var(--text-dim);font-weight:600;font-size:0.75rem">${followers} follower${followers === 1 ? '' : 's'}</span>` +
+      (tierHtml ? tierHtml : '');
+
+    // Full detail rows
+    const waValue = renderMemberContact('whatsapp', u.whatsapp_number);
+    const igValue = renderMemberContact('instagram', u.instagram_username);
+    getEl('member-table').innerHTML =
+      memberRow('ID',     u.school_id   ? escapeAttr(u.school_id)   : '<span class="member-empty">Not provided</span>') +
+      memberRow('Batch',  u.batch_year  ? escapeAttr(u.batch_year)  : '<span class="member-empty">Not provided</span>') +
+      memberRow('Email',  u.email       ? `<a class="contact-link" href="mailto:${escapeAttr(u.email)}">${escapeAttr(u.email)}</a>` : '<span class="member-empty">Not provided</span>') +
+      memberRow('WhatsApp',  waValue) +
+      memberRow('Instagram', igValue) +
+      memberRow('Status', `<span class="${statusClass}">${statusTxt}</span>`);
+  }
+
+  function renderMemberContact(type, value) {
+    const raw = String(value == null ? '' : value).trim();
+    if (!raw) return '<span class="member-empty">Not provided</span>';
+    const href = type === 'whatsapp' ? whatsappLink(raw) : instagramLink(raw);
+    const label = type === 'whatsapp' ? raw : '@' + normalizeInstagram(raw);
+    if (!href) return '<span class="contact-link is-empty">' + escapeAttr(label) + '</span>';
+    const icon = type === 'whatsapp'
+      ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.02c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.12.82.83-3.04-.2-.32a8.06 8.06 0 0 1-1.24-4.3c0-4.46 3.63-8.09 8.09-8.09s8.09 3.63 8.09 8.09-3.63 8.1-8.09 8.1zm4.44-6.06c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.29.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.14-.24-.02-.37.1-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.47-.4-.41-.55-.41h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg>'
+      : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
+    return `<a class="contact-link" href="${href}" target="_blank" rel="noopener noreferrer">${icon} ${escapeAttr(label)}</a>`;
+  }
+
+  function renderMemberFollowBtn(id) {
+    const btn = getEl('member-follow-btn');
+    if (!btn) return;
+    const listBtn = document.querySelector(`.user-item [data-follow-id="${id}"]`);
+    const following = !!listBtn && listBtn.classList.contains('following');
+    btn.setAttribute('data-follow-id', id);
+    btn.classList.toggle('following', following);
+    btn.innerText = following ? 'Following' : 'Follow';
+  }
+
   /* ---- FOLLOW ---- */
 
+  // Keeps every Follow button + follower counter for a member in sync.
+  function applyFollowUI(targetId, following) {
+    document.querySelectorAll(`[data-follow-id="${targetId}"]`).forEach(b => {
+      b.classList.toggle('following', following);
+      b.innerText = following ? 'Following' : 'Follow';
+    });
+    const member = networkMembers.find(x => x.id === targetId);
+    if (member) member.follower_count = Math.max(0, (parseInt(member.follower_count) || 0) + (following ? 1 : -1));
+    const n = member ? member.follower_count : null;
+    const listCount = document.getElementById('count-' + targetId);
+    if (listCount && n !== null) listCount.innerText = n;
+    if (window.currentMemberId === targetId && n !== null) {
+      const tier = getEl('member-tier');
+      if (tier) {
+        const f = tier.querySelector('span:nth-child(2)');
+        if (f) f.textContent = n + ' follower' + (n === 1 ? '' : 's');
+      }
+    }
+  }
+
   window.toggleFollow = async function(targetId, btn) {
-    if (btn.disabled) return; btn.disabled = true;
+    if (btn.disabled) return;
+    btn.disabled = true;
     const isFollowing = btn.classList.contains('following');
-    const countEl = document.getElementById('count-' + targetId);
-    let c = parseInt(countEl.innerText) || 0;
-    if (isFollowing) {
-      btn.classList.remove('following'); btn.innerText = 'Follow'; c = Math.max(0, c - 1); countEl.innerText = c;
-      await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
-    } else {
-      btn.classList.add('following'); btn.innerText = 'Following'; c++; countEl.innerText = c;
-      await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
+    applyFollowUI(targetId, !isFollowing);
+    try {
+      if (isFollowing) {
+        await supabase.from('user_relationships').delete().match({ follower_id: currentUser.id, following_id: targetId });
+      } else {
+        await supabase.from('user_relationships').insert([{ follower_id: currentUser.id, following_id: targetId }]);
+      }
+    } catch (err) {
+      console.error(err);
+      applyFollowUI(targetId, isFollowing);   // rollback
+      showToast("Couldn't update follow. Please try again.", true);
     }
     btn.disabled = false;
   };
@@ -1284,6 +1544,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data: following } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
     const followingIds = new Set(following ? following.map(x => x.following_id) : []);
     const others = all.filter(x => x.id !== currentUser.id);
+    networkMembers = others;   // cached for the member detail modal
+    // Close an open profile if that member is gone from the list
+    if (window.currentMemberId && !others.some(x => x.id === window.currentMemberId)) closeMember();
     if (others.length === 0) {
       list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:0.88rem">No other students yet.</div>';
     } else {
@@ -1305,41 +1568,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Contact links (visible to signed-in members only, since they live in the dashboard)
     const waHref = whatsappLink(u.whatsapp_number);
     const igHref = instagramLink(u.instagram_username);
+    // stopPropagation so opening WhatsApp/Instagram doesn't also open the detail view
     let contacts = '';
-    if (waHref) contacts += `<a href="${waHref}" target="_blank" rel="noopener noreferrer" title="WhatsApp">${waIcon}</a>`;
-    if (igHref) contacts += `<a href="${igHref}" target="_blank" rel="noopener noreferrer" title="Instagram">${igIcon}</a>`;
+    if (waHref) contacts += `<a href="${waHref}" target="_blank" rel="noopener noreferrer" title="WhatsApp" onclick="event.stopPropagation()">${waIcon}</a>`;
+    if (igHref) contacts += `<a href="${igHref}" target="_blank" rel="noopener noreferrer" title="Instagram" onclick="event.stopPropagation()">${igIcon}</a>`;
 
+    const uid = escapeAttr(u.id);
     return `
-    <div class="user-item">
+    <div class="user-item" role="button" tabindex="0" title="View full profile"
+         onclick="openMember('${uid}')"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMember('${uid}');}">
       <div class="u-avatar">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
       <div class="u-info">
         <div class="u-name">${escapeAttr(u.username)}</div>
         <div class="u-batch">Batch: ${escapeAttr(u.batch_year)}</div>
-        <div class="u-followers"><span id="count-${escapeAttr(u.id)}">${u.follower_count||0}</span>&nbsp;followers ${badges}</div>
+        <div class="u-followers"><span id="count-${uid}">${u.follower_count||0}</span>&nbsp;followers ${badges}</div>
         ${contacts ? `<div class="network-contacts">${contacts}</div>` : ''}
       </div>
-      <button class="btn-follow ${btnState}" onclick="toggleFollow('${escapeAttr(u.id)}', this)">${btnTxt}</button>
+      <button class="btn-follow ${btnState}" data-follow-id="${uid}"
+              onclick="event.stopPropagation(); toggleFollow('${uid}', this)">${btnTxt}</button>
+      <svg class="u-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
     </div>`;
   }
 
   /* ---- STARTUP ---- */
 
+  // Escape closes the member detail modal (the required-details gate stays).
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && getEl('member-modal').classList.contains('show')) closeMember();
+  });
+
   // Check once whether the new contact columns exist (SQL migration applied).
   await probeContactColumns();
   closeDetailsGate();
 
-  const isRecovery = window.location.hash && window.location.hash.includes('type=recovery');
-  if (isRecovery) {
-    supabase.auth.onAuthStateChange((evt, session) => {
-      if (evt === 'PASSWORD_RECOVERY' || session) { currentUser = session.user; switchView('update-password'); }
-    });
-  } else {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) { currentUser = data.session.user; await loadProfile(currentUser); }
-    else { switchView('login'); }
-  }
+  // Recovery links are handled by reset.html (see the early redirect in <head>).
+  // If one somehow reaches us anyway, don't create a session from it.
+  const recoveryTarget = window.recoveryRedirectTarget ? window.recoveryRedirectTarget() : null;
+  if (recoveryTarget) { window.location.replace(recoveryTarget); return; }
+
+  const { data } = await supabase.auth.getSession();
+  if (data.session) { currentUser = data.session.user; await loadProfile(currentUser); }
+  else { switchView('login'); }
 
 });
 </script>
