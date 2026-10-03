@@ -1070,11 +1070,58 @@ footer strong { color: rgba(var(--gold), 0.8); }
 .reveal.is-visible { opacity: 1; transform: translateY(0) scale(1); }
 
 /* ============================================================
-   ALUMNI SECTION
+   ALUMNI SECTION — one-line slow preview ticker
    ============================================================ */
-.alumni-grid { display: grid; gap: 14px; grid-template-columns: repeat(3,1fr); }
-@media(max-width:1100px){ .alumni-grid{ grid-template-columns:repeat(2,1fr) } }
-@media(max-width:700px) { .alumni-grid{ grid-template-columns:1fr } }
+.alumni-ticker {
+  position: relative; overflow: hidden;
+  margin: 0 0 26px; padding: 4px 0; min-height: 64px;
+  /* cards drift in and out of the dark instead of hard-clipping */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+}
+.alumni-ticker-track {
+  display: flex; align-items: stretch; width: max-content;
+  transform: translate3d(0,0,0); will-change: transform;
+}
+.ticker-set { display: flex; align-items: stretch; flex: 0 0 auto; }
+
+.alumni-mini {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 11px;
+  margin-right: 12px; padding: 9px 18px 9px 9px;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+  transition: border-color 240ms ease, background 240ms ease, transform 240ms ease;
+}
+.alumni-mini:hover {
+  border-color: rgba(var(--gold),0.38); transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(255,235,128,0.07), rgba(255,255,255,0.015));
+}
+/* held still by pointer / finger */
+.alumni-ticker.is-paused .alumni-mini { border-color: rgba(var(--gold),0.15); }
+.alumni-mini-avatar {
+  width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 900; font-size: 13px; letter-spacing: .5px;
+  color: rgba(var(--gold),0.92); border: 1px solid rgba(var(--gold),0.22);
+  background: radial-gradient(circle at 32% 26%, rgba(255,235,128,0.16), rgba(139,14,6,0.22));
+}
+.alumni-mini-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.alumni-mini-name { font-size: 13.5px; font-weight: 600; line-height: 1.2; color: var(--text); white-space: nowrap; }
+.alumni-mini-name.bangla { font-family: var(--font-bangla); font-weight: 700; font-size: 14.5px; }
+.alumni-mini-avatar.bangla { font-family: var(--font-bangla); font-weight: 800; font-size: 12.5px; letter-spacing: 0; }
+.alumni-mini-sub { display: flex; align-items: center; gap: 7px; font-size: 10.5px; letter-spacing: .5px; color: var(--text-dim); white-space: nowrap; }
+.alumni-mini-dot { width: 3px; height: 3px; flex: 0 0 3px; border-radius: 50%; background: rgba(var(--gold),0.32); }
+.alumni-mini-blood { color: rgba(var(--gold),0.78); font-weight: 700; }
+
+/* reduced motion: no auto-drift, the strip becomes a plain swipeable row */
+@media (prefers-reduced-motion: reduce) {
+  .alumni-ticker { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+}
+@media (max-width:700px) {
+  .alumni-mini { padding: 8px 15px 8px 8px; margin-right: 10px; gap: 9px; }
+  .alumni-mini-avatar { width: 32px; height: 32px; flex-basis: 32px; font-size: 12px; }
+  .alumni-mini-name { font-size: 12.5px; }
+}
 
 /* ============================================================
    PRODUCT / VIDEO CARD accent
@@ -1497,14 +1544,19 @@ section.diag-feather { position: relative; }
       <div class="section-head">
         <div class="section-eyebrow">Network</div>
         <h2 class="section-title">Alumni & Students</h2>
+        <p class="lead">A living directory of NGHSIANS from every batch. Hover or tap the strip to hold it still.</p>
       </div>
-      <div class="card" style="text-align:center;padding:40px 24px">
-        <div style="width:48px;height:48px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(var(--gold),0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+
+      <!-- Slow one-line preview of the network — shuffled on every load, pauses on hover / touch -->
+      <div class="alumni-ticker" id="alumniTicker" aria-hidden="true">
+        <div class="alumni-ticker-track" id="alumniTickerTrack"></div>
+      </div>
+
+      <div class="card" style="text-align:center;padding:32px 24px">
+        <div style="width:48px;height:48px;border-radius:50%;background:var(--gold-dim);border:1px solid rgba(var(--gold),0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,235,128,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <strong style="color:var(--text);font-size:1.05rem">Coming Soon.</strong>
-        <p class="muted" style="margin-top:8px;font-size:0.9rem">We are curating the initial alumni database.</p>
-        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:24px">
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
           <a href="alumnis.html" style="text-decoration:none">
             <span class="magnetic" data-magnetic>
               <button class="btn btn--primary"><span class="btn-inner">Visit Alumni Network</span></button>
@@ -1516,11 +1568,6 @@ section.diag-feather { position: relative; }
             </span>
           </a>
         </div>
-      </div>
-      <div class="alumni-grid" style="display:none;margin-top:14px">
-        <div class="card reveal"><strong>Alumnus — Name</strong><div class="muted" style="margin-top:6px">Short bio & achievements.</div></div>
-        <div class="card reveal"><strong>Student of the Month</strong><div class="muted" style="margin-top:6px">Recognized for achievements.</div></div>
-        <div class="card reveal"><strong>Batch Feature</strong><div class="muted" style="margin-top:6px">Stories & interviews.</div></div>
       </div>
     </section>
 
@@ -1925,6 +1972,144 @@ section.diag-feather { position: relative; }
     });
     wrap.addEventListener('mouseleave', () => { inner.style.transform = 'translate3d(0,0,0)'; });
   });
+
+  /* =====================
+     ALUMNI PREVIEW TICKER
+     A one-line slow marquee of mini alumni cards. The roster is read
+     straight out of alumnis.html so the strip never goes stale, the order
+     is shuffled on every load, and it glides to a halt whenever a pointer
+     or a finger rests on it.
+     ===================== */
+  (function initAlumniTicker() {
+    const ticker = document.getElementById('alumniTicker');
+    const track  = document.getElementById('alumniTickerTrack');
+    if (!ticker || !track) return;
+
+    const SPEED      = 34;   // px per second — a slow, editorial drift
+    const BENGALI_RE = /[\u0980-\u09FF]/;
+    const reduced    = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    // Only used when alumnis.html can't be read (blocked fetch, local file preview…)
+    const FALLBACK = [
+      { name: 'Mohammad Emaz Uddin',     batch: '2016', status: 'Student',            blood: 'B+' },
+      { name: 'Khondaker Manirul Alam',  batch: '2010', status: 'Service Holder',     blood: 'A+' },
+      { name: 'Shirajul Islam',          batch: '2008', status: 'Government Officer', blood: 'B+' },
+      { name: 'Md Ibnul Inan Chowdhury', batch: '2017', status: 'Entrepreneur',       blood: 'O+' },
+      { name: 'Mugdho Dey',              batch: '2022', status: 'Student',            blood: 'B+' },
+      { name: 'Iftekhar Alam',           batch: '2012', status: 'Business',           blood: 'B+' },
+      { name: 'Md Rishad Hossain',       batch: '2019', status: 'Student',            blood: 'A+' },
+      { name: 'Ahsan Jamil',             batch: '2024', status: 'Student',            blood: 'O+' },
+      { name: 'Deen Mohammad Tanjim',    batch: '2020', status: 'Student',            blood: 'A+' },
+      { name: 'সাগরময় সেনগুপ্ত',          batch: '2014', status: 'Employed',           blood: 'B+' }
+    ];
+
+    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    const initials = name => {
+      const p = String(name).trim().split(/\s+/).filter(Boolean);
+      if (!p.length) return 'N';
+      return (p.length === 1 ? p[0].slice(0, 2) : p[0][0] + p[p.length - 1][0]).toUpperCase();
+    };
+    const shuffle = arr => {
+      for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+      return arr;
+    };
+
+    function miniCard(a) {
+      const bits = [];
+      if (a.batch)  bits.push('<span>Batch ' + esc(a.batch) + '</span>');
+      if (a.status) bits.push('<span>' + esc(a.status) + '</span>');
+      if (a.blood)  bits.push('<span class="alumni-mini-blood">' + esc(a.blood) + '</span>');
+      const bangla = BENGALI_RE.test(a.name) ? ' bangla' : '';
+      return '<a class="alumni-mini" href="alumnis.html" tabindex="-1">'
+           +   '<span class="alumni-mini-avatar' + bangla + '">' + esc(initials(a.name)) + '</span>'
+           +   '<span class="alumni-mini-meta">'
+           +     '<span class="alumni-mini-name' + bangla + '">' + esc(a.name) + '</span>'
+           +     '<span class="alumni-mini-sub">' + bits.join('<i class="alumni-mini-dot"></i>') + '</span>'
+           +   '</span>'
+           + '</a>';
+    }
+
+    let period = 0;    // px between the two identical sets — the seamless loop point
+    let offset = 0;    // current translateX
+    let vel    = 0;    // eased speed factor, 0 (held) → 1 (drifting)
+    let goal   = reduced ? 0 : 1;
+    let raf    = null;
+    let inView = false;
+    let last   = 0;
+    let seeded = false; // have we picked this visit's random starting card yet?
+
+    function frame(now) {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      vel += (goal - vel) * Math.min(1, dt * 7);   // glide to a stop, glide back to speed
+      if (goal === 0 && vel < 0.002) { vel = 0; raf = null; return; }   // held still: stop burning frames
+      if (period === 0) measure();                 // layout wasn't ready yet — pick it up on the next pass
+      if (period > 0) {
+        offset -= SPEED * vel * dt;
+        while (offset <= -period) offset += period;
+        track.style.transform = 'translate3d(' + offset.toFixed(2) + 'px,0,0)';
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    function play() {
+      if (raf === null && inView && !document.hidden && !reduced) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    function halt() { if (raf !== null) { cancelAnimationFrame(raf); raf = null; } }
+    function measure() {
+      const sets = track.children;
+      const p = sets.length > 1 ? sets[1].offsetLeft - sets[0].offsetLeft : (sets[0] ? sets[0].offsetWidth : 0);
+      if (p <= 0) return;
+      period = p;
+      // drop the strip in at a random point so no two visits open on the same card
+      if (!seeded) { seeded = true; offset = -Math.random() * period; }
+    }
+
+    function build(list) {
+      const setHtml = shuffle(list.slice()).map(miniCard).join('');
+      if (reduced) {
+        // no auto-drift: one plain row the visitor can swipe through
+        track.innerHTML = '<div class="ticker-set">' + setHtml + '</div>';
+        track.style.transform = 'none';
+        return;
+      }
+      // two identical sets side by side: after travelling exactly one set we slip back
+      track.innerHTML = '<div class="ticker-set">' + setHtml + '</div><div class="ticker-set">' + setHtml + '</div>';
+      measure();
+      track.style.transform = 'translate3d(' + offset.toFixed(2) + 'px,0,0)';
+      play();
+    }
+
+    const hold    = () => { goal = 0; ticker.classList.add('is-paused'); };
+    const release = () => { if (!reduced) goal = 1; ticker.classList.remove('is-paused'); play(); };
+    ['mouseenter', 'pointerenter', 'touchstart', 'focusin'].forEach(ev => ticker.addEventListener(ev, hold, { passive: true }));
+    ['mouseleave', 'pointerleave', 'touchend', 'touchcancel', 'focusout'].forEach(ev => ticker.addEventListener(ev, release, { passive: true }));
+    document.addEventListener('visibilitychange', () => { if (document.hidden) halt(); else play(); });
+    window.addEventListener('resize', measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(() => {});
+
+    // only spend frames while the strip is actually on screen
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        entries.forEach(e => { inView = e.isIntersecting; if (inView) play(); else halt(); });
+      }, { rootMargin: '150px' }).observe(ticker);
+    } else {
+      inView = true; play();
+    }
+
+    fetch('alumnis.html')
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(html => {
+        const doc  = new DOMParser().parseFromString(html, 'text/html');
+        const list = Array.from(doc.querySelectorAll('#alumniGrid .alumni-card')).map(c => ({
+          name:   (c.getAttribute('data-name')   || '').trim(),
+          batch:  (c.getAttribute('data-batch')  || '').trim(),
+          status: (c.getAttribute('data-status') || '').trim(),
+          blood:  (c.getAttribute('data-blood')  || '').trim()
+        })).filter(a => a.name);
+        build(list.length ? list : FALLBACK);
+      })
+      .catch(() => build(FALLBACK));
+  })();
 
 })();
 </script>
