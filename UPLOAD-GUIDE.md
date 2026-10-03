@@ -37,3 +37,52 @@ The images were created using the built-in image-generation tool, referencing th
 Checked in Chromium at desktop and phone sizes: all six details, close-ups, winter switching, rotation, keyboard controls, mouse/touch dragging, mobile navigation, and the image-only poster area. No horizontal overflow at widths from 320 to 1920 pixels. Results search and Escape closing work, and all 242 original records remain unchanged. Both inner pages use the homepage footer and navigation; homepage section links return to `index.html`.
 
 Existing authentication and external services were preserved; no live account operations were performed.
+
+## ⏳ Temporary: NGHS 60th Sign Day pass (batch 2027)
+
+Two files carry this one-off feature, and nothing else does:
+
+- `supabase-schema.sql` — sections **10 to 14**, fenced by `TEMP-SIGNDAY-60 · START / END` banners.
+- `account.html` — the CSS, HTML and JS regions tagged `TEMP-SIGNDAY-60`, plus five one-line hooks
+  inside the existing code (each tagged on the line above it).
+
+Upload both, then run the whole SQL file in **Supabase → SQL Editor**. It is idempotent: it only
+adds what is missing and deletes nothing.
+
+What it does:
+
+- New role value **`27`** in `verified_profiles.role`. That is the only thing you type by hand.
+  A trigger rejects it for any row whose `batch_year` is not `2027`, so the tag cannot leak to
+  another batch — and if a 2027 student edits their own batch away from 2027, the tag is removed
+  silently.
+- Every **new** 2027 registration is given role `27` automatically, and section 12 backfills every
+  2027 student already in the table.
+- `signday_status` moves `unconfirmed → submitted → issued`. `submitted` is written by the student
+  pressing **Register** on their own card (their account email lands in `signday_email`); a student
+  cannot mark themselves `issued` — the trigger refuses that write. Only you, from the Table editor
+  (or with the statements in section 13), issue passes.
+- `signday_pass_code` is a ticket serial derived from the row id (`SD60-27-XXXX-XXXX`), written by
+  the trigger and used to draw the barcode on the card. No manual work.
+
+In the account page a `27` member sees: the blue **NGHS 60th Sign Day** tag beside their name (card,
+network list and member detail modal), an **UNCONFIRMED / PENDING ISSUE / PASS ACTIVE** chip, the
+"Register For NGHS 60th Sign Day" notice above their profile, and their ID card rebuilt as a
+perforated digital pass — gold emblem in the style of the 60th Sign Day logo, punched side notches,
+banknote watermark of the current status, serial and barcode on the stub. When you issue the pass the
+card goes "live" (foil sweep) and they get a one-time blue confetti celebration on next sign-in.
+`SIGNDAY.dateText` near the top of the JS block is a one-line place to put the real event date.
+
+Checked with a local PostgreSQL 18 running the real schema file (auto-issue, the batch guard,
+self-issue refusal, tag withdrawal, re-runs, and the section-14 rollback), and by driving the real
+`account.html` in jsdom for all three states plus the existing flows (themes, verification modal,
+details gate, private accounts, signup, follow, edit/save).
+
+### Removing it after the event
+
+1. In `account.html`, delete the `TEMP-SIGNDAY-60` CSS / HTML / JS regions and the five tagged hook
+   lines, then delete the `.profile-col` wrapper around `#profile-card`.
+2. In Supabase, uncomment and run section **14** of `supabase-schema.sql`: it drops the trigger,
+   the two indexes, the check constraint and the five `signday_*` columns, and returns every
+   `27` member to `member`.
+
+No other page, table or script depends on any of it.
