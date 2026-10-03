@@ -1,6 +1,6 @@
 /* ============================================================================
    NGHSIANS — SUPABASE SCHEMA  (idempotent / safe to re-run)
-   Updated: 2026-10-03  ·  v4: one statement per line, no DO blocks
+   Updated: 2026-10-03  ·  v5: accepts role '27' without losing the batch guard
 
    WHY EVERY STATEMENT IS ON ITS OWN LINE
      Supabase's "Potential issues detected" dialog ("Run and enable RLS") rewrites
@@ -15,11 +15,11 @@
      need Supabase to add anything.
 
    WHAT'S IN THIS VERSION
-     • ⏳ TEMP SIGNDAY-60 (sections 10-14) — the NGHS 60th Sign Day pass for batch
-       2027: role value '27', five signday_* columns, a trigger that auto-issues
-       the tag to 2027 registrants and refuses it for any other batch, the admin
-       commands, and a one-pass rollback. Sections 10-14 are also the ONLY part
-       you need if sections 0-9 have already been run on this project.
+     • ⏳ TEMP SIGNDAY-60 (sections 8-12) — the NGHS 60th Sign Day pass for batch
+       2027: role value '27', five signday_* columns, an expanded role check, a
+       trigger that auto-issues the tag to 2027 registrants and refuses it for
+       any other batch, admin commands, and a one-pass rollback. Sections 8-12
+       are also the ONLY part you need if sections 0-7 already ran.
      • verified_profiles.whatsapp_number / instagram_username — the required
        WhatsApp + Instagram fields on account.html (signup, profile gate, Edit).
 
@@ -141,7 +141,10 @@ create trigger on_follow_change after insert or delete on public.user_relationsh
    ############################################################################ */
 
 
-/* ── 8. TEMP-SIGNDAY-60 — columns ──────────────────────────────────────────── */
+/* ── 8. TEMP-SIGNDAY-60 — columns + role check ──────────────────────────────── */
+/* Replace the older role check that rejects '27'; keep the site's four normal roles. */
+alter table public.verified_profiles drop constraint if exists verified_profiles_role_check;
+alter table public.verified_profiles add constraint verified_profiles_role_check check (role in ('member', 'elite', 'alumni', 'architect', '27') and (role <> '27' or lower(trim(coalesce(batch_year, ''))) = '2027'));
 alter table public.verified_profiles add column if not exists signday_status text not null default 'unconfirmed';
 alter table public.verified_profiles add column if not exists signday_email text;
 alter table public.verified_profiles add column if not exists signday_pass_code text;
@@ -265,11 +268,14 @@ update public.verified_profiles set role = '27' where lower(trim(coalesce(batch_
 
 
 /* ── 12. TEMP-SIGNDAY-60 — ROLLBACK / REMOVE THIS WHOLE FEATURE ────────────────
-      Uncomment all of it and run once. It drops only what sections 8-10 added;
-      verified_profiles and every normal column stay untouched. Then delete the
-      TEMP-SIGNDAY-60 regions from account.html.
+      Uncomment all of it and run once. It returns role validation to the four
+      normal roles, removes the Sign Day columns/trigger/indexes, and leaves all
+      profile data and ordinary columns untouched. Then delete the TEMP-SIGNDAY-60
+      regions from account.html.
 
    update public.verified_profiles set role = 'member' where role = '27';
+   alter table public.verified_profiles drop constraint if exists verified_profiles_role_check;
+   alter table public.verified_profiles add constraint verified_profiles_role_check check (role in ('member', 'elite', 'alumni', 'architect'));
    drop trigger if exists signday_guard on public.verified_profiles;
    drop function if exists public.signday_guard();
    drop index if exists public.verified_profiles_signday_pass_code_key;

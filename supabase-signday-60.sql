@@ -1,5 +1,5 @@
 /* ============================================================================
-   NGHSIANS — 60th SIGN DAY PASS  (batch 2027)   ·  v4  ·  idempotent
+   NGHSIANS — 60th SIGN DAY PASS  (batch 2027)   ·  v5  ·  idempotent
 
    ⏳  TEMPORARY FEATURE  ·  MARKER: TEMP-SIGNDAY-60  (sections S1-S5)
    The Sign Day half of supabase-schema.sql, split out so it can be run on its
@@ -46,7 +46,10 @@
    ############################################################################ */
 
 
-/* ── S1. TEMP-SIGNDAY-60 — columns ──────────────────────────────────────────── */
+/* ── S1. TEMP-SIGNDAY-60 — columns + role check ─────────────────────────────── */
+/* Replace the older role check that rejects '27'; keep the site's four normal roles. */
+alter table public.verified_profiles drop constraint if exists verified_profiles_role_check;
+alter table public.verified_profiles add constraint verified_profiles_role_check check (role in ('member', 'elite', 'alumni', 'architect', '27') and (role <> '27' or lower(trim(coalesce(batch_year, ''))) = '2027'));
 alter table public.verified_profiles add column if not exists signday_status text not null default 'unconfirmed';
 alter table public.verified_profiles add column if not exists signday_email text;
 alter table public.verified_profiles add column if not exists signday_pass_code text;
@@ -170,11 +173,14 @@ update public.verified_profiles set role = '27' where lower(trim(coalesce(batch_
 
 
 /* ── S5. TEMP-SIGNDAY-60 — ROLLBACK / REMOVE THIS WHOLE FEATURE ────────────────
-      Uncomment all of it and run once. It drops only what sections S1-S3 added;
-      verified_profiles and every normal column stay untouched. Then delete the
-      TEMP-SIGNDAY-60 regions from account.html.
+      Uncomment all of it and run once. It returns role validation to the four
+      normal roles, removes the Sign Day columns/trigger/indexes, and leaves all
+      profile data and ordinary columns untouched. Then delete the TEMP-SIGNDAY-60
+      regions from account.html.
 
    update public.verified_profiles set role = 'member' where role = '27';
+   alter table public.verified_profiles drop constraint if exists verified_profiles_role_check;
+   alter table public.verified_profiles add constraint verified_profiles_role_check check (role in ('member', 'elite', 'alumni', 'architect'));
    drop trigger if exists signday_guard on public.verified_profiles;
    drop function if exists public.signday_guard();
    drop index if exists public.verified_profiles_signday_pass_code_key;

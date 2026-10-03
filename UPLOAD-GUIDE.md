@@ -73,12 +73,21 @@ up mid-block cannot leave a bare `if … then` for Postgres to choke on (that wa
 `42601: syntax error at or near "if"` failure). If an editor ever cuts a paste again, run one
 numbered section at a time and paste each whole function in a single go.
 
+### If you see `23514: violates check constraint "verified_profiles_role_check"`
+
+That means the live database had a pre-existing role check which allowed the site's normal roles but
+rejected `27`. The v5 standalone SQL now replaces that check with one that permits `27` only when
+`batch_year = '2027'` (and keeps `member`, `elite`, `alumni`, and `architect`). The failed backfill
+statement did not complete; re-run the updated whole `supabase-signday-60.sql` file in **SQL Editor →
+New query**. The migration is safe to re-run.
+
 What it does:
 
 - New role value **`27`** in `verified_profiles.role`. That is the only thing you type by hand.
-  A trigger rejects it for any row whose `batch_year` is not `2027`, so the tag cannot leak to
-  another batch — and if a 2027 student edits their own batch away from 2027, the tag is removed
-  silently.
+  Version 5 also replaces the existing `verified_profiles_role_check` constraint that rejected `27`;
+  the new check accepts `27` only with `batch_year = '2027'`, alongside the four normal roles
+  (`member`, `elite`, `alumni`, `architect`). The trigger independently rejects `27` on any other
+  batch, and if a 2027 student edits their own batch away from 2027, the tag is removed silently.
 - Every **new** 2027 registration is given role `27` automatically, and section 10 backfills every
   2027 student already in the table.
 - `signday_status` moves `unconfirmed → submitted → issued`. `submitted` is written by the student
@@ -97,18 +106,34 @@ card goes "live" (foil sweep) and they get a one-time blue confetti celebration 
 `SIGNDAY.dateText` near the top of the JS block is a one-line place to put the real event date.
 
 Checked with a local PostgreSQL 18 running both real files: fresh install, install on top of the previous
-schema, re-runs, every rewrite Supabase's editor can apply to a paste (RLS injection, comment
-stripping, one-line joining), auto-issue, the batch guard, self-issue refusal, tag withdrawal, and the
-section-12 rollback — 51 checks in all. The front end was checked by driving the real `account.html`
-in jsdom for all three states plus the existing flows (themes, verification modal, details gate,
-private accounts, signup, follow, edit/save).
+schema and its legacy role check, re-runs, every rewrite Supabase's editor can apply to a paste (RLS
+injection, comment stripping, one-line joining), auto-issue, the batch guard, self-issue refusal, tag
+withdrawal, and the section-12 rollback — 52 SQL checks passed. The front end was checked by driving
+the real `account.html` in jsdom for all three states plus the existing flows (themes, verification
+modal, details gate, private accounts, signup, follow, edit/save).
+
+### Verify the SQL ran
+
+In **Supabase Dashboard → SQL Editor → New query** (not the Table Editor), paste this read-only
+query and click **Run**:
+
+```sql
+select count(*) filter (where role = '27') as tagged,
+       count(*) filter (where role = '27' and signday_status = 'submitted') as waiting
+  from public.verified_profiles;
+```
+
+`tagged` is the number of batch-2027 profiles carrying the Sign Day tag; `waiting` is how many of
+them pressed **Register** and are awaiting pass issue. The first number should match the batch-2027
+headcount.
 
 ### Removing it after the event
 
-1. In `account.html`, delete the `TEMP-SIGNDAY-60` CSS / HTML / JS regions and the five tagged hook
+1. In `account.html`, delete the `TEMP-SIGNDAY-60` CSS / HTML / JS regions and the six tagged hook
    lines, then delete the `.profile-col` wrapper around `#profile-card`.
-2. In Supabase, uncomment and run section **12** of `supabase-schema.sql` (or section **S5** of `supabase-signday-60.sql`): it drops the trigger,
-   the two indexes, the check constraint and the five `signday_*` columns, and returns every
+2. In Supabase, uncomment and run section **12** of `supabase-schema.sql` (or section **S5** of
+   `supabase-signday-60.sql`): it drops the trigger and two indexes, removes the Sign Day status
+   constraint and five `signday_*` columns, restores the normal four-role check, and returns every
    `27` member to `member`.
 
 No other page, table or script depends on any of it.
