@@ -6,9 +6,7 @@
 <title>NGHSIANS — Account</title>
 <link rel="icon" href="favLogo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
   /* Password-recovery links belong to reset.html. This runs BEFORE supabase-js
      touches the URL — the SDK strips the recovery tokens from the address bar,
@@ -27,7 +25,6 @@
   })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
 <style>
 /* ============================================================
    DESIGN SYSTEM — matches index.html redesign
@@ -50,7 +47,6 @@
   --font-body:    "DM Sans", system-ui, sans-serif;
   --r:            12px;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 html, body {
@@ -58,14 +54,12 @@ html, body {
   font-family: var(--font-body); -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
-
 /* Noise texture */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.04'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   opacity: 0.5; mix-blend-mode: overlay;
 }
-
 /* Ambient radial glows */
 body::after {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -73,10 +67,8 @@ body::after {
     radial-gradient(ellipse at 20% 10%, rgba(139,14,6,0.08) 0%, transparent 55%),
     radial-gradient(ellipse at 80% 90%, rgba(255,235,128,0.04) 0%, transparent 50%);
 }
-
 /* Safety for confetti canvas */
 canvas { pointer-events: none !important; }
-
 /* ---- BACK LINK ---- */
 .back-link {
   position: fixed; top: 20px; left: 20px; z-index: 100;
@@ -88,7 +80,6 @@ canvas { pointer-events: none !important; }
 }
 .back-link:hover { color: var(--text); border-color: var(--border-hi); background: rgba(255,255,255,0.07); }
 .back-link svg { flex-shrink: 0; }
-
 /* ---- PAGE WRAPPER ---- */
 .page {
   min-height: 100vh; display: flex; flex-direction: column;
@@ -100,7 +91,6 @@ canvas { pointer-events: none !important; }
 @media (max-width: 860px) {
   .page { justify-content: flex-start; padding-top: 72px; }
 }
-
 /* ============================================================
    AUTH CARDS (Login / Signup / Forgot / Update-Password)
    ============================================================ */
@@ -121,7 +111,6 @@ canvas { pointer-events: none !important; }
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.6) 50%, transparent 100%);
 }
-
 .auth-logo {
   width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
   margin: 0 auto 20px;
@@ -129,13 +118,11 @@ canvas { pointer-events: none !important; }
   box-shadow: 0 0 24px rgba(var(--gold),0.08), 0 8px 24px rgba(0,0,0,0.4);
 }
 .auth-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
-
 .auth-title {
   font-family: var(--font-display); font-size: clamp(1.5rem, 5vw, 1.9rem);
   font-weight: 900; color: var(--text); line-height: 1.15; margin-bottom: 6px;
 }
 .auth-sub { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 28px; line-height: 1.5; }
-
 /* ---- FORM ELEMENTS ---- */
 .input-group { margin-bottom: 16px; text-align: left; position: relative; }
 label {
@@ -155,7 +142,6 @@ label {
 }
 .input-box::placeholder { color: rgba(138,144,153,0.45); }
 input[type="password"], input[type="text"].password-visible { padding-right: 44px; }
-
 .toggle-pass {
   position: absolute; right: 12px; top: 36px;
   background: none; border: none; color: var(--text-dim);
@@ -163,14 +149,12 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   padding: 4px; z-index: 5; transition: color 0.15s;
 }
 .toggle-pass:hover { color: var(--text); }
-
 .checkbox-wrap {
   display: flex; align-items: center; gap: 10px;
   margin-top: -8px; margin-bottom: 16px; cursor: pointer;
 }
 .checkbox-wrap input { cursor: pointer; accent-color: rgba(var(--gold),1); width: 15px; height: 15px; }
 .checkbox-wrap span { color: var(--text-dim); font-size: 0.83rem; }
-
 .forgot-link {
   text-align: right; margin-bottom: 20px; margin-top: -8px;
 }
@@ -181,7 +165,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   padding: 0; transition: color 0.15s;
 }
 .forgot-link button:hover { color: rgba(var(--gold),0.9); }
-
 .btn-action {
   width: 100%; padding: 13px; border-radius: 9px; border: none;
   font-family: var(--font-body); font-weight: 700; font-size: 14px;
@@ -196,7 +179,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   transform: translateY(-1px); box-shadow: 0 8px 24px rgba(139,14,6,0.25);
 }
 .btn-action:active { transform: translateY(0); }
-
 .switch-link {
   background: none; border: none; color: var(--text-dim);
   margin-top: 18px; cursor: pointer; font-family: var(--font-body);
@@ -204,7 +186,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   display: inline-block; transition: color 0.15s;
 }
 .switch-link:hover { color: rgba(var(--gold),0.9); }
-
 /* Error / Success messages */
 .error-msg {
   color: #ff6b6b; font-size: 0.83rem; background: rgba(255,107,107,0.1);
@@ -216,7 +197,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   border: 1px solid rgba(var(--gold),0.2); padding: 10px 14px;
   border-radius: 8px; margin-bottom: 14px; display: none; text-align: left;
 }
-
 /* ============================================================
    DASHBOARD LAYOUT
    ============================================================ */
@@ -227,7 +207,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 @media (min-width: 860px) {
   .dashboard-grid { grid-template-columns: 340px 1fr; gap: 24px; }
 }
-
 /* ============================================================
    ID / PROFILE CARD
    ============================================================ */
@@ -245,7 +224,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.5) 50%, transparent 100%);
 }
-
 /* Architect theme */
 .id-card.architect-theme {
   border-color: rgba(var(--gold),0.35);
@@ -255,7 +233,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .id-card.architect-theme::before {
   background: linear-gradient(90deg, transparent 0%, rgba(var(--gold),0.8) 50%, transparent 100%);
 }
-
 /* Alumni theme */
 .id-card.alumni-theme {
   border-color: rgba(255,255,255,0.14);
@@ -265,7 +242,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .id-card.alumni-theme::before {
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%);
 }
-
 /* Card header row */
 .card-header-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -280,7 +256,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.3);
   letter-spacing: 2px; text-transform: uppercase;
 }
-
 /* Avatar */
 .avatar-large {
   width: 80px; height: 80px; border-radius: 50%;
@@ -301,7 +276,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   transition: opacity 0.3s, transform 0.3s;
 }
 .is-verified .verified-icon-overlay { opacity: 1; transform: scale(1); }
-
 /* Name & role */
 #display-name {
   color: var(--text); font-family: var(--font-display);
@@ -311,7 +285,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   color: var(--red); font-weight: 700; font-size: 0.78rem;
   margin-top: 5px; letter-spacing: 0.5px; text-transform: uppercase;
 }
-
 /* Follower count */
 .follower-pill {
   display: inline-flex; align-items: center; gap: 6px;
@@ -320,7 +293,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   font-size: 0.82rem; color: rgba(var(--gold),0.9); font-weight: 600;
 }
 .follower-pill svg { opacity: 0.7; }
-
 /* Data rows */
 .data-table { margin-top: 22px; text-align: left; }
 .data-row {
@@ -335,7 +307,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   color: var(--text); font-family: var(--font-body); font-size: 0.88rem; font-weight: 600;
   text-align: right; width: 140px; padding: 2px 0; outline: none;
 }
-
 /* Action buttons row */
 .card-actions {
   display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
@@ -362,7 +333,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   display: inline-block; transition: color 0.15s;
 }
 .btn-cancel:hover { color: var(--text); }
-
 .signout-link {
   background: none; border: none; color: var(--text-dim);
   margin-top: 14px; font-size: 12px; cursor: pointer;
@@ -371,7 +341,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   transition: color 0.15s;
 }
 .signout-link:hover { color: #ff6b6b; }
-
 /* ============================================================
    NETWORK CARD
    ============================================================ */
@@ -394,7 +363,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 @media (max-width: 860px) {
   .network-card { height: 480px; }
 }
-
 .network-header {
   display: flex; justify-content: space-between; align-items: center;
   padding-bottom: 14px; border-bottom: 1px solid var(--border);
@@ -405,7 +373,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   color: var(--text); display: flex; align-items: center; gap: 8px;
 }
 .network-title svg { color: rgba(var(--gold),0.8); flex-shrink: 0; }
-
 /* Search */
 .search-wrap { position: relative; margin-bottom: 12px; flex-shrink: 0; }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); pointer-events: none; }
@@ -417,7 +384,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .search-input:focus { outline: none; border-color: rgba(var(--gold),0.5); }
 .search-input::placeholder { color: rgba(138,144,153,0.5); }
-
 /* User list */
 .user-list {
   flex: 1; overflow-y: auto; padding-right: 4px;
@@ -426,7 +392,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .user-list::-webkit-scrollbar { width: 3px; }
 .user-list::-webkit-scrollbar-track { background: transparent; }
 .user-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-
 .user-item {
   display: flex; align-items: center; gap: 12px;
   padding: 11px 12px; border-radius: 10px;
@@ -445,7 +410,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   flex-shrink: 0; color: var(--text-dim); opacity: 0.35;
   transform: translateX(-3px); transition: opacity 0.18s, transform 0.18s;
 }
-
 /* ============================================================
    MEMBER DETAIL MODAL (click a member in the network list)
    ============================================================ */
@@ -462,7 +426,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   color: var(--text-dim); cursor: pointer; transition: color 0.15s, background 0.15s;
 }
 .member-close:hover { color: var(--text); background: rgba(255,255,255,0.1); }
-
 .member-head { text-align: center; margin-bottom: 20px; }
 .member-head .member-avatar {
   width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 14px;
@@ -486,16 +449,13 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .member-tier .tier-elite-txt    { color: rgba(var(--gold),1); }
 .member-tier .tier-alumni-txt   { color: var(--text); }
 .member-tier .tier-member-txt   { color: var(--text-dim); }
-
 .member-table { margin-bottom: 6px; }
 .member-table .data-val { max-width: 62%; word-break: break-word; }
 .member-table .data-lbl { flex-shrink: 0; margin-right: 12px; }
 .member-empty { color: var(--text-dim); font-style: italic; font-weight: 500; }
-
 .member-actions { display: flex; gap: 10px; margin-top: 20px; }
 .member-actions .btn-follow { flex: 1; padding: 11px; font-size: 13px; border-radius: 8px; }
 .member-loading { text-align: center; color: var(--text-dim); font-size: 0.85rem; padding: 10px 0 2px; }
-
 .u-avatar {
   width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
   background: rgba(0,0,0,0.4); border: 1px solid var(--border-hi);
@@ -513,7 +473,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   font-size: 0.72rem; color: rgba(var(--gold),0.75); font-weight: 600;
   margin-top: 3px; display: flex; align-items: center; gap: 5px;
 }
-
 /* Badges */
 .u-badge {
   font-size: 8px; font-weight: 900; padding: 2px 5px; border-radius: 3px;
@@ -522,7 +481,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .u-badge.architect { color: #000; background: rgba(var(--gold),1); }
 .u-badge.verified { color: rgba(var(--gold),1); background: rgba(var(--gold),0.12); border: 1px solid rgba(var(--gold),0.3); }
 .u-badge.alumni { color: #fff; background: rgba(139,14,6,0.5); border: 1px solid rgba(139,14,6,0.7); }
-
 .btn-follow {
   padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-hi);
   font-family: var(--font-body); font-weight: 700; font-size: 11px;
@@ -536,7 +494,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   background: transparent; border-color: rgba(var(--gold),0.35);
   color: rgba(var(--gold),1);
 }
-
 /* ============================================================
    VERIFIED / CELEBRATION MODAL
    ============================================================ */
@@ -548,7 +505,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   padding: 16px;
 }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
-
 .modal-box {
   background: var(--panel); border: 1px solid rgba(var(--gold),0.25);
   width: 100%; max-width: 380px; padding: clamp(28px, 6vw, 44px) clamp(20px, 5vw, 36px);
@@ -562,20 +518,17 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   background: linear-gradient(90deg, transparent, rgba(var(--gold),0.7), transparent);
 }
 .modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
-
 .modal-icon {
   width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 18px;
   background: var(--gold-dim); border: 1px solid rgba(var(--gold),0.2);
   display: flex; align-items: center; justify-content: center;
 }
 .modal-icon svg { width: 28px; height: 28px; stroke: rgba(var(--gold),0.9); }
-
 .modal-title {
   font-family: var(--font-display); font-size: 1.6rem; font-weight: 900;
   color: var(--text); margin-bottom: 10px; line-height: 1.2;
 }
 #modal-msg { color: var(--text-dim); line-height: 1.65; margin-bottom: 24px; font-size: 0.92rem; }
-
 /* ============================================================
    CONTACT LINKS (WhatsApp / Instagram)
    ============================================================ */
@@ -586,7 +539,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .contact-link:hover { color: rgba(var(--gold),1); border-bottom-color: rgba(var(--gold),0.8); }
 .contact-link.is-empty { color: var(--text-dim); border-bottom-color: transparent; pointer-events: none; }
-
 .network-contacts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; }
 .network-contacts a {
   display: inline-flex; align-items: center; gap: 4px;
@@ -595,7 +547,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .network-contacts a:hover { color: rgba(var(--gold),0.95); }
 .network-contacts a svg { flex-shrink: 0; opacity: 0.85; }
-
 /* ============================================================
    REQUIRED DETAILS GATE (WhatsApp + Instagram)
    ============================================================ */
@@ -628,7 +579,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   text-underline-offset: 2px; padding: 0;
 }
 .details-foot button:hover { color: #ff6b6b; }
-
 /* ============================================================
    TOAST
    ============================================================ */
@@ -643,12 +593,10 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 #toast.err { border-color: rgba(255,107,107,0.5); color: #ff9b9b; }
-
 /* ============================================================
    UTILITY
    ============================================================ */
 .hidden { display: none !important; }
-
 /* ============================================================================
    ⏳ TEMP-SIGNDAY-60 · CSS START — NGHS 60th Sign Day pass (batch 2027)
    ----------------------------------------------------------------------------
@@ -664,10 +612,8 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   --sd-foil: linear-gradient(135deg,#fff6cf 0%,#ffe08a 26%,#e2ab35 52%,#fff3b4 74%,#cf9526 100%);
   --sd-pad:  clamp(18px, 4vw, 26px);
 }
-
 /* column that stacks the notice above the pass card */
 .profile-col { display: flex; flex-direction: column; min-width: 0; }
-
 /* ---------- the blue event tag + the status chip (card · list · modal) ---- */
 .sd-tag, .sd-status {
   display: inline-flex; align-items: center; gap: 5px;
@@ -695,10 +641,8 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .u-badge.signday, .u-badge.sd-status { font-size: 8px; padding: 2px 5px; border-radius: 3px; letter-spacing: .8px; gap: 4px; }
 /* the big one on the card reuses the .u-badge colours but the .sd-tag size */
 .u-badge.sd-status.sd-lg { font-size: 9px; padding: 4px 9px; border-radius: 5px; letter-spacing: 1px; }
-
-#signday-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 11px; }
+#signday-tags, #sd-member-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 11px; }
 .sd-inline { vertical-align: middle; }
-
 /* ---------- notice at the top of the profile ------------------------------ */
 .sd-notice {
   position: relative; overflow: hidden; text-align: left;
@@ -755,10 +699,9 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .sd-notice[data-state="issued"]::before { background: repeating-linear-gradient(90deg, rgba(var(--gold),.85) 0 8px, transparent 8px 16px); }
 .sd-notice[data-state="issued"] .sd-notice-ico { color: #0b0a05; background: var(--sd-foil); }
-
 /* ---------- the pass itself (the profile card in ticket shape) ------------ */
 .id-card.signday-pass {
-  --sd-perf: 116px;         /* stub height = the line the ticket is torn on    */
+  --sd-perf: 96px;          /* shorter stub: serial + barcode, no event logistics */
   --sd-notch: 13px;         /* radius of the two punched holes                 */
   padding: var(--sd-pad);
   /* no border: the punched holes would leave the edge line running through them */
@@ -774,7 +717,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   position: absolute; z-index: 2; pointer-events: none;
   width: var(--sd-notch, 13px); height: calc(var(--sd-notch, 13px) * 2);
   /* centred on the stub's dashed line, which is exactly --sd-perf above the card's inner edge */
-  bottom: calc(var(--sd-perf, 116px) - var(--sd-notch, 13px));
+  bottom: calc(var(--sd-perf, 96px) - var(--sd-notch, 13px));
   background: var(--bg); box-shadow: 0 0 12px rgba(0,0,0,.45);
 }
 .sd-notch.left  { left:  calc(-1 * var(--sd-pad)); border-radius: 0 var(--sd-notch, 13px) var(--sd-notch, 13px) 0; }
@@ -789,17 +732,26 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .id-card.signday-pass .data-row { border-bottom-color: rgba(var(--sd-blue),.12); }
 .id-card.signday-pass .follower-pill { background: rgba(var(--sd-blue),.1); border-color: rgba(var(--sd-blue),.22); color: rgba(var(--sd-blue),.95); }
 .id-card.signday-pass .btn-edit { border-color: rgba(var(--sd-blue),.28); }
-
+/* the network's member-detail view reuses the same ticket frame and status styles */
+.sd-member-ticket { margin-bottom: 18px; }
+.sd-member-batch {
+  color: rgba(var(--sd-blue),1); font-weight: 700; font-size: .78rem;
+  margin-top: 5px; letter-spacing: .5px; text-transform: uppercase;
+}
+.member-box.sd-member-pass { border-color: rgba(var(--sd-blue),.28); }
+.member-box.sd-member-pass::before {
+  background: linear-gradient(90deg, transparent, rgba(var(--sd-blue),.7), rgba(var(--gold),.45), transparent);
+}
+.member-box.sd-member-pass .member-actions { margin-top: 14px; }
 /* banknote-style watermark, sits behind the card content */
 .sd-watermark {
   position: absolute; inset: 0; z-index: -1; display: grid; place-items: center; pointer-events: none;
   font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
   font-size: clamp(2.1rem, 12vw, 3.4rem); letter-spacing: 5px; line-height: 1;
   transform: rotate(-16deg); color: rgba(255,255,255,.045);
-  padding-bottom: var(--sd-perf, 116px); overflow: hidden; white-space: nowrap;
+  padding-bottom: var(--sd-perf, 96px); overflow: hidden; white-space: nowrap;
 }
 .sd-watermark.issued { color: rgba(var(--sd-blue),.085); text-shadow: 0 0 34px rgba(var(--sd-blue),.1); }
-
 /* ticket head band */
 .sd-band {
   position: relative; text-align: left; overflow: hidden;   /* clips the foil sweep */
@@ -827,10 +779,9 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   border: 1px solid rgba(var(--gold),.32); box-shadow: inset 0 0 16px rgba(var(--gold),.1);
 }
 .sd-band-seal sup { font-size: .42em; font-family: var(--font-body); }
-
 /* the punched-out stub */
 .sd-stub {
-  position: relative; box-sizing: border-box; height: var(--sd-perf, 116px);
+  position: relative; box-sizing: border-box; height: var(--sd-perf, 96px);
   margin: 12px calc(-1 * var(--sd-pad)) calc(-1 * var(--sd-pad));
   padding: 11px var(--sd-pad) 12px; text-align: left;
   display: flex; flex-direction: column; justify-content: space-between;
@@ -849,12 +800,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .sd-bars { display: block; width: 100%; height: 26px; color: rgba(255,255,255,.78); }
-.sd-stub-foot {
-  display: flex; justify-content: space-between; gap: 10px;
-  font-size: 7.5px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-  color: rgba(255,255,255,.34); white-space: nowrap; overflow: hidden;
-}
-
 /* issued = live ticket: slow foil sweep across the band */
 .id-card.signday-pass.sd-live .sd-band::before {
   content: ""; position: absolute; top: 0; bottom: 0; left: -45%; width: 45%; pointer-events: none;
@@ -862,7 +807,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   animation: sd-sweep 4.8s ease-in-out 1s infinite;
 }
 @keyframes sd-sweep { 0% { left: -45%; } 58%, 100% { left: 125%; } }
-
 /* ---------- other members: list row + detail modal ------------------------ */
 .user-item.signday-row {
   background: linear-gradient(100deg, rgba(var(--sd-blue),.09), rgba(255,255,255,.025) 58%);
@@ -875,9 +819,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .u-followers { flex-wrap: wrap; margin-top: 4px; }
 .u-badge.signday, .u-badge.sd-status { margin-top: 1px; }
-.member-head.tier-signday .member-avatar { border-color: rgba(var(--sd-blue),.55); box-shadow: 0 0 30px rgba(var(--sd-blue),.18); }
-.member-tier .tier-signday-txt { color: rgba(var(--sd-blue),1); }
-
 /* ---------- signup form hint --------------------------------------------- */
 .sd-signup-hint {
   display: none; margin: -6px 0 16px; padding: 9px 12px; border-radius: 9px; text-align: left;
@@ -886,9 +827,8 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .sd-signup-hint.show { display: flex; gap: 9px; align-items: flex-start; }
 .sd-signup-hint svg { flex-shrink: 0; margin-top: 2px; }
-
 @media (max-width: 860px) {
-  .id-card.signday-pass { --sd-perf: 108px; }
+  .id-card.signday-pass { --sd-perf: 96px; }
   .sd-band-brand { font-size: .88rem; }
   .sd-mark, .sd-band-seal { width: 38px; height: 38px; }
   .sd-band-seal { font-size: 1.15rem; }
@@ -903,15 +843,12 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 </style>
 </head>
 <body>
-
 <!-- Back to Home -->
 <a href="index.html" class="back-link">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
   Back
 </a>
-
 <div class="page">
-
   <!-- ===== LOGIN VIEW ===== -->
   <div id="login-view" class="auth-card">
     <div class="auth-logo"><img src="logo.png" alt="NGHSIANS Logo" onerror="this.style.opacity=0"></div>
@@ -937,7 +874,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </form>
     <button onclick="switchView('signup')" class="switch-link">Create Account</button>
   </div>
-
   <!-- ===== SIGNUP VIEW ===== -->
   <div id="signup-view" class="auth-card hidden">
     <h1 class="auth-title">Join NGHSIANS</h1>
@@ -966,7 +902,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <p id="sd-signup-hint" class="sd-signup-hint" role="status">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z"/><path d="M13 5v14"/></svg>
         <span><strong>Batch 2027.</strong> You will get the NGHS 60th Sign Day pass on your
-        profile as soon as you register — tap <em>Register</em> there to hand over your email.</span>
+        profile as soon as you register — tap <em>Register</em> there to share your email with the committee.</span>
       </p>
       <!-- ⏳ /TEMP-SIGNDAY-60 -->
       <div class="input-group">
@@ -992,7 +928,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </form>
     <button onclick="switchView('login')" class="switch-link">Back to Login</button>
   </div>
-
   <!-- ===== FORGOT PASSWORD VIEW ===== -->
   <div id="forgot-view" class="auth-card hidden">
     <h1 class="auth-title">Reset Password</h1>
@@ -1008,7 +943,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </form>
     <button onclick="switchView('login')" class="switch-link">Back to Login</button>
   </div>
-
   <!-- ===== UPDATE PASSWORD VIEW ===== -->
   <div id="update-password-view" class="auth-card hidden">
     <h1 class="auth-title">New Password</h1>
@@ -1025,15 +959,12 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <button type="submit" id="update-pass-btn" class="btn-action">UPDATE PASSWORD</button>
     </form>
   </div>
-
   <!-- ===== DASHBOARD VIEW ===== -->
   <div id="dashboard-view" class="dashboard-grid hidden">
-
     <!-- ⏳ TEMP-SIGNDAY-60 · the .profile-col wrapper exists only so the notice
          can sit above the pass card. Delete the wrapper too with the notice. -->
     <div class="profile-col">
     <div id="sd-notice" class="sd-notice hidden" data-state="unconfirmed" role="status" aria-live="polite"></div>
-
     <!-- Profile / ID Card -->
     <div id="profile-card" class="id-card">
       <!-- ⏳ TEMP-SIGNDAY-60 · ticket head band (Sign Day emblem). Shown only
@@ -1080,7 +1011,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
         <span class="card-eyebrow">Identity</span>
         <span id="header-role" class="card-role">#STUDENT</span>
       </div>
-
       <div id="profile-avatar-container" class="avatar-large">
         <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -1090,19 +1020,16 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
           <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         </div>
       </div>
-
       <h2 id="display-name">Student Name</h2>
       <div id="display-batch">MEMBER</div>
       <!-- ⏳ TEMP-SIGNDAY-60 · blue event tag + UNCONFIRMED / PENDING / ACTIVE chip -->
       <div id="signday-tags" class="hidden"></div>
       <!-- ⏳ /TEMP-SIGNDAY-60 -->
-
       <div class="follower-pill" id="follower-stats-wrap">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span id="my-follower-count">0</span>
         <span style="opacity:0.6;font-weight:400">followers</span>
       </div>
-
       <div class="data-table">
         <div class="data-row">
           <span class="data-lbl">ID</span>
@@ -1129,7 +1056,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
           <span id="status-text" class="data-val" style="color:var(--text-dim)">NGHSIANS</span>
         </div>
       </div>
-
       <div class="card-actions">
         <button onclick="enableEdit()"  id="edit-btn"   class="btn-edit">Edit</button>
         <button onclick="saveProfile()" id="save-btn"   class="btn-save hidden">Save</button>
@@ -1144,7 +1070,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <!-- ⏳ /TEMP-SIGNDAY-60 -->
     </div>
     </div><!-- ⏳ /TEMP-SIGNDAY-60 profile-col -->
-
     <!-- Network Card -->
     <div class="network-card">
       <div class="network-header">
@@ -1154,21 +1079,16 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
         </div>
         <span style="font-size:9px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);opacity:0.75">View details</span>
       </div>
-
       <div class="search-wrap">
         <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="user-search" class="search-input" placeholder="Search name or batch…" onkeyup="filterUsers()">
       </div>
-
       <div id="network-list" class="user-list">
         <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:0.88rem">Loading network…</div>
       </div>
     </div>
-
   </div><!-- /dashboard-grid -->
-
 </div><!-- /page -->
-
 <!-- ===== VERIFIED CELEBRATION MODAL ===== -->
 <div id="verified-modal" class="modal-overlay">
   <div class="modal-box">
@@ -1183,7 +1103,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     <button onclick="closeModal()" class="btn-action" style="width:auto;padding:11px 36px;font-size:13px">AWESOME!</button>
   </div>
 </div>
-
 <!-- ===== REQUIRED DETAILS GATE (WhatsApp + Instagram) ===== -->
 <div id="details-modal" class="modal-overlay details-overlay" role="dialog" aria-modal="true" aria-labelledby="details-title">
   <div class="modal-box details-box">
@@ -1215,7 +1134,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </p>
   </div>
 </div>
-
 <!-- ===== MEMBER DETAIL MODAL ===== -->
 <div id="member-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="member-name"
      onclick="if(event.target===this) closeMember()">
@@ -1223,6 +1141,32 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     <button class="member-close" onclick="closeMember()" aria-label="Close profile">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
     </button>
+    <!-- ⏳ TEMP-SIGNDAY-60 · the same pass shown when viewing another 2027 member -->
+    <div id="sd-member-ticket" class="id-card signday-pass sd-member-ticket hidden">
+      <div id="sd-member-band" class="sd-band" aria-hidden="true"></div>
+      <div class="card-header-row">
+        <span class="card-eyebrow">Sign Day Pass</span>
+        <span class="card-role">#SIGN-DAY</span>
+      </div>
+      <div id="sd-member-avatar" class="avatar-large">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div class="verified-icon-overlay"></div>
+      </div>
+      <h2 class="member-name sd-member-name" id="sd-member-name">Student</h2>
+      <div class="sd-member-batch" id="sd-member-batch">Batch 2027 · 60th Sign Day</div>
+      <div id="sd-member-tags" class="hidden"></div>
+      <div class="follower-pill sd-member-followers">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span id="sd-member-follower-count">0</span>
+        <span style="opacity:.6;font-weight:400">followers</span>
+      </div>
+      <div class="data-table member-table" id="sd-member-data"></div>
+      <div id="sd-member-watermark" class="sd-watermark" aria-hidden="true"></div>
+      <div id="sd-member-stub" class="sd-stub"></div>
+      <span class="sd-notch left" aria-hidden="true"></span>
+      <span class="sd-notch right" aria-hidden="true"></span>
+    </div>
+    <!-- ⏳ /TEMP-SIGNDAY-60 -->
     <div class="member-head" id="member-head">
       <div class="member-avatar">
         <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -1237,16 +1181,13 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </div>
   </div>
 </div>
-
 <!-- ===== TOAST ===== -->
 <div id="toast" role="status" aria-live="polite"></div>
-
 <script>
 /* =============================================
    GLOBAL HELPERS
    ============================================= */
 function getEl(id) { return document.getElementById(id); }
-
 function switchView(viewName) {
   ['login','signup','forgot','update-password','dashboard'].forEach(v => {
     const el = getEl(v + '-view');
@@ -1255,7 +1196,6 @@ function switchView(viewName) {
   const target = getEl(viewName + '-view');
   if (target) target.classList.remove('hidden');
 }
-
 function togglePassword(id) {
   const inp = getEl(id);
   if (!inp) return;
@@ -1263,19 +1203,16 @@ function togglePassword(id) {
   inp.setAttribute('type', type);
   inp.classList.toggle('password-visible', type === 'text');
 }
-
 function toggleIdField() {
   const chk = getEl('no-id-check');
   const inp = getEl('sign-id');
   if (chk.checked) { inp.value = 'No ID Provided'; inp.disabled = true; inp.style.opacity = '0.5'; }
   else             { inp.value = ''; inp.disabled = false; inp.style.opacity = '1'; }
 }
-
 function closeModal() {
   const m = getEl('verified-modal');
   if (m) m.classList.remove('show');
 }
-
 /* ---------- Toast feedback ---------- */
 let toastTimer = null;
 function showToast(msg, isError) {
@@ -1287,7 +1224,6 @@ function showToast(msg, isError) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
 }
-
 /* ---------- WhatsApp / Instagram helpers ---------- */
 // Stored form: "+8801700000000" (digits only, optional leading +)
 function normalizeWhatsApp(raw) {
@@ -1320,7 +1256,6 @@ function instagramLink(v) {
   const handle = normalizeInstagram(v);
   return handle ? 'https://instagram.com/' + encodeURIComponent(handle) : '';
 }
-
 /* ---------- Misc ---------- */
 function escapeAttr(str) {
   return String(str == null ? '' : str)
@@ -1333,7 +1268,6 @@ function isMissingColumnError(err) {
   const msg = (err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '');
   return err.code === '42703' || err.code === 'PGRST204' || /column .* does not exist/i.test(msg);
 }
-
 /* ---------- Contact row rendering on the ID card ---------- */
 function renderContactCell(el, type, value) {
   if (!el) return;
@@ -1346,17 +1280,13 @@ function renderContactCell(el, type, value) {
     ? '<a class="contact-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + escapeAttr(label) + '</a>'
     : fallback;
 }
-
 /* =============================================
    MAIN APP
    ============================================= */
 document.addEventListener('DOMContentLoaded', async () => {
-
   const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
-
   if (!window.supabase) { alert("System Error: Supabase SDK failed to load."); return; }
-
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
       // Implicit flow: recovery tokens travel inside the emailed link, so the
@@ -1368,13 +1298,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
-
   /* ---- PRIVATE / TEST ACCOUNTS ------------------------------------------
      These accounts still appear in "Other NGHSIANS" (name, batch, followers,
      Follow button) but they can't be opened: no full-profile card and no
      WhatsApp / Instagram links, so their email and contact details stay
      private. They can still sign in and use their own account normally.
-
        - To lock another account, add its name to PRIVATE_MEMBER_NAMES.
          Capital letters, extra spaces and a stray "-" or "." at the start or
          end are ignored, so "-Test Acc" also matches "test acc".
@@ -1384,7 +1312,6 @@ document.addEventListener('DOMContentLoaded', async () => {
          name here as well.                                                    */
   const PRIVATE_MEMBER_NAMES = ['Lionel Messi', 'Neymar Jr', 'Kakir', '-Test Acc', 'Random'];
   const PRIVATE_MEMBER_IDS   = [];
-
   // Built with new RegExp (not a /literal/) so a very old browser falls back
   // quietly instead of failing to read this whole page.
   const EDGE_JUNK = (function () {
@@ -1405,27 +1332,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (p.id != null && PRIVATE_ID_SET.has(String(p.id))) return true;
     return PRIVATE_NAME_KEYS.has(nameKey(p.username));
   }
-
   // reset.html owns every password-recovery link.
   const RESET_PAGE = 'reset.html';
-
   function siteBase() {
     const h = (window.location.hostname || '').toLowerCase();
     if (h === 'nghsians.com' || h === 'www.nghsians.com') return 'https://nghsians.com';
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') return window.location.origin;
     return 'https://nghsians.com';
   }
-
   let currentUser    = null;
   let currentProfile = null;
   // Becomes false only if the DB is missing the new columns (SQL migration not
   // run yet). In that case the gate stays open so nobody gets locked out.
   let hasContactColumns = true;
-
   // Network list cache + the member currently open in the detail modal
   let networkMembers = [];
   window.currentMemberId = null;
-
   /* ---- NEW COLUMNS PROBE ----------------------------------------------
      The WhatsApp / Instagram fields live in two new columns. If that SQL
      hasn't been applied yet, we must not block anyone from their account.  */
@@ -1439,9 +1361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) { /* network hiccup — assume columns exist */ }
     return hasContactColumns;
   }
-
   /* ---- AUTH HANDLERS ---- */
-
   window.handleLogin = async function(e) {
     e.preventDefault();
     const btn = getEl('login-btn'); const errEl = getEl('login-error');
@@ -1455,7 +1375,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       errEl.textContent = "Invalid email or password."; errEl.style.display = 'block';
     } finally { btn.textContent = 'SECURE LOGIN'; btn.disabled = false; }
   };
-
   window.handleSignup = async function(e) {
     e.preventDefault();
     const btn = getEl('sign-btn'); const errEl = getEl('signup-error');
@@ -1489,7 +1408,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     finally { btn.textContent = 'CREATE ACCOUNT'; btn.disabled = false; }
   };
-
   window.handleForgot = async function(e) {
     e.preventDefault();
     const btn = getEl('forgot-btn'); const errEl = getEl('forgot-error'); const sucEl = getEl('forgot-success');
@@ -1512,7 +1430,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.textContent = 'SEND RESET LINK';
     } finally { btn.disabled = false; }
   };
-
   window.handleUpdatePass = async function(e) {
     e.preventDefault();
     const btn = getEl('update-pass-btn'); const errEl = getEl('update-pass-error');
@@ -1523,15 +1440,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert("Password updated! Accessing dashboard…"); currentUser = data.user; await loadProfile(currentUser);
     } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; btn.textContent = 'UPDATE PASSWORD'; btn.disabled = false; }
   };
-
   window.handleLogout = async function() { await supabase.auth.signOut(); window.location.reload(); };
-
   /* ---- PROFILE EDIT ---- */
-
   /* NOTE: these buttons use the `.hidden` class (which is `display:none
      !important`) instead of inline styles — that was the old bug that made the
      Save / Cancel buttons impossible to show. */
-
   window.enableEdit = function() {
     getEl('edit-btn').classList.add('hidden');
     getEl('save-btn').classList.remove('hidden');
@@ -1543,9 +1456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     getEl('display-whatsapp').innerHTML  = `<input id="e-whatsapp" class="edit-input" type="tel" value="${escapeAttr(p.whatsapp_number)}" placeholder="+8801…">`;
     getEl('display-instagram').innerHTML = `<input id="e-instagram" class="edit-input" value="${escapeAttr(p.instagram_username)}" spellcheck="false" placeholder="username">`;
   };
-
   window.cancelEdit = function() { renderProfile(currentProfile); resetEditBtns(); };
-
   window.saveProfile = async function() {
     if (!currentUser) return;
     const btn = getEl('save-btn');
@@ -1578,15 +1489,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderProfile(currentProfile); resetEditBtns();
     } finally { btn.textContent = 'Save'; btn.disabled = false; }
   };
-
   function resetEditBtns() {
     getEl('edit-btn').classList.remove('hidden');
     getEl('save-btn').classList.add('hidden');
     getEl('cancel-btn').classList.add('hidden');
   }
-
   /* ---- REQUIRED DETAILS GATE (WhatsApp + Instagram) ---- */
-
   function openDetailsGate() {
     const modal = getEl('details-modal');
     getEl('details-error').style.display = 'none';
@@ -1594,12 +1502,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.style.overflow = 'hidden';
     setTimeout(() => { try { getEl('d-whatsapp').focus(); } catch(e){} }, 350);
   }
-
   function closeDetailsGate() {
     getEl('details-modal').classList.remove('show');
     document.body.style.overflow = '';
   }
-
   window.handleSaveDetails = async function(e) {
     if (e) e.preventDefault();
     if (!currentUser) return;
@@ -1627,9 +1533,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       else fail(err.message || "Could not save. Please try again.");
     } finally { btn.textContent = 'SAVE & CONTINUE'; btn.disabled = false; }
   };
-
   /* ---- MEMBER DETAIL VIEW ---- */
-
   window.openMember = async function(id) {
     const member = networkMembers.find(x => x.id === id);
     if (!member || isPrivateMember(member)) return;
@@ -1663,31 +1567,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (err) { /* keep showing cached data */ }
   };
-
   window.closeMember = function() {
     window.currentMemberId = null;
     getEl('member-modal').classList.remove('show');
     document.body.style.overflow = '';
   };
-
   // Follow button inside the detail modal
   window.toggleMemberFollow = function(btn) {
     if (!window.currentMemberId) return;
     toggleFollow(window.currentMemberId, btn);
   };
-
   function memberRow(label, valueHtml) {
     return `<div class="data-row"><span class="data-lbl">${label}</span><span class="data-val">${valueHtml}</span></div>`;
   }
-
   function renderMemberModal(u) {
     const head = getEl('member-head');
     head.className = 'member-head';
     if (u.role === 'architect') head.classList.add('tier-architect');
     else if (u.role === 'alumni') head.classList.add('tier-alumni');
-
     getEl('member-name').textContent = u.username || 'Student';
-
     // Tier / status badge line
     let tierHtml = '', statusTxt = 'NGHSIANS MEMBER', statusClass = 'tier-member-txt';
     if (u.role === 'architect') {
@@ -1705,7 +1603,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       `<span class="${statusClass}">${statusTxt}</span>` +
       `<span style="color:var(--text-dim);font-weight:600;font-size:0.75rem">${followers} follower${followers === 1 ? '' : 's'}</span>` +
       (tierHtml ? tierHtml : '');
-
     // Full detail rows
     const waValue = renderMemberContact('whatsapp', u.whatsapp_number);
     const igValue = renderMemberContact('instagram', u.instagram_username);
@@ -1716,10 +1613,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       memberRow('WhatsApp',  waValue) +
       memberRow('Instagram', igValue) +
       memberRow('Status', `<span class="${statusClass}">${statusTxt}</span>`);
-
-    signdayDecorateMember(u);   /* ⏳ TEMP-SIGNDAY-60 — Sign Day rows + tag in the member card */
+    signdayDecorateMember(u);   /* ⏳ TEMP-SIGNDAY-60 — render the matching pass in the member modal */
   }
-
   function renderMemberContact(type, value) {
     const raw = String(value == null ? '' : value).trim();
     if (!raw) return '<span class="member-empty">Not provided</span>';
@@ -1731,7 +1626,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
     return `<a class="contact-link" href="${href}" target="_blank" rel="noopener noreferrer">${icon} ${escapeAttr(label)}</a>`;
   }
-
   function renderMemberFollowBtn(id) {
     const btn = getEl('member-follow-btn');
     if (!btn) return;
@@ -1741,9 +1635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.classList.toggle('following', following);
     btn.innerText = following ? 'Following' : 'Follow';
   }
-
   /* ---- FOLLOW ---- */
-
   // Keeps every Follow button + follower counter for a member in sync.
   function applyFollowUI(targetId, following) {
     document.querySelectorAll(`[data-follow-id="${targetId}"]`).forEach(b => {
@@ -1763,7 +1655,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   }
-
   window.toggleFollow = async function(targetId, btn) {
     if (btn.disabled) return;
     btn.disabled = true;
@@ -1782,14 +1673,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     btn.disabled = false;
   };
-
   window.filterUsers = function() {
     const term = getEl('user-search').value.toLowerCase();
     document.querySelectorAll('.user-item').forEach(i => { i.style.display = i.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; });
   };
-
   /* ---- LOADERS ---- */
-
   async function loadProfile(user) {
     switchView('dashboard');
     resetEditBtns();
@@ -1799,7 +1687,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error) throw error;
       if (!data) data = { id: user.id, email: user.email, username: 'New Student', school_id: '---', batch_year: '---', role: 'member' };
       currentProfile = data;
-
       // ---- Required details gate -------------------------------
       // Members who have not added WhatsApp + Instagram yet must add them
       // before they can use the account. Skipped automatically if the new
@@ -1816,7 +1703,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeDetailsGate();
       }
       // ----------------------------------------------------------
-
       renderProfile(data);
       loadNetwork();
     } catch(err) {
@@ -1824,7 +1710,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast("Could not load your profile. Please refresh.", true);
     }
   }
-
   function renderProfile(p) {
     if (!p) return;
     getEl('display-name').innerText  = p.username || 'Student';
@@ -1833,19 +1718,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     getEl('my-follower-count').innerText = p.follower_count || 0;
     renderContactCell(getEl('display-whatsapp'),  'whatsapp',  p.whatsapp_number);
     renderContactCell(getEl('display-instagram'), 'instagram', p.instagram_username);
-
     const card    = getEl('profile-card');
     const avatar  = getEl('profile-avatar-container');
     const batchEl = getEl('display-batch');
     const roleEl  = getEl('header-role');
     const vIcon   = document.querySelector('.verified-icon-overlay');
-
     card.className = 'id-card';
     avatar.classList.remove('is-verified');
     vIcon.innerHTML = '';
-
     const goldCheck = `<svg width="14" height="14" fill="rgba(${getComputedStyle(document.documentElement).getPropertyValue('--gold')},1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-
     if (p.role === 'architect') {
       card.classList.add('architect-theme');
       avatar.classList.add('is-verified');
@@ -1870,7 +1751,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       roleEl.innerText  = '#STUDENT';
       vIcon.innerHTML   = goldCheck;
     }
-
     // Admin: editable follower count
     if (currentUser && ADMIN_EMAILS.includes(currentUser.email)) {
       const fc = getEl('my-follower-count');
@@ -1880,19 +1760,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (n) { await supabase.from('verified_profiles').update({ follower_count: parseInt(n) }).eq('id', currentUser.id); fc.innerText = n; }
       };
     }
-
     signdayRenderPass(p);   /* ⏳ TEMP-SIGNDAY-60 — turn the card into the Sign Day pass */
   }
-
   let pendingCeleb = null;   // celebration deferred while the details gate is open
-
   function flushCeleb() {
     if (!pendingCeleb) return;
     const { p, type } = pendingCeleb;
     pendingCeleb = null;
     checkCeleb(p, type, true);
   }
-
   async function checkCeleb(p, type, force) {
     if (!force && p.notified_of_verification) return;
     // Don't stack two modals: show the celebration after the details gate.
@@ -1907,7 +1783,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     else { confetti({ colors: ['#FFF39A','#710C04'] }); }
     await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', p.id);
   }
-
   async function loadNetwork() {
     const list = getEl('network-list');
     const { data: all, error } = await supabase.from('verified_profiles').select('*');
@@ -1925,7 +1800,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       others.forEach(u => { list.innerHTML += createUserHTML(u, followingIds.has(u.id)); });
     }
   }
-
   function createUserHTML(u, isFollow) {
     const waIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.02c-1.52 0-3.01-.41-4.31-1.18l-.31-.18-3.12.82.83-3.04-.2-.32a8.06 8.06 0 0 1-1.24-4.3c0-4.46 3.63-8.09 8.09-8.09s8.09 3.63 8.09 8.09-3.63 8.1-8.09 8.1zm4.44-6.06c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.95-.14.16-.29.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.72-.65-1.21-1.45-1.35-1.69-.14-.24-.02-.37.1-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.47-.4-.41-.55-.41h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg>';
     const igIcon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>';
@@ -1936,10 +1810,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     badges += signdayListBadges(u);   /* ⏳ TEMP-SIGNDAY-60 — blue tag + status on 2027 rows */
     const btnState = isFollow ? 'following' : '';
     const btnTxt   = isFollow ? 'Following'  : 'Follow';
-
     // Private/test accounts: the same row, but not clickable and with no contact links.
     const locked = isPrivateMember(u);
-
     // Contact links (visible to signed-in members only, since they live in the dashboard)
     const waHref = locked ? '' : whatsappLink(u.whatsapp_number);
     const igHref = locked ? '' : instagramLink(u.instagram_username);
@@ -1947,7 +1819,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let contacts = '';
     if (waHref) contacts += `<a href="${waHref}" target="_blank" rel="noopener noreferrer" title="WhatsApp" onclick="event.stopPropagation()">${waIcon}</a>`;
     if (igHref) contacts += `<a href="${igHref}" target="_blank" rel="noopener noreferrer" title="Instagram" onclick="event.stopPropagation()">${igIcon}</a>`;
-
     const uid = escapeAttr(u.id);
     const rowAttrs = locked ? '' : `role="button" tabindex="0" title="View full profile"
          onclick="openMember('${uid}')"
@@ -1970,7 +1841,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       ${chevron}
     </div>`;
   }
-
   /* ============================================================================
      ⏳ TEMP-SIGNDAY-60 · JS START — NGHS 60th Sign Day pass (batch 2027)
      ----------------------------------------------------------------------------
@@ -1979,24 +1849,25 @@ document.addEventListener('DOMContentLoaded', async () => {
        2. delete the TEMP-SIGNDAY-60 marked elements in the dashboard markup
             · .profile-col wrapper + #sd-notice (top of the profile column)
             · #sd-band, #signday-tags, #sd-watermark, #sd-stub  (in #profile-card)
+            · #sd-member-ticket (the pass shown in other members' detail modal)
             · #sd-signup-hint + the sdBatchHint() call (signup form)
        3. delete this whole region
-       4. delete the 5 tagged lines in the existing code (search for
+       4. delete the 6 tagged hook lines in the existing code (search for
           "TEMP-SIGNDAY-60" — they all call one of the signday* functions):
             handleSignup      → signdaySignupHint(batch)
+            saveDetails       → signdayFlushCeleb()
+            renderMemberModal → signdayDecorateMember(u)
             renderProfile     → signdayRenderPass(p)
             createUserHTML    → signdayRowClass(u) / signdayListBadges(u)
-            renderMemberModal → signdayDecorateMember(u)
-            handleSaveDetails → signdayFlushCeleb()
-       5. run section 14 of supabase-schema.sql (drops the trigger + columns)
+       5. run section 12 of supabase-schema.sql (or S5 of supabase-signday-60.sql).
      Nothing else on the page depends on any of it.
-
      HOW IT WORKS
        · A member gets the pass when verified_profiles.role = '27' (batch 2027
          only — the SQL trigger enforces that and writes the serial).
        · signday_status: 'unconfirmed' (default) → 'submitted' (they pressed
          REGISTER and their account email went into signday_email) → 'issued'
-         (you set it in the Table editor). The card and the notice follow it.
+         (you approve manually by email in SQL Editor section 11 / S4, or in the
+         Table Editor). The card and the notice follow it.
        · Searching "sign day" in the network list finds exactly the 2027
          pass-holders, because the tag text lives inside each row.
      ============================================================================ */
@@ -2006,23 +1877,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     tag: 'NGHS 60th Sign Day',     // the blue tag
     noticeTitle: 'Register For NGHS 60th Sign Day',
     noticeBody: 'You are in <strong>batch 2027</strong>, so a Sign Day pass is waiting for you here. ' +
-                'Provide your account email to them so that you get your pass — press the button and ' +
-                'the committee will see it right away.',
-    gateText: 'Sector 60 · Gate 27',
-    dateText: 'Date TBA'           // ← put the real date here once it is fixed
+                'Your account email is shown below. Press Register to save it on your profile for the ' +
+                'committee to review.'
   };
-
   var TICKET_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z"/><path d="M13 5v14"/></svg>';
   var CHECK_SVG    = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
   var MAIL_SVG     = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>';
-
-  function sdIsPass(u)  { return !!u && String(u.role == null ? '' : u.role).trim().toLowerCase() === SIGNDAY.role; }
+  function sdIsPass(u) {
+    return !!u &&
+      String(u.role == null ? '' : u.role).trim().toLowerCase() === SIGNDAY.role &&
+      String(u.batch_year == null ? '' : u.batch_year).trim() === SIGNDAY.batch;
+  }
   function sdStatus(u) {
     var s = String((u && u.signday_status) || 'unconfirmed').trim().toLowerCase();
     return (s === 'issued' || s === 'submitted') ? s : 'unconfirmed';
   }
   function sdLabel(s) { return s === 'issued' ? 'Pass Active' : s === 'submitted' ? 'Pending Issue' : 'Unconfirmed'; }
-
   /* Deterministic barcode: the same serial always draws the same stripes. */
   function sdBars(seed) {
     var h = 2166136261, s = String(seed || 'PENDING'), i;
@@ -2036,7 +1906,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     return '<svg class="sd-bars" viewBox="0 0 ' + W + ' 34" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor">' + out + '</g></svg>';
   }
-
   /* The blue event tag + the status chip. big=true → the card, false → list rows. */
   function sdTagsHTML(u, big) {
     var s = sdStatus(u);
@@ -2046,13 +1915,11 @@ document.addEventListener('DOMContentLoaded', async () => {
            '</span>' +
            '<span class="u-badge sd-status ' + s + (big ? ' sd-lg' : '') + '" title="' +
              (s === 'issued' ? 'Your pass has been issued' :
-              s === 'submitted' ? 'Email handed over, waiting for the committee' :
+              s === 'submitted' ? 'Email shared with the committee, awaiting approval' :
               'You have not registered for the pass yet') + '">' + sdLabel(s) + '</span>';
   }
-
   function signdayRowClass(u)  { return sdIsPass(u) ? ' signday-row' : ''; }
   function signdayListBadges(u){ return sdIsPass(u) ? sdTagsHTML(u, false) : ''; }
-
   /* ---------- the profile card → digital pass ---------- */
   function signdayRenderPass(p) {
     var card = getEl('profile-card'); if (!card) return;
@@ -2062,7 +1929,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         batchEl = getEl('display-batch'), roleEl = getEl('header-role'),
         avatar  = getEl('profile-avatar-container'),
         vIcon   = card.querySelector('.verified-icon-overlay');
-
     // not a pass holder → make sure nothing from a previous render is left over
     if (!sdIsPass(p)) {
       card.classList.remove('signday-pass', 'sd-live');
@@ -2070,12 +1936,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (eyebrow) eyebrow.textContent = 'Identity';
       return;
     }
-
     var s = sdStatus(p);
     card.classList.add('signday-pass');
     card.classList.toggle('sd-live', s === 'issued');
     [band, stub, tags, notice, mark].concat([].slice.call(card.querySelectorAll('.sd-notch'))).forEach(function (el) { if (el) el.classList.remove('hidden'); });
-
     if (eyebrow) eyebrow.textContent = 'Sign Day Pass';
     if (roleEl)  roleEl.textContent = '#SIGN-DAY';
     if (batchEl) batchEl.innerHTML = '<span style="color:rgba(var(--sd-blue),1)">Batch ' + SIGNDAY.batch + ' · 60th Sign Day</span>';
@@ -2090,15 +1954,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       stub.innerHTML =
         '<div class="sd-stub-row"><span>Admit one</span>' +
           '<span class="sd-serial">№ ' + escapeAttr(p.signday_pass_code || 'pending') + '</span></div>' +
-        sdBars(p.signday_pass_code || '') +
-        '<div class="sd-stub-foot"><span>' + escapeAttr(SIGNDAY.gateText) + '</span>' +
-          '<span>' + escapeAttr(SIGNDAY.dateText) + '</span></div>';
+        sdBars(p.signday_pass_code || '');
     }
     if (notice) { notice.setAttribute('data-state', s); notice.innerHTML = sdNoticeHTML(p, s); }
-
     if (s === 'issued') signdayCelebrate(p);
   }
-
   function sdNoticeHTML(p, s) {
     var email   = (currentUser && currentUser.email) || p.email || '';
     var shown   = (p.signday_email || email || '').trim();
@@ -2109,30 +1969,28 @@ document.addEventListener('DOMContentLoaded', async () => {
              '<div class="sd-notice-body">' + body + '</div>' +
              (foot ? '<div class="sd-notice-foot">' + foot + '</div>' : '') + '</div>';
     };
-
     if (s === 'issued') {
       return head('issued', CHECK_SVG, 'Your Sign Day pass is live',
         'Show this card at the counter on Sign Day — the barcode at the bottom of the card is your ticket. ' +
         'Serial <strong>' + serial + '</strong>.');
     }
     if (s === 'submitted') {
-      return head('submitted', MAIL_SVG, 'Email received — pass on the way',
-        'The Sign Day committee has <strong>' + escapeAttr(shown) + '</strong>. Your card turns into a live ' +
-        'pass the moment they issue it. Wrong address? Send the right one and they will see the update.',
-        '<button type="button" class="sd-btn ghost" id="sd-cta" onclick="handleSigndayRegister()">Send my email again</button>');
+      return head('submitted', MAIL_SVG, 'Email saved — awaiting approval',
+        'The committee can review <strong>' + escapeAttr(shown) + '</strong> on your profile. Your card ' +
+        'will become a live pass after they approve it.',
+        '<button type="button" class="sd-btn ghost" id="sd-cta" onclick="handleSigndayRegister()">Share email again</button>');
     }
     return head('unconfirmed', TICKET_SVG, escapeAttr(SIGNDAY.noticeTitle), SIGNDAY.noticeBody,
       '<span class="sd-email-chip">' + MAIL_SVG + escapeAttr(shown || 'no email on file') + '</span>' +
-      '<button type="button" class="sd-btn" id="sd-cta" onclick="handleSigndayRegister()">Register · send my email</button>' +
-      '<p class="sd-notice-note" style="flex:1 0 100%">Nothing is emailed anywhere — it is saved on your own profile row for the committee to read.</p>');
+      '<button type="button" class="sd-btn" id="sd-cta" onclick="handleSigndayRegister()">Register · share my email</button>' +
+      '<p class="sd-notice-note" style="flex:1 0 100%">This saves your email on your profile for the committee. It does not send an email message.</p>');
   }
-
   window.handleSigndayRegister = async function () {
     if (!currentUser || !sdIsPass(currentProfile || {})) return;
     var email = (currentUser.email || '').trim();
     var btn = getEl('sd-cta');
     if (!email) { showToast('No account email found on this session — please refresh and try again.', true); return; }
-    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
     try {
       var upd = await supabase.from('verified_profiles')
         .update({ signday_status: 'submitted', signday_email: email })
@@ -2141,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentProfile = Object.assign({}, currentProfile, { signday_status: 'submitted', signday_email: email });
       signdayRenderPass(currentProfile);
       loadNetwork();
-      showToast('Sent ✓ the Sign Day committee now has your email.');
+      showToast('Registered ✓ your email is saved for the Sign Day committee.');
     } catch (err) {
       console.error(err);
       if (isMissingColumnError(err)) showToast('Sign Day is not set up in the database yet — the admin must run supabase-schema.sql in Supabase first.', true);
@@ -2149,44 +2007,85 @@ document.addEventListener('DOMContentLoaded', async () => {
       signdayRenderPass(currentProfile || {});
     }
   };
-
-  /* ---------- other members' detail card ---------- */
+  /* ---------- other members: render their own state of the same pass ---------- */
   function signdayDecorateMember(u) {
-    if (!sdIsPass(u)) return;
-    var s = sdStatus(u);
-    var head = getEl('member-head'); if (head) head.classList.add('tier-signday');
-    var tier = getEl('member-tier');
-    if (tier) tier.insertAdjacentHTML('beforeend', '<span class="u-badge signday">' + escapeAttr(SIGNDAY.tag) + '</span>');
-    var tbl = getEl('member-table');
-    if (tbl) {
-      tbl.insertAdjacentHTML('beforeend',
-        memberRow('Sign Day', '<span class="u-badge sd-status ' + s + '">' + sdLabel(s) + '</span>') +
+    var isPass = sdIsPass(u);
+    var modal = getEl('member-modal');
+    var box = modal ? modal.querySelector('.member-box') : null;
+    var ticket = getEl('sd-member-ticket');
+    var head = getEl('member-head'), table = getEl('member-table');
+    if (box) box.classList.toggle('sd-member-pass', isPass);
+    if (ticket) ticket.classList.toggle('hidden', !isPass);
+    if (head) head.classList.toggle('hidden', isPass);
+    if (table) table.classList.toggle('hidden', isPass);
+    if (modal) modal.setAttribute('aria-labelledby', isPass ? 'sd-member-name' : 'member-name');
+    if (!isPass) return;
+    var s = sdStatus(u), serial = u.signday_pass_code || 'pending';
+    var memberBand = getEl('sd-member-band'), sourceBand = getEl('sd-band');
+    if (memberBand && sourceBand && !memberBand.innerHTML.trim()) {
+      memberBand.innerHTML = sourceBand.innerHTML.replace(/sdFoil/g, 'sdMemberFoil');
+    }
+    var memberName = getEl('sd-member-name');
+    var memberBatch = getEl('sd-member-batch');
+    var memberTags = getEl('sd-member-tags');
+    var memberFollowers = getEl('sd-member-follower-count');
+    var memberAvatar = getEl('sd-member-avatar');
+    var memberData = getEl('sd-member-data');
+    var watermark = getEl('sd-member-watermark');
+    var stub = getEl('sd-member-stub');
+    if (memberName) memberName.textContent = u.username || 'Student';
+    if (memberBatch) memberBatch.textContent = 'Batch ' + SIGNDAY.batch + ' · 60th Sign Day';
+    if (memberTags) { memberTags.innerHTML = sdTagsHTML(u, true); memberTags.classList.remove('hidden'); }
+    if (memberFollowers) memberFollowers.textContent = parseInt(u.follower_count, 10) || 0;
+    if (memberAvatar) {
+      memberAvatar.classList.add('is-verified');
+      var verifiedIcon = memberAvatar.querySelector('.verified-icon-overlay');
+      if (verifiedIcon) verifiedIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(96,170,255,1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z"/></svg>';
+    }
+    if (watermark) {
+      watermark.textContent = s === 'issued' ? 'ACTIVE' : s === 'submitted' ? 'PENDING' : 'UNCONFIRMED';
+      watermark.classList.toggle('issued', s === 'issued');
+    }
+    if (memberData) {
+      var emailValue = u.email
+        ? '<a class="contact-link" href="mailto:' + escapeAttr(u.email) + '">' + escapeAttr(u.email) + '</a>'
+        : '<span class="member-empty">Not provided</span>';
+      memberData.innerHTML =
+        memberRow('ID', u.school_id ? escapeAttr(u.school_id) : '<span class="member-empty">Not provided</span>') +
+        memberRow('Batch', escapeAttr(u.batch_year || SIGNDAY.batch)) +
+        memberRow('Email', emailValue) +
+        memberRow('WhatsApp', renderMemberContact('whatsapp', u.whatsapp_number)) +
+        memberRow('Instagram', renderMemberContact('instagram', u.instagram_username)) +
+        memberRow('Pass status', '<span class="u-badge sd-status ' + s + '">' + escapeAttr(sdLabel(s)) + '</span>') +
         (u.signday_pass_code
           ? memberRow('Pass No.', '<span class="sd-serial">' + escapeAttr(u.signday_pass_code) + '</span>')
           : '') +
         (s !== 'issued'
           ? memberRow('Committee email', u.signday_email ? escapeAttr(u.signday_email)
-              : '<span class="member-empty">Not sent yet</span>')
-          : ''));
+              : '<span class="member-empty">Not shared yet</span>')
+          : '');
     }
+    if (stub) {
+      stub.innerHTML =
+        '<div class="sd-stub-row"><span>Admit one</span>' +
+          '<span class="sd-serial">№ ' + escapeAttr(serial) + '</span></div>' +
+        sdBars(serial);
+    }
+    if (ticket) ticket.classList.toggle('sd-live', s === 'issued');
   }
-
   /* ---------- one-time celebration when a pass goes live ---------- */
   var pendingSigndayCeleb = null;
-
   function signdayCelebrate(p) {
     if (p.signday_notified) return;
     // never stack on top of the "complete your profile" gate
     if (getEl('details-modal').classList.contains('show')) { pendingSigndayCeleb = p; return; }
     signdayShowCeleb(p);
   }
-
   window.signdayFlushCeleb = function () {
     if (!pendingSigndayCeleb) return;
     pendingSigndayCeleb = null;
     signdayShowCeleb(currentProfile);
   };
-
   async function signdayShowCeleb(p) {
     if (!p || !sdIsPass(p) || sdStatus(p) !== 'issued' || p.signday_notified) return;
     getEl('modal-title').textContent = 'Your pass is live!';
@@ -2202,13 +2101,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentProfile = Object.assign({}, currentProfile || {}, { signday_notified: true });
     } catch (e) { /* column missing / offline — never block the modal */ }
   }
-
   /* ---------- signup form: tell a 2027 registrant what they are getting ---- */
   window.sdBatchHint = function (value) {
     var el = getEl('sd-signup-hint');
     if (el) el.classList.toggle('show', String(value || '').trim() === SIGNDAY.batch);
   };
-
   function signdaySignupHint(batch) {
     if (String(batch || '').trim() !== SIGNDAY.batch) return;
     showToast('Batch 2027: your ' + SIGNDAY.tag + ' pass is waiting on your profile — log in and register for it.');
@@ -2216,27 +2113,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* ============================================================================
      ⏳ TEMP-SIGNDAY-60 · JS END
      ============================================================================ */
-
   /* ---- STARTUP ---- */
-
   // Escape closes the member detail modal (the required-details gate stays).
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && getEl('member-modal').classList.contains('show')) closeMember();
   });
-
   // Check once whether the new contact columns exist (SQL migration applied).
   await probeContactColumns();
   closeDetailsGate();
-
   // Recovery links are handled by reset.html (see the early redirect in <head>).
   // If one somehow reaches us anyway, don't create a session from it.
   const recoveryTarget = window.recoveryRedirectTarget ? window.recoveryRedirectTarget() : null;
   if (recoveryTarget) { window.location.replace(recoveryTarget); return; }
-
   const { data } = await supabase.auth.getSession();
   if (data.session) { currentUser = data.session.user; await loadProfile(currentUser); }
   else { switchView('login'); }
-
 });
 </script>
 </body>
