@@ -1,120 +1,25 @@
 /* ============================================================================
-   NGHSIANS — SUPABASE SCHEMA  (idempotent / safe to re-run)
-   Updated: 2026-10-03  ·  v4: one statement per line, no DO blocks
+   NGHSIANS — 60th SIGN DAY PASS  (batch 2027)   ·  v4  ·  idempotent
 
-   WHY EVERY STATEMENT IS ON ITS OWN LINE
-     Supabase's "Potential issues detected" dialog ("Run and enable RLS") rewrites
-     the script before running it, and that rewrite works line by line — it can
-     split a multi-line CREATE TABLE and leave an unterminated statement behind
-     ("syntax error at or near \"alter\"", "syntax error at or near \"if\"").
-     Nothing here spans more than one line except the two function bodies, so
-     there is nothing for a line-based rewrite to cut.
+   ⏳  TEMPORARY FEATURE  ·  MARKER: TEMP-SIGNDAY-60  (sections S1-S5)
+   The Sign Day half of supabase-schema.sql, split out so it can be run on its
+   own. It has no CREATE TABLE in it, so Supabase never offers to "enable RLS"
+   — and therefore never rewrites the script and breaks it.
 
-   IF THAT DIALOG APPEARS: press "Run without RLS". This file already enables RLS
-   and creates every policy itself, one line after each CREATE TABLE — you do not
-     need Supabase to add anything.
+   USE IT WHEN verified_profiles already exists — true for this project (the
+   site is live and profiles load). If the "Potential issues detected" dialog
+   still appears, press "Run without RLS": RLS and the policies are in place.
 
-   WHAT'S IN THIS VERSION
-     • ⏳ TEMP SIGNDAY-60 (sections 10-14) — the NGHS 60th Sign Day pass for batch
-       2027: role value '27', five signday_* columns, a trigger that auto-issues
-       the tag to 2027 registrants and refuses it for any other batch, the admin
-       commands, and a one-pass rollback. Sections 10-14 are also the ONLY part
-       you need if sections 0-9 have already been run on this project.
-     • verified_profiles.whatsapp_number / instagram_username — the required
-       WhatsApp + Instagram fields on account.html (signup, profile gate, Edit).
-
-   HOW TO RUN
-     1. Supabase Dashboard → SQL Editor → New query
-     2. Paste this WHOLE file → "Run without RLS".
-     3. Safe on a live site: nothing is dropped and no data is deleted. Every
-        statement skips itself when it is already applied.
+   HOW: Supabase Dashboard → SQL Editor → New query → paste this whole file.
+   Re-running is safe, nothing is deleted, and section S5 undoes all of it.
    ============================================================================ */
-
-
-/* ── 0. QUICK MIGRATION — the only part you need if the old script already ran ── */
-alter table if exists public.verified_profiles add column if not exists whatsapp_number text;
-alter table if exists public.verified_profiles add column if not exists instagram_username text;
-
-
-/* ── 1. 'verified_profiles' — created only if it does not exist yet ─────────── */
-create table if not exists public.verified_profiles (id uuid references auth.users not null primary key, created_at timestamp with time zone default timezone('utc'::text, now()) not null);
-alter table if exists public.verified_profiles enable row level security;
-
-
-/* ── 2. Columns — each one is skipped automatically when it already exists ──── */
-alter table public.verified_profiles add column if not exists full_name text;
-alter table public.verified_profiles add column if not exists username text;
-alter table public.verified_profiles add column if not exists email text;
-alter table public.verified_profiles add column if not exists school_id text;
-alter table public.verified_profiles add column if not exists batch_year text;
-alter table public.verified_profiles add column if not exists whatsapp_number text;
-alter table public.verified_profiles add column if not exists instagram_username text;
-alter table public.verified_profiles add column if not exists role text default 'member';
-alter table public.verified_profiles add column if not exists notified_of_verification boolean default false;
-alter table public.verified_profiles add column if not exists follower_count int default 0;
-comment on column public.verified_profiles.role is 'member | elite | alumni | architect | 27 (27 = TEMP-SIGNDAY-60 pass, batch 2027 only)';
-comment on column public.verified_profiles.whatsapp_number is 'WhatsApp number in international form, e.g. +8801700000000';
-comment on column public.verified_profiles.instagram_username is 'Instagram username without the @, e.g. nghsians';
-
-
-/* ── 3. Deprecated 'is_verified' column — only needed if you still have it ─────
-      Leave these two lines commented out unless a very old backup is being restored.
-   update verified_profiles set role = 'elite' where is_verified = true;
-   alter table verified_profiles drop column if exists is_verified;
-   ─────────────────────────────────────────────────────────────────────────── */
-
-
-/* ── 4. Policies for 'verified_profiles' (dropped first so re-running is safe) ─ */
-drop policy if exists "Public profiles are viewable by everyone." on public.verified_profiles;
-create policy "Public profiles are viewable by everyone." on public.verified_profiles for select using ( true );
-drop policy if exists "Users can update own profile." on public.verified_profiles;
-create policy "Users can update own profile." on public.verified_profiles for update using ( auth.uid() = id );
-drop policy if exists "Users can insert own profile." on public.verified_profiles;
-create policy "Users can insert own profile." on public.verified_profiles for insert with check ( auth.uid() = id );
-
-
-/* ── 5. 'user_relationships' — the follow / unfollow system ─────────────────── */
-create table if not exists public.user_relationships (id uuid default gen_random_uuid() primary key, follower_id uuid references auth.users not null, following_id uuid references auth.users not null, created_at timestamp with time zone default timezone('utc'::text, now()) not null, unique(follower_id, following_id));
-alter table if exists public.user_relationships enable row level security;
-drop policy if exists "Anyone can view relationships" on public.user_relationships;
-create policy "Anyone can view relationships" on public.user_relationships for select using (true);
-drop policy if exists "Users can follow others" on public.user_relationships;
-create policy "Users can follow others" on public.user_relationships for insert with check (auth.uid() = follower_id);
-drop policy if exists "Users can unfollow" on public.user_relationships;
-create policy "Users can unfollow" on public.user_relationships for delete using (auth.uid() = follower_id);
-
-
-/* ── 6. Trigger that keeps follower counts up to date (the one multi-line body) ─ */
-create or replace function public.update_follower_count() returns trigger language plpgsql security definer as $fc$
-begin
-  if (TG_OP = 'INSERT') then
-    update public.verified_profiles set follower_count = coalesce(follower_count, 0) + 1 where id = new.following_id;
-    return new;
-  elsif (TG_OP = 'DELETE') then
-    update public.verified_profiles set follower_count = greatest(coalesce(follower_count, 0) - 1, 0) where id = old.following_id;
-    return old;
-  end if;
-  return null;
-end;
-$fc$;
-drop trigger if exists on_follow_change on public.user_relationships;
-create trigger on_follow_change after insert or delete on public.user_relationships for each row execute function public.update_follower_count();
-
-
-/* ── 7. VERIFY (optional) ────────────────────────────────────────────────────
-   select column_name, data_type from information_schema.columns
-    where table_name = 'verified_profiles'
-      and column_name in ('whatsapp_number', 'instagram_username', 'role', 'follower_count')
-    order by column_name;
-   ─────────────────────────────────────────────────────────────────────────── */
-
 
 /* ############################################################################
    ##  ⏳  TEMPORARY SECTION  ·  "NGHS 60th SIGN DAY" PASS  (BATCH 2027)        ##
    ##  ⏳  MARKER:  TEMP-SIGNDAY-60  ·  START                                    ##
    ##                                                                            ##
    ##  A one-off feature for the 60th Sign Day. Safe to re-run, deletes nothing, ##
-   ##  and section 14 undoes all of it in one pass.                              ##
+   ##  and section S5 undoes all of it in one pass.                              ##
    ##                                                                            ##
    ##  WHAT IT DOES                                                              ##
    ##    • 5 signday_* columns on verified_profiles:                             ##
@@ -141,7 +46,7 @@ create trigger on_follow_change after insert or delete on public.user_relationsh
    ############################################################################ */
 
 
-/* ── 8. TEMP-SIGNDAY-60 — columns ──────────────────────────────────────────── */
+/* ── S1. TEMP-SIGNDAY-60 — columns ──────────────────────────────────────────── */
 alter table public.verified_profiles add column if not exists signday_status text not null default 'unconfirmed';
 alter table public.verified_profiles add column if not exists signday_email text;
 alter table public.verified_profiles add column if not exists signday_pass_code text;
@@ -156,7 +61,7 @@ alter table public.verified_profiles drop constraint if exists verified_profiles
 alter table public.verified_profiles add constraint verified_profiles_signday_status_check check (signday_status in ('unconfirmed', 'submitted', 'issued'));
 
 
-/* ── 9. TEMP-SIGNDAY-60 — guard / auto-issue trigger (the only other multi-line body) ─ */
+/* ── S2. TEMP-SIGNDAY-60 — guard / auto-issue trigger (the only multi-line body in this file) ─ */
 create or replace function public.signday_guard() returns trigger language plpgsql as $sd$
 declare
   v_batch     text := lower(trim(coalesce(new.batch_year, '')));
@@ -199,7 +104,7 @@ begin
   end if;
   /* C. who may change signday_status: the student may only go 'unconfirmed' ->
         'submitted' (their REGISTER button). 'issued' is yours, from the Table
-        editor or section 11 — the dashboard has no auth.uid(), so it passes. */
+        editor or section S4 — the dashboard has no auth.uid(), so it passes. */
   if not v_retired and new.signday_status is distinct from v_oldstatus then
     begin
       v_claims := nullif(current_setting('request.jwt.claims', true), '')::jsonb;
@@ -236,13 +141,13 @@ create unique index if not exists verified_profiles_signday_pass_code_key on pub
 create index if not exists verified_profiles_signday_role_idx on public.verified_profiles (role, signday_status);
 
 
-/* ── 10. TEMP-SIGNDAY-60 — backfill: every 2027 student already in the table.
+/* ── S3. TEMP-SIGNDAY-60 — backfill: every 2027 student already in the table.
       Harmless to re-run: it only touches plain 'member' rows, so a tag you
       removed on purpose stays removed.                                            */
 update public.verified_profiles set role = '27' where lower(trim(coalesce(batch_year, ''))) = '2027' and coalesce(nullif(trim(role), ''), 'member') = 'member';
 
 
-/* ── 11. TEMP-SIGNDAY-60 — admin commands (run whichever you need) ────────────
+/* ── S4. TEMP-SIGNDAY-60 — admin commands (run whichever you need) ────────────
    Give the pass to one student (batch 2027 only, or the trigger refuses):
    update public.verified_profiles set role = '27' where id = '<uuid>';
 
@@ -264,8 +169,8 @@ update public.verified_profiles set role = '27' where lower(trim(coalesce(batch_
    ─────────────────────────────────────────────────────────────────────────── */
 
 
-/* ── 12. TEMP-SIGNDAY-60 — ROLLBACK / REMOVE THIS WHOLE FEATURE ────────────────
-      Uncomment all of it and run once. It drops only what sections 8-10 added;
+/* ── S5. TEMP-SIGNDAY-60 — ROLLBACK / REMOVE THIS WHOLE FEATURE ────────────────
+      Uncomment all of it and run once. It drops only what sections S1-S3 added;
       verified_profiles and every normal column stay untouched. Then delete the
       TEMP-SIGNDAY-60 regions from account.html.
 
@@ -281,7 +186,3 @@ update public.verified_profiles set role = '27' where lower(trim(coalesce(batch_
    alter table public.verified_profiles drop column if exists signday_submitted_at;
    alter table public.verified_profiles drop column if exists signday_notified;
    ─────────────────────────────────────────────────────────────────────────── */
-
-/* ############################################################################
-   ##  ⏳  TEMP-SIGNDAY-60  ·  END OF TEMPORARY SECTION                        ##
-   ############################################################################ */

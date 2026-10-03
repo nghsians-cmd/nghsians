@@ -42,19 +42,36 @@ Existing authentication and external services were preserved; no live account op
 
 Two files carry this one-off feature, and nothing else does:
 
-- `supabase-schema.sql` — sections **10 to 14**, fenced by `TEMP-SIGNDAY-60 · START / END` banners.
-- `account.html` — the CSS, HTML and JS regions tagged `TEMP-SIGNDAY-60`, plus five one-line hooks
+- `supabase-schema.sql` — sections **8 to 12**, fenced by `TEMP-SIGNDAY-60 · START / END` banners
+  (sections 0–7 are the rest of the site's schema, unchanged apart from formatting).
+- `supabase-signday-60.sql` — **the same sections 8–12 as a standalone file**, for running on a
+  project that already has `verified_profiles` (this one). Prefer this file: it has no
+  `create table`, so Supabase does not offer to "enable RLS" and cannot rewrite the script.
+- `account.html` — the CSS, HTML and JS regions tagged `TEMP-SIGNDAY-60`, plus six one-line hooks
   inside the existing code (each tagged on the line above it).
 
-Upload both, then run the whole SQL file in **Supabase → SQL Editor**. It is idempotent: it only
-adds what is missing and deletes nothing.
+Upload both, then run one SQL file in **Supabase → SQL Editor → New query**. They are idempotent:
+they only add what is missing and delete nothing.
 
-The SQL file deliberately contains **no `DO $$ … $$` blocks** — every conditional step is plain
-idempotent DDL (`add column if not exists`, `drop policy/trigger/constraint if exists`), so a paste
-that gets split up mid-block cannot leave a bare `if … then` for Postgres to choke on
-(that was the `42601: syntax error at or near "if"` failure). The only multi-line statements left are
-the two functions in sections 8 and 11; if your editor ever cuts a paste again, run one numbered
-section at a time, and paste each whole function in a single go.
+### If Supabase shows "Potential issues detected" — press **Run without RLS**
+
+The dialog offers *Cancel · Run without RLS · Run and enable RLS*. **Choose "Run without RLS".**
+"Run and enable RLS" is an automatic fixer: it rewrites the script before running it, inserting its
+own `alter table … enable row level security;` line after each `create table`. Those files already
+enable RLS and create every policy themselves, so the rewrite only gets in the way — and in earlier
+versions it landed *inside* the multi-line `create table` statement, which is what produced errors
+like `42601: syntax error at or near "alter"` pointing at a line that does not exist in the file.
+
+Both SQL files are now written to survive that rewrite: **every statement is a single line**, so a
+line-based injector has nothing to cut into, and all comments are `/* … */` blocks, so they survive
+being joined or stripped. The only multi-line statements left are the two function bodies
+(section 6 of `supabase-schema.sql`, section S2 of `supabase-signday-60.sql`).
+
+The files also contain **no `DO $$ … $$` blocks** — every conditional step is plain idempotent DDL
+(`add column if not exists`, `drop policy/trigger/constraint if exists`), so a paste that gets split
+up mid-block cannot leave a bare `if … then` for Postgres to choke on (that was the earlier
+`42601: syntax error at or near "if"` failure). If an editor ever cuts a paste again, run one
+numbered section at a time and paste each whole function in a single go.
 
 What it does:
 
@@ -62,12 +79,12 @@ What it does:
   A trigger rejects it for any row whose `batch_year` is not `2027`, so the tag cannot leak to
   another batch — and if a 2027 student edits their own batch away from 2027, the tag is removed
   silently.
-- Every **new** 2027 registration is given role `27` automatically, and section 12 backfills every
+- Every **new** 2027 registration is given role `27` automatically, and section 10 backfills every
   2027 student already in the table.
 - `signday_status` moves `unconfirmed → submitted → issued`. `submitted` is written by the student
   pressing **Register** on their own card (their account email lands in `signday_email`); a student
   cannot mark themselves `issued` — the trigger refuses that write. Only you, from the Table editor
-  (or with the statements in section 13), issue passes.
+  (or with the statements in section 11), issue passes.
 - `signday_pass_code` is a ticket serial derived from the row id (`SD60-27-XXXX-XXXX`), written by
   the trigger and used to draw the barcode on the card. No manual work.
 
@@ -79,16 +96,18 @@ banknote watermark of the current status, serial and barcode on the stub. When y
 card goes "live" (foil sweep) and they get a one-time blue confetti celebration on next sign-in.
 `SIGNDAY.dateText` near the top of the JS block is a one-line place to put the real event date.
 
-Checked with a local PostgreSQL 18 running the real schema file (auto-issue, the batch guard,
-self-issue refusal, tag withdrawal, re-runs, and the section-14 rollback), and by driving the real
-`account.html` in jsdom for all three states plus the existing flows (themes, verification modal,
-details gate, private accounts, signup, follow, edit/save).
+Checked with a local PostgreSQL 18 running both real files: fresh install, install on top of the previous
+schema, re-runs, every rewrite Supabase's editor can apply to a paste (RLS injection, comment
+stripping, one-line joining), auto-issue, the batch guard, self-issue refusal, tag withdrawal, and the
+section-12 rollback — 51 checks in all. The front end was checked by driving the real `account.html`
+in jsdom for all three states plus the existing flows (themes, verification modal, details gate,
+private accounts, signup, follow, edit/save).
 
 ### Removing it after the event
 
 1. In `account.html`, delete the `TEMP-SIGNDAY-60` CSS / HTML / JS regions and the five tagged hook
    lines, then delete the `.profile-col` wrapper around `#profile-card`.
-2. In Supabase, uncomment and run section **14** of `supabase-schema.sql`: it drops the trigger,
+2. In Supabase, uncomment and run section **12** of `supabase-schema.sql` (or section **S5** of `supabase-signday-60.sql`): it drops the trigger,
    the two indexes, the check constraint and the five `signday_*` columns, and returns every
    `27` member to `member`.
 
