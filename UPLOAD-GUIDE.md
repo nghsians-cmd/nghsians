@@ -49,6 +49,13 @@ Two files carry this one-off feature, and nothing else does:
 Upload both, then run the whole SQL file in **Supabase → SQL Editor**. It is idempotent: it only
 adds what is missing and deletes nothing.
 
+The SQL file deliberately contains **no `DO $$ … $$` blocks** — every conditional step is plain
+idempotent DDL (`add column if not exists`, `drop policy/trigger/constraint if exists`), so a paste
+that gets split up mid-block cannot leave a bare `if … then` for Postgres to choke on
+(that was the `42601: syntax error at or near "if"` failure). The only multi-line statements left are
+the two functions in sections 8 and 11; if your editor ever cuts a paste again, run one numbered
+section at a time, and paste each whole function in a single go.
+
 What it does:
 
 - New role value **`27`** in `verified_profiles.role`. That is the only thing you type by hand.
