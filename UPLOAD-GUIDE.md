@@ -37,3 +37,103 @@ The images were created using the built-in image-generation tool, referencing th
 Checked in Chromium at desktop and phone sizes: all six details, close-ups, winter switching, rotation, keyboard controls, mouse/touch dragging, mobile navigation, and the image-only poster area. No horizontal overflow at widths from 320 to 1920 pixels. Results search and Escape closing work, and all 242 original records remain unchanged. Both inner pages use the homepage footer and navigation; homepage section links return to `index.html`.
 
 Existing authentication and external services were preserved; no live account operations were performed.
+
+## ⏳ Temporary: NGHS 60th Sign Day pass (batch 2027)
+
+Two files carry this one-off feature, and nothing else does:
+
+- `supabase-schema.sql` — sections **8 to 12**, fenced by `TEMP-SIGNDAY-60 · START / END` banners
+  (sections 0–7 are the rest of the site's schema, unchanged apart from formatting).
+- `supabase-signday-60.sql` — **the same sections 8–12 as a standalone file**, for running on a
+  project that already has `verified_profiles` (this one). Prefer this file: it has no
+  `create table`, so Supabase does not offer to "enable RLS" and cannot rewrite the script.
+- `account.html` — the CSS, HTML and JS regions tagged `TEMP-SIGNDAY-60`, plus six one-line hooks
+  inside the existing code (each tagged on the line above it).
+
+Upload both, then run one SQL file in **Supabase → SQL Editor → New query**. They are idempotent:
+they only add what is missing and delete nothing.
+
+### If Supabase shows "Potential issues detected" — press **Run without RLS**
+
+The dialog offers *Cancel · Run without RLS · Run and enable RLS*. **Choose "Run without RLS".**
+"Run and enable RLS" is an automatic fixer: it rewrites the script before running it, inserting its
+own `alter table … enable row level security;` line after each `create table`. Those files already
+enable RLS and create every policy themselves, so the rewrite only gets in the way — and in earlier
+versions it landed *inside* the multi-line `create table` statement, which is what produced errors
+like `42601: syntax error at or near "alter"` pointing at a line that does not exist in the file.
+
+Both SQL files are now written to survive that rewrite: **every statement is a single line**, so a
+line-based injector has nothing to cut into, and all comments are `/* … */` blocks, so they survive
+being joined or stripped. The only multi-line statements left are the two function bodies
+(section 6 of `supabase-schema.sql`, section S2 of `supabase-signday-60.sql`).
+
+The files also contain **no `DO $$ … $$` blocks** — every conditional step is plain idempotent DDL
+(`add column if not exists`, `drop policy/trigger/constraint if exists`), so a paste that gets split
+up mid-block cannot leave a bare `if … then` for Postgres to choke on (that was the earlier
+`42601: syntax error at or near "if"` failure). If an editor ever cuts a paste again, run one
+numbered section at a time and paste each whole function in a single go.
+
+### If you see `23514: violates check constraint "verified_profiles_role_check"`
+
+That means the live database had a pre-existing role check which allowed the site's normal roles but
+rejected `27`. The v5 standalone SQL now replaces that check with one that permits `27` only when
+`batch_year = '2027'` (and keeps `member`, `elite`, `alumni`, and `architect`). The failed backfill
+statement did not complete; re-run the updated whole `supabase-signday-60.sql` file in **SQL Editor →
+New query**. The migration is safe to re-run.
+
+What it does:
+
+- New role value **`27`** in `verified_profiles.role`. That is the only thing you type by hand.
+  Version 5 also replaces the existing `verified_profiles_role_check` constraint that rejected `27`;
+  the new check accepts `27` only with `batch_year = '2027'`, alongside the four normal roles
+  (`member`, `elite`, `alumni`, `architect`). The trigger independently rejects `27` on any other
+  batch, and if a 2027 student edits their own batch away from 2027, the tag is removed silently.
+- Every **new** 2027 registration is given role `27` automatically, and section 10 backfills every
+  2027 student already in the table.
+- `signday_status` moves `unconfirmed → submitted → issued`. `submitted` is written by the student
+  pressing **Register** on their own card (their account email lands in `signday_email`); a student
+  cannot mark themselves `issued` — the trigger refuses that write. Only you, from the Table editor
+  (or with the statements in section 11), issue passes.
+- `signday_pass_code` is a ticket serial derived from the row id (`SD60-27-XXXX-XXXX`), written by
+  the trigger and used to draw the barcode on the card. No manual work.
+
+In the account page a `27` member sees: the blue **NGHS 60th Sign Day** tag beside their name (card,
+network list and member detail modal), an **UNCONFIRMED / PENDING ISSUE / PASS ACTIVE** chip, the
+"Register For NGHS 60th Sign Day" notice above their profile, and their ID card rebuilt as a
+perforated digital pass — gold emblem in the style of the 60th Sign Day logo, punched side notches,
+banknote watermark of the current status, serial and barcode on the stub. When you issue the pass the
+card goes "live" (foil sweep) and they get a one-time blue confetti celebration on next sign-in.
+`SIGNDAY.dateText` near the top of the JS block is a one-line place to put the real event date.
+
+Checked with a local PostgreSQL 18 running both real files: fresh install, install on top of the previous
+schema and its legacy role check, re-runs, every rewrite Supabase's editor can apply to a paste (RLS
+injection, comment stripping, one-line joining), auto-issue, the batch guard, self-issue refusal, tag
+withdrawal, and the section-12 rollback — 52 SQL checks passed. The front end was checked by driving
+the real `account.html` in jsdom for all three states plus the existing flows (themes, verification
+modal, details gate, private accounts, signup, follow, edit/save).
+
+### Verify the SQL ran
+
+In **Supabase Dashboard → SQL Editor → New query** (not the Table Editor), paste this read-only
+query and click **Run**:
+
+```sql
+select count(*) filter (where role = '27') as tagged,
+       count(*) filter (where role = '27' and signday_status = 'submitted') as waiting
+  from public.verified_profiles;
+```
+
+`tagged` is the number of batch-2027 profiles carrying the Sign Day tag; `waiting` is how many of
+them pressed **Register** and are awaiting pass issue. The first number should match the batch-2027
+headcount.
+
+### Removing it after the event
+
+1. In `account.html`, delete the `TEMP-SIGNDAY-60` CSS / HTML / JS regions and the six tagged hook
+   lines, then delete the `.profile-col` wrapper around `#profile-card`.
+2. In Supabase, uncomment and run section **12** of `supabase-schema.sql` (or section **S5** of
+   `supabase-signday-60.sql`): it drops the trigger and two indexes, removes the Sign Day status
+   constraint and five `signday_*` columns, restores the normal four-role check, and returns every
+   `27` member to `member`.
+
+No other page, table or script depends on any of it.
