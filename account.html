@@ -802,7 +802,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 
 /* ticket head band */
 .sd-band {
-  position: relative; text-align: left;
+  position: relative; text-align: left; overflow: hidden;   /* clips the foil sweep */
   display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
   margin: calc(-1 * var(--sd-pad)) calc(-1 * var(--sd-pad)) 14px;
   padding: 11px calc(var(--sd-pad) * .85) 12px;
@@ -1047,24 +1047,26 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
               <stop offset="1" stop-color="#c8901f"/>
             </linearGradient>
           </defs>
-          <g fill="none" stroke="url(#sdFoil)" stroke-width="4.5" stroke-linecap="round">
-            <path d="M25 39A35 25 0 0 1 95 39"/>
-            <path d="M19 103q-10-25 4-45"/>
-            <path d="M101 103q10-25-4-45"/>
+          <g fill="none" stroke="url(#sdFoil)" stroke-linecap="round">
+            <path d="M27 37A33 23 0 0 1 93 37" stroke-width="4.4"/>
+            <path d="M41 110Q17 97 21 60" stroke-width="2.6"/>
+            <path d="M79 110Q103 97 99 60" stroke-width="2.6"/>
           </g>
           <g fill="url(#sdFoil)">
-            <rect x="15" y="39" width="90" height="8" rx="2"/>
-            <rect x="24" y="51" width="12" height="52" rx="2"/>
-            <rect x="84" y="51" width="12" height="52" rx="2"/>
-            <ellipse cx="15" cy="66" rx="4.6" ry="2.2" transform="rotate(-38 15 66)"/>
-            <ellipse cx="12" cy="78" rx="4.6" ry="2.2" transform="rotate(-22 12 78)"/>
-            <ellipse cx="13" cy="90" rx="4.6" ry="2.2" transform="rotate(-6 13 90)"/>
-            <ellipse cx="105" cy="66" rx="4.6" ry="2.2" transform="rotate(38 105 66)"/>
-            <ellipse cx="108" cy="78" rx="4.6" ry="2.2" transform="rotate(22 108 78)"/>
-            <ellipse cx="107" cy="90" rx="4.6" ry="2.2" transform="rotate(6 107 90)"/>
+            <ellipse cx="24" cy="52" rx="5" ry="2.1" transform="rotate(24 24 52)"/>
+            <ellipse cx="18" cy="64" rx="5" ry="2.1" transform="rotate(2 18 64)"/>
+            <ellipse cx="16" cy="78" rx="5" ry="2.1" transform="rotate(-18 16 78)"/>
+            <ellipse cx="20" cy="92" rx="5" ry="2.1" transform="rotate(-38 20 92)"/>
+            <ellipse cx="96" cy="52" rx="5" ry="2.1" transform="rotate(-24 96 52)"/>
+            <ellipse cx="102" cy="64" rx="5" ry="2.1" transform="rotate(-2 102 64)"/>
+            <ellipse cx="104" cy="78" rx="5" ry="2.1" transform="rotate(18 104 78)"/>
+            <ellipse cx="100" cy="92" rx="5" ry="2.1" transform="rotate(38 100 92)"/>
+            <rect x="18" y="37" width="84" height="8" rx="2.4"/>
+            <rect x="28" y="49" width="11" height="55" rx="2"/>
+            <rect x="81" y="49" width="11" height="55" rx="2"/>
           </g>
-          <text x="60" y="86" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-weight="900" font-size="34" fill="url(#sdFoil)">60</text>
-          <text x="60" y="101" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-style="italic" font-weight="700" font-size="12.5" fill="url(#sdFoil)">Sign Day</text>
+          <text x="60" y="84" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-weight="900" font-size="31" letter-spacing="-1" fill="url(#sdFoil)">60</text>
+          <text x="60" y="100" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-style="italic" font-weight="700" font-size="14" fill="url(#sdFoil)">Sign Day</text>
         </svg>
         <span class="sd-band-text">
           <span class="sd-band-brand">NGHS 60th Sign Day</span>
