@@ -413,9 +413,18 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 /* ============================================================
    MEMBER DETAIL MODAL (click a member in the network list)
    ============================================================ */
-.member-box {
+/* The panel scrolls inside itself. Written as #member-modal .member-box (not .member-box):
+   the generic .modal-box rule further down sets overflow:hidden, and at equal specificity
+   it silently cancelled the old overflow-y:auto, so the card could not be scrolled by hand.
+   max-height:100% is the overlay's inner height; 100vh is taller than the visible screen
+   on phones, which pushed the top of the card out of view. */
+#member-modal { overscroll-behavior: contain; }
+#member-modal .member-box {
   max-width: 480px; text-align: left;
-  max-height: calc(100vh - 32px); overflow-y: auto;
+  max-height: 100%; overflow-x: hidden; overflow-y: auto;
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.18) transparent;
+  margin: auto;
   border-color: rgba(var(--gold),0.22);
 }
 .member-close {
@@ -738,11 +747,22 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   color: rgba(var(--sd-blue),1); font-weight: 700; font-size: .78rem;
   margin-top: 5px; letter-spacing: .5px; text-transform: uppercase;
 }
-.member-box.sd-member-pass { border-color: rgba(var(--sd-blue),.28); }
-.member-box.sd-member-pass::before {
-  background: linear-gradient(90deg, transparent, rgba(var(--sd-blue),.7), rgba(var(--gold),.45), transparent);
+/* On a pass the ticket IS the panel: no second frame around it. The dark space on
+   either side of the card is the overlay, so tapping it closes the card, and the
+   gutters are wide enough to tap on a phone. */
+#member-modal.sd-pass-open { padding: 16px clamp(40px, 13vw, 72px); }   /* card ≈ 74% of the screen width */
+#member-modal .member-box.sd-member-pass {
+  max-width: 380px; padding: 0; background: none; border: none; box-shadow: none;
 }
-.member-box.sd-member-pass .member-actions { margin-top: 14px; }
+#member-modal .member-box.sd-member-pass::before { display: none; }
+/* The X would sit on the band's 60th seal; the pinned Close button below does the same job */
+#member-modal .member-box.sd-member-pass .member-close { display: none; }
+/* Follow / Close stay pinned at the bottom while the card scrolls underneath them.
+   The inset keeps the buttons clear of the card's rounded bottom corners. */
+#member-modal .member-box.sd-member-pass .member-actions {
+  position: sticky; bottom: 0; z-index: 4; margin-top: 0; padding: 22px 14px 14px;
+  background: linear-gradient(180deg, rgba(2,3,4,0) 0, #020304 22px);
+}
 /* banknote-style watermark, sits behind the card content */
 .sd-watermark {
   position: absolute; inset: 0; z-index: -1; display: grid; place-items: center; pointer-events: none;
@@ -1404,6 +1424,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
       if (isMissingColumnError(err)) {
         fail("The database is missing the new WhatsApp/Instagram columns. The admin must run the updated SQL migration first.");
+      } else if (/database error saving new user/i.test(err.message || '')) {
+        // The duplicate-email guard (supabase-dedupe-accounts.sql) rejects the insert with this generic message
+        fail("We couldn't create this account. If you already have an NGHSIANS account with this email, log in instead.");
       } else { fail(err.message); }
     }
     finally { btn.textContent = 'CREATE ACCOUNT'; btn.disabled = false; }
@@ -1540,9 +1563,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.currentMemberId = id;
     renderMemberModal(member);
     renderMemberFollowBtn(id);
+    // Always open at the top of the card (name and emblem), even if it was scrolled before
+    const panel = getEl('member-modal').querySelector('.member-box');
+    if (panel) panel.scrollTop = 0;
     getEl('member-modal').classList.add('show');
     document.body.style.overflow = 'hidden';
-    setTimeout(() => { const b = getEl('member-follow-btn'); if (b) b.focus(); }, 250);
+    // preventScroll: focusing the button used to scroll the panel down and hide the top of the card
+    setTimeout(() => { const b = getEl('member-follow-btn'); if (b) b.focus({ preventScroll: true }); }, 250);
     // Refresh with fresh data (follower count can change while the list is open)
     try {
       const { data, error } = await supabase.from('verified_profiles').select('*').eq('id', id).maybeSingle();
@@ -2015,6 +2042,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     var ticket = getEl('sd-member-ticket');
     var head = getEl('member-head'), table = getEl('member-table');
     if (box) box.classList.toggle('sd-member-pass', isPass);
+    if (modal) modal.classList.toggle('sd-pass-open', isPass);   /* wider side gutters for the pass */
     if (ticket) ticket.classList.toggle('hidden', !isPass);
     if (head) head.classList.toggle('hidden', isPass);
     if (table) table.classList.toggle('hidden', isPass);
