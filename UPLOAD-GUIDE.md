@@ -153,3 +153,35 @@ A duplicate is two or more accounts with the same email once capitals and spaces
 2. Read the preview: select the single line under "2. PREVIEW" and press Run. Check every TERMINATE row. Then select the single line under "3." and press Run to see every table that points at `auth.users`.
 3. When the TERMINATE rows are the ones you expect, paste `supabase-dedupe-terminate.sql` and Run it. A copy of each removed profile and its follow links is kept in `account_dedupe_audit`, which the public API cannot read.
 4. Resolve any REVIEW rows by hand, then run section 6 of the first file again. The email lock builds once no duplicate is left.
+## Who made each change on the 27 rep panel (2026-10-09)
+
+**Upload** the updated `27rep.html`, then **re-run** `supabase-signday-form-27.sql` in **Supabase → SQL Editor → New query → Run without RLS**. That file is idempotent and deletes nothing: it adds the change-log table and gives the two pass functions a name parameter.
+
+`27rep.html` now asks for a **name under the PIN**, and that name travels with every change the rep makes:
+
+- a **Last Change** column in the sheet — which rep moved whose pass, which way, and when;
+- a **🧾 Change log** button above the table — the last 150 changes, newest first, with your own rows highlighted;
+- three extra fields in the **Export CSV** sheet: `Changed By`, `Change Made`, `Changed At`;
+- searching a rep's name in the search box narrows the sheet to the rows that rep last touched.
+
+Storage is the new `public.signday_pass_log`: one row per button press, written inside the same PIN-guarded function that changes the pass, so a change and its record cannot drift apart. RLS is enabled with no policies — students and the anon key can neither read nor write it — and the logger itself is not callable through the API at all. The dashboard's Table editor shows it like any other table.
+
+The name is kept in the browser: this tab for the session, plus last-used for the next visit, so locking the panel does not mean retyping it. The rep name in the top bar locks the panel when clicked, which is how you hand the laptop to the next rep. Nothing breaks if the SQL has not been re-run yet — the panel falls back to the old two-argument functions, the pass changes still work, and the toast says plainly that the name was not saved.
+
+What each rep has done so far:
+
+```sql
+select actor_name as rep, count(*) as changes,
+       count(*) filter (where action = 'activate')   as activated,
+       count(*) filter (where action = 'deactivate') as reverted,
+       max(created_at) as last_seen
+  from public.signday_pass_log group by 1 order by 2 desc;
+```
+
+Every change on one student:
+
+```sql
+select to_char(created_at, 'DD Mon YYYY HH24:MI') as at, actor_name as rep, action, signday_status as ended_in
+  from public.signday_pass_log
+ where student_name = 'Rahim Uddin' order by id desc;
+```

@@ -10,8 +10,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ============================================================
-   27rep.html — committee rep panel (PIN 202725)
+   27rep.html — committee rep panel (PIN 202725 + the rep's own name)
    plain, big, spreadsheet-like — easy for anyone to use
+   the name typed under the PIN is written into the sheet with every pass
+   change (activate / set back to unconfirmed) — see signday_pass_log in
+   supabase-signday-form-27.sql
    ============================================================ */
 :root {
   --ink: #17130e;
@@ -95,6 +98,29 @@ body {
   80% { transform: translateX(5px); }
 }
 
+/* ---------- rep name field (under the PIN) ---------- */
+.pin-field { margin-top: 16px; text-align: left; }
+.pin-field label {
+  display: block; margin: 0 0 6px 2px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.pin-field label span {
+  font-family: 'Hind Siliguri', sans-serif; font-size: 12.5px; font-weight: 600;
+  letter-spacing: 0; text-transform: none;
+}
+.pin-field input {
+  font-size: 17px; font-weight: 700; letter-spacing: .2px;
+  text-align: left; text-transform: none;
+}
+.pin-field input::placeholder { font-weight: 500; letter-spacing: .2px; color: #ab9c85; }
+.pin-card input.bad { border-color: var(--red); background: #fff6f4; }
+.pin-card .pin-note {
+  margin: 14px 2px 0; text-align: left;
+  font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); font-weight: 500;
+}
+.pin-card .pin-note b { color: var(--ink); }
+
 /* ---------- buttons ---------- */
 .btn {
   font: inherit; font-weight: 700;
@@ -141,6 +167,15 @@ body {
 .topbar .btn { background: rgba(243,236,217,.12); color: var(--paper-2); border-color: rgba(243,236,217,.4); box-shadow: none; }
 .topbar .btn:hover { background: rgba(243,236,217,.22); }
 #lastUpdated { font-size: 12px; color: rgba(243,236,217,.65); font-weight: 500; }
+.rep-who {
+  display: inline-flex; align-items: baseline; gap: 7px; cursor: pointer;
+  background: rgba(201,162,39,.16); border: 1px solid rgba(201,162,39,.55);
+  color: rgba(243,236,217,.8); padding: 6px 12px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700;
+}
+.rep-who:hover { background: rgba(201,162,39,.3); }
+.rep-who b { color: #ffe9a8; font-size: 13px; }
+.rep-who i { font-style: normal; font-weight: 500; opacity: .7; font-size: 11px; }
 
 /* ---------- stats ---------- */
 .stats {
@@ -198,7 +233,7 @@ body {
   max-height: calc(100vh - 260px);
   max-height: calc(100dvh - 260px);
 }
-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1500px; font-size: 14px; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1660px; font-size: 14px; }
 thead th {
   position: sticky; top: 0; z-index: 5;
   background: var(--ink); color: var(--paper-2);
@@ -222,6 +257,14 @@ td.num { color: var(--ink-soft); font-weight: 700; text-align: right; }
 td .sub { display: block; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; white-space: normal; max-width: 220px; }
 .name-cell b { font-size: 14.5px; }
 .mono { font-variant-numeric: tabular-nums; letter-spacing: .3px; }
+
+/* the "Last Change" column — which rep touched this student, and when */
+td.chg { white-space: normal; max-width: 200px; }
+td.chg .by, td.chg .on { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-soft); }
+td.chg .by { margin-top: 1px; }
+td.chg .none-yet { font-size: 12px; font-weight: 600; color: #a99a83; }
+.tag-issue { color: var(--green-deep); font-weight: 800; }
+.tag-unconf { color: var(--red-deep); font-weight: 800; }
 
 /* status pill */
 .pill {
@@ -285,6 +328,36 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   font-weight: 700; color: var(--ink-soft); font-size: 15px;
 }
 
+/* ---------- change log panel ---------- */
+.log-wrap { max-width: 1400px; margin: 14px auto 0; padding: 0 18px; }
+.log-card {
+  background: var(--paper-2);
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(23,19,14,.75);
+}
+.log-card h2 {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0; padding: 11px 16px;
+  background: var(--ink); color: var(--paper-2);
+  font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: .7px;
+  border-bottom: 3px solid var(--gold);
+}
+.log-card h2 .spacer { flex: 1; }
+.log-card h2 .log-count { font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 700; letter-spacing: .3px; text-transform: none; color: rgba(243,236,217,.7); }
+.log-list { max-height: 264px; overflow: auto; }
+.log-row {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px;
+  padding: 9px 16px; border-bottom: 1px solid var(--line);
+  font-size: 13.5px; font-weight: 600;
+}
+.log-row:last-child { border-bottom: 0; }
+.log-row.mine { background: rgba(201,162,39,.16); }
+.log-row .who { font-weight: 800; color: var(--red-deep); }
+.log-row .act-on { color: var(--ink-soft); }
+.log-row .when { margin-left: auto; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.log-empty { padding: 20px 16px; text-align: center; font-weight: 700; font-size: 13.5px; color: var(--ink-soft); }
+.log-empty small { font-weight: 500; }
+
 /* ---------- toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 22px;
@@ -327,11 +400,16 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   <div class="pin-card" id="pinCard">
     <div class="pin-lock">🔒</div>
     <h1>NGHS-27 Rep Panel</h1>
-    <p>60th Sign Day roster — committee only.<br>Enter the panel PIN to open the spreadsheet.</p>
+    <p>60th Sign Day roster — committee only.<br>Enter the panel PIN and your name to open the spreadsheet.</p>
     <form id="pinForm">
       <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Panel PIN">
+      <div class="pin-field">
+        <label for="nameInput">Your name <span>আপনার নাম</span></label>
+        <input id="nameInput" type="text" autocomplete="name" maxlength="60" placeholder="e.g. Rifat — Class 10, Sec B" aria-label="Your name">
+      </div>
       <div class="pin-err" id="pinErr"></div>
       <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:12px;">Unlock panel</button>
+      <p class="pin-note"><b>Why the name?</b> It is written into the sheet beside every change you make — activating a pass or setting a student back to UNCONFIRMED — so the committee can always see <b>who</b> did what.</p>
     </form>
   </div>
 </div>
@@ -344,6 +422,8 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     <span class="live-pill"><span class="live-dot"></span> LIVE · auto-refresh 8s</span>
     <span id="lastUpdated">—</span>
     <span class="spacer"></span>
+    <span class="rep-who" id="repWho" title="Changes you make are saved in the sheet under this name. Click to lock and sign in as someone else.">Rep: <b id="repWhoName">—</b> <i>click to switch</i></span>
+    <button type="button" class="btn btn-sm" id="logBtn">🧾 Change log</button>
     <button type="button" class="btn btn-sm" id="refreshBtn">⟳ Refresh</button>
     <button type="button" class="btn btn-sm" id="exportBtn">⤓ Export CSV</button>
     <button type="button" class="btn btn-sm" id="lockBtn">🔒 Lock</button>
@@ -414,8 +494,17 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   <p class="legend">
     <b>How to use:</b> find a student with search or the filters → check their payment →
     click the green <b>ACTIVE PASS</b> button when the deposit is confirmed (their nghsians account turns PASS ACTIVE automatically),
-    or the red <b>UNCONFIRMED</b> button to take a pass back. The table refreshes itself every 8 seconds.
+    or the red <b>UNCONFIRMED</b> button to take a pass back. The table refreshes itself every 8 seconds.<br>
+    <b>Everything is signed:</b> the name you typed under the PIN is saved on the student's row in the
+    <b>Last Change</b> column and in the <b>🧾 Change log</b> — search any rep's name to see only their changes.
   </p>
+
+  <div class="log-wrap hidden" id="logView">
+    <div class="log-card">
+      <h2>🧾 Change log — who did what <span class="spacer"></span><span class="log-count" id="logCount"></span></h2>
+      <div class="log-list" id="logList"><div class="log-empty">Loading…</div></div>
+    </div>
+  </div>
 
   <div class="table-wrap">
     <div class="table-scroll">
@@ -435,12 +524,13 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
             <th>Group</th>
             <th>Submitted</th>
             <th>Pass Status</th>
+            <th>Last Change<br><small style="font-weight:400;text-transform:none">যিনি পরিবর্তন করেছেন</small></th>
             <th class="act act-pass">ACTIVE PASS<br><small style="font-weight:400;text-transform:none">সক্রিয় পাস</small></th>
             <th class="act act-unconf">UNCONFIRMED<br><small style="font-weight:400;text-transform:none">নিশ্চিত নয়</small></th>
           </tr>
         </thead>
         <tbody id="rosterBody">
-          <tr class="empty-row"><td colspan="15">Loading roster…</td></tr>
+          <tr class="empty-row"><td colspan="16">Loading roster…</td></tr>
         </tbody>
       </table>
     </div>
@@ -456,6 +546,8 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
 
   var PIN = '202725';
   var PIN_KEY = 'nghs27rep_unlocked';
+  var NAME_KEY = 'nghs27rep_actor';           // who is signed in right now
+  var NAME_LAST_KEY = 'nghs27rep_actor_last'; // remembered for the next visit
   var POLL_MS = 8000;
 
   var SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
@@ -468,6 +560,14 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function norm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  function store(kind) {
+    try { return kind === 'local' ? window.localStorage : window.sessionStorage; } catch (e) { return null; }
+  }
+  function getStored(key, kind) { var st = store(kind); try { return (st && st.getItem(key)) || ''; } catch (e) { return ''; } }
+  function setStored(key, val, kind) { var st = store(kind); try { if (st) st.setItem(key, val); } catch (e) {} }
+  /* the name typed under the PIN — it is saved with every change in the sheet */
+  function actorName() { return cleanName(getStored(NAME_KEY, 'session')) || 'committee'; }
+  function cleanName(raw) { return String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim().slice(0, 60); }
   var toastTimer = null;
   function showToast(msg, isError) {
     var t = getEl('toast');
@@ -482,6 +582,13 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     try {
       var d = new Date(ts);
       return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return String(ts); }
+  }
+  function fmtStamp(ts) {
+    if (!ts) return '—';
+    try {
+      var d = new Date(ts);
+      return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit' });
     } catch (e) { return String(ts); }
   }
   function fmtClock() {
@@ -509,10 +616,15 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   var seenIds = {};       // for the "new row" flash
   var pollTimer = null;
   var firstLoad = true;
+  var logOpen = false;    // the change-log panel
+  var logRows = [];
+  var logBusy = false;
+  var nameLoggingOff = false; // set when the DB has no actor_name parameter yet
 
-  /* ---------- PIN gate ---------- */
+  /* ---------- PIN gate: PIN + the rep's name ---------- */
   function unlock() {
     try { sessionStorage.setItem(PIN_KEY, '1'); } catch (e) {}
+    getEl('repWhoName').textContent = actorName();
     getEl('pinView').classList.add('hidden');
     getEl('dashView').classList.remove('hidden');
     loadRoster(false);
@@ -521,34 +633,58 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   function lock() {
     try { sessionStorage.removeItem(PIN_KEY); } catch (e) {}
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    logOpen = false;
+    getEl('logView').classList.add('hidden');
+    getEl('logBtn').textContent = '🧾 Change log';
     getEl('dashView').classList.add('hidden');
     getEl('pinView').classList.remove('hidden');
     getEl('pinInput').value = '';
     getEl('pinErr').textContent = '';
+    getEl('nameInput').value = getStored(NAME_KEY, 'session') || getStored(NAME_LAST_KEY, 'local');
+    getEl('nameInput').classList.remove('bad');
     getEl('pinInput').focus();
+  }
+  function shakeCard() {
+    var card = getEl('pinCard');
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
   }
   getEl('pinForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var v = getEl('pinInput').value.trim();
-    if (v === PIN) {
-      getEl('pinErr').textContent = '';
-      unlock();
-    } else {
+    var nameBox = getEl('nameInput');
+    var nm = cleanName(nameBox.value);
+    nameBox.value = nm;
+    if (v !== PIN) {
+      nameBox.classList.remove('bad');
       getEl('pinErr').textContent = 'Wrong PIN — try again.';
-      var card = getEl('pinCard');
-      card.classList.remove('shake');
-      void card.offsetWidth;
-      card.classList.add('shake');
+      shakeCard();
       getEl('pinInput').select();
+      return;
     }
+    if (!nm) {
+      nameBox.classList.add('bad');
+      getEl('pinErr').textContent = 'Type your name first — it is saved with every change you make.';
+      shakeCard();
+      nameBox.focus();
+      return;
+    }
+    nameBox.classList.remove('bad');
+    getEl('pinErr').textContent = '';
+    setStored(NAME_KEY, nm, 'session');
+    setStored(NAME_LAST_KEY, nm, 'local');
+    unlock();
   });
+  getEl('nameInput').addEventListener('input', function () { this.classList.remove('bad'); });
+  getEl('repWho').addEventListener('click', lock);
   getEl('lockBtn').addEventListener('click', lock);
 
   /* ---------- data ---------- */
   async function loadRoster(silent) {
     if (!silent) {
       var body = getEl('rosterBody');
-      body.innerHTML = '<tr class="empty-row"><td colspan="15">Loading roster…</td></tr>';
+      body.innerHTML = '<tr class="empty-row"><td colspan="16">Loading roster…</td></tr>';
     }
     try {
       var res = await supabase.rpc('signday_roster', { pass_pin: PIN });
@@ -565,9 +701,10 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
       rows = incoming;
       render();
       getEl('lastUpdated').textContent = 'updated ' + fmtClock();
+      if (logOpen) loadLog(true);
     } catch (err) {
       var body2 = getEl('rosterBody');
-      body2.innerHTML = '<tr class="empty-row"><td colspan="15">Could not load the roster: ' +
+      body2.innerHTML = '<tr class="empty-row"><td colspan="16">Could not load the roster: ' +
         esc((err && err.message) || err) +
         '<br><small>Check that supabase-signday-form-27.sql has been run and the PIN matches.</small></td></tr>';
       getEl('lastUpdated').textContent = 'load failed ' + fmtClock();
@@ -579,14 +716,38 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     var btns = document.querySelectorAll('.act-btn[data-id="' + id + '"]');
     btns.forEach(function (b) { b.disabled = busy; });
   }
+  /* One call for both buttons. The actor_name argument is what writes the
+     rep's name into the sheet. If the database is still on v1 of
+     supabase-signday-form-27.sql (its functions have no actor_name
+     parameter), PostgREST cannot find that signature — so the change is still
+     made, without the name, and `logged:false` tells the caller to say so in
+     the same toast instead of blocking the student's pass. */
+  async function callPassRpc(fn, id) {
+    var args = { target_user_id: id, pass_pin: PIN };
+    if (!nameLoggingOff) args.actor_name = actorName();
+    var res = await supabase.rpc(fn, args);
+    var why = String((res.error && (res.error.code + ' ' + res.error.message)) || '');
+    if (res.error && !nameLoggingOff && /PGRST202|Could not find the function|is not unique/i.test(why)) {
+      nameLoggingOff = true;
+      res = await supabase.rpc(fn, { target_user_id: id, pass_pin: PIN });
+      return { res: res, logged: false };
+    }
+    return { res: res, logged: !nameLoggingOff };
+  }
+  function loggedTail(logged, who) {
+    return logged
+      ? ' Logged in the sheet as ' + who + '.'
+      : ' Your name was NOT saved — run supabase-signday-form-27.sql again in Supabase → SQL Editor to log who changes what.';
+  }
   async function activatePass(row) {
+    var who = actorName();
     var name = row.student_name || row.profile_username || row.email || 'this student';
-    if (!window.confirm('Mark ' + name + ' as ACTIVE PASS?\n\nTheir nghsians account will turn PASS ACTIVE immediately (signday_status = issued).')) return;
+    if (!window.confirm('Mark ' + name + ' as ACTIVE PASS?\n\nSaved in the sheet as your change: ' + who + '\n\nTheir nghsians account will turn PASS ACTIVE immediately (signday_status = issued).')) return;
     setRowBusy(row.id, true);
     try {
-      var res = await supabase.rpc('activate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
-      if (res.error) throw res.error;
-      showToast('ACTIVE PASS issued — ' + name + '’s account is now PASS ACTIVE.');
+      var out = await callPassRpc('activate_signday_pass', row.id);
+      if (out.res.error) throw out.res.error;
+      showToast('ACTIVE PASS issued — ' + name + '’s account is now PASS ACTIVE.' + loggedTail(out.logged, who), out.logged ? false : true);
       await loadRoster(true);
     } catch (err) {
       showToast('Could not activate: ' + ((err && err.message) || err), true);
@@ -595,13 +756,14 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     }
   }
   async function deactivatePass(row) {
+    var who = actorName();
     var name = row.student_name || row.profile_username || row.email || 'this student';
-    if (!window.confirm('Set ' + name + ' back to UNCONFIRMED?\n\nThey stay registered, but their pass goes back to waiting (signday_status = submitted).')) return;
+    if (!window.confirm('Set ' + name + ' back to UNCONFIRMED?\n\nSaved in the sheet as your change: ' + who + '\n\nThey stay registered, but their pass goes back to waiting (signday_status = submitted).')) return;
     setRowBusy(row.id, true);
     try {
-      var res = await supabase.rpc('deactivate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
-      if (res.error) throw res.error;
-      showToast(name + ' set back to UNCONFIRMED (still registered).');
+      var out = await callPassRpc('deactivate_signday_pass', row.id);
+      if (out.res.error) throw out.res.error;
+      showToast(name + ' set back to UNCONFIRMED (still registered).' + loggedTail(out.logged, who), out.logged ? false : true);
       await loadRoster(true);
     } catch (err) {
       showToast('Could not update: ' + ((err && err.message) || err), true);
@@ -609,6 +771,49 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
       setRowBusy(row.id, false);
     }
   }
+
+  /* ---------- change log panel ---------- */
+  async function loadLog(silent) {
+    if (logBusy) return;
+    logBusy = true;
+    if (!silent) getEl('logList').innerHTML = '<div class="log-empty">Loading…</div>';
+    try {
+      var res = await supabase.rpc('signday_activity', { pass_pin: PIN, row_limit: 150 });
+      if (res.error) throw res.error;
+      logRows = res.data || [];
+      renderLog();
+    } catch (err) {
+      logRows = [];
+      getEl('logCount').textContent = '';
+      getEl('logList').innerHTML = '<div class="log-empty">The change log is not installed yet.<br>' +
+        '<small>Run <b>supabase-signday-form-27.sql</b> again in Supabase → SQL Editor → New query → “Run without RLS”.</small><br>' +
+        '<small>' + esc((err && err.message) || err) + '</small></div>';
+    } finally {
+      logBusy = false;
+    }
+  }
+  function renderLog() {
+    var me = norm(actorName());
+    var html = '';
+    logRows.forEach(function (l) {
+      var act = norm(l.action) === 'activate'
+        ? '<span class="tag-issue">→ ACTIVE PASS</span>'
+        : '<span class="tag-unconf">→ UNCONFIRMED</span>';
+      html += '<div class="log-row' + (norm(l.actor_name) === me ? ' mine' : '') + '">' +
+        '<span class="who">' + esc(l.actor_name || 'committee') + '</span>' + act +
+        '<span class="act-on">for <b>' + esc(l.student_name || '—') + '</b></span>' +
+        '<span class="when">' + fmtStamp(l.created_at) + '</span>' +
+      '</div>';
+    });
+    getEl('logCount').textContent = logRows.length + (logRows.length === 1 ? ' recent change' : ' recent changes');
+    getEl('logList').innerHTML = html || '<div class="log-empty">Nothing recorded yet. The name typed under the PIN shows up here as soon as anyone presses ACTIVE PASS or UNCONFIRMED.</div>';
+  }
+  getEl('logBtn').addEventListener('click', function () {
+    logOpen = !logOpen;
+    getEl('logView').classList.toggle('hidden', !logOpen);
+    getEl('logBtn').textContent = logOpen ? '🧾 Hide change log' : '🧾 Change log';
+    if (logOpen) loadLog(false);
+  });
 
   /* ---------- filter / sort / render ---------- */
   function currentFiltered() {
@@ -632,7 +837,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
         var hay = norm([
           r.student_name, r.email, r.profile_email, r.phone, r.profile_whatsapp,
           r.class_roll, r.profile_username, r.profile_school_id, r.signday_pass_code,
-          r.bkash_number, r.deposit_to
+          r.bkash_number, r.deposit_to, r.last_actor
         ].join(' '));
         if (hay.indexOf(q) === -1) return false;
       }
@@ -659,6 +864,17 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     if (s === 'submitted') return '<span class="pill submitted">PENDING</span>';
     if (s === 'unconfirmed') return '<span class="pill unconfirmed">UNCONFIRMED</span>';
     return '<span class="pill none">NO ACCOUNT</span>';
+  }
+
+  /* what the "Last Change" column says: which rep moved this pass, and when */
+  function changeNote(r) {
+    if (!r.last_action) return '<span class="none-yet">no change yet</span>';
+    var act = norm(r.last_action) === 'activate'
+      ? '<span class="tag-issue">ACTIVE PASS</span>'
+      : '<span class="tag-unconf">UNCONFIRMED</span>';
+    return act +
+      '<span class="by">by ' + esc(r.last_actor || 'committee') + '</span>' +
+      '<span class="on">' + fmtStamp(r.last_action_at) + '</span>';
   }
 
   function render() {
@@ -689,7 +905,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     getEl('countLabel').textContent = 'Showing ' + list.length + ' of ' + total;
 
     if (!list.length) {
-      body.innerHTML = '<tr class="empty-row"><td colspan="15">No students match — clear the search or filters.</td></tr>';
+      body.innerHTML = '<tr class="empty-row"><td colspan="16">No students match — clear the search or filters.</td></tr>';
       return;
     }
 
@@ -719,6 +935,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
         '<td>' + esc(r.whatsapp_group || '—') + '</td>' +
         '<td class="mono">' + fmtTime(r.submitted_at) + '</td>' +
         '<td>' + statusPill(r) + '</td>' +
+        '<td class="chg">' + changeNote(r) + '</td>' +
         '<td class="act act-pass">' +
           '<button type="button" class="act-btn pass' + (issued ? '' : ' off') + '" data-id="' + esc(r.id) + '" data-act="activate">' +
             (issued ? '✓ ACTIVE PASS' : 'ACTIVE PASS') +
@@ -757,7 +974,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   getEl('exportBtn').addEventListener('click', function () {
     var list = currentFiltered();
     if (!list.length) { showToast('Nothing to export — no rows match the current filters.', true); return; }
-    var head = ['#', 'Student Name', 'Username', 'Email', 'Phone', 'Roll', 'Section', 'Shift', 'T-Shirt', 'Payment', 'Paid From / Given To', 'WhatsApp Group', 'Pass Status', 'Pass Code', 'Submitted At'];
+    var head = ['#', 'Student Name', 'Username', 'Email', 'Phone', 'Roll', 'Section', 'Shift', 'T-Shirt', 'Payment', 'Paid From / Given To', 'WhatsApp Group', 'Pass Status', 'Changed By', 'Change Made', 'Changed At', 'Pass Code', 'Submitted At'];
     function csvCell(v) {
       var s = String(v == null ? '' : v);
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
@@ -769,7 +986,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
         r.student_name, r.profile_username, r.email || r.profile_email, r.phone,
         r.class_roll, r.section, r.shift, r.tshirt_size, r.payment_method,
         r.payment_method === 'online' ? ('bKash ' + (r.bkash_number || '')) : ('Cash -> ' + (r.deposit_to || '')),
-        r.whatsapp_group, r.signday_status || '', r.signday_pass_code || '', r.submitted_at || ''
+        r.whatsapp_group, r.signday_status || '', r.last_actor || '', r.last_action || '', r.last_action_at || '', r.signday_pass_code || '', r.submitted_at || ''
       ].map(csvCell).join(','));
     });
     var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -780,14 +997,16 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
-    showToast('Exported ' + list.length + ' rows to CSV.');
+    showToast('Exported ' + list.length + ' rows to CSV — with the rep name for every recorded change.');
   });
 
   /* ---------- startup ---------- */
+  getEl('nameInput').value = getStored(NAME_KEY, 'session') || getStored(NAME_LAST_KEY, 'local');
   var already = false;
   try { already = sessionStorage.getItem(PIN_KEY) === '1'; } catch (e) {}
   if (already) unlock();
-  else getEl('pinInput').focus();
+  else if (getEl('nameInput').value) getEl('pinInput').focus();
+  else getEl('nameInput').focus();
 })();
 </script>
 </body>
