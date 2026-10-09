@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>NGHS 60th Sign Day — Batch 27 Registration Form</title>
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700&family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  /* Password-recovery links belong to reset.html. This runs BEFORE supabase-js
+     touches the URL — the SDK strips the recovery tokens from the address bar,
+     which is why redirecting later was unreliable. (Same guard as account.html.) */
+  window.recoveryRedirectTarget = function () {
+    var q = window.location.search || '', h = window.location.hash || '';
+    var isRecovery = /type=recovery/.test(h) ||
+                     /(^|[?&#])(code|token_hash|access_token)=/.test(q + h) ||
+                     /error=access_denied/.test(q + h);
+    return isRecovery ? ('reset.html' + q + h) : null;
+  };
+  (function () {
+    var target = window.recoveryRedirectTarget();
+    if (target) window.location.replace(target);
+  })();
+</script>
+<style>
+/* ============================================================
+   27form.html — "IT'S NOW OR NEVER" vintage poster theme
+   cream paper · deep red · ink black · gold
+   ============================================================ */
+:root {
+  --paper:    #ede3c8;
+  --paper-2:  #f4ecd8;
+  --ink:      #201812;
+  --ink-soft: #5a4a38;
+  --red:      #8f1a12;
+  --red-deep: #6b120b;
+  --gold:     #c9a227;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'DM Sans', 'Hind Siliguri', sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1100px 560px at 88% -8%, rgba(143,26,18,.12), transparent 60%),
+    radial-gradient(900px 520px at -8% 32%, rgba(143,26,18,.08), transparent 60%),
+    var(--paper);
+}
+/* paper grain over everything */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .55;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='linear' slope='0.055'/></feComponentTransfer></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+header, main, footer, .hero { position: relative; z-index: 1; }
+.hidden { display: none !important; }
+.req { color: var(--red); font-weight: 700; }
+
+/* ---------- header ---------- */
+.site-head {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 14px;
+  padding: 10px 20px;
+  background: rgba(237,227,200,.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 3px solid var(--ink);
+  box-shadow: 0 3px 0 rgba(32,24,18,.18);
+}
+.logo-link { display: block; line-height: 0; border: 2px solid var(--ink); background: var(--paper-2); padding: 4px; box-shadow: 3px 3px 0 rgba(32,24,18,.7); }
+.logo-link img { height: 42px; display: block; }
+.head-brand { display: flex; align-items: center; gap: 12px; }
+.emblem { width: 48px; height: 48px; filter: drop-shadow(2px 2px 0 rgba(32,24,18,.5)); }
+.head-brand h1 { font-family: 'Anton', sans-serif; font-size: 21px; letter-spacing: .5px; margin: 0; text-transform: uppercase; line-height: 1.1; }
+.head-brand p { margin: 0; font-size: 12.5px; color: var(--ink-soft); font-weight: 500; }
+.account-chip {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 rgba(32,24,18,.7);
+  padding: 7px 12px;
+  max-width: 340px;
+}
+.account-chip .chip-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); font-weight: 700; }
+.account-chip strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- hero ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(260px, 400px) 1fr;
+  gap: 36px;
+  align-items: center;
+  max-width: 1060px;
+  margin: 30px auto 34px;
+  padding: 0 20px;
+}
+.poster {
+  margin: 0;
+  border: 10px solid var(--ink);
+  outline: 3px solid var(--gold);
+  box-shadow: 10px 10px 0 rgba(32,24,18,.85), 0 26px 50px rgba(32,24,18,.35);
+  transform: rotate(-1.6deg);
+  background: var(--ink);
+}
+.poster img { display: block; width: 100%; }
+.poster figcaption {
+  font-family: 'Anton', sans-serif;
+  background: var(--red);
+  color: var(--paper-2);
+  text-align: center;
+  padding: 9px 6px;
+  letter-spacing: 2.5px;
+  font-size: 13px;
+}
+.ribbon {
+  display: inline-block;
+  font-family: 'Anton', sans-serif;
+  background: var(--red);
+  color: var(--paper-2);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  padding: 8px 18px;
+  letter-spacing: 2.5px;
+  font-size: 14px;
+  transform: rotate(-1deg);
+}
+.hero-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(42px, 7vw, 74px);
+  line-height: .95;
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 rgba(32,24,18,.18);
+}
+.hero-title sup { color: var(--red); }
+.hero-sub { margin: 0 0 10px; font-size: 16px; font-weight: 700; color: var(--ink-soft); letter-spacing: .5px; }
+.hero-req { margin: 0 0 18px; font-size: 13px; color: var(--ink-soft); }
+.hero-steps { display: grid; gap: 10px; max-width: 460px; }
+.step {
+  display: flex; gap: 12px; align-items: baseline;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(32,24,18,.7);
+  padding: 10px 14px;
+  font-size: 14px;
+}
+.step b {
+  font-family: 'Anton', sans-serif;
+  background: var(--ink); color: var(--paper-2);
+  min-width: 26px; text-align: center;
+  padding: 2px 0; font-size: 15px;
+}
+
+/* ---------- layout / cards ---------- */
+.wrap { max-width: 760px; margin: 0 auto 64px; padding: 0 20px; }
+.card {
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(32,24,18,.8);
+  margin: 0 0 22px;
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 8px;
+  background: var(--red);
+}
+.form-head { padding: 28px 24px 20px; }
+.form-head h2 { font-family: 'Anton', sans-serif; margin: 0 0 4px; font-size: 28px; text-transform: uppercase; letter-spacing: .5px; }
+.form-head p { margin: 0; color: var(--ink-soft); font-weight: 500; }
+.question { padding: 24px 24px 26px; }
+.question h3 { margin: 0 0 14px; font-size: 16.5px; line-height: 1.5; font-weight: 700; }
+.field-label { display: block; font-size: 13.5px; font-weight: 700; margin: 16px 0 6px; line-height: 1.45; }
+.field-label:first-of-type { margin-top: 0; }
+
+/* ---------- inputs ---------- */
+input[type=text], input[type=email], input[type=password], input[type=tel], select {
+  width: 100%;
+  font: inherit;
+  padding: 10px 12px;
+  background: rgba(255,255,255,.55);
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  color: var(--ink);
+}
+input:focus, select:focus { outline: 3px solid rgba(143,26,18,.35); border-color: var(--red); }
+input[readonly] { background: rgba(32,24,18,.09); color: var(--ink-soft); cursor: not-allowed; font-weight: 700; }
+input[disabled] { background: rgba(32,24,18,.09); color: var(--ink-soft); cursor: not-allowed; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 64px; }
+.pw-toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font: inherit; font-size: 12px; font-weight: 700;
+  background: var(--ink); color: var(--paper-2);
+  border: 0; padding: 6px 10px; cursor: pointer;
+}
+.pw-toggle:hover { background: var(--red); }
+
+/* ---------- radio pills ---------- */
+.radio-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.radio { position: relative; cursor: pointer; }
+.radio input { position: absolute; opacity: 0; inset: 0; }
+.radio span {
+  display: inline-block;
+  min-width: 54px; text-align: center;
+  padding: 9px 16px;
+  border: 2px solid var(--ink);
+  background: rgba(255,255,255,.5);
+  font-weight: 700;
+  box-shadow: 3px 3px 0 rgba(32,24,18,.7);
+  transition: background .12s, color .12s, transform .08s, box-shadow .08s;
+}
+.radio:hover span { background: var(--paper-3, #e3d6b8); }
+.radio input:checked + span { background: var(--red); color: var(--paper-2); border-color: var(--red-deep); }
+.radio input:focus-visible + span { outline: 3px solid var(--gold); outline-offset: 2px; }
+.radio:active span { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(32,24,18,.7); }
+
+/* ---------- email section / payment branches ---------- */
+.email-section .branch { margin-top: 16px; }
+.bkash-box {
+  padding: 14px 16px;
+  border: 2px dashed var(--red);
+  background: rgba(143,26,18,.07);
+  margin-bottom: 4px;
+}
+.bkash-box p { margin: 0 0 6px; font-size: 14px; }
+.bkash-box p:last-child { margin-bottom: 0; }
+.bkash-number { font-size: 15px; }
+.bkash-number b { font-family: 'Anton', sans-serif; letter-spacing: 1.5px; color: var(--red-deep); font-size: 22px; }
+.bkash-number .dim { color: var(--ink-soft); font-size: 12.5px; font-weight: 500; }
+
+/* ---------- info cards + mini pass ---------- */
+.info-card { padding: 24px 24px 26px; background: #efe6cd; }
+.info-card h3 { margin: 0 0 8px; font-size: 16.5px; font-weight: 700; }
+.info-card > p { margin: 0 0 16px; font-size: 14px; color: var(--ink-soft); }
+.mini-pass {
+  max-width: 340px;
+  background: linear-gradient(160deg, #14233f, #0c1526);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  padding: 18px 18px 16px;
+  color: #eef2f8;
+  box-shadow: 6px 6px 0 rgba(32,24,18,.8);
+}
+.mp-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 20px; margin: 0 0 2px; }
+.mp-batch { color: #5f8fe8; font-size: 11px; letter-spacing: 1.5px; font-weight: 700; margin: 0 0 14px; }
+.mp-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.mp-btn { background: #2f6fe0; color: #fff; font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 6px; letter-spacing: .5px; }
+.mp-badge { font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 6px; letter-spacing: 1px; }
+.mp-badge.unconfirmed { border: 2px dashed #e0a23c; color: #ffcf6e; }
+.mp-badge.active { background: #bcd2ff; color: #0c1526; }
+.group-join { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.group-join img { width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--ink); box-shadow: 3px 3px 0 rgba(32,24,18,.7); }
+.group-join p { margin: 0 0 10px; font-size: 14.5px; }
+
+/* ---------- buttons ---------- */
+.btn {
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 3px solid var(--ink);
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform .08s, box-shadow .08s, background .12s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--ink);
+  background: transparent;
+}
+.btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--ink); }
+.btn:hover { background: rgba(32,24,18,.06); }
+.btn-primary { background: var(--red); color: var(--paper-2); }
+.btn-primary:hover { background: var(--red-deep); }
+.btn-sm { padding: 6px 12px; font-size: 12px; box-shadow: 3px 3px 0 var(--ink); letter-spacing: .5px; }
+.btn-lg { padding: 14px 34px; font-size: 17px; }
+.btn-block { width: 100%; margin-top: 18px; }
+.btn[disabled] { opacity: .6; cursor: wait; }
+.form-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; }
+
+/* ---------- auth views ---------- */
+.auth-card { padding: 30px 28px 28px; max-width: 560px; margin-left: auto; margin-right: auto; }
+.auth-card h2 { font-family: 'Anton', sans-serif; margin: 0 0 6px; font-size: 26px; text-transform: uppercase; letter-spacing: .5px; }
+.auth-sub { margin: 0 0 18px; font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+.auth-links { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.link-btn {
+  font: inherit; font-size: 13.5px; font-weight: 700;
+  background: none; border: none; cursor: pointer;
+  color: var(--red); text-decoration: underline; padding: 4px 0;
+}
+.link-btn:hover { color: var(--red-deep); }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13.5px; font-weight: 500; cursor: pointer; }
+.check-row input { width: 16px; height: 16px; accent-color: var(--red); }
+.locked-note { font-size: 12px; color: var(--ink-soft); margin-top: 6px; font-weight: 500; }
+
+/* ---------- checking / success ---------- */
+.checking-card { text-align: center; padding: 60px 24px; }
+.spinner {
+  width: 44px; height: 44px; margin: 0 auto 16px;
+  border: 5px solid rgba(32,24,18,.2);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.success-check {
+  width: 64px; height: 64px; margin: 4px auto 14px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--paper-2);
+  font-family: 'Anton', sans-serif;
+  font-size: 34px;
+  display: grid; place-items: center;
+}
+.summary { margin: 18px 0 22px; border: 2px solid var(--ink); background: rgba(255,255,255,.5); }
+.summary > div { display: flex; justify-content: space-between; gap: 14px; padding: 9px 14px; font-size: 14px; }
+.summary > div + div { border-top: 1px solid rgba(32,24,18,.25); }
+.summary dt { font-weight: 700; color: var(--ink-soft); }
+.summary dd { margin: 0; font-weight: 700; text-align: right; }
+.success-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+/* ---------- setup warning ---------- */
+.setup-warn {
+  background: rgba(201,162,39,.18);
+  border: 2px dashed #a8821c;
+  padding: 14px 16px;
+  margin: 0 0 22px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--paper-2);
+  border: 2px solid var(--gold);
+  padding: 12px 20px;
+  font-weight: 700; font-size: 14px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  z-index: 100;
+  max-width: min(92vw, 560px);
+  box-shadow: 5px 5px 0 rgba(32,24,18,.6);
+  text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.err { border-color: #ff6b5e; }
+
+/* ---------- footer ---------- */
+.site-foot {
+  background: var(--ink);
+  color: var(--paper-2);
+  padding: 28px 20px 32px;
+  border-top: 6px solid var(--red);
+  text-align: center;
+}
+.ig-cta {
+  display: inline-flex; align-items: center; gap: 14px;
+  background: var(--paper-2); color: var(--ink);
+  border: 3px solid var(--gold);
+  padding: 12px 22px;
+  text-decoration: none;
+  box-shadow: 6px 6px 0 rgba(0,0,0,.5);
+  font-size: 15px;
+  font-weight: 500;
+  transition: transform .1s, box-shadow .1s;
+  text-align: left;
+}
+.ig-cta:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 rgba(0,0,0,.5); }
+.ig-cta b { display: block; font-family: 'Anton', sans-serif; letter-spacing: 1px; text-transform: uppercase; font-size: 15px; }
+.ig-cta small { color: var(--ink-soft); font-weight: 500; }
+.ig-icon {
+  flex: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 110%, #fdc468, #df4996 55%, #8a3ab9);
+  display: grid; place-items: center;
+  border: 2px solid var(--ink);
+}
+.ig-icon svg { width: 21px; height: 21px; fill: #fff; }
+.foot-small { margin: 18px 0 0; font-size: 12px; color: rgba(244,236,216,.6); letter-spacing: .5px; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 820px) {
+  .hero { grid-template-columns: 1fr; gap: 26px; }
+  .poster { max-width: 360px; margin: 0 auto; transform: rotate(-1deg); }
+  .account-chip { margin-left: 0; }
+}
+@media (max-width: 480px) {
+  .head-brand h1 { font-size: 17px; }
+  .emblem { width: 38px; height: 38px; }
+  .form-actions .btn { width: 100%; }
+  .success-actions { flex-direction: column; }
+  .success-actions .btn { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo-link" href="index.html" title="NGHSIANS — home">
+    <img src="logo.png" alt="NGHSIANS logo">
+  </a>
+  <div class="head-brand">
+    <img class="emblem" src="signday-emblem.png" alt="60th Sign Day emblem">
+    <div>
+      <h1>NGHS 60th Sign Day</h1>
+      <p>NGHS B-27 sign day · Registration Form · Batch 2027</p>
+    </div>
+  </div>
+  <div class="account-chip" id="accountChip" hidden>
+    <span class="chip-label">Signed in</span>
+    <strong id="chipEmail">—</strong>
+    <button type="button" class="btn btn-sm" id="switchAccountBtn">Switch account</button>
+  </div>
+</header>
+
+<section class="hero">
+  <figure class="poster">
+    <img src="signday-poster.jpg" alt="Batch 27 — It's now or never — NGHS 60th Sign Day vintage poster">
+    <figcaption>IT'S NOW OR NEVER — BATCH 27</figcaption>
+  </figure>
+  <div class="hero-copy">
+    <span class="ribbon">MINIMUM DEPOSIT 399 TK</span>
+    <h2 class="hero-title">60<sup>TH</sup> SIGN DAY</h2>
+    <p class="hero-sub">Nasirabad Government High School · Batch 2027</p>
+    <p class="hero-req"><span class="req">*</span> Indicates required question — every field on this form is required.</p>
+    <div class="hero-steps">
+      <div class="step"><b>1</b><span>Create your nghsians account (locked to batch 2027 — your email fills the form automatically)</span></div>
+      <div class="step"><b>2</b><span>Fill this form and pay the deposit — bKash online, or cash offline</span></div>
+      <div class="step"><b>3</b><span>The committee marks your pass ACTIVE — your account card turns PASS ACTIVE by itself</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <div class="setup-warn hidden" id="setupWarn">
+    ⚠ The registration storage is not set up yet. The admin must run
+    <b>supabase-signday-form-27.sql</b> in Supabase before this form can be submitted.
+  </div>
+
+  <!-- ============ CHECKING ============ -->
+  <section id="checking-view" class="card checking-card view hidden">
+    <div class="spinner"></div>
+    <p><b>Loading your account…</b></p>
+  </section>
+
+  <!-- ============ LOGIN ============ -->
+  <section id="login-view" class="card auth-card view hidden">
+    <h2>Sign in</h2>
+    <p class="auth-sub">You need an nghsians account to register for the Sign Day. Once you sign in, your email is locked into the form automatically — you cannot register for someone else.</p>
+    <form id="loginForm" novalidate>
+      <label class="field-label" for="login-email">Email</label>
+      <input id="login-email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <label class="field-label" for="login-password">Password</label>
+      <div class="pw-wrap">
+        <input id="login-password" type="password" required autocomplete="current-password" placeholder="Your password">
+        <button type="button" class="pw-toggle" data-target="login-password">Show</button>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginBtn">Sign in</button>
+    </form>
+    <div class="auth-links">
+      <button type="button" class="link-btn" id="toForgot">Forgot password?</button>
+      <button type="button" class="link-btn" id="toSignup">Create an account — batch 2027</button>
+    </div>
+  </section>
+
+  <!-- ============ SIGNUP ============ -->
+  <section id="signup-view" class="card auth-card view hidden">
+    <h2>Create account</h2>
+    <p class="auth-sub">One account per student. This form is only for <b>batch 2027</b> — the batch is locked and cannot be changed here.</p>
+    <form id="signupForm" novalidate>
+      <label class="field-label" for="sign-name">Full Name</label>
+      <input id="sign-name" type="text" required autocomplete="name" placeholder="Your full name">
+      <label class="field-label" for="sign-id">School ID</label>
+      <input id="sign-id" type="text" required placeholder="Your school ID number">
+      <label class="check-row"><input type="checkbox" id="no-id-check"> I don't have an ID number</label>
+      <label class="field-label" for="sign-batch">Batch Year</label>
+      <input id="sign-batch" type="text" value="2027" readonly disabled>
+      <p class="locked-note">🔒 Locked — this registration is only for batch 2027.</p>
+      <label class="field-label" for="sign-whatsapp">WhatsApp Number</label>
+      <input id="sign-whatsapp" type="tel" required inputmode="tel" placeholder="01XXXXXXXXX" autocomplete="tel">
+      <label class="field-label" for="sign-instagram">Instagram Username <span style="color:var(--ink-soft);font-weight:500">(optional)</span></label>
+      <input id="sign-instagram" type="text" placeholder="username" autocomplete="off">
+      <label class="field-label" for="sign-email">Email</label>
+      <input id="sign-email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <label class="field-label" for="sign-password">Password</label>
+      <div class="pw-wrap">
+        <input id="sign-password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters">
+        <button type="button" class="pw-toggle" data-target="sign-password">Show</button>
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg btn-block" id="signupBtn">Create account</button>
+    </form>
+    <div class="auth-links">
+      <span></span>
+      <button type="button" class="link-btn" id="toLogin">Already have an account? Sign in</button>
+    </div>
+  </section>
+
+  <!-- ============ FORGOT ============ -->
+  <section id="forgot-view" class="card auth-card view hidden">
+    <h2>Forgot password</h2>
+    <p class="auth-sub">Enter your account email — we will send a password reset link (handled by reset.html).</p>
+    <form id="forgotForm" novalidate>
+      <label class="field-label" for="forgot-email">Email</label>
+      <input id="forgot-email" type="email" required autocomplete="email" placeholder="you@example.com">
+      <button type="submit" class="btn btn-primary btn-lg btn-block" id="forgotBtn">Send reset link</button>
+    </form>
+    <div class="auth-links">
+      <span></span>
+      <button type="button" class="link-btn" id="toLogin2">Back to sign in</button>
+    </div>
+  </section>
+
+  <!-- ============ FORM ============ -->
+  <section id="form-view" class="view hidden">
+    <form id="signdayForm" novalidate>
+
+      <div class="card form-head">
+        <h2>NGHS 60th Sign Day</h2>
+        <p>NGHS B-27 sign day · Registration Form — every field is required</p>
+      </div>
+
+      <div class="card question">
+        <h3>Student Name / transversal/শিক্ষার্থীর নাম <span class="req">*</span></h3>
+        <input id="f-name" type="text" required autocomplete="name" placeholder="Your full name">
+      </div>
+
+      <div class="card question email-section">
+        <h3>Email / transversal/ইমেইল <span class="req">*</span></h3>
+        <label class="field-label" for="f-email">Email — from your logged-in account (cannot be changed)</label>
+        <input id="f-email" type="email" required readonly placeholder="you@example.com">
+
+        <label class="field-label" for="f-payment">Bkash or Cash? / Online (bKash) or Offline (Cash)? <span class="req">*</span></label>
+        <select id="f-payment" required>
+          <option value="" selected disabled>Select…</option>
+          <option value="online">Online (bKash)</option>
+          <option value="offline">Offline (Cash)</option>
+        </select>
+
+        <div id="onlineFields" class="branch" hidden>
+          <div class="bkash-box">
+            <p>Send the deposit (minimum <b>399 TK</b>) by <b>bKash → Send Money</b> to the number of your shift:</p>
+            <p class="bkash-number" id="bkashNumber">Morning shift: <b>0192345667</b> &nbsp;·&nbsp; Day shift: <b>0281038290</b></p>
+          </div>
+          <label class="field-label" for="f-bkash">বিকাশে হলে যেই নম্বর থেকে bikash korechen sei number likhun / 那个号码… লিখুন — the bKash number you paid from <span class="req">*</span></label>
+          <input id="f-bkash" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX">
+        </div>
+
+        <div id="offlineFields" class="branch" hidden>
+          <label class="field-label" for="f-deposit">Who did u give ur deposit to / 你把押金交给了谁 — name of the person who collected your cash <span class="req">*</span></label>
+          <input id="f-deposit" type="text" placeholder="Name of the person who took your deposit">
+        </div>
+      </div>
+
+      <div class="card question">
+        <h3>Select your t-shirt size / transversal/আপনার T-shirt সাইজ Nirbachon করুন <span class="req">*</span></h3>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="tshirt" value="S" required><span>S</span></label>
+          <label class="radio"><input type="radio" name="tshirt" value="M"><span>M</span></label>
+          <label class="radio"><input type="radio" name="tshirt" value="L"><span>L</span></label>
+          <label class="radio"><input type="radio" name="tshirt" value="XL"><span>XL</span></label>
+          <label class="radio"><input type="radio" name="tshirt" value="XXL"><span>XXL</span></label>
+        </div>
+      </div>
+
+      <div class="card question">
+        <h3>Shift <span class="req">*</span></h3>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="shift" value="Morning" required><span>Morning</span></label>
+          <label class="radio"><input type="radio" name="shift" value="Day" required><span>Day</span></label>
+        </div>
+      </div>
+
+      <div class="card question">
+        <h3>Section / department/বিভাগ <span class="req">*</span></h3>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="section" value="A" required><span>A</span></label>
+          <label class="radio"><input type="radio" name="section" value="B"><span>B</span></label>
+          <label class="radio"><input type="radio" name="section" value="C"><span>C</span></label>
+          <label class="radio"><input type="radio" name="section" value="D"><span>D</span></label>
+        </div>
+      </div>
+
+      <div class="card question">
+        <h3>Class Roll / Reaction/Schine রোল <span class="req">*</span></h3>
+        <input id="f-roll" type="text" required inputmode="numeric" placeholder="Your class roll">
+      </div>
+
+      <div class="card question">
+        <h3>Participant Phone Number (whatsapp) / অংশগ্রহণকারীর ফোন নম্বর (হোয়াটসঅ্যাপ) <span class="req">*</span></h3>
+        <input id="f-phone" type="tel" required inputmode="tel" placeholder="01XXXXXXXXX">
+      </div>
+
+      <div class="card info-card">
+        <h3>Before Registration / Registration আগে</h3>
+        <p>Your account pass card looks like this before you register — an UNCONFIRMED badge.</p>
+        <div class="mini-pass">
+          <p class="mp-name">Arittra Dutta</p>
+          <p class="mp-batch">BATCH 2027 · 60TH SIGN DAY</p>
+          <div class="mp-row">
+            <span class="mp-btn">NGHS 60TH SIGN DAY</span>
+            <span class="mp-badge unconfirmed">UNCONFIRMED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card info-card">
+        <h3>After Registration / Registration 후</h3>
+        <p>Once the committee confirms your deposit, the same card turns into a PASS ACTIVE.</p>
+        <div class="mini-pass">
+          <p class="mp-name">Arittra Dutta</p>
+          <p class="mp-batch">BATCH 2027 · 60TH SIGN DAY</p>
+          <div class="mp-row">
+            <span class="mp-btn">NGHS 60TH SIGN DAY</span>
+            <span class="mp-badge active">PASS ACTIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card question">
+        <h3>NGHS-27 (Official) — batch 27 ও Sign-Day এর WhatsApp Group এ join করুন <span class="req">*</span></h3>
+        <div class="radio-row">
+          <label class="radio"><input type="radio" name="wgroup" value="Joined Already" required><span>Joined Already</span></label>
+          <label class="radio"><input type="radio" name="wgroup" value="Joined Right Now" required><span>Joined Right Now</span></label>
+        </div>
+      </div>
+
+      <div class="card info-card">
+        <h3>Join our's Whatsapp Group / Procedure — whatsapp Group এ join করুন</h3>
+        <div class="group-join">
+          <img src="signday-group.jpg" alt="NGHS-27 Official WhatsApp group" loading="lazy">
+          <div>
+            <p><b>NGHS-27 Official</b> · Sign Day announcements, updates &amp; help — everyone must be in the group.</p>
+            <a class="btn btn-primary" href="https://chat.whatsapp.com/LSyVUVqlxWNE7VAqfZuZUH?mode=gi_t" target="_blank" rel="noopener noreferrer">Join Group ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Submit</button>
+        <button type="button" class="btn btn-lg" id="clearBtn">Clear form</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ============ SUCCESS ============ -->
+  <section id="success-view" class="card auth-card view hidden">
+    <div class="success-check">✓</div>
+    <h2>Registration submitted!</h2>
+    <p class="auth-sub">Your Sign Day form is saved. The committee will check your deposit and mark your pass <b>ACTIVE PASS</b> — your account card on <a href="account.html"><b>account.html</b></a> then turns PASS ACTIVE by itself. Keep an eye on the WhatsApp group.</p>
+    <dl class="summary">
+      <div><dt>Name</dt><dd id="sum-name">—</dd></div>
+      <div><dt>Shift</dt><dd id="sum-shift">—</dd></div>
+      <div><dt>Section</dt><dd id="sum-section">—</dd></div>
+      <div><dt>T-Shirt</dt><dd id="sum-tshirt">—</dd></div>
+      <div><dt>Payment</dt><dd id="sum-payment">—</dd></div>
+      <div><dt>Phone</dt><dd id="sum-phone">—</dd></div>
+    </dl>
+    <div class="success-actions">
+      <a class="btn btn-primary btn-lg" href="account.html">View my account pass</a>
+      <a class="btn btn-lg" href="https://chat.whatsapp.com/LSyVUVqlxWNE7VAqfZuZUH?mode=gi_t" target="_blank" rel="noopener noreferrer">Join WhatsApp Group ↗</a>
+      <button type="button" class="btn btn-lg" id="editAgainBtn">Edit my response</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <a class="ig-cta" href="https://www.instagram.com/nghsians" target="_blank" rel="noopener noreferrer">
+    <span class="ig-icon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1M12 0C8.7 0 8.3 0 7 .1 5.7.1 4.9.3 4.1.6c-.8.3-1.5.7-2.2 1.4C1.3 2.7.9 3.4.6 4.1.3 4.9.1 5.7.1 7 0 8.3 0 8.7 0 12s0 3.7.1 5c.1 1.3.3 2.1.5 2.9.3.8.7 1.5 1.4 2.1.7.7 1.3 1.1 2.1 1.4.8.3 1.6.5 2.9.5 1.3.1 1.7.1 5 .1s3.7 0 5-.1c1.3-.1 2.1-.3 2.9-.5.8-.3 1.5-.7 2.1-1.4.7-.7 1.1-1.3 1.4-2.1.3-.8.5-1.6.5-2.9.1-1.3.1-1.7.1-5s0-3.7-.1-5c-.1-1.3-.3-2.1-.5-2.9-.3-.8-.7-1.5-1.4-2.1C21.3 1.3 20.7.9 19.9.6c-.8-.3-1.6-.5-2.9-.5C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 10.2a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-10.5a1.4 1.4 0 1 0 0 2.9 1.4 1.4 0 0 0 0-2.9z"/></svg>
+    </span>
+    <span>
+      <b>Instagram Instruction Post</b>
+      <small>Follow the instructions on instagram.com/nghsians</small>
+    </span>
+  </a>
+  <p class="foot-small">NGHSIANS · Nasirabad Government High School · Batch 27 · 60th Sign Day · Minimum deposit 399 TK</p>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- tiny helpers ---------- */
+  function getEl(id) { return document.getElementById(id); }
+  function norm(v) { return String(v == null ? '' : v).trim().toLowerCase(); }
+  let toastTimer = null;
+  function showToast(msg, isError) {
+    const t = getEl('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.toggle('err', !!isError);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3600);
+  }
+  function escapeAttr(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  // PostgREST/Postgres says a column is missing (migration not run yet)
+  function isMissingColumnError(err) {
+    if (!err) return false;
+    const msg = (err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '');
+    return err.code === '42703' || err.code === 'PGRST204' || /column .* does not exist/i.test(msg);
+  }
+  // Postgres says the whole table is missing (form SQL not run yet)
+  function isMissingTableError(err) {
+    if (!err) return false;
+    const msg = (err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '');
+    return err.code === '42P01' || /relation .* does not exist/i.test(msg) || /schema cache/i.test(msg);
+  }
+  function normalizeWhatsApp(raw) {
+    let v = String(raw || '').trim().replace(/[\s\-().]/g, '');
+    if (v.startsWith('00')) v = v.slice(2);
+    v = v.replace(/[^\d+]/g, '');
+    v = v.replace(/(?!^)\+/g, '');
+    if (!v.startsWith('+')) v = '+' + v.replace(/^\+/, '');
+    return v;
+  }
+  function isValidWhatsApp(v) { return /^\+\d{8,15}$/.test(normalizeWhatsApp(v)); }
+  function normalizeInstagram(raw) {
+    let v = String(raw || '').trim();
+    v = v.replace(/^https?:\/\/(www\.)?instagram\.com\//i, '');
+    v = v.replace(/[/?#].*$/, '');
+    v = v.replace(/^@+/, '').replace(/\/+$/, '');
+    return v.trim();
+  }
+  function isValidInstagram(v) { return /^[A-Za-z0-9._]{1,30}$/.test(normalizeInstagram(v)); }
+  function getRadio(name) {
+    const el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : null;
+  }
+  function setRadio(name, value) {
+    if (!value) return;
+    const sel = 'input[name="' + name + '"][value="' + String(value).replace(/"/g, '') + '"]';
+    const el = document.querySelector(sel);
+    if (el) el.checked = true;
+  }
+  function setBtnLoading(id, on, label) {
+    const btn = getEl(id);
+    if (!btn) return;
+    if (on) { btn.dataset.orig = btn.textContent; btn.disabled = true; btn.textContent = label || 'Please wait…'; }
+    else { btn.disabled = false; if (btn.dataset.orig) btn.textContent = btn.dataset.orig; }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldGFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+    if (!window.supabase) { alert('System Error: Supabase SDK failed to load.'); return; }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: {
+        flowType: 'implicit',
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true
+      }
+    });
+
+    const RESET_PAGE = 'reset.html';
+    function siteBase() {
+      const h = (window.location.hostname || '').toLowerCase();
+      if (h === 'nghsians.com' || h === 'www.nghsians.com') return 'https://nghsians.com';
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') return window.location.origin;
+      return 'https://nghsians.com';
+    }
+
+    const BKASH = { Morning: '0192345667', Day: '0281038290' };
+
+    let currentUser = null;
+    let currentProfile = null;
+    let formStorageReady = true;
+
+    /* ---------- views ---------- */
+    function switchView(name) {
+      ['checking', 'login', 'signup', 'forgot', 'form', 'success'].forEach(v => {
+        const el = getEl(v + '-view');
+        if (el) el.classList.toggle('hidden', v !== name);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ---------- probe: is the form table installed? ---------- */
+    async function probeFormStorage() {
+      const { error } = await supabase.from('signday_registrations').select('id').limit(1);
+      formStorageReady = !error || !(isMissingColumnError(error) || isMissingTableError(error));
+      const warn = getEl('setupWarn');
+      if (warn) warn.classList.toggle('hidden', formStorageReady);
+    }
+
+    /* ---------- profile ---------- */
+    async function loadProfile(user) {
+      let profile = null;
+      const { data, error } = await supabase
+        .from('verified_profiles').select('*').eq('id', user.id).maybeSingle();
+      if (error && !isMissingColumnError(error)) {
+        showToast('Could not load your profile: ' + (error.message || error), true);
+      }
+      profile = data || null;
+      if (!profile) {
+        // Self-heal: the account exists but has no profile row — create a
+        // minimal one. The batch is locked to 2027, so the DB trigger tags
+        // the account with the Sign Day role automatically.
+        const email = user.email || '';
+        const username = (user.user_metadata && user.user_metadata.full_name) ||
+                         (email.split('@')[0] || 'member');
+        const { data: created, error: cerr } = await supabase
+          .from('verified_profiles')
+          .upsert({
+            id: user.id,
+            username: username,
+            school_id: 'No ID Provided',
+            batch_year: '2027',
+            email: email
+          }, { onConflict: 'id' })
+          .select().maybeSingle();
+        if (cerr && !isMissingColumnError(cerr)) {
+          showToast('Could not create your profile row: ' + (cerr.message || cerr), true);
+        }
+        profile = created || null;
+      }
+      currentProfile = profile;
+      return profile;
+    }
+
+    async function loadRegistration(userId) {
+      const { data, error } = await supabase
+        .from('signday_registrations').select('*').eq('id', userId).maybeSingle();
+      if (error && (isMissingColumnError(error) || isMissingTableError(error))) {
+        formStorageReady = false;
+        const warn = getEl('setupWarn');
+        if (warn) warn.classList.remove('hidden');
+        return null;
+      }
+      if (error) {
+        showToast('Could not load your previous response — you can fill the form again.', true);
+        return null;
+      }
+      return data || null;
+    }
+
+    /* ---------- prefill ---------- */
+    function localPhone(stored) {
+      const digits = String(stored || '').replace(/\D/g, '');
+      // "+8801XXXXXXXXX" (country code form) → "01XXXXXXXXX" (local form)
+      if (digits.length === 13 && digits.startsWith('880')) return '0' + digits.slice(3);
+      return digits;
+    }
+    function prefillForm(profile, reg) {
+      const email = (currentUser && currentUser.email) || (profile && profile.email) || '';
+      getEl('f-email').value = email;
+      if (!reg) {
+        if (profile) {
+          if (profile.username) getEl('f-name').value = profile.username;
+          if (profile.whatsapp_number) getEl('f-phone').value = localPhone(profile.whatsapp_number);
+        }
+        return;
+      }
+      getEl('f-name').value = reg.student_name || '';
+      getEl('f-roll').value = reg.class_roll || '';
+      getEl('f-phone').value = reg.phone || '';
+      getEl('f-payment').value = reg.payment_method || '';
+      getEl('f-bkash').value = reg.bkash_number || '';
+      getEl('f-deposit').value = reg.deposit_to || '';
+      setRadio('tshirt', reg.tshirt_size);
+      setRadio('shift', reg.shift);
+      setRadio('section', reg.section);
+      setRadio('wgroup', reg.whatsapp_group);
+      updatePaymentBranch();
+      updateBkashBox();
+    }
+
+    /* ---------- enter the form ---------- */
+    async function enterForm() {
+      switchView('checking');
+      getEl('chipEmail').textContent = (currentUser && currentUser.email) || '—';
+      getEl('accountChip').hidden = false;
+      const profile = await loadProfile(currentUser);
+      const reg = await loadRegistration(currentUser.id);
+      prefillForm(profile, reg);
+      switchView('form');
+    }
+
+    /* ---------- payment / shift branches ---------- */
+    function updatePaymentBranch() {
+      const mode = getEl('f-payment').value;
+      const online = mode === 'online';
+      const offline = mode === 'offline';
+      getEl('onlineFields').hidden = !online;
+      getEl('offlineFields').hidden = !offline;
+      getEl('f-bkash').required = online;
+      getEl('f-deposit').required = offline;
+      if (online) updateBkashBox();
+    }
+    function updateBkashBox() {
+      const el = getEl('bkashNumber');
+      if (!el) return;
+      const shift = getRadio('shift');
+      if (shift && BKASH[shift]) {
+        el.innerHTML = 'Send Money to bKash number: <b>' + BKASH[shift] + '</b> <span class="dim">(your ' +
+                       escapeAttr(shift) + ' shift)</span>';
+      } else {
+        el.innerHTML = 'Morning shift: <b>' + BKASH.Morning + '</b> &nbsp;·&nbsp; Day shift: <b>' + BKASH.Day + '</b>';
+      }
+    }
+
+    /* ---------- clear ---------- */
+    function clearForm() {
+      const form = getEl('signdayForm');
+      form.reset();
+      getEl('f-email').value = (currentUser && currentUser.email) || '';
+      updatePaymentBranch();
+      updateBkashBox();
+      getEl('f-name').focus();
+    }
+
+    /* ---------- submit ---------- */
+    function setSubmitting(on) {
+      const btn = getEl('submitBtn');
+      if (!btn) return;
+      if (on) { btn.dataset.orig = btn.textContent; btn.disabled = true; btn.textContent = 'Submitting…'; }
+      else { btn.disabled = false; if (btn.dataset.orig) btn.textContent = btn.dataset.orig; }
+    }
+    function showSuccess(p) {
+      getEl('sum-name').textContent = p.student_name;
+      getEl('sum-shift').textContent = p.shift;
+      getEl('sum-section').textContent = p.section;
+      getEl('sum-tshirt').textContent = p.tshirt_size;
+      getEl('sum-payment').textContent = p.payment_method === 'online'
+        ? 'Online (bKash) — paid from ' + (p.bkash_number || '—')
+        : 'Offline (Cash) — given to ' + (p.deposit_to || '—');
+      getEl('sum-phone').textContent = p.phone;
+      switchView('success');
+    }
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const form = getEl('signdayForm');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        showToast('Please fill in every required field (*).', true);
+        return;
+      }
+      const email = getEl('f-email').value.trim();
+      const name = getEl('f-name').value.trim();
+      const roll = getEl('f-roll').value.trim();
+      const phone = getEl('f-phone').value.trim();
+      const tshirt = getRadio('tshirt');
+      const shift = getRadio('shift');
+      const section = getRadio('section');
+      const group = getRadio('wgroup');
+      const payment = getEl('f-payment').value;
+      const bkash = getEl('f-bkash').value.trim();
+      const deposit = getEl('f-deposit').value.trim();
+
+      setSubmitting(true);
+      try {
+        if (!formStorageReady) {
+          throw new Error('The registration storage is not set up yet — the admin must run supabase-signday-form-27.sql in Supabase first.');
+        }
+        // 1) The form is locked to batch 2027 — make sure the account says 2027.
+        let batchOk = norm(currentProfile && currentProfile.batch_year) === '2027';
+        if (!batchOk) {
+          const { error: berr } = await supabase
+            .from('verified_profiles').update({ batch_year: '2027' }).eq('id', currentUser.id);
+          if (berr && !isMissingColumnError(berr)) throw berr;
+          batchOk = true;
+          if (currentProfile) currentProfile.batch_year = '2027';
+        }
+        // 2) Submit the form row (one row per student, keyed by account id).
+        const payload = {
+          id: currentUser.id,
+          email: email,
+          student_name: name,
+          tshirt_size: tshirt,
+          shift: shift,
+          section: section,
+          class_roll: roll,
+          phone: phone,
+          payment_method: payment,
+          bkash_number: payment === 'online' ? bkash : null,
+          deposit_to: payment === 'offline' ? deposit : null,
+          whatsapp_group: group,
+          batch_year: '2027'
+        };
+        const { error: uerr } = await supabase
+          .from('signday_registrations').upsert(payload, { onConflict: 'id' });
+        if (uerr) {
+          if (isMissingColumnError(uerr) || isMissingTableError(uerr)) {
+            throw new Error('The registration storage is not set up yet — the admin must run supabase-signday-form-27.sql in Supabase first.');
+          }
+          throw uerr;
+        }
+        // 3) Mark the account pass as submitted. The signday_form_sync trigger
+        //    does this automatically; this is the belt-and-braces copy. An
+        //    already-ACTIVE pass is never downgraded by the DB trigger.
+        try {
+          const patch = { signday_status: 'submitted', signday_email: email };
+          const role = norm(currentProfile && currentProfile.role);
+          if (batchOk && (role === 'member' || role === '')) patch.role = '27';
+          const { error: perr } = await supabase
+            .from('verified_profiles').update(patch).eq('id', currentUser.id);
+          if (perr && !isMissingColumnError(perr)) throw perr;
+          if (currentProfile) {
+            currentProfile.signday_status = 'submitted';
+            if (patch.role) currentProfile.role = '27';
+          }
+        } catch (perr) { /* the DB trigger already covered it */ }
+
+        showSuccess(payload);
+        showToast('Registration submitted — the committee will mark your pass ACTIVE.');
+      } catch (err) {
+        showToast('Could not submit: ' + ((err && err.message) || err), true);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    /* ---------- auth handlers ---------- */
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = getEl('login-email').value.trim();
+      const password = getEl('login-password').value;
+      if (!email || !password) { showToast('Enter your email and password.', true); return; }
+      setBtnLoading('loginBtn', true, 'Signing in…');
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      setBtnLoading('loginBtn', false);
+      if (error) { showToast(error.message, true); return; }
+      // onAuthStateChange(SIGNED_IN) → enterForm()
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const name = getEl('sign-name').value.trim();
+      const schoolId = getEl('no-id-check').checked ? 'No ID Provided' : getEl('sign-id').value.trim();
+      const whatsapp = normalizeWhatsApp(getEl('sign-whatsapp').value);
+      const instagram = normalizeInstagram(getEl('sign-instagram').value);
+      const email = getEl('sign-email').value.trim();
+      const password = getEl('sign-password').value;
+      if (!name) { showToast('Please enter your full name.', true); return; }
+      if (!schoolId) { showToast('Please enter your school ID (or tick "I don\'t have an ID number").', true); return; }
+      if (!isValidWhatsApp(whatsapp)) { showToast('Enter a valid WhatsApp number, e.g. 01XXXXXXXXX.', true); return; }
+      if (instagram && !isValidInstagram(instagram)) { showToast('Instagram username can only contain letters, numbers, dots and underscores (max 30).', true); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Enter a valid email address.', true); return; }
+      if (!password || password.length < 6) { showToast('Password must be at least 6 characters.', true); return; }
+
+      setBtnLoading('signupBtn', true, 'Creating account…');
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) { setBtnLoading('signupBtn', false); showToast(error.message, true); return; }
+      const userId = data && data.user ? data.user.id : null;
+      if (userId) {
+        // Batch is locked to 2027 — the Sign Day role is tagged by the DB trigger.
+        const { error: perr } = await supabase.from('verified_profiles').upsert({
+          id: userId,
+          username: name,
+          school_id: schoolId,
+          batch_year: '2027',
+          email: email,
+          whatsapp_number: whatsapp,
+          instagram_username: instagram || null
+        }, { onConflict: 'id' });
+        if (perr) {
+          if (isMissingColumnError(perr)) {
+            showToast('Account created, but the profile could not be saved — the admin must run the SQL migration.', true);
+          } else if (/database error saving new user/i.test(perr.message || '')) {
+            showToast('This email already has an account — try signing in instead.', true);
+          } else {
+            showToast('Account created, but saving the profile failed: ' + (perr.message || perr), true);
+          }
+        }
+      }
+      setBtnLoading('signupBtn', false);
+      showToast('Account created for batch 2027 — now sign in.');
+      switchView('login');
+    }
+
+    async function handleForgot(e) {
+      e.preventDefault();
+      const email = getEl('forgot-email').value.trim();
+      if (!email) { showToast('Enter your email.', true); return; }
+      setBtnLoading('forgotBtn', true, 'Sending…');
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: siteBase() + '/' + RESET_PAGE
+      });
+      setBtnLoading('forgotBtn', false);
+      if (error) { showToast(error.message, true); return; }
+      showToast('Password reset link sent — check your email.');
+      switchView('login');
+    }
+
+    /* ---------- events ---------- */
+    getEl('loginForm').addEventListener('submit', handleLogin);
+    getEl('signupForm').addEventListener('submit', handleSignup);
+    getEl('forgotForm').addEventListener('submit', handleForgot);
+    getEl('signdayForm').addEventListener('submit', handleSubmit);
+    getEl('clearBtn').addEventListener('click', clearForm);
+    getEl('f-payment').addEventListener('change', updatePaymentBranch);
+    document.querySelectorAll('input[name="shift"]').forEach(el => {
+      el.addEventListener('change', updateBkashBox);
+    });
+    getEl('toSignup').addEventListener('click', () => switchView('signup'));
+    getEl('toLogin').addEventListener('click', () => switchView('login'));
+    getEl('toForgot').addEventListener('click', () => switchView('forgot'));
+    getEl('toLogin2').addEventListener('click', () => switchView('login'));
+    getEl('editAgainBtn').addEventListener('click', () => switchView('form'));
+    getEl('no-id-check').addEventListener('change', function () {
+      const inp = getEl('sign-id');
+      if (this.checked) { inp.value = 'No ID Provided'; inp.disabled = true; }
+      else { inp.value = ''; inp.disabled = false; inp.focus(); }
+    });
+    document.querySelectorAll('.pw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp = getEl(btn.dataset.target);
+        if (!inp) return;
+        const show = inp.getAttribute('type') === 'password';
+        inp.setAttribute('type', show ? 'text' : 'password');
+        btn.textContent = show ? 'Hide' : 'Show';
+      });
+    });
+    getEl('switchAccountBtn').addEventListener('click', async () => {
+      try { await supabase.auth.signOut(); } catch (e) { /* ignore */ }
+      currentUser = null;
+      currentProfile = null;
+      getEl('accountChip').hidden = true;
+      getEl('signdayForm').reset();
+      switchView('login');
+      showToast('Signed out — sign in or register again to switch account.');
+    });
+
+    /* ---------- auth state ---------- */
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session && session.user) {
+        currentUser = session.user;
+        await enterForm();
+      } else if (event === 'SIGNED_OUT') {
+        currentUser = null;
+        currentProfile = null;
+        getEl('accountChip').hidden = true;
+        switchView('login');
+      }
+    });
+
+    /* ---------- startup ---------- */
+    await probeFormStorage();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && session.user) {
+      currentUser = session.user;
+      await enterForm();
+    } else {
+      switchView('login');
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex,nofollow">
+<title>NGHS-27 Rep Panel — 60th Sign Day Roster</title>
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ============================================================
+   27rep.html — committee rep panel (PIN 202725)
+   plain, big, spreadsheet-like — easy for anyone to use
+   ============================================================ */
+:root {
+  --ink: #17130e;
+  --ink-soft: #6b5c48;
+  --paper: #f3ecd9;
+  --paper-2: #fbf6e9;
+  --red: #8f1a12;
+  --red-deep: #6b120b;
+  --green: #157a3d;
+  --green-deep: #0e5c2d;
+  --green-soft: #e2f4e7;
+  --red-soft: #fbe4e0;
+  --amber: #b97a12;
+  --amber-soft: #fdf0d8;
+  --gold: #c9a227;
+  --line: #d8cbaa;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'DM Sans', 'Hind Siliguri', sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(1000px 500px at 90% -10%, rgba(143,26,18,.08), transparent 60%),
+    var(--paper);
+  min-height: 100vh;
+}
+.hidden { display: none !important; }
+
+/* ---------- PIN gate ---------- */
+.pin-wrap {
+  min-height: 100vh;
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.pin-card {
+  width: min(420px, 100%);
+  background: var(--paper-2);
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 rgba(23,19,14,.85);
+  padding: 34px 30px 30px;
+  text-align: center;
+}
+.pin-card::before {
+  content: '';
+  display: block;
+  height: 10px;
+  background: var(--red);
+  margin: -34px -30px 24px;
+  border-bottom: 3px solid var(--ink);
+}
+.pin-lock {
+  width: 58px; height: 58px; margin: 0 auto 14px;
+  border: 3px solid var(--ink);
+  background: var(--gold);
+  display: grid; place-items: center;
+  font-size: 26px;
+  box-shadow: 4px 4px 0 rgba(23,19,14,.8);
+}
+.pin-card h1 { font-family: 'Anton', sans-serif; font-size: 26px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .5px; }
+.pin-card p { margin: 0 0 20px; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+.pin-card input {
+  width: 100%;
+  font: inherit; font-size: 22px; font-weight: 700; letter-spacing: 6px; text-align: center;
+  padding: 12px;
+  border: 3px solid var(--ink);
+  background: #fff;
+  color: var(--ink);
+}
+.pin-card input:focus { outline: 4px solid rgba(201,162,39,.5); }
+.pin-err { color: var(--red-deep); font-weight: 700; font-size: 13.5px; min-height: 20px; margin: 12px 0 4px; }
+.pin-card.shake { animation: shake .35s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  font: inherit; font-weight: 700;
+  border: 2px solid var(--ink);
+  cursor: pointer;
+  padding: 9px 16px;
+  background: var(--paper-2);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 rgba(23,19,14,.7);
+  transition: transform .08s, box-shadow .08s, background .12s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 14px;
+}
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(23,19,14,.7); }
+.btn-primary { background: var(--red); color: #fff7e6; }
+.btn-primary:hover { background: var(--red-deep); }
+.btn-sm { padding: 6px 11px; font-size: 12.5px; }
+.btn[disabled] { opacity: .55; cursor: wait; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  padding: 12px 18px;
+  background: var(--ink);
+  color: var(--paper-2);
+  border-bottom: 4px solid var(--red);
+}
+.topbar h1 { font-family: 'Anton', sans-serif; font-size: 19px; margin: 0; text-transform: uppercase; letter-spacing: 1px; }
+.topbar h1 small { display: block; font-family: 'DM Sans', sans-serif; font-size: 11.5px; font-weight: 500; letter-spacing: .3px; color: rgba(243,236,217,.65); text-transform: none; margin-top: 2px; }
+.topbar .spacer { flex: 1; }
+.live-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(21,122,61,.25);
+  border: 1px solid #2ea35f;
+  color: #b8f0cd;
+  padding: 6px 12px;
+  font-size: 12.5px; font-weight: 700;
+  border-radius: 999px;
+}
+.live-dot { width: 9px; height: 9px; border-radius: 50%; background: #35d07a; animation: pulse 1.6s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,208,122,.6); } 50% { box-shadow: 0 0 0 6px rgba(53,208,122,0); } }
+.topbar .btn { background: rgba(243,236,217,.12); color: var(--paper-2); border-color: rgba(243,236,217,.4); box-shadow: none; }
+.topbar .btn:hover { background: rgba(243,236,217,.22); }
+#lastUpdated { font-size: 12px; color: rgba(243,236,217,.65); font-weight: 500; }
+
+/* ---------- stats ---------- */
+.stats {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  max-width: 1400px; margin: 18px auto 0; padding: 0 18px;
+}
+.stat {
+  flex: 1 1 130px;
+  background: var(--paper-2);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(23,19,14,.7);
+  padding: 12px 14px;
+}
+.stat b { display: block; font-family: 'Anton', sans-serif; font-size: 26px; line-height: 1; }
+.stat span { font-size: 12px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .5px; }
+.stat.s-green b { color: var(--green); }
+.stat.s-red b { color: var(--red); }
+.stat.s-amber b { color: var(--amber); }
+
+/* ---------- controls ---------- */
+.controls {
+  max-width: 1400px; margin: 16px auto 0; padding: 0 18px;
+  display: grid; gap: 12px;
+}
+.search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.search-row input {
+  flex: 1 1 320px;
+  font: inherit; font-size: 17px; font-weight: 600;
+  padding: 12px 14px;
+  border: 3px solid var(--ink);
+  background: #fff;
+  box-shadow: 4px 4px 0 rgba(23,19,14,.7);
+}
+.search-row input:focus { outline: 4px solid rgba(143,26,18,.25); }
+.filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.filter-row select {
+  font: inherit; font-size: 14px; font-weight: 600;
+  padding: 9px 10px;
+  border: 2px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
+  cursor: pointer;
+}
+.filter-row .count-label { margin-left: auto; font-size: 13.5px; font-weight: 700; color: var(--ink-soft); }
+
+/* ---------- table ---------- */
+.table-wrap {
+  max-width: 1400px; margin: 14px auto 60px; padding: 0 18px;
+}
+.table-scroll {
+  overflow: auto;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 rgba(23,19,14,.75);
+  background: var(--paper-2);
+  max-height: calc(100vh - 260px);
+}
+table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1500px; font-size: 14px; }
+thead th {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--ink); color: var(--paper-2);
+  text-align: left;
+  padding: 11px 12px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .6px;
+  border-bottom: 3px solid var(--red);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+tbody tr:nth-child(even) { background: rgba(23,19,14,.035); }
+tbody tr:hover { background: rgba(201,162,39,.14); }
+tbody tr.is-new { animation: flash 2.4s ease-out; }
+@keyframes flash { 0% { background: rgba(21,122,61,.35); } 100% { background: transparent; } }
+td.num { color: var(--ink-soft); font-weight: 700; text-align: right; }
+td .sub { display: block; font-size: 11.5px; color: var(--ink-soft); font-weight: 500; white-space: normal; max-width: 220px; }
+.name-cell b { font-size: 14.5px; }
+.mono { font-variant-numeric: tabular-nums; letter-spacing: .3px; }
+
+/* status pill */
+.pill {
+  display: inline-block;
+  font-size: 11.5px; font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: .5px;
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+.pill.issued { background: var(--green-soft); color: var(--green-deep); border-color: var(--green); }
+.pill.submitted { background: var(--amber-soft); color: #7a4c05; border-color: var(--amber); }
+.pill.unconfirmed { background: var(--red-soft); color: var(--red-deep); border-color: var(--red); }
+.pill.none { background: #eee; color: #666; border-color: #bbb; }
+
+/* sticky action columns — the two big highlighted ones, far right */
+th.act, td.act {
+  position: sticky; right: 0; z-index: 6;
+  background: var(--paper-2);
+  border-left: 3px solid var(--ink);
+  text-align: center;
+  min-width: 150px;
+}
+th.act { z-index: 7; }
+th.act-pass { right: 150px; }
+td.act-pass { right: 150px; }
+thead th.act-pass { background: var(--green-deep); }
+thead th.act-unconf { background: var(--red-deep); }
+td.act-pass { background: var(--green-soft); }
+td.act-unconf { background: var(--red-soft); }
+tbody tr:hover td.act-pass { background: #cdeeda; }
+tbody tr:hover td.act-unconf { background: #f6d2cc; }
+
+.act-btn {
+  display: block; width: 100%;
+  font-family: 'Anton', sans-serif;
+  font-size: 15px; letter-spacing: 1px;
+  padding: 12px 10px;
+  border: 3px solid var(--ink);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 rgba(23,19,14,.8);
+  transition: transform .08s, box-shadow .08s, filter .12s;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+.act-btn small { display: block; font-family: 'Hind Siliguri', sans-serif; font-size: 11px; letter-spacing: 0; font-weight: 600; text-transform: none; margin-top: 2px; }
+.act-btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 rgba(23,19,14,.8); }
+.act-btn.pass { background: var(--green); color: #fff; }
+.act-btn.pass:hover { background: var(--green-deep); }
+.act-btn.pass.off { background: #fff; color: var(--green-deep); border-color: var(--green); box-shadow: 3px 3px 0 rgba(21,122,61,.4); }
+.act-btn.pass.off:hover { background: var(--green-soft); }
+.act-btn.unconf { background: var(--red); color: #fff; }
+.act-btn.unconf:hover { background: var(--red-deep); }
+.act-btn.unconf.off { background: #fff; color: var(--red-deep); border-color: var(--red); box-shadow: 3px 3px 0 rgba(143,26,18,.4); }
+.act-btn.unconf.off:hover { background: var(--red-soft); }
+.act-btn[disabled] { opacity: .6; cursor: wait; }
+
+.empty-row td {
+  text-align: center; padding: 40px 16px;
+  font-weight: 700; color: var(--ink-soft); font-size: 15px;
+}
+
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; left: 50%; bottom: 22px;
+  transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--paper-2);
+  border: 2px solid var(--gold);
+  padding: 12px 20px;
+  font-weight: 700; font-size: 14px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+  z-index: 200;
+  max-width: min(92vw, 560px);
+  text-align: center;
+  box-shadow: 5px 5px 0 rgba(23,19,14,.5);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.err { border-color: #ff6b5e; }
+
+.legend {
+  max-width: 1400px; margin: 0 auto; padding: 0 18px 8px;
+  font-size: 13px; color: var(--ink-soft); font-weight: 600;
+}
+.legend b { color: var(--ink); }
+
+@media (max-width: 640px) {
+  .topbar h1 { font-size: 16px; }
+  .stats { gap: 8px; }
+  .stat { flex: 1 1 calc(50% - 8px); }
+  .stat b { font-size: 21px; }
+  th.act, td.act { min-width: 118px; }
+  th.act-pass, td.act-pass { right: 118px; }
+  .act-btn { font-size: 13px; padding: 10px 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ PIN GATE ============ -->
+<div class="pin-wrap" id="pinView">
+  <div class="pin-card" id="pinCard">
+    <div class="pin-lock">🔒</div>
+    <h1>NGHS-27 Rep Panel</h1>
+    <p>60th Sign Day roster — committee only.<br>Enter the panel PIN to open the spreadsheet.</p>
+    <form id="pinForm">
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Panel PIN">
+      <div class="pin-err" id="pinErr"></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:12px;">Unlock panel</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div id="dashView" class="hidden">
+
+  <header class="topbar">
+    <h1>NGHS-27 Rep Panel<small>60th Sign Day · Batch 2027 · registration roster</small></h1>
+    <span class="live-pill"><span class="live-dot"></span> LIVE · auto-refresh 8s</span>
+    <span id="lastUpdated">—</span>
+    <span class="spacer"></span>
+    <button type="button" class="btn btn-sm" id="refreshBtn">⟳ Refresh</button>
+    <button type="button" class="btn btn-sm" id="exportBtn">⤓ Export CSV</button>
+    <button type="button" class="btn btn-sm" id="lockBtn">🔒 Lock</button>
+  </header>
+
+  <div class="stats" id="statsBar">
+    <div class="stat"><b id="st-total">0</b><span>Total registered</span></div>
+    <div class="stat s-green"><b id="st-active">0</b><span>ACTIVE PASS</span></div>
+    <div class="stat s-red"><b id="st-unconf">0</b><span>UNCONFIRMED</span></div>
+    <div class="stat s-amber"><b id="st-pending">0</b><span>Pending check</span></div>
+    <div class="stat"><b id="st-online">0</b><span>Online (bKash)</span></div>
+    <div class="stat"><b id="st-offline">0</b><span>Offline (cash)</span></div>
+    <div class="stat"><b id="st-morning">0</b><span>Morning shift</span></div>
+    <div class="stat"><b id="st-day">0</b><span>Day shift</span></div>
+  </div>
+
+  <div class="controls">
+    <div class="search-row">
+      <input id="searchInput" type="search" placeholder="🔍 Search name, email, phone, roll, school ID, pass code…" aria-label="Search roster">
+    </div>
+    <div class="filter-row">
+      <select id="fltStatus" aria-label="Filter by pass status">
+        <option value="">Pass status: All</option>
+        <option value="issued">ACTIVE PASS</option>
+        <option value="submitted">Pending (registered)</option>
+        <option value="unconfirmed">UNCONFIRMED (no form yet)</option>
+      </select>
+      <select id="fltShift" aria-label="Filter by shift">
+        <option value="">Shift: All</option>
+        <option value="Morning">Morning</option>
+        <option value="Day">Day</option>
+      </select>
+      <select id="fltSection" aria-label="Filter by section">
+        <option value="">Section: All</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+      <select id="fltPayment" aria-label="Filter by payment">
+        <option value="">Payment: All</option>
+        <option value="online">Online (bKash)</option>
+        <option value="offline">Offline (Cash)</option>
+      </select>
+      <select id="fltTshirt" aria-label="Filter by t-shirt size">
+        <option value="">T-Shirt: All</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+        <option value="XXL">XXL</option>
+      </select>
+      <select id="fltGroup" aria-label="Filter by WhatsApp group">
+        <option value="">Group: All</option>
+        <option value="Joined Already">Joined Already</option>
+        <option value="Joined Right Now">Joined Right Now</option>
+      </select>
+      <select id="sortSel" aria-label="Sort">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="name">Name A–Z</option>
+        <option value="roll">Roll number</option>
+      </select>
+      <span class="count-label" id="countLabel">Showing 0 of 0</span>
+    </div>
+  </div>
+
+  <p class="legend">
+    <b>How to use:</b> find a student with search or the filters → check their payment →
+    click the green <b>ACTIVE PASS</b> button when the deposit is confirmed (their nghsians account turns PASS ACTIVE automatically),
+    or the red <b>UNCONFIRMED</b> button to take a pass back. The table refreshes itself every 8 seconds.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="rosterTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name<br><small style="font-weight:400;text-transform:none">শিক্ষার্থীর নাম</small></th>
+            <th>Email</th>
+            <th>Phone (WhatsApp)</th>
+            <th>Roll</th>
+            <th>Sec</th>
+            <th>Shift</th>
+            <th>T-Shirt</th>
+            <th>Payment</th>
+            <th>Paid From / Given To</th>
+            <th>Group</th>
+            <th>Submitted</th>
+            <th>Pass Status</th>
+            <th class="act act-pass">ACTIVE PASS<br><small style="font-weight:400;text-transform:none">সক্রিয় পাস</small></th>
+            <th class="act act-unconf">UNCONFIRMED<br><small style="font-weight:400;text-transform:none">নিশ্চিত নয়</small></th>
+          </tr>
+        </thead>
+        <tbody id="rosterBody">
+          <tr class="empty-row"><td colspan="15">Loading roster…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var PIN = '202725';
+  var PIN_KEY = 'nghs27rep_unlocked';
+  var POLL_MS = 8000;
+
+  var SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldGFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+
+  function getEl(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function norm(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
+  var toastTimer = null;
+  function showToast(msg, isError) {
+    var t = getEl('toast');
+    t.textContent = msg;
+    t.classList.toggle('err', !!isError);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3600);
+  }
+  function fmtTime(ts) {
+    if (!ts) return '—';
+    try {
+      var d = new Date(ts);
+      return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return String(ts); }
+  }
+  function fmtClock() {
+    return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  /* IMPORTANT: this client never holds a user session (persistSession:false,
+     memory storage). The PIN functions are security-definer and must run
+     without a student JWT — signday_guard treats a session-less caller as the
+     committee, which is what allows the 'issued' transition. */
+  var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storage: {
+        getItem: function () { return null; },
+        setItem: function () {},
+        removeItem: function () {}
+      }
+    }
+  });
+
+  var rows = [];          // raw roster rows
+  var seenIds = {};       // for the "new row" flash
+  var pollTimer = null;
+  var firstLoad = true;
+
+  /* ---------- PIN gate ---------- */
+  function unlock() {
+    try { sessionStorage.setItem(PIN_KEY, '1'); } catch (e) {}
+    getEl('pinView').classList.add('hidden');
+    getEl('dashView').classList.remove('hidden');
+    loadRoster(false);
+    pollTimer = setInterval(function () { loadRoster(true); }, POLL_MS);
+  }
+  function lock() {
+    try { sessionStorage.removeItem(PIN_KEY); } catch (e) {}
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    getEl('dashView').classList.add('hidden');
+    getEl('pinView').classList.remove('hidden');
+    getEl('pinInput').value = '';
+    getEl('pinErr').textContent = '';
+    getEl('pinInput').focus();
+  }
+  getEl('pinForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = getEl('pinInput').value.trim();
+    if (v === PIN) {
+      getEl('pinErr').textContent = '';
+      unlock();
+    } else {
+      getEl('pinErr').textContent = 'Wrong PIN — try again.';
+      var card = getEl('pinCard');
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+      getEl('pinInput').select();
+    }
+  });
+  getEl('lockBtn').addEventListener('click', lock);
+
+  /* ---------- data ---------- */
+  async function loadRoster(silent) {
+    if (!silent) {
+      var body = getEl('rosterBody');
+      body.innerHTML = '<tr class="empty-row"><td colspan="15">Loading roster…</td></tr>';
+    }
+    try {
+      var res = await supabase.rpc('signday_roster', { pass_pin: PIN });
+      if (res.error) throw res.error;
+      var incoming = res.data || [];
+      if (firstLoad) {
+        incoming.forEach(function (r) { seenIds[r.id] = true; });
+        firstLoad = false;
+      } else {
+        incoming.forEach(function (r) {
+          if (!seenIds[r.id]) { seenIds[r.id] = true; r.__isNew = true; }
+        });
+      }
+      rows = incoming;
+      render();
+      getEl('lastUpdated').textContent = 'updated ' + fmtClock();
+    } catch (err) {
+      var body2 = getEl('rosterBody');
+      body2.innerHTML = '<tr class="empty-row"><td colspan="15">Could not load the roster: ' +
+        esc((err && err.message) || err) +
+        '<br><small>Check that supabase-signday-form-27.sql has been run and the PIN matches.</small></td></tr>';
+      getEl('lastUpdated').textContent = 'load failed ' + fmtClock();
+    }
+  }
+
+  /* ---------- pass actions ---------- */
+  function setRowBusy(id, busy) {
+    var btns = document.querySelectorAll('.act-btn[data-id="' + id + '"]');
+    btns.forEach(function (b) { b.disabled = busy; });
+  }
+  async function activatePass(row) {
+    var name = row.student_name || row.profile_username || row.email || 'this student';
+    if (!window.confirm('Mark ' + name + ' as ACTIVE PASS?\n\nTheir nghsians account will turn PASS ACTIVE immediately (signday_status = issued).')) return;
+    setRowBusy(row.id, true);
+    try {
+      var res = await supabase.rpc('activate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
+      if (res.error) throw res.error;
+      showToast('ACTIVE PASS issued — ' + name + '’s account is now PASS ACTIVE.');
+      await loadRoster(true);
+    } catch (err) {
+      showToast('Could not activate: ' + ((err && err.message) || err), true);
+    } finally {
+      setRowBusy(row.id, false);
+    }
+  }
+  async function deactivatePass(row) {
+    var name = row.student_name || row.profile_username || row.email || 'this student';
+    if (!window.confirm('Set ' + name + ' back to UNCONFIRMED?\n\nThey stay registered, but their pass goes back to waiting (signday_status = submitted).')) return;
+    setRowBusy(row.id, true);
+    try {
+      var res = await supabase.rpc('deactivate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
+      if (res.error) throw res.error;
+      showToast(name + ' set back to UNCONFIRMED (still registered).');
+      await loadRoster(true);
+    } catch (err) {
+      showToast('Could not update: ' + ((err && err.message) || err), true);
+    } finally {
+      setRowBusy(row.id, false);
+    }
+  }
+
+  /* ---------- filter / sort / render ---------- */
+  function currentFiltered() {
+    var q = norm(getEl('searchInput').value);
+    var fStatus = getEl('fltStatus').value;
+    var fShift = getEl('fltShift').value;
+    var fSection = getEl('fltSection').value;
+    var fPayment = getEl('fltPayment').value;
+    var fTshirt = getEl('fltTshirt').value;
+    var fGroup = getEl('fltGroup').value;
+    var sort = getEl('sortSel').value;
+
+    var out = rows.filter(function (r) {
+      if (fStatus && norm(r.signday_status || 'unconfirmed') !== norm(fStatus)) return false;
+      if (fShift && r.shift !== fShift) return false;
+      if (fSection && r.section !== fSection) return false;
+      if (fPayment && r.payment_method !== fPayment) return false;
+      if (fTshirt && r.tshirt_size !== fTshirt) return false;
+      if (fGroup && r.whatsapp_group !== fGroup) return false;
+      if (q) {
+        var hay = norm([
+          r.student_name, r.email, r.profile_email, r.phone, r.profile_whatsapp,
+          r.class_roll, r.profile_username, r.profile_school_id, r.signday_pass_code,
+          r.bkash_number, r.deposit_to
+        ].join(' '));
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    out.sort(function (a, b) {
+      if (sort === 'name') return norm(a.student_name).localeCompare(norm(b.student_name));
+      if (sort === 'roll') {
+        var ra = parseInt(a.class_roll, 10), rb = parseInt(b.class_roll, 10);
+        if (isNaN(ra) || isNaN(rb)) return norm(a.class_roll).localeCompare(norm(b.class_roll));
+        return ra - rb;
+      }
+      var ta = a.submitted_at ? new Date(a.submitted_at).getTime() : 0;
+      var tb = b.submitted_at ? new Date(b.submitted_at).getTime() : 0;
+      return sort === 'oldest' ? (ta - tb) : (tb - ta);
+    });
+    return out;
+  }
+
+  function statusPill(r) {
+    var s = norm(r.signday_status || 'unconfirmed');
+    if (s === 'issued') return '<span class="pill issued">PASS ACTIVE</span>';
+    if (s === 'submitted') return '<span class="pill submitted">PENDING</span>';
+    if (s === 'unconfirmed') return '<span class="pill unconfirmed">UNCONFIRMED</span>';
+    return '<span class="pill none">NO ACCOUNT</span>';
+  }
+
+  function render() {
+    var list = currentFiltered();
+    var body = getEl('rosterBody');
+
+    /* stats over the FULL roster */
+    var total = rows.length;
+    var active = 0, pending = 0, unconf = 0, online = 0, offline = 0, morning = 0, day = 0;
+    rows.forEach(function (r) {
+      var s = norm(r.signday_status || 'unconfirmed');
+      if (s === 'issued') active++;
+      else if (s === 'submitted') pending++;
+      else unconf++;
+      if (r.payment_method === 'online') online++;
+      if (r.payment_method === 'offline') offline++;
+      if (r.shift === 'Morning') morning++;
+      if (r.shift === 'Day') day++;
+    });
+    getEl('st-total').textContent = total;
+    getEl('st-active').textContent = active;
+    getEl('st-unconf').textContent = unconf;
+    getEl('st-pending').textContent = pending;
+    getEl('st-online').textContent = online;
+    getEl('st-offline').textContent = offline;
+    getEl('st-morning').textContent = morning;
+    getEl('st-day').textContent = day;
+    getEl('countLabel').textContent = 'Showing ' + list.length + ' of ' + total;
+
+    if (!list.length) {
+      body.innerHTML = '<tr class="empty-row"><td colspan="15">No students match — clear the search or filters.</td></tr>';
+      return;
+    }
+
+    var html = '';
+    list.forEach(function (r, i) {
+      var issued = norm(r.signday_status) === 'issued';
+      var paidFrom = r.payment_method === 'online'
+        ? 'bKash · ' + esc(r.bkash_number || '—')
+        : 'Cash → ' + esc(r.deposit_to || '—');
+      var payLabel = r.payment_method === 'online' ? 'Online' : 'Offline';
+      var cls = r.__isNew ? ' class="is-new"' : '';
+      delete r.__isNew;
+      html += '<tr' + cls + '>' +
+        '<td class="num">' + (i + 1) + '</td>' +
+        '<td class="name-cell"><b>' + esc(r.student_name) + '</b>' +
+          (r.profile_username && norm(r.profile_username) !== norm(r.student_name)
+            ? '<span class="sub">@' + esc(r.profile_username) + '</span>' : '') +
+        '</td>' +
+        '<td class="mono">' + esc(r.email || r.profile_email || '—') + '</td>' +
+        '<td class="mono">' + esc(r.phone || '—') + '</td>' +
+        '<td class="mono"><b>' + esc(r.class_roll || '—') + '</b></td>' +
+        '<td><b>' + esc(r.section || '—') + '</b></td>' +
+        '<td>' + esc(r.shift || '—') + '</td>' +
+        '<td>' + esc(r.tshirt_size || '—') + '</td>' +
+        '<td>' + payLabel + '</td>' +
+        '<td>' + paidFrom + '</td>' +
+        '<td>' + esc(r.whatsapp_group || '—') + '</td>' +
+        '<td class="mono">' + fmtTime(r.submitted_at) + '</td>' +
+        '<td>' + statusPill(r) + '</td>' +
+        '<td class="act act-pass">' +
+          '<button type="button" class="act-btn pass' + (issued ? '' : ' off') + '" data-id="' + esc(r.id) + '" data-act="activate">' +
+            (issued ? '✓ ACTIVE PASS' : 'ACTIVE PASS') +
+            '<small>' + (issued ? 'already active' : 'mark pass active') + '</small>' +
+          '</button>' +
+        '</td>' +
+        '<td class="act act-unconf">' +
+          '<button type="button" class="act-btn unconf' + (issued ? ' off' : '') + '" data-id="' + esc(r.id) + '" data-act="deactivate">' +
+            (issued ? 'UNCONFIRMED' : '✓ UNCONFIRMED') +
+            '<small>' + (issued ? 'take the pass back' : 'waiting — not confirmed') + '</small>' +
+          '</button>' +
+        '</td>' +
+      '</tr>';
+    });
+    body.innerHTML = html;
+  }
+
+  /* ---------- events ---------- */
+  getEl('refreshBtn').addEventListener('click', function () { loadRoster(false); });
+  getEl('searchInput').addEventListener('input', render);
+  ['fltStatus', 'fltShift', 'fltSection', 'fltPayment', 'fltTshirt', 'fltGroup', 'sortSel'].forEach(function (id) {
+    getEl(id).addEventListener('change', render);
+  });
+  getEl('rosterBody').addEventListener('click', function (e) {
+    var btn = e.target.closest('.act-btn');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    var act = btn.getAttribute('data-act');
+    var row = null;
+    for (var i = 0; i < rows.length; i++) { if (rows[i].id === id) { row = rows[i]; break; } }
+    if (!row) return;
+    if (act === 'activate') activatePass(row);
+    else deactivatePass(row);
+  });
+
+  getEl('exportBtn').addEventListener('click', function () {
+    var list = currentFiltered();
+    if (!list.length) { showToast('Nothing to export — no rows match the current filters.', true); return; }
+    var head = ['#', 'Student Name', 'Username', 'Email', 'Phone', 'Roll', 'Section', 'Shift', 'T-Shirt', 'Payment', 'Paid From / Given To', 'WhatsApp Group', 'Pass Status', 'Pass Code', 'Submitted At'];
+    function csvCell(v) {
+      var s = String(v == null ? '' : v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    var lines = [head.map(csvCell).join(',')];
+    list.forEach(function (r, i) {
+      lines.push([
+        i + 1,
+        r.student_name, r.profile_username, r.email || r.profile_email, r.phone,
+        r.class_roll, r.section, r.shift, r.tshirt_size, r.payment_method,
+        r.payment_method === 'online' ? ('bKash ' + (r.bkash_number || '')) : ('Cash -> ' + (r.deposit_to || '')),
+        r.whatsapp_group, r.signday_status || '', r.signday_pass_code || '', r.submitted_at || ''
+      ].map(csvCell).join(','));
+    });
+    var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'nghs27-signday-roster-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showToast('Exported ' + list.length + ' rows to CSV.');
+  });
+
+  /* ---------- startup ---------- */
+  var already = false;
+  try { already = sessionStorage.getItem(PIN_KEY) === '1'; } catch (e) {}
+  if (already) unlock();
+  else getEl('pinInput').focus();
+})();
+</script>
+</body>
+</html>
