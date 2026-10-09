@@ -39,12 +39,14 @@ body {
     radial-gradient(1000px 500px at 90% -10%, rgba(143,26,18,.08), transparent 60%),
     var(--paper);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 .hidden { display: none !important; }
 
 /* ---------- PIN gate ---------- */
 .pin-wrap {
   min-height: 100vh;
+  min-height: 100dvh;
   display: grid; place-items: center;
   padding: 20px;
 }
@@ -110,7 +112,7 @@ body {
 .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(23,19,14,.7); }
 .btn-primary { background: var(--red); color: #fff7e6; }
 .btn-primary:hover { background: var(--red-deep); }
-.btn-sm { padding: 6px 11px; font-size: 12.5px; }
+.btn-sm { padding: 10px 13px; font-size: 13px; }
 .btn[disabled] { opacity: .55; cursor: wait; }
 
 /* ---------- top bar ---------- */
@@ -175,8 +177,8 @@ body {
 .search-row input:focus { outline: 4px solid rgba(143,26,18,.25); }
 .filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .filter-row select {
-  font: inherit; font-size: 14px; font-weight: 600;
-  padding: 9px 10px;
+  font: inherit; font-size: 16px; font-weight: 600;
+  padding: 10px;
   border: 2px solid var(--ink);
   background: var(--paper-2);
   color: var(--ink);
@@ -194,6 +196,7 @@ body {
   box-shadow: 6px 6px 0 rgba(23,19,14,.75);
   background: var(--paper-2);
   max-height: calc(100vh - 260px);
+  max-height: calc(100dvh - 260px);
 }
 table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1500px; font-size: 14px; }
 thead th {
