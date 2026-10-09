@@ -23,10 +23,14 @@
         email is stored in signday_email, and batch-2027 members are tagged
         role '27' (the Sign Day pass tag) if they are not tagged yet.
      3. PIN-protected admin functions (the PIN is 202725 — change it in all
-        three functions + 27rep.html if you ever rotate it):
-          signday_roster(pass_pin)                        → the whole roster
-          activate_signday_pass(target_user_id, pass_pin) → pass goes ACTIVE
-          deactivate_signday_pass(target_user_id, pass_pin) → back to pending
+        functions + 27rep.html if you ever rotate it):
+          signday_roster(pass_pin)                                        → the whole roster
+          activate_signday_pass(target_user_id, pass_pin, rep_name)       → pass goes ACTIVE (logged)
+          deactivate_signday_pass(target_user_id, pass_pin, rep_name)     → back to pending (logged)
+          signday_change_log(pass_pin)                                    → who changed what, newest first
+     3b. signday_pass_log — ONE row per ACTIVE PASS / UNCONFIRMED click, with the
+        rep's name typed on the 27rep.html PIN screen. Rows are never overwritten,
+        so the history of a student keeps every rep who touched them.
         "ACTIVE PASS" on 27rep.html = verified_profiles.signday_status
         'issued' — the exact state account.html turns into the glowing
         "PASS ACTIVE" card. "UNCONFIRMED" = 'submitted' (registered, waiting).
@@ -49,7 +53,8 @@
    HOW TO RUN
      1. Supabase Dashboard → SQL Editor → New query
      2. Paste this WHOLE file → "Run without RLS" (RLS + policies are here).
-     3. Safe to re-run: nothing is dropped, no data is deleted.
+     3. Safe to re-run: no data is deleted. (v2 drops only the OLD 2-argument
+        activate/deactivate functions, which the new 3-argument ones replace.)
    ============================================================================ */
 
 
@@ -138,50 +143,101 @@ begin
      order by r.submitted_at desc;
 end;
 $fn$;
-create or replace function public.activate_signday_pass(target_user_id uuid, pass_pin text) returns json language plpgsql security definer set search_path = public as $fn$
+/* ── 5b. ACTION LOG — who pressed ACTIVE PASS / UNCONFIRMED, and when ─────────
+      One row per click. rep_name is the name typed on the PIN screen of
+      27rep.html. Nothing ever updates or deletes these rows, so a later
+      change by another rep does not hide an earlier one. Only the PIN
+      functions read it (RLS on, no policies, no grants to anon/authenticated). */
+create table if not exists public.signday_pass_log (id bigint generated always as identity primary key, student_id uuid not null, student_name text, rep_name text not null, action text not null, status_before text, status_after text, created_at timestamp with time zone default timezone('utc'::text, now()) not null);
+alter table public.signday_pass_log enable row level security;
+comment on table public.signday_pass_log is 'Change log for the 27rep.html rep panel — one row per ACTIVE PASS / UNCONFIRMED click, with the rep name typed on the PIN screen';
+comment on column public.signday_pass_log.rep_name is 'Name the rep typed on the 27rep.html PIN screen (the person who made this change)';
+comment on column public.signday_pass_log.action is 'activated | unconfirmed';
+create index if not exists signday_pass_log_student_idx on public.signday_pass_log (student_id, created_at desc);
+create index if not exists signday_pass_log_created_idx on public.signday_pass_log (created_at desc);
+revoke all on table public.signday_pass_log from anon, authenticated;
+
+/* the v1 two-argument versions are replaced by the 3-argument versions below */
+drop function if exists public.activate_signday_pass(uuid, text);
+drop function if exists public.deactivate_signday_pass(uuid, text);
+
+create or replace function public.activate_signday_pass(target_user_id uuid, pass_pin text, rep_name text default null) returns json language plpgsql security definer set search_path = public as $fn$
 declare
-  v_status text;
+  v_name   text := left(btrim(coalesce(rep_name, '')), 60);
+  v_before text;
+  v_after  text;
+  v_student text;
 begin
   if pass_pin is distinct from '202725' then
     raise exception 'Wrong PIN — the NGHS-27 rep panel is for the committee only.';
+  end if;
+  if v_name = '' then
+    raise exception 'Type your name on the PIN screen first — it is saved in the change log.';
+  end if;
+  select signday_status into v_before from public.verified_profiles
+   where id = target_user_id and role = '27' and lower(trim(coalesce(batch_year, ''))) = '2027';
+  if not found then
+    raise exception 'No batch-2027 Sign Day pass holder found for this student.';
   end if;
   update public.verified_profiles
      set signday_status = 'issued'
-   where id = target_user_id
-     and role = '27'
-     and lower(trim(coalesce(batch_year, ''))) = '2027';
-  if not found then
-    raise exception 'No batch-2027 Sign Day pass holder found for this student.';
-  end if;
-  select signday_status into v_status from public.verified_profiles where id = target_user_id;
-  return json_build_object('ok', true, 'id', target_user_id, 'signday_status', v_status);
+   where id = target_user_id;
+  select signday_status into v_after from public.verified_profiles where id = target_user_id;
+  select student_name into v_student from public.signday_registrations where id = target_user_id;
+  insert into public.signday_pass_log (student_id, student_name, rep_name, action, status_before, status_after)
+    values (target_user_id, v_student, v_name, 'activated', v_before, v_after);
+  return json_build_object('ok', true, 'id', target_user_id, 'signday_status', v_after, 'rep_name', v_name);
 end;
 $fn$;
-create or replace function public.deactivate_signday_pass(target_user_id uuid, pass_pin text) returns json language plpgsql security definer set search_path = public as $fn$
+
+create or replace function public.deactivate_signday_pass(target_user_id uuid, pass_pin text, rep_name text default null) returns json language plpgsql security definer set search_path = public as $fn$
 declare
-  v_status text;
+  v_name   text := left(btrim(coalesce(rep_name, '')), 60);
+  v_before text;
+  v_after  text;
+  v_student text;
 begin
   if pass_pin is distinct from '202725' then
     raise exception 'Wrong PIN — the NGHS-27 rep panel is for the committee only.';
   end if;
-  update public.verified_profiles
-     set signday_status = 'submitted'
-   where id = target_user_id
-     and role = '27'
-     and lower(trim(coalesce(batch_year, ''))) = '2027';
+  if v_name = '' then
+    raise exception 'Type your name on the PIN screen first — it is saved in the change log.';
+  end if;
+  select signday_status into v_before from public.verified_profiles
+   where id = target_user_id and role = '27' and lower(trim(coalesce(batch_year, ''))) = '2027';
   if not found then
     raise exception 'No batch-2027 Sign Day pass holder found for this student.';
   end if;
-  select signday_status into v_status from public.verified_profiles where id = target_user_id;
-  return json_build_object('ok', true, 'id', target_user_id, 'signday_status', v_status);
+  update public.verified_profiles
+     set signday_status = 'submitted'
+   where id = target_user_id;
+  select signday_status into v_after from public.verified_profiles where id = target_user_id;
+  select student_name into v_student from public.signday_registrations where id = target_user_id;
+  insert into public.signday_pass_log (student_id, student_name, rep_name, action, status_before, status_after)
+    values (target_user_id, v_student, v_name, 'unconfirmed', v_before, v_after);
+  return json_build_object('ok', true, 'id', target_user_id, 'signday_status', v_after, 'rep_name', v_name);
 end;
 $fn$;
-revoke all on function public.signday_roster(text) from public;
-grant execute on function public.signday_roster(text) to anon, authenticated;
-revoke all on function public.activate_signday_pass(uuid, text) from public;
-grant execute on function public.activate_signday_pass(uuid, text) to anon, authenticated;
-revoke all on function public.deactivate_signday_pass(uuid, text) from public;
-grant execute on function public.deactivate_signday_pass(uuid, text) to anon, authenticated;
+
+create or replace function public.signday_change_log(pass_pin text) returns table (id bigint, student_id uuid, student_name text, rep_name text, action text, status_before text, status_after text, created_at timestamp with time zone) language plpgsql security definer set search_path = public as $fn$
+begin
+  if pass_pin is distinct from '202725' then
+    raise exception 'Wrong PIN — the NGHS-27 rep panel is for the committee only.';
+  end if;
+  return query
+    select l.id, l.student_id, l.student_name, l.rep_name, l.action, l.status_before, l.status_after, l.created_at
+      from public.signday_pass_log l
+     order by l.created_at desc, l.id desc
+     limit 5000;
+end;
+$fn$;
+
+revoke all on function public.activate_signday_pass(uuid, text, text) from public;
+grant execute on function public.activate_signday_pass(uuid, text, text) to anon, authenticated;
+revoke all on function public.deactivate_signday_pass(uuid, text, text) from public;
+grant execute on function public.deactivate_signday_pass(uuid, text, text) to anon, authenticated;
+revoke all on function public.signday_change_log(text) from public;
+grant execute on function public.signday_change_log(text) to anon, authenticated;
 
 
 /* ── 6. updated_at trigger + indexes ───────────────────────────────────────── */
@@ -204,13 +260,16 @@ create index if not exists signday_registrations_submitted_idx on public.signday
    select * from public.signday_roster('202725');
 
    Issue a pass by account email (the 27rep.html ACTIVE PASS button does this):
-   select public.activate_signday_pass(id, '202725') from public.verified_profiles where lower(trim(coalesce(email, ''))) = 'student@example.com';
+   select public.activate_signday_pass(id, '202725', 'Admin') from public.verified_profiles where lower(trim(coalesce(email, ''))) = 'student@example.com';
 
    Issue every pass that is waiting (all 'submitted'):
-   select public.activate_signday_pass(id, '202725') from public.verified_profiles where role = '27' and signday_status = 'submitted';
+   select public.activate_signday_pass(id, '202725', 'Admin') from public.verified_profiles where role = '27' and signday_status = 'submitted';
 
    Take a pass back (registered but not approved — the UNCONFIRMED button):
-   select public.deactivate_signday_pass(id, '202725') from public.verified_profiles where id = '<uuid>';
+   select public.deactivate_signday_pass(id, '202725', 'Admin') from public.verified_profiles where id = '<uuid>';
+
+   Change log, newest first:
+   select * from public.signday_change_log('202725');
 
    Counts:
    select count(*) as total, count(*) filter (where payment_method = 'online') as online, count(*) filter (where payment_method = 'offline') as offline, count(*) filter (where shift = 'Morning') as morning, count(*) filter (where shift = 'Day') as day from public.signday_registrations;
@@ -220,7 +279,7 @@ create index if not exists signday_registrations_submitted_idx on public.signday
 
    Did it install?
    select t.tgname from pg_trigger t join pg_class c on c.oid = t.tgrelid where c.relname = 'signday_registrations' and t.tgname in ('signday_form_sync', 'signday_registrations_touch');
-   select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('signday_roster', 'activate_signday_pass', 'deactivate_signday_pass', 'signday_form_sync', 'signday_touch_updated_at') order by 1;
+   select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname in ('signday_roster', 'activate_signday_pass', 'deactivate_signday_pass', 'signday_change_log', 'signday_form_sync', 'signday_touch_updated_at') order by 1;
    ─────────────────────────────────────────────────────────────────────────── */
 
 
@@ -236,11 +295,13 @@ create index if not exists signday_registrations_submitted_idx on public.signday
    drop function if exists public.signday_form_sync();
    drop function if exists public.signday_touch_updated_at();
    drop function if exists public.signday_roster(text);
-   drop function if exists public.activate_signday_pass(uuid, text);
-   drop function if exists public.deactivate_signday_pass(uuid, text);
+   drop function if exists public.activate_signday_pass(uuid, text, text);
+   drop function if exists public.deactivate_signday_pass(uuid, text, text);
+   drop function if exists public.signday_change_log(text);
    drop index if exists public.signday_registrations_shift_idx;
    drop index if exists public.signday_registrations_section_idx;
    drop index if exists public.signday_registrations_payment_idx;
    drop index if exists public.signday_registrations_submitted_idx;
+   drop table if exists public.signday_pass_log;
    drop table if exists public.signday_registrations;
    ─────────────────────────────────────────────────────────────────────────── */

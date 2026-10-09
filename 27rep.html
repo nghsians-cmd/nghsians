@@ -12,6 +12,8 @@
 /* ============================================================
    27rep.html — committee rep panel (PIN 202725)
    plain, big, spreadsheet-like — easy for anyone to use
+   Desktop: full spreadsheet (pinned action + log columns on the right)
+   Phone (≤760px): one card per student, big tap buttons
    ============================================================ */
 :root {
   --ink: #17130e;
@@ -85,6 +87,13 @@ body {
   color: var(--ink);
 }
 .pin-card input:focus { outline: 4px solid rgba(201,162,39,.5); }
+.pin-card .field-label {
+  display: block; text-align: left;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  margin: 16px 0 6px; color: var(--ink);
+}
+.pin-card .field-label small { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--ink-soft); }
+.pin-card input.name-input { font-size: 18px; font-weight: 600; letter-spacing: 0; text-align: left; }
 .pin-err { color: var(--red-deep); font-weight: 700; font-size: 13.5px; min-height: 20px; margin: 12px 0 4px; }
 .pin-card.shake { animation: shake .35s; }
 @keyframes shake {
@@ -138,6 +147,16 @@ body {
 }
 .live-dot { width: 9px; height: 9px; border-radius: 50%; background: #35d07a; animation: pulse 1.6s infinite; }
 @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(53,208,122,.6); } 50% { box-shadow: 0 0 0 6px rgba(53,208,122,0); } }
+.who-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(243,236,217,.12);
+  border: 1px solid rgba(243,236,217,.4);
+  padding: 6px 12px;
+  font-size: 12.5px; color: var(--paper-2);
+  border-radius: 999px;
+  max-width: 100%;
+}
+.who-chip b { color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
 .topbar .btn { background: rgba(243,236,217,.12); color: var(--paper-2); border-color: rgba(243,236,217,.4); box-shadow: none; }
 .topbar .btn:hover { background: rgba(243,236,217,.22); }
 #lastUpdated { font-size: 12px; color: rgba(243,236,217,.65); font-weight: 500; }
@@ -238,23 +257,52 @@ td .sub { display: block; font-size: 11.5px; color: var(--ink-soft); font-weight
 .pill.unconfirmed { background: var(--red-soft); color: var(--red-deep); border-color: var(--red); }
 .pill.none { background: #eee; color: #666; border-color: #bbb; }
 
-/* sticky action columns — the two big highlighted ones, far right */
+/* sticky right-hand columns: ACTIVE PASS | UNCONFIRMED | CHANGE LOG (far right) */
 th.act, td.act {
-  position: sticky; right: 0; z-index: 6;
+  position: sticky; right: 250px; z-index: 6;
   background: var(--paper-2);
   border-left: 3px solid var(--ink);
   text-align: center;
-  min-width: 150px;
+  width: 150px; min-width: 150px;
 }
 th.act { z-index: 7; }
-th.act-pass { right: 150px; }
-td.act-pass { right: 150px; }
+th.act-pass, td.act-pass { right: 400px; }
+th.act-unconf, td.act-unconf { right: 250px; }
+th.log-col, td.log-cell {
+  position: sticky; right: 0; z-index: 6;
+  background: var(--paper-2);
+  border-left: 3px solid var(--ink);
+  width: 250px; min-width: 250px;
+  white-space: normal;
+}
+th.log-col { z-index: 7; }
 thead th.act-pass { background: var(--green-deep); }
 thead th.act-unconf { background: var(--red-deep); }
+thead th.log-col { background: var(--ink); }
 td.act-pass { background: var(--green-soft); }
 td.act-unconf { background: var(--red-soft); }
 tbody tr:hover td.act-pass { background: #cdeeda; }
 tbody tr:hover td.act-unconf { background: #f6d2cc; }
+tbody tr:hover td.log-cell { background: #f1e7c4; }
+tbody tr.is-new td.log-cell { background: #d9f0e0; }
+
+/* change log cell */
+.log-last { display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.3; }
+.log-who { font-weight: 800; }
+.log-act { font-weight: 700; font-size: 12.5px; }
+.log-act.act-on { color: var(--green-deep); }
+.log-act.act-off { color: var(--red-deep); }
+.log-cell .sub { max-width: none; }
+.log-none { color: var(--ink-soft); font-style: italic; font-size: 12.5px; }
+.log-more {
+  margin-top: 6px;
+  font: inherit; font-size: 12px; font-weight: 700;
+  background: #fff; color: var(--ink);
+  border: 2px solid var(--ink);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.log-more:hover { background: var(--gold); }
 
 .act-btn {
   display: block; width: 100%;
@@ -285,6 +333,65 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   font-weight: 700; color: var(--ink-soft); font-size: 15px;
 }
 
+/* ---------- phone cards (hidden on desktop) ---------- */
+.cards { display: none; }
+.rcard {
+  background: var(--paper-2);
+  border: 3px solid var(--ink);
+  box-shadow: 5px 5px 0 rgba(23,19,14,.7);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.rcard.is-new { animation: flash 2.4s ease-out; }
+.rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.rc-num { font-weight: 800; color: var(--ink-soft); margin-right: 6px; font-size: 13px; }
+.rc-name { font-size: 17px; line-height: 1.25; }
+.rc-top .sub { display: block; font-size: 12px; color: var(--ink-soft); }
+.rc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin: 12px 0; }
+.rc-grid dt { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); font-weight: 700; }
+.rc-grid dd { margin: 2px 0 0; font-weight: 700; font-size: 14px; word-break: break-word; }
+.rc-wide { grid-column: 1 / -1; }
+.rc-log {
+  border-top: 2px dashed var(--line);
+  padding-top: 10px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+}
+.rc-log .log-more { margin-top: 0; white-space: nowrap; }
+.rc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.rc-actions .act-btn { font-size: 15px; padding: 14px 8px; }
+.empty-card { text-align: center; padding: 30px 16px; font-weight: 700; color: var(--ink-soft); font-size: 15px; }
+
+/* ---------- history modal ---------- */
+.modal-wrap {
+  position: fixed; inset: 0; z-index: 150;
+  background: rgba(23,19,14,.6);
+  display: grid; place-items: center;
+  padding: 16px;
+}
+.modal-card {
+  background: var(--paper-2);
+  border: 3px solid var(--ink);
+  box-shadow: 8px 8px 0 rgba(23,19,14,.85);
+  width: min(560px, 100%);
+  max-height: 86vh;
+  display: flex; flex-direction: column;
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  padding: 16px 18px;
+  background: var(--ink); color: var(--paper-2);
+  border-bottom: 4px solid var(--red);
+}
+.modal-head h2 { margin: 0; font-family: 'Anton', sans-serif; font-size: 20px; letter-spacing: .5px; text-transform: uppercase; }
+.modal-head small { font-size: 12.5px; color: rgba(243,236,217,.7); }
+.modal-head .btn { background: rgba(243,236,217,.12); color: var(--paper-2); border-color: rgba(243,236,217,.4); box-shadow: none; }
+.hist-list { list-style: none; margin: 0; padding: 6px 18px 18px; overflow: auto; }
+.hist-item { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.hist-item:last-child { border-bottom: 0; }
+.hist-item .hist-who { font-weight: 800; }
+.hist-item .hist-when { display: block; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; margin-top: 3px; }
+.hist-item .hist-state { display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+
 /* ---------- toast ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 22px;
@@ -309,14 +416,35 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
 }
 .legend b { color: var(--ink); }
 
-@media (max-width: 640px) {
-  .topbar h1 { font-size: 16px; }
-  .stats { gap: 8px; }
-  .stat { flex: 1 1 calc(50% - 8px); }
-  .stat b { font-size: 21px; }
-  th.act, td.act { min-width: 118px; }
-  th.act-pass, td.act-pass { right: 118px; }
-  .act-btn { font-size: 13px; padding: 10px 6px; }
+/* ---------- phone layout (≤760px): cards instead of the squeezed table ---------- */
+@media (max-width: 760px) {
+  .topbar { padding: 10px 12px; gap: 8px; }
+  .topbar h1 { font-size: 16px; flex: 1 1 60%; }
+  .topbar h1 small { font-size: 11px; }
+  .topbar .spacer { display: none; }
+  .topbar .live-pill { font-size: 11.5px; padding: 5px 10px; }
+  .topbar .btn { flex: 1 1 auto; justify-content: center; }
+  #lastUpdated { flex: 1 1 100%; order: 10; }
+  .who-chip { flex: 1 1 100%; order: 11; justify-content: center; }
+  .who-chip b { max-width: none; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px; margin-top: 12px; }
+  .stat { flex: none; padding: 10px 12px; }
+  .stat b { font-size: 22px; }
+  .stat span { font-size: 11px; }
+
+  .controls { padding: 0 12px; gap: 10px; margin-top: 12px; }
+  .search-row input { font-size: 16px; flex-basis: 100%; padding: 12px; }
+  .filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .filter-row select { width: 100%; min-width: 0; font-size: 14px; padding: 9px 8px; }
+  .filter-row .count-label { grid-column: 1 / -1; margin-left: 0; text-align: center; }
+
+  .legend { padding: 0 12px 4px; font-size: 12.5px; }
+  .table-wrap { padding: 0 12px; margin: 12px auto 40px; }
+  .table-scroll { display: none; }
+  .cards { display: block; }
+  .modal-wrap { padding: 10px; align-items: end; }
+  .modal-card { max-height: 88vh; }
 }
 </style>
 </head>
@@ -327,9 +455,11 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   <div class="pin-card" id="pinCard">
     <div class="pin-lock">🔒</div>
     <h1>NGHS-27 Rep Panel</h1>
-    <p>60th Sign Day roster — committee only.<br>Enter the panel PIN to open the spreadsheet.</p>
-    <form id="pinForm">
+    <p>60th Sign Day roster — committee only.<br>Enter the panel PIN and your name to open the spreadsheet.</p>
+    <form id="pinForm" autocomplete="off">
       <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Panel PIN">
+      <label class="field-label" for="nameInput">Your name <small>— every change you make is logged under this name</small></label>
+      <input id="nameInput" class="name-input" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Umair" aria-label="Your name">
       <div class="pin-err" id="pinErr"></div>
       <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:16px;padding:12px;">Unlock panel</button>
     </form>
@@ -344,6 +474,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     <span class="live-pill"><span class="live-dot"></span> LIVE · auto-refresh 8s</span>
     <span id="lastUpdated">—</span>
     <span class="spacer"></span>
+    <span class="who-chip">👤 Logged in as <b id="whoName">—</b></span>
     <button type="button" class="btn btn-sm" id="refreshBtn">⟳ Refresh</button>
     <button type="button" class="btn btn-sm" id="exportBtn">⤓ Export CSV</button>
     <button type="button" class="btn btn-sm" id="lockBtn">🔒 Lock</button>
@@ -413,8 +544,9 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
 
   <p class="legend">
     <b>How to use:</b> find a student with search or the filters → check their payment →
-    click the green <b>ACTIVE PASS</b> button when the deposit is confirmed (their nghsians account turns PASS ACTIVE automatically),
-    or the red <b>UNCONFIRMED</b> button to take a pass back. The table refreshes itself every 8 seconds.
+    tap the green <b>ACTIVE PASS</b> button when the deposit is confirmed (their nghsians account turns PASS ACTIVE automatically),
+    or the red <b>UNCONFIRMED</b> button to take a pass back. Every click is logged with your name — the far-right
+    <b>Change log</b> shows who made the last change, and <b>History</b> shows them all. The table refreshes itself every 8 seconds.
   </p>
 
   <div class="table-wrap">
@@ -437,12 +569,30 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
             <th>Pass Status</th>
             <th class="act act-pass">ACTIVE PASS<br><small style="font-weight:400;text-transform:none">সক্রিয় পাস</small></th>
             <th class="act act-unconf">UNCONFIRMED<br><small style="font-weight:400;text-transform:none">নিশ্চিত নয়</small></th>
+            <th class="log-col">Change log<br><small style="font-weight:400;text-transform:none">who changed it · last</small></th>
           </tr>
         </thead>
         <tbody id="rosterBody">
-          <tr class="empty-row"><td colspan="15">Loading roster…</td></tr>
+          <tr class="empty-row"><td colspan="16">Loading roster…</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="cards" id="rosterCards">
+      <div class="empty-card">Loading roster…</div>
+    </div>
+  </div>
+
+  <!-- full change history for one student -->
+  <div class="modal-wrap hidden" id="histModal" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2 id="histTitle">Student</h2>
+          <small id="histSub"></small>
+        </div>
+        <button type="button" class="btn btn-sm" id="histClose">Close ✕</button>
+      </div>
+      <ol class="hist-list" id="histList"></ol>
     </div>
   </div>
 
@@ -456,6 +606,7 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
 
   var PIN = '202725';
   var PIN_KEY = 'nghs27rep_unlocked';
+  var NAME_KEY = 'nghs27rep_name';
   var POLL_MS = 8000;
 
   var SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
@@ -506,54 +657,109 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   });
 
   var rows = [];          // raw roster rows
+  var logs = {};          // student id -> change-log entries, newest first
+  var logError = '';      // set if the change-log function is not installed yet
   var seenIds = {};       // for the "new row" flash
   var pollTimer = null;
   var firstLoad = true;
+  var lastSig = '';       // skip re-rendering when nothing changed (keeps taps reliable)
+  var lastTouch = 0;      // last pointer press — don't swap buttons under a finger
+  var deferTimer = null;
+  var repName = '';       // the rep's name for this session
+  var histId = null;      // student currently open in the history window
 
-  /* ---------- PIN gate ---------- */
-  function unlock() {
-    try { sessionStorage.setItem(PIN_KEY, '1'); } catch (e) {}
+  document.addEventListener('pointerdown', function () { lastTouch = Date.now(); }, true);
+
+  /* ---------- PIN gate + name ---------- */
+  function shakeCard() {
+    var card = getEl('pinCard');
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+  function unlock(name) {
+    repName = name;
+    try {
+      sessionStorage.setItem(PIN_KEY, '1');
+      sessionStorage.setItem(NAME_KEY, name);
+    } catch (e) {}
+    getEl('whoName').textContent = name;
     getEl('pinView').classList.add('hidden');
     getEl('dashView').classList.remove('hidden');
     loadRoster(false);
+    if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(function () { loadRoster(true); }, POLL_MS);
   }
   function lock() {
-    try { sessionStorage.removeItem(PIN_KEY); } catch (e) {}
+    try {
+      sessionStorage.removeItem(PIN_KEY);
+      sessionStorage.removeItem(NAME_KEY);
+    } catch (e) {}
+    repName = '';
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    closeHistory();
     getEl('dashView').classList.add('hidden');
     getEl('pinView').classList.remove('hidden');
     getEl('pinInput').value = '';
+    getEl('nameInput').value = '';
     getEl('pinErr').textContent = '';
     getEl('pinInput').focus();
   }
   getEl('pinForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    var v = getEl('pinInput').value.trim();
-    if (v === PIN) {
-      getEl('pinErr').textContent = '';
-      unlock();
-    } else {
+    var pin = getEl('pinInput').value.trim();
+    if (pin !== PIN) {
       getEl('pinErr').textContent = 'Wrong PIN — try again.';
-      var card = getEl('pinCard');
-      card.classList.remove('shake');
-      void card.offsetWidth;
-      card.classList.add('shake');
+      shakeCard();
       getEl('pinInput').select();
+      return;
     }
+    var name = getEl('nameInput').value.replace(/\s+/g, ' ').trim();
+    if (name.length < 2) {
+      getEl('pinErr').textContent = 'Type your name first — it goes into the change log.';
+      shakeCard();
+      getEl('nameInput').focus();
+      return;
+    }
+    getEl('pinErr').textContent = '';
+    unlock(name);
   });
   getEl('lockBtn').addEventListener('click', lock);
 
   /* ---------- data ---------- */
+  function buildLogIndex(list) {
+    var idx = {};
+    list.forEach(function (l) {
+      (idx[l.student_id] = idx[l.student_id] || []).push(l);
+    });
+    return idx;
+  }
+
+  function showLoading(msg) {
+    var html = '<tr class="empty-row"><td colspan="16">' + msg + '</td></tr>';
+    getEl('rosterBody').innerHTML = html;
+    getEl('rosterCards').innerHTML = '<div class="empty-card">' + msg + '</div>';
+  }
+
   async function loadRoster(silent) {
-    if (!silent) {
-      var body = getEl('rosterBody');
-      body.innerHTML = '<tr class="empty-row"><td colspan="15">Loading roster…</td></tr>';
-    }
+    if (!silent) showLoading('Loading roster…');
     try {
-      var res = await supabase.rpc('signday_roster', { pass_pin: PIN });
-      if (res.error) throw res.error;
-      var incoming = res.data || [];
+      var results = await Promise.all([
+        supabase.rpc('signday_roster', { pass_pin: PIN }),
+        supabase.rpc('signday_change_log', { pass_pin: PIN })
+      ]);
+      if (results[0].error) throw results[0].error;
+      var incoming = results[0].data || [];
+      var logRes = results[1];
+      var logList = [];
+      var err = '';
+      if (logRes.error) err = (logRes.error.message || 'log unavailable');
+      else logList = logRes.data || [];
+
+      var sig = JSON.stringify([incoming, logList, err]);
+      var changed = sig !== lastSig;
+      lastSig = sig;
+
       if (firstLoad) {
         incoming.forEach(function (r) { seenIds[r.id] = true; });
         firstLoad = false;
@@ -563,13 +769,24 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
         });
       }
       rows = incoming;
-      render();
+      logs = buildLogIndex(logList);
+      logError = err;
       getEl('lastUpdated').textContent = 'updated ' + fmtClock();
+
+      if (changed) {
+        if (Date.now() - lastTouch < 900) {
+          clearTimeout(deferTimer);
+          deferTimer = setTimeout(render, 950);
+        } else {
+          render();
+        }
+      }
     } catch (err) {
-      var body2 = getEl('rosterBody');
-      body2.innerHTML = '<tr class="empty-row"><td colspan="15">Could not load the roster: ' +
-        esc((err && err.message) || err) +
-        '<br><small>Check that supabase-signday-form-27.sql has been run and the PIN matches.</small></td></tr>';
+      lastSig = '';
+      var msg = 'Could not load the roster: ' + esc((err && err.message) || err) +
+        '<br><small>Check that supabase-signday-form-27.sql (v2) has been run and the PIN matches.</small>';
+      getEl('rosterBody').innerHTML = '<tr class="empty-row"><td colspan="16">' + msg + '</td></tr>';
+      getEl('rosterCards').innerHTML = '<div class="empty-card">' + msg + '</div>';
       getEl('lastUpdated').textContent = 'load failed ' + fmtClock();
     }
   }
@@ -579,14 +796,21 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     var btns = document.querySelectorAll('.act-btn[data-id="' + id + '"]');
     btns.forEach(function (b) { b.disabled = busy; });
   }
+  function findRow(id) {
+    for (var i = 0; i < rows.length; i++) { if (rows[i].id === id) return rows[i]; }
+    return null;
+  }
+  function displayName(row) {
+    return row.student_name || row.profile_username || row.email || 'this student';
+  }
   async function activatePass(row) {
-    var name = row.student_name || row.profile_username || row.email || 'this student';
-    if (!window.confirm('Mark ' + name + ' as ACTIVE PASS?\n\nTheir nghsians account will turn PASS ACTIVE immediately (signday_status = issued).')) return;
+    var name = displayName(row);
+    if (!window.confirm('Mark ' + name + ' as ACTIVE PASS?\n\nTheir nghsians account will turn PASS ACTIVE immediately.\n\nLogged as: ' + repName)) return;
     setRowBusy(row.id, true);
     try {
-      var res = await supabase.rpc('activate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
+      var res = await supabase.rpc('activate_signday_pass', { target_user_id: row.id, pass_pin: PIN, rep_name: repName });
       if (res.error) throw res.error;
-      showToast('ACTIVE PASS issued — ' + name + '’s account is now PASS ACTIVE.');
+      showToast('ACTIVE PASS issued — ' + name + '’s account is now PASS ACTIVE. (logged as ' + repName + ')');
       await loadRoster(true);
     } catch (err) {
       showToast('Could not activate: ' + ((err && err.message) || err), true);
@@ -595,13 +819,13 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     }
   }
   async function deactivatePass(row) {
-    var name = row.student_name || row.profile_username || row.email || 'this student';
-    if (!window.confirm('Set ' + name + ' back to UNCONFIRMED?\n\nThey stay registered, but their pass goes back to waiting (signday_status = submitted).')) return;
+    var name = displayName(row);
+    if (!window.confirm('Set ' + name + ' back to UNCONFIRMED?\n\nThey stay registered, but their pass goes back to waiting.\n\nLogged as: ' + repName)) return;
     setRowBusy(row.id, true);
     try {
-      var res = await supabase.rpc('deactivate_signday_pass', { target_user_id: row.id, pass_pin: PIN });
+      var res = await supabase.rpc('deactivate_signday_pass', { target_user_id: row.id, pass_pin: PIN, rep_name: repName });
       if (res.error) throw res.error;
-      showToast(name + ' set back to UNCONFIRMED (still registered).');
+      showToast(name + ' set back to UNCONFIRMED (still registered). (logged as ' + repName + ')');
       await loadRoster(true);
     } catch (err) {
       showToast('Could not update: ' + ((err && err.message) || err), true);
@@ -609,6 +833,62 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
       setRowBusy(row.id, false);
     }
   }
+
+  /* ---------- change log helpers ---------- */
+  function actionLabel(a) { return a === 'activated' ? '✓ Activated pass' : '↺ Set unconfirmed'; }
+  function actionClass(a) { return a === 'activated' ? 'act-on' : 'act-off'; }
+  function humanStatus(s) {
+    s = norm(s);
+    if (s === 'issued') return 'ACTIVE PASS';
+    if (s === 'submitted') return 'UNCONFIRMED';
+    if (s === 'unconfirmed') return 'NOT REGISTERED';
+    return s ? s.toUpperCase() : '—';
+  }
+  function lastChangeHtml(id) {
+    if (logError) return '<span class="log-none">Log not set up yet (run SQL v2)</span>';
+    var list = logs[id];
+    if (!list || !list.length) return '<span class="log-none">No changes yet</span>';
+    var l = list[0];
+    return '<span class="log-who">' + esc(l.rep_name) + '</span>' +
+      '<span class="log-act ' + actionClass(l.action) + '">' + actionLabel(l.action) + '</span>' +
+      '<span class="sub">' + esc(fmtTime(l.created_at)) + '</span>';
+  }
+  function historyBtn(id) {
+    var n = (logs[id] || []).length;
+    return '<button type="button" class="log-more" data-id="' + esc(id) + '" data-act="history">History · ' + n + '</button>';
+  }
+
+  /* ---------- history window ---------- */
+  function openHistory(id) {
+    histId = id;
+    renderHistory();
+    getEl('histModal').classList.remove('hidden');
+    getEl('histClose').focus();
+  }
+  function closeHistory() {
+    histId = null;
+    getEl('histModal').classList.add('hidden');
+  }
+  function renderHistory() {
+    if (!histId) return;
+    var r = findRow(histId);
+    var list = logs[histId] || [];
+    getEl('histTitle').textContent = r ? displayName(r) : 'Student';
+    getEl('histSub').textContent = logError
+      ? 'Change log not set up yet — run supabase-signday-form-27.sql (v2)'
+      : (list.length ? list.length + ' change' + (list.length === 1 ? '' : 's') + ' logged — newest first' : 'No changes logged yet');
+    getEl('histList').innerHTML = list.map(function (l) {
+      return '<li class="hist-item">' +
+        '<span class="hist-who">' + esc(l.rep_name) + '</span> — ' +
+        '<span class="log-act ' + actionClass(l.action) + '">' + actionLabel(l.action) + '</span>' +
+        '<span class="hist-when">' + esc(fmtTime(l.created_at)) + '</span>' +
+        '<span class="hist-state">' + esc(humanStatus(l.status_before)) + ' → ' + esc(humanStatus(l.status_after)) + '</span>' +
+        '</li>';
+    }).join('') || '<li class="hist-item">Nothing here yet. Every ACTIVE PASS or UNCONFIRMED click will show up with the name of the rep who made it.</li>';
+  }
+  getEl('histClose').addEventListener('click', closeHistory);
+  getEl('histModal').addEventListener('click', function (e) { if (e.target === this) closeHistory(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && histId) closeHistory(); });
 
   /* ---------- filter / sort / render ---------- */
   function currentFiltered() {
@@ -661,9 +941,78 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     return '<span class="pill none">NO ACCOUNT</span>';
   }
 
+  function passBtn(r, issued) {
+    return '<button type="button" class="act-btn pass' + (issued ? '' : ' off') + '" data-id="' + esc(r.id) + '" data-act="activate">' +
+      (issued ? '✓ ACTIVE PASS' : 'ACTIVE PASS') +
+      '<small>' + (issued ? 'already active' : 'mark pass active') + '</small>' +
+      '</button>';
+  }
+  function unconfBtn(r, issued) {
+    return '<button type="button" class="act-btn unconf' + (issued ? ' off' : '') + '" data-id="' + esc(r.id) + '" data-act="deactivate">' +
+      (issued ? 'UNCONFIRMED' : '✓ UNCONFIRMED') +
+      '<small>' + (issued ? 'take the pass back' : 'waiting — not confirmed') + '</small>' +
+      '</button>';
+  }
+
+  function rowHtml(r, i, isNew) {
+    var issued = norm(r.signday_status) === 'issued';
+    var paidFrom = r.payment_method === 'online'
+      ? 'bKash · ' + esc(r.bkash_number || '—')
+      : 'Cash → ' + esc(r.deposit_to || '—');
+    var payLabel = r.payment_method === 'online' ? 'Online' : 'Offline';
+    return '<tr' + (isNew ? ' class="is-new"' : '') + '>' +
+      '<td class="num">' + (i + 1) + '</td>' +
+      '<td class="name-cell"><b>' + esc(r.student_name) + '</b>' +
+        (r.profile_username && norm(r.profile_username) !== norm(r.student_name)
+          ? '<span class="sub">@' + esc(r.profile_username) + '</span>' : '') +
+      '</td>' +
+      '<td class="mono">' + esc(r.email || r.profile_email || '—') + '</td>' +
+      '<td class="mono">' + esc(r.phone || '—') + '</td>' +
+      '<td class="mono"><b>' + esc(r.class_roll || '—') + '</b></td>' +
+      '<td><b>' + esc(r.section || '—') + '</b></td>' +
+      '<td>' + esc(r.shift || '—') + '</td>' +
+      '<td>' + esc(r.tshirt_size || '—') + '</td>' +
+      '<td>' + payLabel + '</td>' +
+      '<td>' + paidFrom + '</td>' +
+      '<td>' + esc(r.whatsapp_group || '—') + '</td>' +
+      '<td class="mono">' + fmtTime(r.submitted_at) + '</td>' +
+      '<td>' + statusPill(r) + '</td>' +
+      '<td class="act act-pass">' + passBtn(r, issued) + '</td>' +
+      '<td class="act act-unconf">' + unconfBtn(r, issued) + '</td>' +
+      '<td class="log-cell"><div class="log-last">' + lastChangeHtml(r.id) + '</div>' + historyBtn(r.id) + '</td>' +
+      '</tr>';
+  }
+
+  function dd(label, val) {
+    return '<div><dt>' + label + '</dt><dd>' + esc(val || '—') + '</dd></div>';
+  }
+  function cardHtml(r, i, isNew) {
+    var issued = norm(r.signday_status) === 'issued';
+    var payLine = r.payment_method === 'online'
+      ? 'Online · bKash ' + (r.bkash_number || '—')
+      : 'Offline · cash to ' + (r.deposit_to || '—');
+    return '<article class="rcard' + (isNew ? ' is-new' : '') + '">' +
+      '<div class="rc-top">' +
+        '<div><span class="rc-num">#' + (i + 1) + '</span><b class="rc-name">' + esc(r.student_name || '—') + '</b>' +
+          (r.profile_username && norm(r.profile_username) !== norm(r.student_name)
+            ? '<span class="sub">@' + esc(r.profile_username) + '</span>' : '') +
+        '</div>' +
+        statusPill(r) +
+      '</div>' +
+      '<dl class="rc-grid">' +
+        dd('Roll', r.class_roll) + dd('Section', r.section) +
+        dd('Shift', r.shift) + dd('T-shirt', r.tshirt_size) +
+        dd('Group', r.whatsapp_group) + dd('Submitted', fmtTime(r.submitted_at)) +
+        dd('Phone', r.phone) + dd('Email', r.email || r.profile_email) +
+        '<div class="rc-wide"><dt>Payment</dt><dd>' + esc(payLine) + '</dd></div>' +
+      '</dl>' +
+      '<div class="rc-log"><div class="log-last">' + lastChangeHtml(r.id) + '</div>' + historyBtn(r.id) + '</div>' +
+      '<div class="rc-actions">' + passBtn(r, issued) + unconfBtn(r, issued) + '</div>' +
+      '</article>';
+  }
+
   function render() {
     var list = currentFiltered();
-    var body = getEl('rosterBody');
 
     /* stats over the FULL roster */
     var total = rows.length;
@@ -689,51 +1038,22 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
     getEl('countLabel').textContent = 'Showing ' + list.length + ' of ' + total;
 
     if (!list.length) {
-      body.innerHTML = '<tr class="empty-row"><td colspan="15">No students match — clear the search or filters.</td></tr>';
+      getEl('rosterBody').innerHTML = '<tr class="empty-row"><td colspan="16">No students match — clear the search or filters.</td></tr>';
+      getEl('rosterCards').innerHTML = '<div class="empty-card">No students match — clear the search or filters.</div>';
+      renderHistory();
       return;
     }
 
-    var html = '';
+    var html = '', cards = '';
     list.forEach(function (r, i) {
-      var issued = norm(r.signday_status) === 'issued';
-      var paidFrom = r.payment_method === 'online'
-        ? 'bKash · ' + esc(r.bkash_number || '—')
-        : 'Cash → ' + esc(r.deposit_to || '—');
-      var payLabel = r.payment_method === 'online' ? 'Online' : 'Offline';
-      var cls = r.__isNew ? ' class="is-new"' : '';
+      var isNew = !!r.__isNew;
       delete r.__isNew;
-      html += '<tr' + cls + '>' +
-        '<td class="num">' + (i + 1) + '</td>' +
-        '<td class="name-cell"><b>' + esc(r.student_name) + '</b>' +
-          (r.profile_username && norm(r.profile_username) !== norm(r.student_name)
-            ? '<span class="sub">@' + esc(r.profile_username) + '</span>' : '') +
-        '</td>' +
-        '<td class="mono">' + esc(r.email || r.profile_email || '—') + '</td>' +
-        '<td class="mono">' + esc(r.phone || '—') + '</td>' +
-        '<td class="mono"><b>' + esc(r.class_roll || '—') + '</b></td>' +
-        '<td><b>' + esc(r.section || '—') + '</b></td>' +
-        '<td>' + esc(r.shift || '—') + '</td>' +
-        '<td>' + esc(r.tshirt_size || '—') + '</td>' +
-        '<td>' + payLabel + '</td>' +
-        '<td>' + paidFrom + '</td>' +
-        '<td>' + esc(r.whatsapp_group || '—') + '</td>' +
-        '<td class="mono">' + fmtTime(r.submitted_at) + '</td>' +
-        '<td>' + statusPill(r) + '</td>' +
-        '<td class="act act-pass">' +
-          '<button type="button" class="act-btn pass' + (issued ? '' : ' off') + '" data-id="' + esc(r.id) + '" data-act="activate">' +
-            (issued ? '✓ ACTIVE PASS' : 'ACTIVE PASS') +
-            '<small>' + (issued ? 'already active' : 'mark pass active') + '</small>' +
-          '</button>' +
-        '</td>' +
-        '<td class="act act-unconf">' +
-          '<button type="button" class="act-btn unconf' + (issued ? ' off' : '') + '" data-id="' + esc(r.id) + '" data-act="deactivate">' +
-            (issued ? 'UNCONFIRMED' : '✓ UNCONFIRMED') +
-            '<small>' + (issued ? 'take the pass back' : 'waiting — not confirmed') + '</small>' +
-          '</button>' +
-        '</td>' +
-      '</tr>';
+      html += rowHtml(r, i, isNew);
+      cards += cardHtml(r, i, isNew);
     });
-    body.innerHTML = html;
+    getEl('rosterBody').innerHTML = html;
+    getEl('rosterCards').innerHTML = cards;
+    renderHistory();
   }
 
   /* ---------- events ---------- */
@@ -742,13 +1062,16 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   ['fltStatus', 'fltShift', 'fltSection', 'fltPayment', 'fltTshirt', 'fltGroup', 'sortSel'].forEach(function (id) {
     getEl(id).addEventListener('change', render);
   });
-  getEl('rosterBody').addEventListener('click', function (e) {
+
+  /* one listener handles the table AND the phone cards */
+  getEl('dashView').addEventListener('click', function (e) {
+    var more = e.target.closest('.log-more');
+    if (more) { openHistory(more.getAttribute('data-id')); return; }
     var btn = e.target.closest('.act-btn');
     if (!btn) return;
     var id = btn.getAttribute('data-id');
     var act = btn.getAttribute('data-act');
-    var row = null;
-    for (var i = 0; i < rows.length; i++) { if (rows[i].id === id) { row = rows[i]; break; } }
+    var row = findRow(id);
     if (!row) return;
     if (act === 'activate') activatePass(row);
     else deactivatePass(row);
@@ -757,19 +1080,21 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   getEl('exportBtn').addEventListener('click', function () {
     var list = currentFiltered();
     if (!list.length) { showToast('Nothing to export — no rows match the current filters.', true); return; }
-    var head = ['#', 'Student Name', 'Username', 'Email', 'Phone', 'Roll', 'Section', 'Shift', 'T-Shirt', 'Payment', 'Paid From / Given To', 'WhatsApp Group', 'Pass Status', 'Pass Code', 'Submitted At'];
+    var head = ['#', 'Student Name', 'Username', 'Email', 'Phone', 'Roll', 'Section', 'Shift', 'T-Shirt', 'Payment', 'Paid From / Given To', 'WhatsApp Group', 'Pass Status', 'Pass Code', 'Submitted At', 'Last Change By', 'Last Change', 'Last Change At'];
     function csvCell(v) {
       var s = String(v == null ? '' : v);
       return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
     }
     var lines = [head.map(csvCell).join(',')];
     list.forEach(function (r, i) {
+      var last = (logs[r.id] || [])[0];
       lines.push([
         i + 1,
         r.student_name, r.profile_username, r.email || r.profile_email, r.phone,
         r.class_roll, r.section, r.shift, r.tshirt_size, r.payment_method,
         r.payment_method === 'online' ? ('bKash ' + (r.bkash_number || '')) : ('Cash -> ' + (r.deposit_to || '')),
-        r.whatsapp_group, r.signday_status || '', r.signday_pass_code || '', r.submitted_at || ''
+        r.whatsapp_group, r.signday_status || '', r.signday_pass_code || '', r.submitted_at || '',
+        last ? last.rep_name : '', last ? actionLabel(last.action).replace(/^[^A-Za-z]+/, '') : '', last ? last.created_at : ''
       ].map(csvCell).join(','));
     });
     var blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -784,9 +1109,12 @@ tbody tr:hover td.act-unconf { background: #f6d2cc; }
   });
 
   /* ---------- startup ---------- */
-  var already = false;
-  try { already = sessionStorage.getItem(PIN_KEY) === '1'; } catch (e) {}
-  if (already) unlock();
+  var already = false, savedName = '';
+  try {
+    already = sessionStorage.getItem(PIN_KEY) === '1';
+    savedName = sessionStorage.getItem(NAME_KEY) || '';
+  } catch (e) {}
+  if (already && savedName) unlock(savedName);
   else getEl('pinInput').focus();
 })();
 </script>
