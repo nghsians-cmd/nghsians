@@ -198,17 +198,28 @@ header.scrolled {
 .right-group { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
 
 /* Nav Links */
+/* # TEMPORARY BLACK: Text color is temporarily set to #111215 black so it stays clearly visible over the light cream Hero27 background. Revert to: color: var(--text-dim) */
 .nav-link {
-  position: relative; color: var(--text-dim); font-weight: 500; font-size: 13px;
+  position: relative;
+  color: #111215; /* # TEMPORARY BLACK — revert to var(--text-dim) */
+  font-weight: 600;
+  font-size: 13px;
   padding: 6px 10px; white-space: nowrap; border-radius: 6px;
   transition: color 150ms, background 150ms;
   letter-spacing: 0.3px;
 }
-.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
-.nav-link.active { color: var(--text); }
+.nav-link:hover {
+  color: #000000; /* # TEMPORARY BLACK — revert to var(--text) */
+  background: rgba(17,18,21,0.08); /* # TEMPORARY — revert to rgba(255,255,255,0.04) */
+}
+.nav-link.active {
+  color: #000000; /* # TEMPORARY BLACK — revert to var(--text) */
+}
 .nav-link.active::after {
   content: ""; position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%);
-  width: 16px; height: 2px; background: rgba(var(--gold), 0.8); border-radius: 1px;
+  width: 16px; height: 2px;
+  background: #8f1a12; /* # TEMPORARY ACCENT — revert to rgba(var(--gold), 0.8) */
+  border-radius: 1px;
 }
 
 /* Brand / Logo Center */
@@ -216,22 +227,26 @@ header.scrolled {
 .brand-logo {
   width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
   display: inline-flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,0.5);
+  box-shadow: 0 0 0 1px rgba(17,18,21,0.25), 0 8px 32px rgba(0,0,0,0.35); /* # TEMPORARY — revert border to var(--border) */
   background: transparent; transition: box-shadow 200ms;
 }
-.brand-center:hover .brand-logo { box-shadow: 0 0 0 1px rgba(var(--gold), 0.3), 0 8px 40px rgba(255,235,128,0.12); }
+.brand-center:hover .brand-logo { box-shadow: 0 0 0 1px rgba(143,26,18,0.5), 0 8px 40px rgba(143,26,18,0.2); }
 .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
 .brand-title {
   font-family: var(--font-display); font-size: 11px; font-weight: 700; font-style: italic;
-  letter-spacing: 2px; color: rgba(var(--gold), 0.7); text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #111215; /* # TEMPORARY BLACK — revert to rgba(var(--gold), 0.7) */
+  text-transform: uppercase;
 }
 
 /* Hamburger */
 .menu-toggle {
-  display: none; background: transparent; border: 1px solid var(--border);
-  color: var(--text); padding: 7px; border-radius: 7px; transition: border-color 150ms;
+  display: none; background: transparent;
+  border: 1px solid rgba(17,18,21,0.3); /* # TEMPORARY — revert to var(--border) */
+  color: #111215; /* # TEMPORARY BLACK — revert to var(--text) */
+  padding: 7px; border-radius: 7px; transition: border-color 150ms;
 }
-.menu-toggle:hover { border-color: var(--border-hi); }
+.menu-toggle:hover { border-color: rgba(17,18,21,0.7); }
 .menu-toggle svg { display: block; width: 20px; height: 20px; stroke: currentColor; }
 
 /* Mobile Menu */
@@ -257,8 +272,10 @@ header.scrolled {
 /* User Dropdown */
 .user-menu-wrap { position: relative; display: inline-block; }
 .user-icon-btn {
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-  color: var(--text-dim); padding: 7px; border-radius: 7px;
+  background: rgba(17,18,21,0.06); /* # TEMPORARY — revert to rgba(255,255,255,0.04) */
+  border: 1px solid rgba(17,18,21,0.25); /* # TEMPORARY — revert to var(--border) */
+  color: #111215; /* # TEMPORARY BLACK — revert to var(--text-dim) */
+  padding: 7px; border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
   transition: color 150ms, border-color 150ms, background 150ms;
 }
@@ -1190,21 +1207,22 @@ section.diag-feather { position: relative; }
 
 .hero27-content {
   position: relative;
-  z-index: 5;
+  z-index: 15; /* sits safely in front of the bottom people layer */
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding-top: clamp(86px, 12vh, 124px);
+  padding-top: clamp(80px, 10vh, 110px);
   padding-left: 20px;
   padding-right: 20px;
+  padding-bottom: clamp(140px, 22vh, 260px);
   max-width: 1200px;
   margin: 0 auto;
   pointer-events: auto;
 }
 
 .hero27-logo-wrap {
-  width: clamp(260px, 34vw, 490px);
+  width: clamp(250px, 32vw, 470px);
   max-width: 88vw;
   will-change: transform;
   filter: drop-shadow(0 14px 28px rgba(32,24,18,0.3));
@@ -1217,9 +1235,9 @@ section.diag-feather { position: relative; }
 }
 
 .hero27-tagline-wrap {
-  width: clamp(230px, 28vw, 400px);
+  width: clamp(220px, 26vw, 380px);
   max-width: 82vw;
-  margin-top: clamp(8px, 1.4vh, 16px);
+  margin-top: clamp(8px, 1.2vh, 14px);
   will-change: transform;
   filter: drop-shadow(0 10px 18px rgba(32,24,18,0.25));
 }
@@ -1231,8 +1249,9 @@ section.diag-feather { position: relative; }
 }
 
 .hero27-btn-wrap {
-  margin-top: clamp(14px, 2.2vh, 24px);
-  z-index: 10;
+  margin-top: clamp(16px, 2.4vh, 26px);
+  position: relative;
+  z-index: 20; /* ALWAYS in front of people, never hidden behind */
   will-change: transform;
 }
 
@@ -1242,7 +1261,7 @@ section.diag-feather { position: relative; }
   text-transform: uppercase;
   letter-spacing: 2px;
   font-size: clamp(16px, 1.6vw, 19px);
-  padding: clamp(11px, 1.3vw, 14px) clamp(34px, 3.8vw, 50px);
+  padding: clamp(12px, 1.4vw, 15px) clamp(36px, 4vw, 54px);
   background: #8f1a12;
   color: #f4ecd8;
   border: 3px solid #201812;
@@ -1254,6 +1273,8 @@ section.diag-feather { position: relative; }
   gap: 10px;
   cursor: pointer;
   line-height: 1;
+  position: relative;
+  z-index: 20;
   transition: transform .08s ease, box-shadow .08s ease, background .12s ease;
 }
 
@@ -1277,7 +1298,7 @@ section.diag-feather { position: relative; }
   right: 0;
   width: 100%;
   pointer-events: none;
-  z-index: 6;
+  z-index: 5; /* behind button/content so button is never blocked */
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -1288,10 +1309,13 @@ section.diag-feather { position: relative; }
   width: 100%;
   max-width: 100%;
   height: auto;
-  max-height: clamp(230px, 42vh, 460px);
+  max-height: clamp(160px, 28vh, 320px); /* cropped lower to prevent blocking register button */
   object-fit: cover;
   object-position: bottom center;
   display: block;
+  /* Top line picture fade so line is not visible + softly faded with the back */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 24%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 24%, black 75%, transparent 100%);
 }
 
 .hero27-bottom-fade {
@@ -1299,11 +1323,23 @@ section.diag-feather { position: relative; }
   left: 0;
   right: 0;
   bottom: 0;
-  height: 44%;
-  background: linear-gradient(to bottom, transparent 0%, rgba(6,7,8,0.45) 55%, var(--bg) 100%);
+  height: 48%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(6,7,8,0.45) 50%, var(--bg) 100%);
   pointer-events: none;
-  z-index: 7;
+  z-index: 6;
 }
+
+/* # When header is scrolled down past Hero27 over dark website sections, smoothly revert menu colors to light theme */
+header.scrolled .nav-link { color: var(--text-dim); }
+header.scrolled .nav-link:hover,
+header.scrolled .nav-link.active { color: var(--text); background: rgba(255,255,255,0.04); }
+header.scrolled .nav-link.active::after { background: rgba(var(--gold), 0.8); }
+header.scrolled .brand-title { color: rgba(var(--gold), 0.7); }
+header.scrolled .brand-logo { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(0,0,0,0.5); }
+header.scrolled .menu-toggle { color: var(--text); border-color: var(--border); }
+header.scrolled .user-icon-btn { color: var(--text-dim); border-color: var(--border); background: rgba(255,255,255,0.04); }
+header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color: rgba(var(--gold), 0.25); background: var(--gold-glow); }
+
 
 /* ============================================================
    NEWS CARD — 27FORM & 27REP VINTAGE POSTER STYLE
