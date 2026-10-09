@@ -137,3 +137,19 @@ headcount.
    `27` member to `member`.
 
 No other page, table or script depends on any of it.
+
+## Duplicate accounts and the phone member card (2026-10-08)
+
+**Upload** the updated `account.html`. On phones, the 2027 Sign Day pass in the member detail panel now shows its name and emblem at the top, scrolls by hand, has wider sides, and closes when you tap either side. A sign-up whose email is already in use now gets a clear message.
+
+**Duplicate accounts** uses two SQL files in the repository:
+
+- `supabase-dedupe-accounts.sql`: a read-only preview, an audit table, a guard that refuses a new login or profile email that another account already uses, and the email lock. It deletes nothing.
+- `supabase-dedupe-terminate.sql`: deletes the older duplicates. Run it only after you have read the preview.
+
+A duplicate is two or more accounts with the same email once capitals and spaces are ignored, comparing both the login email and the profile email. The most recently created account is kept and the older ones are terminated. Accounts that use an admin email, or a role other than member or 27, are never removed automatically; they are listed as REVIEW.
+
+1. Supabase → SQL Editor → New query → paste `supabase-dedupe-accounts.sql` → **Run without RLS**. Its last statement, the email lock, fails while any duplicate is left. That is expected.
+2. Read the preview: select the single line under "2. PREVIEW" and press Run. Check every TERMINATE row. Then select the single line under "3." and press Run to see every table that points at `auth.users`.
+3. When the TERMINATE rows are the ones you expect, paste `supabase-dedupe-terminate.sql` and Run it. A copy of each removed profile and its follow links is kept in `account_dedupe_audit`, which the public API cannot read.
+4. Resolve any REVIEW rows by hand, then run section 6 of the first file again. The email lock builds once no duplicate is left.
