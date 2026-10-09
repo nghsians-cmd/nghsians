@@ -31,7 +31,7 @@
   ml('account', '1927434');
 </script>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
@@ -1156,6 +1156,411 @@ section.diag-feather { position: relative; }
 .popup-overlay{overflow-y:auto;padding:18px}.popup-card{flex-shrink:0;max-height:calc(100svh - 36px);overflow-y:auto}.popup-image{min-height:170px}
 .news-hero-bg.logo-reveal-image img{object-fit:contain;object-position:right center;opacity:.7}
 .hero-title{scroll-margin-top:90px}
+
+/* ============================================================
+   HERO 27 — BATCH 27 / 60TH SIGN DAY SHOWCASE
+   Aesthetic: Vintage poster · parchment · deep red · ink black
+   Rockstar / Apple multi-layer trailing parallax
+   ============================================================ */
+.hero27 {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: #060708;
+  z-index: 25;
+}
+
+.hero27-bg {
+  position: absolute;
+  top: -8%; left: -6%;
+  width: 112%; height: 116%;
+  background-image: url('hero27-bg.jpg');
+  background-size: cover;
+  background-position: center top;
+  will-change: transform;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero27-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: clamp(86px, 12vh, 124px);
+  padding-left: 20px;
+  padding-right: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  pointer-events: auto;
+}
+
+.hero27-logo-wrap {
+  width: clamp(260px, 34vw, 490px);
+  max-width: 88vw;
+  will-change: transform;
+  filter: drop-shadow(0 14px 28px rgba(32,24,18,0.3));
+}
+
+.hero27-logo-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hero27-tagline-wrap {
+  width: clamp(230px, 28vw, 400px);
+  max-width: 82vw;
+  margin-top: clamp(8px, 1.4vh, 16px);
+  will-change: transform;
+  filter: drop-shadow(0 10px 18px rgba(32,24,18,0.25));
+}
+
+.hero27-tagline-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hero27-btn-wrap {
+  margin-top: clamp(14px, 2.2vh, 24px);
+  z-index: 10;
+  will-change: transform;
+}
+
+/* 27FORM / 27REP VINTAGE POSTER BUTTON */
+.btn-27 {
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: clamp(16px, 1.6vw, 19px);
+  padding: clamp(11px, 1.3vw, 14px) clamp(34px, 3.8vw, 50px);
+  background: #8f1a12;
+  color: #f4ecd8;
+  border: 3px solid #201812;
+  box-shadow: 5px 5px 0 #201812;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  line-height: 1;
+  transition: transform .08s ease, box-shadow .08s ease, background .12s ease;
+}
+
+.btn-27:hover {
+  background: #6b120b;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 #201812;
+  color: #ffffff;
+}
+
+.btn-27:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 #201812;
+}
+
+/* PEOPLE BOTTOM LINING & FADE */
+.hero27-people-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  will-change: transform;
+}
+
+.hero27-people-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: clamp(230px, 42vh, 460px);
+  object-fit: cover;
+  object-position: bottom center;
+  display: block;
+}
+
+.hero27-bottom-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(6,7,8,0.45) 55%, var(--bg) 100%);
+  pointer-events: none;
+  z-index: 7;
+}
+
+/* ============================================================
+   NEWS CARD — 27FORM & 27REP VINTAGE POSTER STYLE
+   ============================================================ */
+.news-card-27 {
+  background: #ede3c8;
+  color: #201812;
+  border: 3px solid #201812;
+  box-shadow: 8px 8px 0 rgba(0,0,0,0.85);
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 32px;
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 28px;
+  border-radius: 6px;
+}
+
+.news-card-27::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 8px;
+  background: #8f1a12;
+}
+
+.news-card-27-poster-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.news-card-27-poster {
+  width: 100%;
+  max-width: 320px;
+  border: 8px solid #201812;
+  outline: 3px solid #c9a227;
+  box-shadow: 7px 7px 0 rgba(32,24,18,0.85);
+  background: #201812;
+  transform: rotate(-1.5deg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.news-card-27:hover .news-card-27-poster {
+  transform: rotate(0deg) scale(1.02);
+  box-shadow: 9px 9px 0 rgba(32,24,18,0.9);
+}
+
+.news-card-27-poster img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.news-card-27-caption {
+  font-family: 'Anton', sans-serif;
+  background: #8f1a12;
+  color: #f4ecd8;
+  text-align: center;
+  padding: 7px 6px;
+  letter-spacing: 2px;
+  font-size: 11px;
+}
+
+.news-card-27-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.news-card-27-ribbon {
+  display: inline-block;
+  font-family: 'Anton', sans-serif;
+  background: #8f1a12;
+  color: #f4ecd8;
+  border: 2px solid #201812;
+  box-shadow: 4px 4px 0 #201812;
+  padding: 6px 14px;
+  letter-spacing: 2px;
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.news-card-27-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(26px, 3.4vw, 40px);
+  line-height: 1.05;
+  color: #201812;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.news-card-27-title sup { color: #8f1a12; }
+
+.news-card-27-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #5a4a38;
+  margin-bottom: 18px;
+  max-width: 620px;
+}
+
+.news-card-27-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.news-card-27-pill {
+  font-family: 'Anton', sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  background: #f4ecd8;
+  border: 2px solid #201812;
+  color: #201812;
+  box-shadow: 2px 2px 0 #201812;
+}
+
+.news-card-27-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-27-outline {
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 14px;
+  color: #8f1a12;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px 4px;
+  font-weight: 700;
+}
+
+.btn-27-outline:hover { color: #6b120b; }
+
+/* ============================================================
+   NEWS POPUP — 27FORM VINTAGE POSTER STYLE
+   ============================================================ */
+.popup-card-27 {
+  background: #f4ecd8 !important;
+  color: #201812 !important;
+  border: 3px solid #201812 !important;
+  box-shadow: 10px 10px 0 rgba(0,0,0,0.85) !important;
+  border-radius: 8px !important;
+  max-width: 420px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.popup-card-27::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 6px;
+  background: #8f1a12;
+  z-index: 12;
+}
+
+.popup-image-27 {
+  height: 250px !important;
+  position: relative;
+  background: #201812;
+  border-bottom: 3px solid #201812;
+  overflow: hidden;
+}
+
+.popup-image-27 img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+.popup-badge-27 {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  z-index: 2;
+  font-family: 'Anton', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 5px 12px;
+  background: #8f1a12;
+  color: #f4ecd8;
+  border: 2px solid #201812;
+  box-shadow: 3px 3px 0 #201812;
+  text-transform: uppercase;
+}
+
+.popup-content-27 {
+  padding: 22px 24px 26px !important;
+  text-align: center;
+}
+
+.popup-title-27 {
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  font-size: 24px;
+  letter-spacing: 0.5px;
+  color: #201812;
+  margin: 6px 0 10px;
+  line-height: 1.15;
+}
+
+.popup-text-27 {
+  font-size: 13.5px;
+  color: #5a4a38;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+.popup-close-27 {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  width: 32px;
+  height: 32px;
+  background: #201812 !important;
+  color: #f4ecd8 !important;
+  border: 2px solid #201812 !important;
+  font-family: 'Anton', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  transition: transform 0.1s, background 0.1s;
+}
+
+.popup-close-27:hover {
+  background: #8f1a12 !important;
+  color: #fff !important;
+  transform: translate(-1px, -1px);
+}
+
+@media (max-width: 820px) {
+  .news-card-27 { grid-template-columns: 1fr; gap: 24px; padding: 22px; }
+  .news-card-27-poster { max-width: 300px; margin: 0 auto; transform: rotate(-0.5deg); }
+  .news-card-27-actions .btn-27 { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .hero27-logo-wrap { width: min(320px, 86vw); }
+  .hero27-tagline-wrap { width: min(280px, 80vw); }
+  .hero27-btn-wrap .btn-27 { padding: 11px 32px; font-size: 16px; }
+  .news-card-27 { padding: 16px; }
+  .news-card-27-title { font-size: 24px; }
+}
+
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "@id": "https://nghsians.com/#website", "url": "https://nghsians.com/", "name": "NGHSIANS - Nasirabad Government High School", "alternateName": "NGHSIANS", "description": "The NGHSIANS school community in Chattogram, Bangladesh."}</script>
 </head>
@@ -1174,19 +1579,19 @@ section.diag-feather { position: relative; }
   </div>
 </div>
 
-<!-- ===== SEPTEMBER 28, 2026: SIGN DAY LOGO REVEAL ===== -->
+<!-- ===== OCTOBER 9, 2026: BATCH 27 SIGN DAY REGISTRATION ===== -->
 <div id="newsPopup" class="popup-overlay" aria-hidden="true" inert>
-  <div class="popup-card results-news-popup" role="dialog" aria-modal="true" aria-labelledby="newsPopupTitle" aria-describedby="newsPopupText">
-    <button class="popup-close" onclick="closeNewsPopup()" aria-label="Close announcement">✕</button>
-    <div class="popup-image film-poster-fx logo-reveal-image">
-      <img src="NGHS%2060th%20Sign%20Day%20Hero.png" alt="NGHS 60th Batch Sign Day official logo" onerror="this.hidden=true">
-      <div class="popup-badge" style="background:var(--gold-solid);color:#101112">LOGO UNVEILED</div>
+  <div class="popup-card popup-card-27" role="dialog" aria-modal="true" aria-labelledby="newsPopupTitle" aria-describedby="newsPopupText">
+    <button class="popup-close popup-close-27" onclick="closeNewsPopup()" aria-label="Close announcement">✕</button>
+    <div class="popup-image popup-image-27">
+      <img src="image-8.png" alt="NGHS 60th Sign Day Batch 27 Registration Open" onerror="this.hidden=true">
+      <div class="popup-badge-27">BATCH 27 · IT'S NOW OR NEVER</div>
     </div>
-    <div class="popup-content">
-      <time datetime="2026-09-28" class="announcement-date">28 September 2026</time>
-      <h2 id="newsPopupTitle" class="popup-title display">NGHS 60th Batch Sign Day Official Logo Unveiled</h2>
-      <p id="newsPopupText" class="popup-text">A new mark for a shared legacy. Watch the official logo reveal.</p>
-      <a class="btn btn--gold" href="https://www.instagram.com/p/DdneRfRueG8/" target="_blank" rel="noopener noreferrer" style="width:100%;font-weight:800;letter-spacing:.8px">SEE INSTA REEL</a>
+    <div class="popup-content popup-content-27">
+      <time datetime="2026-10-09" class="announcement-date" style="color:#5a4a38;font-weight:700">9 October 2026</time>
+      <h2 id="newsPopupTitle" class="popup-title-27">NGHS 60th Sign Day Registration Live</h2>
+      <p id="newsPopupText" class="popup-text-27">Batch 2027 registration is officially open. Secure your spot and your official pass for the 60th Sign Day celebration with a minimum deposit of 399 TK.</p>
+      <a class="btn-27" href="https://nghsians.com/27form" target="_blank" rel="noopener noreferrer" style="width:100%;text-align:center;">REGISTER NOW</a>
     </div>
   </div>
 </div>
@@ -1258,6 +1663,32 @@ section.diag-feather { position: relative; }
 <main id="main">
 
   <!-- ===== HERO ===== -->
+    <!-- ===== HERO 27 (NEW HERO) ===== -->
+  <section id="hero27" class="hero27" aria-label="NGHS 60th Sign Day Batch 27">
+    <div class="hero27-bg" id="hero27Bg" aria-hidden="true"></div>
+
+    <div class="hero27-content" id="hero27Content">
+      <div class="hero27-logo-wrap" id="hero27Logo">
+        <img src="hero27-logo.png" alt="NGHSIANS OF SIXTY! 60th Sign Day" class="hero27-logo-img">
+      </div>
+
+      <div class="hero27-tagline-wrap" id="hero27Tagline">
+        <img src="hero27-tagline.png" alt="You Will Make It Happen! This is our field. This is our sixty." class="hero27-tagline-img">
+      </div>
+
+      <div class="hero27-btn-wrap" id="hero27Btn">
+        <a href="https://nghsians.com/27form" class="btn-27" target="_blank" rel="noopener noreferrer">
+          REGISTER
+        </a>
+      </div>
+    </div>
+
+    <div class="hero27-people-wrap" id="hero27People" aria-hidden="true">
+      <img src="hero27-people.png" alt="" class="hero27-people-img">
+      <div class="hero27-bottom-fade"></div>
+    </div>
+  </section>
+
   <section id="home" class="hero" aria-label="Home hero">
     <div class="hero-media" id="heroMedia" aria-hidden="true"></div>
     <div class="hero-overlay" aria-hidden="true"></div>
@@ -1456,21 +1887,46 @@ section.diag-feather { position: relative; }
         <h2 class="section-title">News & Events</h2>
       </div>
 
-      <article class="news-hero-card reveal">
-        <div class="news-hero-bg logo-reveal-image">
-          <img src="NGHS%2060th%20Sign%20Day%20Hero.png" loading="lazy" alt="NGHS 60th Batch Sign Day official logo unveiled" onerror="this.hidden=true">
-          <div class="news-gradient-overlay"></div>
+      <!-- ===== NEW FEATURED NEWS: BATCH 27 REGISTRATION ===== -->
+      <article class="news-card-27 reveal">
+        <div class="news-card-27-poster-wrap">
+          <div class="news-card-27-poster">
+            <img src="image-8.png" loading="lazy" alt="Batch 27 - IT'S NOW OR NEVER! 60th Sign Day Poster">
+            <div class="news-card-27-caption">NASIRABAD GOVERNMENT HIGH SCHOOL</div>
+          </div>
         </div>
-        <div class="news-hero-content">
-          <div class="news-meta-badge" style="background:var(--gold-solid);color:#101112">LOGO UNVEILED</div>
-          <h3 class="news-hero-title" style="font-family:var(--font-display)">NGHS 60th Batch Sign Day Official Logo Unveiled</h3>
-          <p style="max-width:640px;margin-bottom:20px;line-height:1.7">A new mark for a shared legacy. See the official logo of the NGHS 60th Batch Sign Day.</p>
-          <a class="btn btn--gold" href="https://www.instagram.com/p/DdneRfRueG8/" target="_blank" rel="noopener noreferrer">SEE INSTA REEL</a>
-          <div class="news-footer"><time datetime="2026-09-28" class="muted" style="font-size:12px">28 September 2026</time></div>
+        <div class="news-card-27-content">
+          <div class="news-card-27-ribbon">BATCH 27 · IT'S NOW OR NEVER</div>
+          <h3 class="news-card-27-title">NGHS 60<sup>th</sup> Sign Day Official Registration Live</h3>
+          <p class="news-card-27-desc">
+            History in the making. The official registration portal for Batch 2027 is now open. Confirm your presence for the landmark 60th Sign Day celebration with a minimum deposit of 399 TK.
+          </p>
+          <div class="news-card-27-meta">
+            <span class="news-card-27-pill">DEPOSIT: 399 TK</span>
+            <span class="news-card-27-pill">BATCH: 2027</span>
+            <span class="news-card-27-pill">CHATTOGRAM</span>
+          </div>
+          <div class="news-card-27-actions">
+            <a class="btn-27" href="https://nghsians.com/27form" target="_blank" rel="noopener noreferrer">REGISTER NOW</a>
+            <a class="btn-27-outline" href="27form.html">READ FORM DETAILS →</a>
+          </div>
+          <div class="news-footer" style="margin-top:20px;border-top:2px dashed rgba(32,24,18,0.25);padding-top:12px;width:100%;">
+            <time datetime="2026-10-09" style="font-weight:700;color:#5a4a38;font-size:12px;letter-spacing:1px;text-transform:uppercase;">9 October 2026 · Batch 27 Committee</time>
+          </div>
         </div>
       </article>
 
       <div class="news-sub-grid">
+        <!-- Moved previous featured news into recent news -->
+        <a class="news-small-card reveal" href="https://www.instagram.com/p/DdneRfRueG8/" target="_blank" rel="noopener noreferrer">
+          <div class="news-small-img"><img src="NGHS%2060th%20Sign%20Day%20Hero.png" loading="lazy" alt="NGHS 60th Batch Sign Day official logo"></div>
+          <div class="news-small-content">
+            <div class="news-tag">Recent News · Logo Unveiled</div>
+            <h4 class="news-small-title">NGHS 60th Batch Sign Day Official Logo Unveiled</h4>
+            <p class="news-small-excerpt">A new mark for a shared legacy. See the official logo of the 60th Batch Sign Day.</p>
+            <span class="muted" style="font-size:11px">28 September 2026</span>
+          </div>
+        </a>
         <a class="news-small-card reveal" href="result.html#ssc-batch-26">
           <div class="news-small-img"><img src="linkhero.jpg" loading="lazy" alt="SSC Batch 2026 results"></div>
           <div class="news-small-content"><div class="news-tag">Past News · Results archive</div><h4 class="news-small-title">SSC Batch 2026 Results Published</h4><p class="news-small-excerpt">Explore all 242 listed students and their Chattogram Board ranks.</p><span style="font-size:12px;color:var(--gold-solid)">View results →</span></div>
@@ -1931,7 +2387,7 @@ section.diag-feather { position: relative; }
      ===================== */
   (function initNewsPopup() {
     const popup=document.getElementById('newsPopup');
-    const key='nghsians-sign-logo-2026-09-28';
+    const key='nghsians-signday-27-registration-2026-10-09';
     let previousFocus=null;
     const background=[document.querySelector('main'),document.querySelector('header'),document.querySelector('footer')];
     window.closeNewsPopup=function(){
@@ -1957,6 +2413,106 @@ section.diag-feather { position: relative; }
       }
     });
   })();
+
+  /* =====================
+     HERO 27 — ROCKSTAR / APPLE TRAILING PARALLAX ANIMATION
+     Multi-layer physics with inertial trailing delay
+     ===================== */
+  (function initHero27Parallax() {
+    const section = document.getElementById('hero27');
+    const bg = document.getElementById('hero27Bg');
+    const logo = document.getElementById('hero27Logo');
+    const tagline = document.getElementById('hero27Tagline');
+    const btn = document.getElementById('hero27Btn');
+    const people = document.getElementById('hero27People');
+    if (!section || !bg) return;
+
+    const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (reduced) return;
+
+    let currentY = { bg: 0, logo: 0, tagline: 0, btn: 0, people: 0 };
+    let targetY  = { bg: 0, logo: 0, tagline: 0, btn: 0, people: 0 };
+    let mouseTilt = { x: 0, y: 0 };
+    let curMouse = { x: 0, y: 0 };
+    let rafId = null;
+    let inView = true;
+
+    function onScroll() {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const heroH = section.offsetHeight || 800;
+      if (scrollY > heroH * 1.5) {
+        inView = false;
+        return;
+      }
+      inView = true;
+
+      // Background moves first & fastest (deep camera panning)
+      targetY.bg = scrollY * 0.36;
+      // Elements carry the trail scroll with a delay:
+      targetY.logo = scrollY * 0.18;
+      targetY.tagline = scrollY * 0.13;
+      targetY.btn = scrollY * 0.09;
+      // Foreground people anchor gently to bottom lining
+      targetY.people = scrollY * 0.04;
+
+      if (!rafId) rafId = requestAnimationFrame(updateParallax);
+    }
+
+    section.addEventListener('mousemove', e => {
+      const rect = section.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width - 0.5;
+      const ny = (e.clientY - rect.top) / rect.height - 0.5;
+      mouseTilt.x = nx * 12;
+      mouseTilt.y = ny * 8;
+      if (!rafId) rafId = requestAnimationFrame(updateParallax);
+    }, { passive: true });
+
+    section.addEventListener('mouseleave', () => {
+      mouseTilt.x = 0;
+      mouseTilt.y = 0;
+      if (!rafId) rafId = requestAnimationFrame(updateParallax);
+    });
+
+    function updateParallax() {
+      curMouse.x += (mouseTilt.x - curMouse.x) * 0.08;
+      curMouse.y += (mouseTilt.y - curMouse.y) * 0.08;
+
+      // Background moves first
+      currentY.bg += (targetY.bg - currentY.bg) * 0.16;
+      bg.style.transform = `translate3d(${curMouse.x * -0.4}px, ${currentY.bg + curMouse.y * -0.4}px, 0) scale(1.04)`;
+
+      // Logo trails
+      currentY.logo += (targetY.logo - currentY.logo) * 0.10;
+      if (logo) logo.style.transform = `translate3d(${curMouse.x * 0.8}px, ${currentY.logo + curMouse.y * 0.8}px, 0)`;
+
+      // Tagline trails behind logo
+      currentY.tagline += (targetY.tagline - currentY.tagline) * 0.085;
+      if (tagline) tagline.style.transform = `translate3d(${curMouse.x * 0.6}px, ${currentY.tagline + curMouse.y * 0.6}px, 0)`;
+
+      // Button trails behind tagline
+      currentY.btn += (targetY.btn - currentY.btn) * 0.075;
+      if (btn) btn.style.transform = `translate3d(${curMouse.x * 0.4}px, ${currentY.btn + curMouse.y * 0.4}px, 0)`;
+
+      // People foreground trails subtly
+      currentY.people += (targetY.people - currentY.people) * 0.12;
+      if (people) people.style.transform = `translate3d(${curMouse.x * 0.25}px, ${currentY.people + curMouse.y * 0.25}px, 0)`;
+
+      const moving = Math.abs(targetY.bg - currentY.bg) > 0.08 ||
+                     Math.abs(targetY.logo - currentY.logo) > 0.08 ||
+                     Math.abs(mouseTilt.x - curMouse.x) > 0.05 ||
+                     Math.abs(mouseTilt.y - curMouse.y) > 0.05;
+
+      if (moving && inView) {
+        rafId = requestAnimationFrame(updateParallax);
+      } else {
+        rafId = null;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
 
   /* =====================
      MAGNETIC BUTTONS
