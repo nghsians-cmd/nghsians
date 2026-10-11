@@ -861,8 +861,86 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
    ⏳ TEMP-SIGNDAY-60 · CSS END
    ============================================================================ */
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nghs-ui.css">
+<script src="nghs-ui.js" defer></script>
 </head>
-<body>
+<body class="nghs-account">
+<!-- ===== SHARED HEADER — identical menu on every page ===== -->
+<header id="siteHeader">
+  <div class="header-grid" role="navigation" aria-label="Main header">
+
+    <button class="menu-toggle" id="menuToggle" aria-controls="mobileMenu" aria-label="Toggle navigation" aria-expanded="false">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
+    <div class="nav-left" id="navLeft">
+        <a class="nav-link" href="index.html#about" data-target="about">About</a>
+        <a class="nav-link" href="index.html#news" data-target="news">News</a>
+        <a class="nav-link" href="result.html">Result</a>
+        <a class="nav-link" href="dress.html">Dress Code</a>
+        <a class="nav-link" href="index.html#gallery" data-target="gallery">Gallery</a>
+    </div>
+
+    <a class="brand-center" id="brandBtn" href="index.html" aria-label="Home">
+      <div class="brand-logo"><img src="logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
+      <div class="brand-title">NGHSIANS</div>
+    </a>
+
+    <div class="nav-right" id="navRight">
+        <a class="nav-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
+        <a class="nav-link" href="index.html#submit" data-target="submit">Share</a>
+        <a class="nav-link" href="alumnis.html">Alumni</a>
+        <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
+        <a class="nav-link" href="merch.html" data-external="true">Merch</a>
+        <a class="nav-link" href="sign.html" data-external="true">Sign Day</a>
+    </div>
+
+  </div>
+</header>
+
+<!-- Mobile nav -->
+<div id="mobileMenu" aria-hidden="true" inert>
+  <nav id="mobileNavList" role="navigation" aria-label="Mobile navigation"></nav>
+</div>
+
+<script>
+/* account.html ships no nav of its own — build + wire the shared one here. */
+(function () {
+  var toggle = document.getElementById('menuToggle'),
+      menu   = document.getElementById('mobileMenu'),
+      list   = document.getElementById('mobileNavList'),
+      header = document.getElementById('siteHeader');
+  if (!toggle || !menu || !list) return;
+
+  document.querySelectorAll('.nav-left .nav-link, .nav-right .nav-link')
+          .forEach(function (l) { list.appendChild(l.cloneNode(true)); });
+
+  function setOpen(open) {
+    menu.classList.toggle('open', open);
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open) menu.removeAttribute('inert'); else menu.setAttribute('inert', '');
+  }
+  toggle.addEventListener('click', function () { setOpen(!menu.classList.contains('open')); });
+  list.addEventListener('click', function (e) { if (e.target.closest('.nav-link')) setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && menu.classList.contains('open')) setOpen(false);
+  });
+  setOpen(false);
+
+  function upd() {
+    var on = window.scrollY > 10;
+    header.classList.toggle('scrolled', on);
+    header.classList.toggle('is-stuck', on);
+  }
+  window.addEventListener('scroll', upd, { passive: true });
+  upd();
+})();
+</script>
 <!-- Back to Home -->
 <a href="index.html" class="back-link">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
