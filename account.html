@@ -630,7 +630,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   line-height: 1.5; padding: 4px 9px; border-radius: 5px; white-space: nowrap;
 }
 .sd-tag, .u-badge.signday {
-  color: #04121f; border: none;
+  color: #000; border: none;   /* black pass vector / text on the blue fill */
   background: linear-gradient(135deg,#bfe0ff 0%,#62a8ff 48%,#2f7ae0 100%);
   box-shadow: 0 0 0 1px rgba(var(--sd-blue),.3), 0 4px 14px rgba(var(--sd-blue),.22);
 }
@@ -1268,6 +1268,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     <div class="member-head" id="member-head">
       <div class="member-avatar">
         <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <div class="verified-icon-overlay"></div>
       </div>
       <h2 class="member-name" id="member-name">Member</h2>
       <div class="member-tier" id="member-tier"></div>
@@ -1690,6 +1691,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     head.className = 'member-head';
     if (u.role === 'architect') head.classList.add('tier-architect');
     else if (u.role === 'alumni') head.classList.add('tier-alumni');
+    // same special card accent as the own ID card: verified / architect / alumni
+    const memberBox = getEl('member-modal').querySelector('.member-box');
+    if (memberBox) {
+      memberBox.classList.remove('tier-verified', 'tier-architect', 'tier-alumni');
+      if (u.role === 'architect')        memberBox.classList.add('tier-architect');
+      else if (u.role === 'elite')       memberBox.classList.add('tier-verified');
+      else if (u.role === 'alumni')      memberBox.classList.add('tier-alumni');
+    }
+    // icon on the avatar (if they have one) — black vector on the coloured disc
+    const headAvatar = head.querySelector('.member-avatar');
+    const headOv = headAvatar ? headAvatar.querySelector('.verified-icon-overlay') : null;
+    if (headAvatar) {
+      headAvatar.classList.remove('is-verified', 'sd-pass-outline');
+      if (headOv) headOv.innerHTML = '';
+    }
+    if (u.role === 'architect' || u.role === 'elite') {
+      headAvatar.classList.add('is-verified');
+      if (headOv) headOv.innerHTML = '<svg width="14" height="14" fill="#000" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+    } else if (u.role === 'alumni') {
+      headAvatar.classList.add('is-verified');
+      if (headOv) headOv.innerHTML = '<svg width="14" height="14" fill="none" stroke="#000" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>';
+    }
     getEl('member-name').textContent = u.username || 'Student';
     // Tier / status badge line
     let tierHtml = '', statusTxt = 'NGHSIANS MEMBER', statusClass = 'tier-member-txt';
@@ -1717,7 +1740,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       memberRow('Email',  u.email       ? `<a class="contact-link" href="mailto:${escapeAttr(u.email)}">${escapeAttr(u.email)}</a>` : '<span class="member-empty">Not provided</span>') +
       memberRow('WhatsApp',  waValue) +
       memberRow('Instagram', igValue) +
-      memberRow('Status', `<span class="${statusClass}">${statusTxt}</span>`);
+      memberRow('Status', `<span class="${statusClass}">${statusTxt}</span>`) +
+      /* ⏳ TEMP-SIGNDAY-60 — pass status row on the plain card (matches the ticket) */
+      (sdIsPass(u)
+        ? memberRow('Pass status', '<span class="u-badge sd-status ' + sdStatus(u) + '">' + escapeAttr(sdLabel(sdStatus(u))) + '</span>')
+        : '');
     signdayDecorateMember(u);   /* ⏳ TEMP-SIGNDAY-60 — render the matching pass in the member modal */
   }
   function renderMemberContact(type, value) {
@@ -1831,7 +1858,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     card.className = 'id-card';
     avatar.classList.remove('is-verified');
     vIcon.innerHTML = '';
-    const goldCheck = `<svg width="14" height="14" fill="rgba(${getComputedStyle(document.documentElement).getPropertyValue('--gold')},1)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+    // black check on the yellow badge — white didn't go with the yellow
+    const goldCheck = `<svg width="14" height="14" fill="#000" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
     if (p.role === 'architect') {
       card.classList.add('architect-theme');
       avatar.classList.add('is-verified');
@@ -1839,6 +1867,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       roleEl.innerText  = '#ARCHITECT';
       vIcon.innerHTML   = goldCheck;
     } else if (p.role === 'elite') {
+      card.classList.add('verified-theme');
       avatar.classList.add('is-verified');
       batchEl.innerHTML = `<span style="color:rgba(var(--gold),1)">NGHSIANS ELITE</span>`;
       roleEl.innerText  = '#VERIFIED';
@@ -1849,7 +1878,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       avatar.classList.add('is-verified');
       batchEl.innerHTML = `<span style="color:var(--text)">NGHSIANS ALUMNI</span>`;
       roleEl.innerText  = '#ALUMNI';
-      vIcon.innerHTML   = `<svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
+      vIcon.innerHTML   = `<svg width="14" height="14" fill="none" stroke="#000" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`;
       checkCeleb(p, 'alumni');
     } else {
       batchEl.innerText = 'NGHSIANS MEMBER';
@@ -2011,10 +2040,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     return '<svg class="sd-bars" viewBox="0 0 ' + W + ' 34" preserveAspectRatio="none" aria-hidden="true"><g fill="currentColor">' + out + '</g></svg>';
   }
-  /* The blue event tag + the status chip. big=true → the card, false → list rows. */
+  /* The blue event tag + the status chip. big=true → the card, false → list rows.
+     The tag is full blue only when the pass is active; unconfirmed / pending
+     get the outline version (blue border, no fill, no glow). */
   function sdTagsHTML(u, big) {
     var s = sdStatus(u);
     var tagCls = big ? 'sd-tag' : 'u-badge signday';
+    if (s !== 'issued') tagCls += ' ' + (big ? 'sd-tag--outline' : 'signday--outline');
     return '<span class="' + tagCls + '" title="' + escapeAttr(SIGNDAY.tag) + ' — batch ' + SIGNDAY.batch + '">' +
              (big ? TICKET_SVG : '') + escapeAttr(SIGNDAY.tag) +
            '</span>' +
@@ -2025,7 +2057,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   function signdayRowClass(u)  { return sdIsPass(u) ? ' signday-row' : ''; }
   function signdayListBadges(u){ return sdIsPass(u) ? sdTagsHTML(u, false) : ''; }
-  /* ---------- the profile card → digital pass ---------- */
+  /* ---------- the profile card → digital pass ----------
+     Only an ACTIVE (issued) pass turns the card into the full blue ticket.
+     Unconfirmed / pending keep the plain card as it is — same visual as the
+     member card other people see for you — with the blue tag, the notice and
+     the outline-only pass icon on the avatar. */
   function signdayRenderPass(p) {
     var card = getEl('profile-card'); if (!card) return;
     var band   = getEl('sd-band'),  stub   = getEl('sd-stub'),
@@ -2034,27 +2070,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         batchEl = getEl('display-batch'), roleEl = getEl('header-role'),
         avatar  = getEl('profile-avatar-container'),
         vIcon   = card.querySelector('.verified-icon-overlay');
+    var notches = [].slice.call(card.querySelectorAll('.sd-notch'));
     // not a pass holder → make sure nothing from a previous render is left over
+    // (renderProfile already reset the avatar icon / is-verified for the role logic)
     if (!sdIsPass(p)) {
       card.classList.remove('signday-pass', 'sd-live');
-      [band, stub, tags, notice, mark].concat([].slice.call(card.querySelectorAll('.sd-notch'))).forEach(function (el) { if (el) el.classList.add('hidden'); });
+      [band, stub, tags, notice, mark].concat(notches).forEach(function (el) { if (el) el.classList.add('hidden'); });
+      if (avatar) avatar.classList.remove('sd-pass-issued', 'sd-pass-outline');
       if (eyebrow) eyebrow.textContent = 'Identity';
       return;
     }
-    var s = sdStatus(p);
-    card.classList.add('signday-pass');
-    card.classList.toggle('sd-live', s === 'issued');
-    [band, stub, tags, notice, mark].concat([].slice.call(card.querySelectorAll('.sd-notch'))).forEach(function (el) { if (el) el.classList.remove('hidden'); });
-    if (eyebrow) eyebrow.textContent = 'Sign Day Pass';
-    if (roleEl)  roleEl.textContent = '#SIGN-DAY';
-    if (batchEl) batchEl.innerHTML = '<span style="color:rgba(var(--sd-blue),1)">Batch ' + SIGNDAY.batch + ' · 60th Sign Day</span>';
-    if (tags)    tags.innerHTML = sdTagsHTML(p, true);
-    if (avatar)  avatar.classList.add('is-verified');
-    if (vIcon)   vIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(96,170,255,1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z"/></svg>';
-    if (mark) {
-      mark.textContent = s === 'issued' ? 'Active' : s === 'submitted' ? 'Pending' : 'Unconfirmed';
-      mark.classList.toggle('issued', s === 'issued');
+    var s = sdStatus(p), live = (s === 'issued');
+    // the ticket frame: only when the pass is active
+    card.classList.toggle('signday-pass', live);
+    card.classList.toggle('sd-live', live);
+    [band, stub, mark].concat(notches).forEach(function (el) { if (el) el.classList.toggle('hidden', !live); });
+    if (live) {
+      if (eyebrow) eyebrow.textContent = 'Sign Day Pass';
+      if (roleEl)  roleEl.textContent = '#SIGN-DAY';
+      if (batchEl) batchEl.innerHTML = '<span style="color:rgba(var(--sd-blue),1)">Batch ' + SIGNDAY.batch + ' · 60th Sign Day</span>';
+      if (mark)    { mark.textContent = 'ACTIVE'; mark.classList.add('issued'); }
     }
+    // blue event tag + status chip — always shown on pass holders
+    if (tags) { tags.innerHTML = sdTagsHTML(p, true); tags.classList.remove('hidden'); }
+    // the circular pass icon on the avatar — full blue when active,
+    // outline only (no fill, no glow) while unconfirmed / pending
+    if (avatar) {
+      avatar.classList.add('is-verified');
+      avatar.classList.toggle('sd-pass-issued', live);
+      avatar.classList.toggle('sd-pass-outline', !live);
+    }
+    if (vIcon) vIcon.innerHTML = TICKET_SVG;   // stroke="currentColor" → blue outline / black on the blue disc
     if (stub) {
       stub.innerHTML =
         '<div class="sd-stub-row"><span>Admit one</span>' +
@@ -2062,7 +2108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         sdBars(p.signday_pass_code || '');
     }
     if (notice) { notice.setAttribute('data-state', s); notice.innerHTML = sdNoticeHTML(p, s); }
-    if (s === 'issued') signdayCelebrate(p);
+    if (live) signdayCelebrate(p);
   }
   function sdNoticeHTML(p, s) {
     var email   = (currentUser && currentUser.email) || p.email || '';
@@ -2112,20 +2158,49 @@ document.addEventListener('DOMContentLoaded', async () => {
       signdayRenderPass(currentProfile || {});
     }
   };
-  /* ---------- other members: render their own state of the same pass ---------- */
+  /* ---------- other members: render their own state of the same pass ----------
+     Copy-paste of the own-card logic: the full blue ticket is shown only when
+     the member's pass is ACTIVE. Unconfirmed / pending members show the plain
+     member card (the "current style") with the outline pass icon + tag chips. */
   function signdayDecorateMember(u) {
     var isPass = sdIsPass(u);
+    var live = isPass && sdStatus(u) === 'issued';
     var modal = getEl('member-modal');
     var box = modal ? modal.querySelector('.member-box') : null;
     var ticket = getEl('sd-member-ticket');
     var head = getEl('member-head'), table = getEl('member-table');
-    if (box) box.classList.toggle('sd-member-pass', isPass);
-    if (modal) modal.classList.toggle('sd-pass-open', isPass);   /* wider side gutters for the pass */
-    if (ticket) ticket.classList.toggle('hidden', !isPass);
-    if (head) head.classList.toggle('hidden', isPass);
-    if (table) table.classList.toggle('hidden', isPass);
-    if (modal) modal.setAttribute('aria-labelledby', isPass ? 'sd-member-name' : 'member-name');
+    if (box) box.classList.toggle('sd-member-pass', live);
+    if (modal) modal.classList.toggle('sd-pass-open', live);   /* wider side gutters for the pass */
+    if (ticket) ticket.classList.toggle('hidden', !live);
+    if (head) head.classList.toggle('hidden', live);
+    if (table) table.classList.toggle('hidden', live);
+    if (modal) modal.setAttribute('aria-labelledby', live ? 'sd-member-name' : 'member-name');
+    // circular pass icon on the plain card's avatar (outline while not active)
+    var headAvatar = head ? head.querySelector('.member-avatar') : null;
+    if (headAvatar) {
+      headAvatar.classList.remove('sd-pass-issued');
+      if (isPass && !live) {
+        headAvatar.classList.add('is-verified', 'sd-pass-outline');
+        var headOv = headAvatar.querySelector('.verified-icon-overlay');
+        if (headOv) headOv.innerHTML = TICKET_SVG;
+      }
+    }
     if (!isPass) return;
+    if (!live) {
+      // plain member card + the blue tag & status chips beside the role line
+      var tier = getEl('member-tier');
+      if (tier) {
+        var holder = document.getElementById('sd-member-inline-tags');
+        if (!holder) {
+          holder = document.createElement('span');
+          holder.id = 'sd-member-inline-tags';
+          holder.style.cssText = 'display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center;';
+          tier.appendChild(holder);
+        }
+        holder.innerHTML = sdTagsHTML(u, false);
+      }
+      return;
+    }
     var s = sdStatus(u), serial = u.signday_pass_code || 'pending';
     var memberBand = getEl('sd-member-band'), sourceBand = getEl('sd-band');
     if (memberBand && sourceBand && !memberBand.innerHTML.trim()) {
@@ -2144,9 +2219,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (memberTags) { memberTags.innerHTML = sdTagsHTML(u, true); memberTags.classList.remove('hidden'); }
     if (memberFollowers) memberFollowers.textContent = parseInt(u.follower_count, 10) || 0;
     if (memberAvatar) {
-      memberAvatar.classList.add('is-verified');
+      memberAvatar.classList.add('is-verified', 'sd-pass-issued');
       var verifiedIcon = memberAvatar.querySelector('.verified-icon-overlay');
-      if (verifiedIcon) verifiedIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(96,170,255,1)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z"/></svg>';
+      // stroke="currentColor" → black pass vector on the blue disc
+      if (verifiedIcon) verifiedIcon.innerHTML = TICKET_SVG;
     }
     if (watermark) {
       watermark.textContent = s === 'issued' ? 'ACTIVE' : s === 'submitted' ? 'PENDING' : 'UNCONFIRMED';
