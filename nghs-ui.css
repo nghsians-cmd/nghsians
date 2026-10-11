@@ -455,6 +455,12 @@ header .nav-link.active:hover::after { transform: scaleX(1); background: var(--g
   background: rgba(var(--gold),.12) !important;
   border: 1px solid rgba(var(--gold),.3) !important;
 }
+/* alumni badge: a real red (maroon was too dull) */
+.u-badge.alumni {
+  color: #fff !important;
+  background: linear-gradient(135deg, #d8402c, #8b0e06) !important;
+  border: 1px solid rgba(255,96,74,.4) !important;
+}
 
 /* ============================================================================
    5 · MOBILE MENU  — glass sheet, big thumb-friendly rows
@@ -633,6 +639,19 @@ header .nav-link.active:hover::after { transform: scaleX(1); background: var(--g
   color: var(--gold-solid) !important;
 }
 
+/* The #1 topper card keeps its special simple glow on the borders —
+   kept subtle so it matches the champagne theme rather than shouting. */
+.topper-card {
+  border-color: rgba(var(--gold),.42) !important;
+  box-shadow: 0 0 0 1px rgba(var(--gold),.18), 0 0 30px rgba(var(--gold),.13),
+              0 16px 42px rgba(0,0,0,.42) !important;
+}
+.topper-card:hover {
+  border-color: rgba(var(--gold),.6) !important;
+  box-shadow: 0 0 0 1px rgba(var(--gold),.28), 0 0 46px rgba(var(--gold),.2),
+              0 28px 62px rgba(0,0,0,.55) !important;
+}
+
 /* ---- small chips / pills ------------------------------------------------- */
 .pill, .news-tag, .film-badge-pill, .status-badge, .result-board-chip,
 .results-live-pill, .sd-email-chip, .selected-label, .view-label,
@@ -809,86 +828,160 @@ body.nghs-account .page { padding-top: 108px !important; }
 }
 .is-verified .verified-icon-overlay { transform: scale(1.06); }
 
+/* The old special card accents, brought back over the glass set:
+   verified = yellow · architect = champagne · alumni = red.
+   The member-detail modal box gets the same accent (same visual as
+   viewing someone and being them). The check/cap vectors are black —
+   set in the markup, so they pop on the coloured disc. */
+.id-card.verified-theme, .member-box.tier-verified {
+  border-color: rgba(255,214,64,.48) !important;
+  background-image: linear-gradient(152deg, rgba(255,214,64,.09), rgba(255,255,255,.015) 55%) !important;
+  box-shadow: 0 16px 42px rgba(0,0,0,.42), 0 0 34px rgba(255,214,64,.12),
+              inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+.id-card.architect-theme, .member-box.tier-architect {
+  border-color: rgba(var(--gold),.48) !important;
+  background-image: linear-gradient(152deg, rgba(var(--gold),.11), rgba(255,255,255,.015) 55%) !important;
+  box-shadow: 0 16px 42px rgba(0,0,0,.42), 0 0 34px rgba(var(--gold),.13),
+              inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+.id-card.alumni-theme, .member-box.tier-alumni {
+  border-color: rgba(210,45,28,.55) !important;
+  background-image: linear-gradient(152deg, rgba(210,45,28,.13), rgba(255,255,255,.012) 60%) !important;
+  box-shadow: 0 16px 42px rgba(0,0,0,.42), 0 0 34px rgba(210,45,28,.15),
+              inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+/* alumni avatar badge: red disc (black cap vector is set in the markup) */
+.id-card.alumni-theme .verified-icon-overlay,
+.member-box.tier-alumni .verified-icon-overlay {
+  background: linear-gradient(135deg, #e2543f, #8b0e06) !important;
+  box-shadow: 0 4px 14px rgba(210,45,28,.42) !important;
+}
+
 .user-list { display: flex; flex-direction: column; gap: 8px; }
+/* "Other NGHSIANS" member cards: dark-grey close to black glass panels —
+   no grey wash, just a faint glass sheen over a near-black body. */
 .user-list .user-row, .user-list > div {
   border-radius: 14px !important;
   border: 1px solid var(--glass-border) !important;
-  background: rgba(255,255,255,.035) !important;
+  background: linear-gradient(152deg, rgba(255,255,255,.05), rgba(255,255,255,.012) 58%), rgba(12,13,15,.8) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+          backdrop-filter: blur(14px) saturate(140%);
   transition: transform .25s var(--ease), border-color .25s, background .25s, box-shadow .25s !important;
 }
 .user-list .user-row:hover, .user-list > div:hover {
   transform: translateX(4px);
-  border-color: rgba(var(--gold),.3) !important;
-  background: rgba(var(--gold),.07) !important;
-  box-shadow: 0 10px 26px rgba(0,0,0,.4) !important;
+  border-color: rgba(var(--gold),.32) !important;
+  background: linear-gradient(152deg, rgba(255,255,255,.065), rgba(255,255,255,.02) 58%), rgba(16,17,19,.88) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,.45), 0 0 24px rgba(var(--gold),.05) !important;
 }
 .signout-link { font-family: var(--font-ui); }
 
+/* Login / signup / auth buttons (SECURE LOGIN, CREATE ACCOUNT, …):
+   a richer red — not the yellow/gold. */
+body.nghs-account .btn-action {
+  color: #fff !important;
+  border: 1px solid rgba(255,96,74,.4) !important;
+  background: linear-gradient(135deg, #d8402c 0%, #a31409 48%, #7a0e06 100%) !important;
+  box-shadow: 0 12px 30px rgba(163,20,9,.34), inset 0 1px 0 rgba(255,255,255,.26) !important;
+}
+body.nghs-account .btn-action:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 18px 42px rgba(163,20,9,.46), inset 0 1px 0 rgba(255,255,255,.3) !important;
+}
+
 /* ============================================================================
-   11 · SIGN DAY PASS  — same ticket, new materials
-   Keeps: perforated stub, punched holes, seal, blue event tag, foil.
-   Changes: near-black glass body, champagne gold framing, glass motion.
+   11 · SIGN DAY PASS  — bluish glass ticket
+   The 60th Sign Day pass is a blue card (blue glass body, blue framing and
+   blue notice) while the site's champagne gold stays as the small foil
+   accent (seal + the gold tick in the top line), so it still goes with the vibe.
    ============================================================================ */
 .id-card.signday-pass {
   background:
-    radial-gradient(120% 52% at 50% 0%,  rgba(var(--gold),.13) 0%, transparent 62%),
-    radial-gradient(90% 40% at 100% 100%, rgba(var(--sd-blue),.12) 0%, transparent 62%),
-    linear-gradient(168deg, rgba(20,20,22,.94) 0%, rgba(9,9,10,.97) 52%, rgba(17,17,19,.96) 100%) !important;
+    radial-gradient(120% 52% at 50% 0%,  rgba(var(--sd-blue),.22) 0%, transparent 62%),
+    radial-gradient(90% 40% at 100% 100%, rgba(var(--sd-blue),.1) 0%, transparent 62%),
+    linear-gradient(168deg, rgba(11,18,32,.95) 0%, rgba(5,9,17,.97) 52%, rgba(9,15,28,.96) 100%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(150%);
           backdrop-filter: blur(18px) saturate(150%);
   box-shadow: 0 30px 64px rgba(0,0,0,.6),
-              0 0 40px rgba(var(--gold),.07),
-              inset 0 0 0 1px rgba(var(--gold),.26),
-              inset 0 0 70px rgba(var(--sd-blue),.05) !important;
+              0 0 40px rgba(var(--sd-blue),.14),
+              inset 0 0 0 1px rgba(var(--sd-blue),.32),
+              inset 0 0 70px rgba(var(--sd-blue),.06) !important;
 }
 .id-card.signday-pass::before {
   background: linear-gradient(90deg, transparent 0%,
-              rgba(var(--gold),.8) 34%,
-              rgba(var(--sd-blue),.7) 68%, transparent 100%) !important;
+              rgba(var(--sd-blue),.75) 34%,
+              rgba(var(--gold),.6) 68%, transparent 100%) !important;
 }
 .sd-notch { background: var(--bg) !important; box-shadow: 0 0 14px rgba(0,0,0,.6) !important; }
 .sd-band {
-  border: 1px solid rgba(var(--gold),.22) !important;
-  background: linear-gradient(150deg, rgba(255,255,255,.07), rgba(255,255,255,.02)) !important;
+  border: 1px solid rgba(var(--sd-blue),.3) !important;
+  background: linear-gradient(150deg, rgba(var(--sd-blue),.16), rgba(8,13,24,.32) 62%) !important;
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   border-radius: 16px !important;
 }
 .sd-band-brand { letter-spacing: .4px; }
+/* the 60th seal keeps its gold foil — the one gold element of the ticket */
 .sd-band-seal {
   background: linear-gradient(135deg, var(--gold-bright), var(--gold-solid)) !important;
   color: #17130a !important;
   box-shadow: 0 8px 20px rgba(var(--gold),.3) !important;
 }
 .id-card.signday-pass .avatar-large {
-  border-color: rgba(var(--gold),.45) !important;
-  box-shadow: 0 0 30px rgba(var(--gold),.14) !important;
+  border-color: rgba(var(--sd-blue),.5) !important;
+  box-shadow: 0 0 30px rgba(var(--sd-blue),.18) !important;
 }
 .id-card.signday-pass #display-batch { color: rgba(var(--sd-blue),1) !important; }
-.id-card.signday-pass .card-eyebrow { color: rgba(var(--gold),.8) !important; }
-.id-card.signday-pass .card-role { color: rgba(var(--gold),.6) !important; }
+.id-card.signday-pass .card-eyebrow { color: rgba(var(--sd-blue),.85) !important; }
+.id-card.signday-pass .card-role { color: rgba(var(--gold),.65) !important; }
 .id-card.signday-pass .data-row { border-bottom-color: rgba(255,255,255,.06) !important; }
 .id-card.signday-pass .follower-pill {
   background: rgba(var(--sd-blue),.1) !important;
   border-color: rgba(var(--sd-blue),.24) !important;
   color: rgba(var(--sd-blue),.95) !important;
 }
-.id-card.signday-pass .btn-edit { border-color: rgba(var(--gold),.3) !important; }
+.id-card.signday-pass .btn-edit { border-color: rgba(var(--sd-blue),.32) !important; }
 .sd-notice {
-  background: linear-gradient(140deg, rgba(var(--gold),.12) 0%, rgba(10,10,11,.92) 58%), var(--panel) !important;
-  border: 1px solid rgba(var(--gold),.26) !important;
+  background: linear-gradient(140deg, rgba(var(--sd-blue),.14) 0%, rgba(9,13,22,.94) 58%), var(--panel) !important;
+  border: 1px solid rgba(var(--sd-blue),.32) !important;
 }
 .sd-notice::before {
-  background: repeating-linear-gradient(90deg, rgba(var(--gold),.8) 0 8px, transparent 8px 16px) !important;
+  background: repeating-linear-gradient(90deg, rgba(var(--sd-blue),.85) 0 8px, transparent 8px 16px) !important;
 }
 .sd-notice-ico {
-  background: linear-gradient(135deg, var(--gold-bright), var(--gold-solid)) !important;
-  color: #17130a !important;
-  box-shadow: 0 6px 18px rgba(var(--gold),.3) !important;
+  background: linear-gradient(135deg, #bfe0ff, #3d8bf5) !important;
+  color: #04121f !important;
+  box-shadow: 0 6px 18px rgba(var(--sd-blue),.32) !important;
 }
-.sd-notice-body strong { color: var(--gold-solid) !important; }
+.sd-notice-body strong { color: rgba(var(--sd-blue),1) !important; }
 .sd-btn {
   border-radius: 11px !important;
   background: linear-gradient(135deg, #cbe5ff, #62a8ff 52%, #2f7ae0) !important;
+}
+/* ---- ⏳ TEMP-SIGNDAY-60 · circular pass icon on the avatar ---------------
+   active pass  → full blue disc, black pass vector, soft glow
+   unconfirmed / pending → not full: no fill, only the blue circle border
+               with the pass vector, no glow or shine */
+.avatar-large.sd-pass-issued .verified-icon-overlay,
+.member-avatar.sd-pass-issued .verified-icon-overlay {
+  background: linear-gradient(135deg, #bfe0ff, #62a8ff 52%, #2f7ae0) !important;
+  color: #000 !important;
+  box-shadow: 0 4px 16px rgba(96,170,255,.5) !important;
+}
+.avatar-large.sd-pass-outline .verified-icon-overlay,
+.member-avatar.sd-pass-outline .verified-icon-overlay {
+  background: transparent !important;
+  color: rgba(96,170,255,1) !important;
+  border: 2px solid rgba(96,170,255,.9) !important;
+  box-shadow: none !important;
+}
+/* unconfirmed / pending: the blue event tag is outline too —
+   no fill, blue border only, no glow (full blue pill = issued only) */
+.sd-tag.sd-tag--outline, .u-badge.signday.signday--outline {
+  background: transparent !important;
+  border: 1px solid rgba(96,170,255,.65) !important;
+  color: rgba(96,170,255,1) !important;
+  box-shadow: none !important;
 }
 
 /* ============================================================================
