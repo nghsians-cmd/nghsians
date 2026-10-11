@@ -225,6 +225,10 @@ header#siteHeader, body > header {
 #mobileMenu {
   position: fixed; top: var(--hdr, var(--header-h, 72px));
   left: 0; right: 0; bottom: 0; z-index: 1400; overflow-y: auto;
+  /* closed state — every page that ships its own nav CSS already hides the
+     sheet like this; stating it here too keeps pages that DON'T ship nav CSS
+     (account.html) from rendering a full-screen dark sheet over the page */
+  opacity: 0; pointer-events: none;
 }
 
 /* one breakpoint for the whole site: below this the bar becomes logo + burger */
@@ -379,9 +383,15 @@ header .nav-link.active:hover::after { transform: scaleX(1); background: var(--g
 }
 
 /* icon buttons in the bar */
+/* NOTE: `.menu-toggle` must NOT get a `display` here. It is hidden by the
+   base rule above and shown only by the ≤1200px media query. Declaring
+   display:inline-flex on it later in this file (same specificity) made the
+   burger render on desktop, where it became a 4th column of the 1fr auto 1fr
+   header grid — shoving the links aside and wrapping the right group onto a
+   second line. */
 .menu-toggle, .user-icon-btn {
   position: relative; overflow: hidden;
-  display: inline-flex; align-items: center; justify-content: center;
+  align-items: center; justify-content: center;
   width: 42px; height: 42px; padding: 0 !important;
   border-radius: 13px !important;
   background: rgba(255,255,255,.045) !important;
@@ -390,6 +400,7 @@ header .nav-link.active:hover::after { transform: scaleX(1); background: var(--g
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   transition: color .2s, background .25s, border-color .25s, transform .25s var(--ease), box-shadow .25s !important;
 }
+.user-icon-btn { display: inline-flex; }
 .menu-toggle:hover, .user-icon-btn:hover {
   color: var(--gold-solid) !important;
   background: rgba(var(--gold),.11) !important;
@@ -457,7 +468,10 @@ header .nav-link.active:hover::after { transform: scaleX(1); background: var(--g
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
-#mobileMenu.open { transform: translateY(0); }
+#mobileMenu.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0);
+}
 
 #mobileMenu .nav-link {
   position: relative; overflow: hidden;
@@ -950,4 +964,16 @@ body.nghs-account .page { padding-top: 108px !important; }
     transform: none !important;
   }
   header .nav-link:hover { transform: none !important; }
+}
+
+/* ============================================================================
+   15 · HARD GUARDS
+   ========================================================================= */
+
+/* the hamburger is a mobile/tablet control — on the desktop one-line bar
+   (links · centred logo · links) it must never appear. This sits after every
+   other rule on purpose: whatever any page stylesheet does, the bar stays
+   burger-free above 1200px. */
+@media (min-width: 1201px) {
+  .menu-toggle { display: none !important; }
 }
