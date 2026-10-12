@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="robots" content="noindex,nofollow">
+<title>NGHSIANS Mailer — Newsletter Panel</title>
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ============================================================
+   mailer.html — NGHSIANS committee mailer (PIN locked)
+   Replaces MailerLite: reads the subscriber list straight from
+   Supabase (the account IS the subscription), composes in the
+   site theme, and sends through the send-newsletter Edge
+   Function. No visual change to the public site.
+   ============================================================ */
+:root{
+  --gold:255,235,128; --red:113,12,4; --red-deep:#8d0f05;
+  --bg:#0b0c0d; --panel:#121316; --panel-2:#171a1d; --panel-3:#1e2226;
+  --text:#F3ECD9; --dim:rgba(243,236,217,.60); --faint:rgba(243,236,217,.34);
+  --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.18);
+  --ok:#3ddc84; --warn:#ffb84d; --bad:#ff6b5e;
+  --font-display:'Anton',sans-serif; --font-body:'DM Sans',sans-serif; --font-bangla:'Hind Siliguri',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:14px; line-height:1.55;
+  background-image:
+    radial-gradient(1000px 520px at 90% -10%, rgba(113,12,4,.20), transparent 60%),
+    radial-gradient(800px 480px at -10% 110%, rgba(255,235,128,.05), transparent 60%);
+  min-height:100vh;
+}
+.hidden{display:none !important}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- PIN gate ---------- */
+.pin-wrap{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}
+.pin-card{
+  width:100%;max-width:390px;background:var(--panel);border:1px solid var(--line-hi);
+  border-radius:16px;padding:30px 26px 26px;text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.pin-card::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,rgba(var(--gold),.9),var(--red),rgba(var(--gold),.9))}
+.pin-lock{font-size:30px;margin-bottom:12px}
+.pin-card h1{font-family:var(--font-display);font-size:24px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.pin-card p{margin:0 0 20px;font-size:13px;color:var(--dim);line-height:1.55}
+.pin-card input{
+  width:100%;font:inherit;font-size:14px;padding:11px 13px;margin-bottom:10px;
+  background:var(--panel-2);border:1px solid var(--line-hi);border-radius:9px;color:var(--text);
+}
+.pin-card input:focus{outline:none;border-color:rgba(var(--gold),.6);box-shadow:0 0 0 3px rgba(var(--gold),.12)}
+.pin-err{color:var(--bad);font-size:12.5px;font-weight:600;min-height:20px;margin:8px 0 6px}
+.pin-card.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.btn{
+  font:inherit;font-weight:800;font-size:12px;letter-spacing:.7px;text-transform:uppercase;
+  border:1px solid var(--line-hi);border-radius:9px;padding:10px 15px;cursor:pointer;
+  background:var(--panel-2);color:var(--text);transition:.15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;
+}
+.btn:hover{border-color:rgba(var(--gold),.4);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(180deg,#8d0f05,var(--red));border-color:rgba(var(--gold),.25)}
+.btn-primary:hover{filter:brightness(1.15)}
+.btn-gold{background:rgba(var(--gold),.14);border-color:rgba(var(--gold),.35);color:rgba(var(--gold),1)}
+.btn-danger{border-color:rgba(255,107,94,.4);color:var(--bad)}
+.btn-sm{padding:7px 11px;font-size:11px}
+.btn-block{width:100%}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  padding:11px 18px;background:rgba(11,12,13,.94);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);border-top:3px solid var(--red);
+}
+.topbar h1{font-family:var(--font-display);font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.8px}
+.topbar h1 small{display:block;font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--faint);text-transform:none;margin-top:2px}
+.topbar .spacer{flex:1}
+.who-chip{
+  display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line-hi);padding:5px 11px;font-size:12px;border-radius:999px;
+}
+.who-chip b{color:rgba(var(--gold),1);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- stats ---------- */
+.stats{display:flex;flex-wrap:wrap;gap:10px;max-width:1500px;margin:16px auto 0;padding:0 18px}
+.stat{flex:1 1 130px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-family:var(--font-display);font-size:25px;line-height:1;color:rgba(var(--gold),1)}
+.stat span{font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint)}
+.stat.s-ok b{color:var(--ok)} .stat.s-dim b{color:var(--dim)}
+
+/* ---------- layout ---------- */
+.grid{
+  max-width:1500px;margin:16px auto;padding:0 18px 60px;
+  display:grid;gap:16px;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+}
+@media (max-width:1080px){ .grid{grid-template-columns:1fr} }
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel-head{
+  display:flex;align-items:center;gap:10px;padding:11px 15px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);
+}
+.panel-head h2{font-family:var(--font-display);font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.9px;color:var(--text)}
+.panel-head .spacer{flex:1}
+.panel-body{padding:15px}
+
+/* ---------- form bits ---------- */
+.field{margin-bottom:12px}
+.field-label{
+  display:block;font-size:9.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--faint);margin-bottom:5px;
+}
+.input, .ta{
+  width:100%;font:inherit;font-size:14px;padding:10px 12px;
+  background:var(--panel-2);border:1px solid var(--line-hi);border-radius:9px;color:var(--text);
+}
+.input:focus,.ta:focus{outline:none;border-color:rgba(var(--gold),.55);box-shadow:0 0 0 3px rgba(var(--gold),.10)}
+.ta{resize:vertical;min-height:70px;line-height:1.6}
+.hint{font-size:11px;color:var(--faint);margin-top:5px;line-height:1.5}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 150px}
+
+/* ---------- editor ---------- */
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:4px;padding:7px 8px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);
+}
+.tool{
+  font:inherit;font-size:11.5px;font-weight:700;padding:5px 9px;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:6px;color:var(--dim);
+}
+.tool:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.tool.sep{border-left:1px solid var(--line);margin:0 3px;padding:0;width:1px}
+#editor{
+  min-height:260px;max-height:480px;overflow-y:auto;padding:15px;
+  background:var(--panel-2);color:var(--text);font-size:14.5px;line-height:1.7;outline:none;
+}
+#editor:empty::before{content:'Write the news… e.g. "Sign Day rehearsal is on Friday at 4pm."';color:var(--faint)}
+#editor h2{font-family:var(--font-display);font-size:20px;margin:.6em 0 .3em;letter-spacing:.3px}
+#editor h3{font-family:var(--font-display);font-size:16px;margin:.6em 0 .3em;letter-spacing:.3px}
+#editor p{margin:0 0 .9em}
+#editor a{color:rgba(var(--gold),1)}
+#editor blockquote{margin:0 0 .9em;padding:9px 14px;border-left:3px solid rgba(var(--gold),.7);background:rgba(255,235,128,.05);color:var(--dim)}
+#editor ul,#editor ol{margin:0 0 .9em;padding-left:22px}
+#editor img{max-width:100%;border-radius:8px}
+#editor hr{border:none;border-top:1px solid var(--line);margin:1.2em 0}
+.src-box{display:none;width:100%;min-height:220px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:12px;background:var(--panel-2);border:0;border-radius:0;color:var(--text);resize:vertical}
+.src-box.on{display:block}
+
+/* ---------- preview ---------- */
+.preview-frame{width:100%;height:620px;border:0;display:block;background:#fff}
+.preview-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.seg{display:inline-flex;border:1px solid var(--line-hi);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:11px;font-weight:700;padding:5px 11px;background:transparent;border:0;color:var(--dim);cursor:pointer}
+.seg button.on{background:rgba(var(--gold),.16);color:rgba(var(--gold),1)}
+
+/* ---------- recipients ---------- */
+.rec-list{max-height:330px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{
+  position:sticky;top:0;z-index:2;background:var(--panel-2);text-align:left;
+  padding:8px 12px;font-size:9.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--faint);border-bottom:1px solid var(--line);
+}
+tbody td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+td.email{color:rgba(var(--gold),.95);word-break:break-all}
+td.name{color:var(--text);font-weight:600}
+.tag{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:20px;border:1px solid var(--line);color:var(--faint)}
+.tag.account{color:rgba(var(--gold),.9);border-color:rgba(var(--gold),.3);background:rgba(var(--gold),.07)}
+.tag.contact{color:var(--ok);border-color:rgba(61,220,132,.3);background:rgba(61,220,132,.07)}
+.muted{color:var(--faint)}
+.empty{padding:26px;text-align:center;color:var(--faint);font-size:12.5px}
+
+/* ---------- send bar ---------- */
+.sendbar{
+  position:sticky;bottom:0;z-index:50;margin:0 18px 18px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 16px;background:rgba(18,19,22,.97);backdrop-filter:blur(12px);
+  border:1px solid var(--line-hi);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.5);
+}
+.sendbar .count{font-size:12.5px;color:var(--dim)}
+.sendbar .count b{color:rgba(var(--gold),1);font-family:var(--font-display);font-size:17px}
+.progress{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;flex:1 1 140px;min-width:100px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(var(--gold),1),var(--red));transition:width .25s}
+
+/* ---------- toasts ---------- */
+#toast{position:fixed;right:18px;bottom:18px;z-index:9000;display:flex;flex-direction:column;gap:8px;max-width:min(92vw,380px)}
+.toast{
+  background:var(--panel-3);border:1px solid var(--line-hi);border-left:3px solid var(--ok);
+  border-radius:10px;padding:11px 14px;font-size:12.5px;box-shadow:0 14px 40px rgba(0,0,0,.55);
+  animation:slideIn .22s ease both;
+}
+.toast.err{border-left-color:var(--bad)}
+.toast.warn{border-left-color:var(--warn)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.modal-mask{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line-hi);border-radius:14px;padding:24px;max-height:88vh;overflow-y:auto}
+.modal h3{font-family:var(--font-display);font-size:18px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.6px}
+.modal p{font-size:13px;color:var(--dim);line-height:1.6;margin:0 0 14px}
+.modal pre{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px;font-size:11px;overflow-x:auto;color:var(--dim);max-height:220px;overflow-y:auto}
+</style>
+</head>
+<body>
+
+<!-- ============ PIN GATE ============ -->
+<div class="pin-wrap" id="pinView">
+  <div class="pin-card" id="pinCard">
+    <div class="pin-lock">🔒</div>
+    <h1>NGHSIANS Mailer</h1>
+    <p>Committee only. Sign in with an admin NGHSIANS account and enter the mailer PIN to open the newsletter panel.</p>
+    <form id="pinForm" autocomplete="off">
+      <input id="pinEmail" type="email" inputmode="email" autocomplete="username" placeholder="admin@nghsians email">
+      <input id="pinPass"  type="password" autocomplete="current-password" placeholder="account password">
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Mailer PIN">
+      <div class="pin-err" id="pinErr"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="pinBtn" style="padding:12px;font-size:13px">Unlock mailer</button>
+    </form>
+    <p style="margin-top:16px;font-size:11px;opacity:.7">The PIN is checked by the database, not by this page — it never appears in the source.</p>
+  </div>
+</div>
+
+<!-- ============ PANEL ============ -->
+<div id="appView" class="hidden">
+  <div class="topbar">
+    <h1>NGHSIANS Mailer<small>Newsletter · sent from your account list</small></h1>
+    <div class="spacer"></div>
+    <span class="who-chip" id="whoChip">Signed in as <b>—</b></span>
+    <button class="btn btn-sm" id="refreshBtn">↻ Refresh</button>
+    <button class="btn btn-sm" id="importBtn">⇪ Import</button>
+    <button class="btn btn-sm btn-danger" id="lockBtn">🔒 Lock</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="grid">
+    <!-- ---------- COMPOSE ---------- -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Compose</h2>
+        <div class="spacer"></div>
+        <button class="btn btn-sm" id="clearBtn">Clear</button>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div style="padding:15px 15px 0">
+          <div class="field">
+            <label class="field-label" for="subject">Subject line</label>
+            <input id="subject" class="input" placeholder="Sign Day rehearsal — Friday 4pm" autocomplete="off">
+          </div>
+          <div class="field">
+            <label class="field-label" for="preheader">Preview text <span class="muted">(shown after the subject in the inbox)</span></label>
+            <input id="preheader" class="input" placeholder="Everything you need to know before Friday." autocomplete="off">
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="tool" data-cmd="bold" title="Bold"><b>B</b></button>
+          <button class="tool" data-cmd="italic" title="Italic"><i>I</i></button>
+          <button class="tool" data-cmd="underline" title="Underline"><u>U</u></button>
+          <span class="tool sep"></span>
+          <button class="tool" data-block="h2">Heading</button>
+          <button class="tool" data-block="h3">Sub-head</button>
+          <button class="tool" data-block="blockquote">Quote</button>
+          <button class="tool" data-cmd="insertUnorderedList">• List</button>
+          <button class="tool" data-cmd="insertOrderedList">1. List</button>
+          <span class="tool sep"></span>
+          <button class="tool" id="linkBtn">🔗 Link</button>
+          <button class="tool" id="imgBtn">🖼 Image</button>
+          <button class="tool" data-block="divider">— Divider</button>
+          <span class="tool sep"></span>
+          <button class="tool" id="srcBtn">&lt;/&gt; HTML</button>
+        </div>
+
+        <div id="editor" contenteditable="true" spellcheck="true"></div>
+        <textarea id="srcBox" class="src-box" spellcheck="false"></textarea>
+
+        <div style="padding:11px 15px;border-top:1px solid var(--line);background:var(--panel-2)">
+          <div class="field-label" style="margin-bottom:6px">Quick blocks</div>
+          <div class="row" style="gap:6px">
+            <button class="btn btn-sm" data-tpl="announce">Announcement</button>
+            <button class="btn btn-sm" data-tpl="event">Event / meetup</button>
+            <button class="btn btn-sm" data-tpl="merch">Merch drop</button>
+            <button class="btn btn-sm" data-tpl="signout">Sign off</button>
+          </div>
+          <div class="hint">
+            Placeholders you can type anywhere: <code>{{name}}</code> <code>{{batch}}</code> <code>{{email}}</code> — each
+            recipient sees their own. The NGHSIANS header, footer and unsubscribe link are added automatically.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PREVIEW + RECIPIENTS ---------- -->
+    <div style="display:grid;gap:16px;min-width:0">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Preview</h2>
+          <div class="spacer"></div>
+          <div class="seg" id="viewSeg">
+            <button data-view="desktop" class="on">Desktop</button>
+            <button data-view="mobile">Mobile</button>
+          </div>
+        </div>
+        <div class="preview-bar">
+          <span class="muted" style="font-size:11.5px">Exactly what lands in the inbox.</span>
+          <div class="spacer" style="flex:1"></div>
+          <button class="btn btn-sm" id="testBtn">Send me a test</button>
+        </div>
+        <iframe id="preview" class="preview-frame" title="Email preview"></iframe>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Recipients</h2>
+          <div class="spacer"></div>
+          <button class="btn btn-sm" id="selAll">All</button>
+          <button class="btn btn-sm" id="selNone">None</button>
+          <button class="btn btn-sm" id="selCopy">Copy emails</button>
+        </div>
+        <div style="padding:11px 15px;border-bottom:1px solid var(--line)">
+          <input id="recSearch" class="input" placeholder="Search name, email or batch…" autocomplete="off">
+          <div class="row" style="margin-top:9px">
+            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fAccount" checked style="accent-color:#ffeb80"> Accounts</label>
+            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fContact" checked style="accent-color:#3ddc84"> Imported</label>
+          </div>
+        </div>
+        <div class="rec-list">
+          <table>
+            <thead><tr><th style="width:34px"></th><th>Name</th><th>Email</th><th style="width:86px">Source</th></tr></thead>
+            <tbody id="recBody"></tbody>
+          </table>
+          <div class="empty" id="recEmpty">Loading subscribers…</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Send history</h2><div class="spacer"></div><button class="btn btn-sm" id="histBtn">↻</button></div>
+        <div class="rec-list" style="max-height:200px"><table>
+          <thead><tr><th>Subject</th><th style="width:66px">Sent</th><th style="width:110px">When</th></tr></thead>
+          <tbody id="histBody"></tbody>
+        </table><div class="empty" id="histEmpty">No sends logged yet.</div></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---------- SEND BAR ---------- -->
+  <div class="sendbar">
+    <span class="count"><b id="selCount">0</b> selected</span>
+    <div class="progress"><i id="progBar"></i></div>
+    <span class="count muted" id="sendNote">Nothing sending.</span>
+    <div class="spacer" style="flex:1"></div>
+    <button class="btn btn-sm" id="saveDraft">Save draft here</button>
+    <button class="btn btn-primary" id="sendBtn">✉ Send newsletter</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="modalHost"></div>
+
+<script>
+/* ============================================================================
+   mailer.html
+   ----------------------------------------------------------------------------
+   HOW ACCESS WORKS
+     Two locks, both checked by the database, not by this page:
+       1. Supabase sign-in — the signed-in email must be one of the admin
+          addresses in newsletter_is_admin().
+       2. The mailer PIN — compared inside newsletter_check_pin() against
+          public.app_secrets. The PIN is never stored in this file.
+
+   HOW SENDING WORKS
+     See MAILER below: 'edge' (Supabase Edge Function + Resend) or 'emailjs'.
+   ============================================================================ */
+const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+
+const MAILER = {
+  /* 'edge'    → Supabase Edge Function + Resend. Recommended: the API key stays
+                 server-side, ~3,000 free emails a month. Deploy the function in
+                 supabase/functions/send-newsletter and set the RESEND_API_KEY
+                 secret, then nothing else changes here.
+     'emailjs' → zero backend, but the public key is visible in this page and
+                 the free tier is ~200 emails a month. Fine for a small list.  */
+  mode: 'edge',
+  edgeUrl: SUPABASE_URL + '/functions/v1/send-newsletter',
+  emailjs: { serviceId: '', templateId: '', publicKey: '' },
+
+  /* The From address must be a domain you have verified in Resend (or
+     whatever you use). Mail to a From address you don't own goes to spam. */
+  from:    'NGHSIANS <news@nghsians.com>',
+  replyTo: 'nghsians@gmail.com',
+  siteUrl: 'https://nghsians.com',
+  brand:   'NGHSIANS',
+  tagline: 'Nasirabad Government High School · Chattogram'
+};
+
+const EMAIL_KEY = 'nghsmailer_email';
+let supa = null, PIN = '', subscribers = [], selected = new Set();
+let hasSession = false;   // already signed in → only the PIN is asked for
+
+/* ------------------------------------------------------------------ helpers */
+const $  = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+function toast(msg, kind) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg;
+  $('toast').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; }, 4200);
+  setTimeout(() => t.remove(), 4700);
+}
+function modal(title, bodyHtml, actions) {
+  $('modalHost').innerHTML =
+    '<div class="modal-mask"><div class="modal"><h3>' + esc(title) + '</h3>' + bodyHtml +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px">' +
+    (actions || '<button class="btn" data-close>Close</button>') + '</div></div></div>';
+  $('modalHost').querySelectorAll('[data-close]').forEach(b =>
+    b.addEventListener('click', () => $('modalHost').innerHTML = ''));
+  return $('modalHost');
+}
+
+/* ------------------------------------------------- the email shell (preview)
+   The Edge Function has the same wrapper server-side so the sent mail matches
+   this preview exactly. Change both if you restyle the template.            */
+function emailShell(o) {
+  const body = o.body || '<p style="color:#8b8577">(empty)</p>';
+  const pre  = o.preheader ? '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' + esc(o.preheader) + '</div>' : '';
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(o.subject || '')}</title></head>
+<body style="margin:0;padding:0;background:#0b0c0d">
+${pre}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0c0d;padding:26px 12px">
+<tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#121316;border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;font-family:'DM Sans',Helvetica,Arial,sans-serif">
+  <tr><td style="height:3px;background:linear-gradient(90deg,#FFEB80,#710C04,#FFEB80);font-size:0;line-height:0">&nbsp;</td></tr>
+  <tr><td style="padding:26px 30px 20px;text-align:center;background:#0f1013;border-bottom:1px solid rgba(255,255,255,.07)">
+    <div style="font-family:Anton,Impact,sans-serif;font-size:27px;letter-spacing:2px;color:#F3ECD9;text-transform:uppercase">${esc(MAILER.brand)}</div>
+    <div style="font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,235,128,.75);margin-top:5px">Newsletter</div>
+  </td></tr>
+  <tr><td style="padding:26px 30px 8px">
+    <h1 style="font-family:Anton,Impact,sans-serif;font-size:23px;line-height:1.25;margin:0 0 16px;color:#F3ECD9">${esc(o.subject || 'Newsletter')}</h1>
+    <div style="font-size:15px;line-height:1.75;color:#d8d2c4">${body}</div>
+  </td></tr>
+  <tr><td style="padding:22px 30px 26px">
+    <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:18px;font-size:12px;line-height:1.7;color:#7d7768;text-align:center">
+      <strong style="color:rgba(255,235,128,.8)">${esc(MAILER.brand)}</strong> · ${esc(MAILER.tagline)}<br>
+      You are getting this because you have an NGHSIANS account (or asked for news) at
+      <a href="${esc(MAILER.siteUrl)}" style="color:#7d7768">${esc(MAILER.siteUrl.replace(/^https?:\/\//,''))}</a>.<br>
+      <a href="${esc(o.unsubUrl || (MAILER.siteUrl + '/unsubscribe.html'))}" style="color:#8a8474;text-decoration:underline">Unsubscribe</a>
+      &nbsp;·&nbsp; <a href="${esc(MAILER.siteUrl + '/account.html')}" style="color:#8a8474;text-decoration:underline">Manage preferences</a>
+    </div>
+  </td></tr>
+</table>
+</td></tr></table></body></html>`;
+}
+function unsubUrlFor(r) { return MAILER.siteUrl + '/unsubscribe.html?u=' + encodeURIComponent(r.unsub_token || ''); }
+function fillPlaceholders(html, r) {
+  return String(html)
+    .replace(/\{\{\s*name\s*\}\}/gi,  esc(r.name || 'there'))
+    .replace(/\{\{\s*batch\s*\}\}/gi, esc(r.batch_year || ''))
+    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''));
+}
+
+/* ---------------------------------------------------------------- editor */
+function editorHtml() {
+  return $('srcBox').classList.contains('on') ? $('srcBox').value : $('editor').innerHTML;
+}
+function setEditorHtml(html) {
+  $('editor').innerHTML = html || '';
+  $('srcBox').value = html || '';
+}
+function exec(cmd) { $('editor').focus(); try { document.execCommand(cmd, false, null); } catch (e) {} refreshPreview(); }
+function block(tag) {
+  $('editor').focus();
+  try {
+    if (tag === 'divider') document.execCommand('insertHTML', false, '<hr><p><br></p>');
+    else document.execCommand('formatBlock', false, tag);
+  } catch (e) {}
+  refreshPreview();
+}
+function refreshPreview() {
+  const html = editorHtml();
+  const demo = { name: 'Rahim', batch_year: '2019', email: 'rahim@example.com', unsub_token: 'preview' };
+  const doc = emailShell({
+    subject: $('subject').value.trim(),
+    preheader: $('preheader').value.trim(),
+    body: fillPlaceholders(html, demo)
+  });
+  const f = $('preview');
+  f.srcdoc = doc;
+  f.style.maxWidth = '';
+  if (f.dataset.view === 'mobile') { f.style.maxWidth = '390px'; f.style.margin = '0 auto'; }
+}
+
+/* ------------------------------------------------------------ subscribers */
+async function loadSubs() {
+  $('recEmpty').textContent = 'Loading subscribers…';
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_list', { p_pin: PIN });
+    if (error) throw error;
+    subscribers = data || [];
+    selected = new Set(subscribers.map(r => r.email));
+    renderRecipients(); renderStats();
+  } catch (err) {
+    console.error(err);
+    $('recEmpty').textContent = 'Could not load: ' + (err.message || err);
+    toast('Could not load subscribers: ' + (err.message || err), 'err');
+  }
+}
+async function renderStats() {
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_stats', { p_pin: PIN });
+    if (error) throw error;
+    const s = data || {};
+    $('stats').innerHTML = [
+      ['Total subscribers', s.total || 0, ''],
+      ['With accounts',     s.accounts || 0, 's-ok'],
+      ['Imported contacts', s.contacts || 0, ''],
+      ['Opted out',         s.opted_out || 0, 's-dim'],
+      ['Last send',         s.last_send || '—', 's-dim']
+    ].map(([l, v, c]) =>
+      '<div class="stat ' + c + '"><b>' + esc(v) + '</b><span>' + esc(l) + '</span></div>').join('');
+  } catch (err) { console.error(err); }
+}
+function visibleRows() {
+  const q = ($('recSearch').value || '').trim().toLowerCase();
+  const a = $('fAccount').checked, c = $('fContact').checked;
+  return subscribers.filter(r => {
+    if (r.kind === 'account' && !a) return false;
+    if (r.kind === 'contact' && !c) return false;
+    if (!q) return true;
+    return (r.email + ' ' + (r.name || '') + ' ' + (r.batch_year || '')).toLowerCase().includes(q);
+  });
+}
+function renderRecipients() {
+  const rows = visibleRows();
+  $('recEmpty').classList.toggle('hidden', rows.length > 0);
+  if (!rows.length && subscribers.length) $('recEmpty').textContent = 'No match for that search.';
+  else if (!subscribers.length) $('recEmpty').textContent = 'No subscribers yet.';
+  $('recBody').innerHTML = rows.map(r =>
+    '<tr data-email="' + esc(r.email) + '">' +
+      '<td><input type="checkbox" data-pick="' + esc(r.email) + '"' + (selected.has(r.email) ? ' checked' : '') + ' style="accent-color:#ffeb80"></td>' +
+      '<td class="name">' + esc(r.name || '—') + (r.batch_year ? ' <span class="muted" style="font-weight:400">· ' + esc(r.batch_year) + '</span>' : '') + '</td>' +
+      '<td class="email">' + esc(r.email) + '</td>' +
+      '<td><span class="tag ' + esc(r.kind) + '">' + esc(r.kind === 'account' ? 'account' : 'imported') + '</span></td>' +
+    '</tr>').join('');
+  $('selCount').textContent = selected.size;
+}
+async function loadHistory() {
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_history', { p_pin: PIN, p_limit: 25 });
+    if (error) throw error;
+    const rows = data || [];
+    $('histEmpty').classList.toggle('hidden', rows.length > 0);
+    $('histBody').innerHTML = rows.map(h =>
+      '<tr><td>' + esc(h.subject || '(no subject)') + '</td>' +
+      '<td>' + esc(h.recipient_count) + '</td>' +
+      '<td class="muted">' + esc(String(h.created_at || '').slice(0, 16).replace('T', ' ')) + '</td></tr>').join('');
+  } catch (err) { console.error(err); }
+}
+
+/* ---------------------------------------------------------------- sending */
+function currentRecipients() { return subscribers.filter(r => selected.has(r.email)); }
+function setSending(on, label) {
+  $('sendBtn').disabled = on;
+  $('sendBtn').textContent = on ? (label || 'Sending…') : '✉ Send newsletter';
+}
+async function sendNewsletter() {
+  const subject = $('subject').value.trim();
+  const body    = editorHtml().trim();
+  const recips  = currentRecipients();
+  if (!subject)                 { toast('Add a subject line first.', 'warn'); $('subject').focus(); return; }
+  if (!body || body === '<br>') { toast('The email body is empty.', 'warn'); $('editor').focus(); return; }
+  if (!recips.length)           { toast('No recipients selected.', 'warn'); return; }
+
+  const ok = await new Promise(res => {
+    const m = modal('Send to ' + recips.length + ' people?',
+      '<p>Subject: <strong style="color:rgba(255,235,128,1)">' + esc(subject) + '</strong></p>' +
+      '<p>This really sends the email. It cannot be undone — recipients can unsubscribe from the link in the footer.</p>',
+      '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goSend">Send to ' + recips.length + '</button>');
+    m.querySelector('#goSend').addEventListener('click', () => { $('modalHost').innerHTML = ''; res(true); });
+    m.querySelector('[data-close]').addEventListener('click', () => res(false));
+  });
+  if (!ok) return;
+
+  const preheader = $('preheader').value.trim();
+  const payload = recips.map(r => ({ email: r.email, name: r.name, batch: r.batch_year, unsub_token: r.unsub_token }));
+  setSending(true, 'Sending…');
+  $('progBar').style.width = '8%';
+  $('sendNote').textContent = 'Sending…';
+
+  let result;
+  try {
+    if (MAILER.mode === 'edge') {
+      const { data: sess } = await supa.auth.getSession();
+      const resp = await fetch(MAILER.edgeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (sess.session ? sess.session.access_token : SUPABASE_KEY) },
+        body: JSON.stringify({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload })
+      });
+      const json = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(json.error || json.message || ('Send failed (' + resp.status + ')'));
+      result = json;
+    } else if (MAILER.mode === 'emailjs') {
+      const cfg = MAILER.emailjs;
+      if (!cfg.serviceId || !cfg.templateId || !cfg.publicKey) throw new Error('Fill in MAILER.emailjs first (serviceId / templateId / publicKey).');
+      if (!window.emailjs) await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+        s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+      window.emailjs.init(cfg.publicKey);
+      let sent = 0, failed = 0;
+      for (let i = 0; i < payload.length; i++) {
+        const r = payload[i];
+        try {
+          await window.emailjs.send(cfg.serviceId, cfg.templateId, {
+            to_email: r.email, to_name: r.name || 'there', subject: subject,
+            message_html: emailShell({ subject, preheader, body: fillPlaceholders(body, { name: r.name, batch_year: r.batch }), unsubUrl: unsubUrlFor(r) })
+          });
+          sent++;
+        } catch (e) { console.error(e); failed++; }
+        $('progBar').style.width = Math.round(12 + 86 * (i + 1) / payload.length) + '%';
+      }
+      result = { sent, failed };
+    } else {
+      throw new Error('MAILER.mode must be "edge" or "emailjs".');
+    }
+  } catch (err) {
+    console.error(err);
+    $('progBar').style.width = '0%';
+    $('sendNote').textContent = 'Failed.';
+    setSending(false);
+    toast('Send failed: ' + (err.message || err), 'err');
+    return;
+  }
+
+  $('progBar').style.width = '100%';
+  const sent = result.sent != null ? result.sent : payload.length;
+  const failed = result.failed || 0;
+  $('sendNote').textContent = sent + ' sent' + (failed ? ', ' + failed + ' failed' : '');
+  setSending(false);
+  try { await supa.rpc('newsletter_admin_log', { p_pin: PIN, p_subject: subject, p_preview: preheader, p_body: body, p_count: sent }); } catch (e) { console.error(e); }
+  loadHistory(); renderStats();
+  toast('Sent to ' + sent + ' subscribers' + (failed ? ' (' + failed + ' failed)' : '') + '.', failed ? 'warn' : '');
+  setTimeout(() => { $('progBar').style.width = '0%'; }, 2500);
+}
+async function sendTest() {
+  const { data: sess } = await supa.auth.getSession();
+  const me = sess.session && sess.session.user ? sess.session.user.email : '';
+  if (!me) { toast('Sign in first.', 'warn'); return; }
+  const subject = $('subject').value.trim() || '(no subject)';
+  const body = editorHtml().trim() || '<p>(empty)</p>';
+  try {
+    const { data: s2 } = await supa.auth.getSession();
+    const resp = await fetch(MAILER.edgeUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (s2.session ? s2.session.access_token : SUPABASE_KEY) },
+      body: JSON.stringify({ pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(), body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }] })
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(json.error || json.message || 'Test failed');
+    toast('Test sent to ' + me);
+  } catch (err) { console.error(err); toast('Test failed: ' + (err.message || err), 'err'); }
+}
+
+/* ------------------------------------------------------------ CSV import */
+function csvToRows(text) {
+  const lines = String(text).replace(/\r/g, '').split('\n').filter(l => l.trim());
+  if (!lines.length) return [];
+  const split = (l) => {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < l.length; i++) {
+      const ch = l[i];
+      if (ch === '"') { if (q && l[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
+      else if (ch === ',' && !q) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur); return out.map(s => s.trim());
+  };
+  const head = split(lines[0]).map(h => h.toLowerCase());
+  const iEmail = head.findIndex(h => /mail/.test(h));
+  const iName  = head.findIndex(h => /name|first/.test(h));
+  const iBatch = head.findIndex(h => /batch|year|class/.test(h));
+  if (iEmail < 0) return [];
+  return lines.slice(1).map(l => {
+    const c = split(l);
+    return { email: c[iEmail] || '', name: iName >= 0 ? (c[iName] || '') : '', batch_year: iBatch >= 0 ? (c[iBatch] || '') : '' };
+  }).filter(r => r.email && r.email.includes('@'));
+}
+function openImport() {
+  const m = modal('Import subscribers',
+    '<p>Paste a MailerLite (or any) CSV export. Emails that already belong to an NGHSIANS account get opted in on that ' +
+    'account; the rest are added as imported contacts. Duplicates are skipped.</p>' +
+    '<textarea id="impCsv" class="ta" style="min-height:150px;font-size:12px" placeholder="email,name,batch&#10;someone@example.com,Someone,2019"></textarea>' +
+    '<p class="hint" style="margin-top:8px">Expected columns: <code>email</code>, <code>name</code>, <code>batch</code> — in any order, extra columns ignored.</p>',
+    '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goImport">Import</button>');
+  m.querySelector('#goImport').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    const rows = csvToRows(m.querySelector('#impCsv').value);
+    if (!rows.length) { toast('No valid rows found (need an email column).', 'warn'); return; }
+    btn.disabled = true; btn.textContent = 'Importing…';
+    try {
+      const { data, error } = await supa.rpc('newsletter_admin_import', { p_pin: PIN, p_rows: rows });
+      if (error) throw error;
+      $('modalHost').innerHTML = '';
+      toast('Imported — ' + data.matched_accounts + ' matched accounts, ' + data.contacts_added + ' new contacts, ' + data.skipped + ' skipped.');
+      loadSubs(); loadHistory();
+    } catch (err) { console.error(err); btn.disabled = false; btn.textContent = 'Import'; toast('Import failed: ' + (err.message || err), 'err'); }
+  });
+}
+
+/* ------------------------------------------------------------ PIN + boot */
+function lock() {
+  PIN = '';
+  $('pinInput').value = ''; $('pinErr').textContent = '';
+  $('appView').classList.add('hidden');
+  $('pinView').classList.remove('hidden');
+  $('pinEmail').focus();
+}
+function unlock() {
+  $('pinView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  try { sessionStorage.setItem(EMAIL_KEY, $('pinEmail').value.trim()); } catch (e) {}
+  loadSubs(); loadHistory(); refreshPreview();
+}
+
+$('pinForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const card = $('pinCard'), err = $('pinErr'), btn = $('pinBtn');
+  const email = $('pinEmail').value.trim(), pass = $('pinPass').value, pin = $('pinInput').value.trim();
+  err.textContent = '';
+  if (!email) { err.textContent = 'Enter your admin email.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  if (!hasSession && !pass) { err.textContent = 'Enter your account password.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  if (!pin)   { err.textContent = 'Enter the mailer PIN.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    });
+    let userEmail = email;
+    if (!hasSession) {
+      const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      userEmail = (data.user && data.user.email) || email;
+    }
+    // Prove the PIN (and the admin claim) against the database before unlocking.
+    const { error: pinErr } = await supa.rpc('newsletter_admin_stats', { p_pin: pin });
+    if (pinErr) throw new Error(/Wrong PIN/i.test(pinErr.message) ? 'Wrong PIN — try again.' : pinErr.message);
+    PIN = pin;
+    hasSession = true;
+    $('whoChip').innerHTML = 'Signed in as <b>' + esc(userEmail) + '</b>';
+    btn.disabled = false; btn.textContent = 'Unlock mailer';
+    unlock();
+  } catch (err2) {
+    console.error(err2);
+    err.textContent = err2.message === 'Invalid login credentials'
+      ? 'Wrong email or password.' : (err2.message || 'Could not unlock.');
+    card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400);
+    btn.disabled = false; btn.textContent = 'Unlock mailer';
+    $('pinInput').select();
+  }
+});
+
+/* ---------------------------------------------------------------- wiring */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tool[data-cmd]').forEach(b => b.addEventListener('click', () => exec(b.dataset.cmd)));
+  document.querySelectorAll('.tool[data-block]').forEach(b => b.addEventListener('click', () => block(b.dataset.block)));
+
+  $('linkBtn').addEventListener('click', () => {
+    const url = prompt('Link URL (https://…)');
+    if (url) { $('editor').focus(); try { document.execCommand('createLink', false, url); } catch (e) {} refreshPreview(); }
+  });
+  $('imgBtn').addEventListener('click', () => {
+    const url = prompt('Image URL (https://…)');
+    if (url) { $('editor').focus(); try { document.execCommand('insertHTML', false, '<img src="' + url.replace(/"/g, '%22') + '" alt="" style="max-width:100%;border-radius:8px"><p><br></p>'); } catch (e) {} refreshPreview(); }
+  });
+  $('srcBtn').addEventListener('click', () => {
+    const box = $('srcBox'), ed = $('editor'), on = !box.classList.contains('on');
+    if (on) { box.value = ed.innerHTML; box.classList.add('on'); ed.style.display = 'none'; }
+    else    { ed.innerHTML = box.value; box.classList.remove('on'); ed.style.display = ''; }
+    refreshPreview();
+  });
+
+  const TPLS = {
+    announce: '<h2>Announcement</h2><p>Write the news here. Keep it short — two or three lines is plenty.</p><p><br></p>',
+    event:    '<h2>Meetup</h2><p><strong>When:</strong> Friday, 4:00 pm<br><strong>Where:</strong> School field<br><strong>Bring:</strong> yourself</p><blockquote>Anyone from any batch is welcome.</blockquote><p><br></p>',
+    merch:    '<h2>Merch drop</h2><p>The new batch tee is live on the Merch page.</p><p><a href="https://nghsians.com/merch.html">See the store →</a></p><p><br></p>',
+    signout:  '<p style="color:#7d7768;font-size:13px">— The NGHSIANS team</p><p><br></p>'
+  };
+  document.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => {
+    $('editor').focus();
+    try { document.execCommand('insertHTML', false, TPLS[b.dataset.tpl]); } catch (e) {}
+    refreshPreview();
+  }));
+
+  ['subject','preheader'].forEach(id => $(id).addEventListener('input', refreshPreview));
+  $('editor').addEventListener('input', refreshPreview);
+  $('srcBox').addEventListener('input', refreshPreview);
+
+  $('viewSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    $('viewSeg').querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); $('preview').dataset.view = b.dataset.view; refreshPreview();
+  });
+
+  $('recSearch').addEventListener('input', renderRecipients);
+  $('fAccount').addEventListener('change', renderRecipients);
+  $('fContact').addEventListener('change', renderRecipients);
+  $('recBody').addEventListener('change', (e) => {
+    const cb = e.target.closest('[data-pick]'); if (!cb) return;
+    if (cb.checked) selected.add(cb.dataset.pick); else selected.delete(cb.dataset.pick);
+    $('selCount').textContent = selected.size;
+  });
+  $('selAll').addEventListener('click',  () => { visibleRows().forEach(r => selected.add(r.email));  renderRecipients(); });
+  $('selNone').addEventListener('click', () => { visibleRows().forEach(r => selected.delete(r.email)); renderRecipients(); });
+  $('selCopy').addEventListener('click', async () => {
+    const list = currentRecipients().map(r => r.email).join(', ');
+    try { await navigator.clipboard.writeText(list); toast('Copied ' + currentRecipients().length + ' addresses.'); }
+    catch (e) { modal('Addresses', '<pre>' + esc(list) + '</pre>'); }
+  });
+
+  $('sendBtn').addEventListener('click', sendNewsletter);
+  $('testBtn').addEventListener('click', sendTest);
+  $('refreshBtn').addEventListener('click', () => { loadSubs(); loadHistory(); toast('Refreshed.'); });
+  $('histBtn').addEventListener('click', loadHistory);
+  $('importBtn').addEventListener('click', openImport);
+  $('lockBtn').addEventListener('click', lock);
+
+  $('clearBtn').addEventListener('click', async () => {
+    const ok = await new Promise(res => {
+      const m = modal('Clear the composer?', '<p>The subject, preview text and body will be emptied. Subscribers are untouched.</p>',
+        '<button class="btn" data-close>Cancel</button><button class="btn btn-danger" id="goClear">Clear it</button>');
+      m.querySelector('#goClear').addEventListener('click', () => { $('modalHost').innerHTML = ''; res(true); });
+      m.querySelector('[data-close]').addEventListener('click', () => res(false));
+    });
+    if (!ok) return;
+    $('subject').value = ''; $('preheader').value = ''; setEditorHtml(''); refreshPreview();
+  });
+
+  // Drafts live in this browser only — handy if you get interrupted mid-write.
+  const DRAFT = 'nghsmailer_draft';
+  $('saveDraft').addEventListener('click', () => {
+    try {
+      localStorage.setItem(DRAFT, JSON.stringify({ subject: $('subject').value, preheader: $('preheader').value, body: editorHtml() }));
+      toast('Draft saved in this browser.');
+    } catch (e) { toast('Could not save the draft.', 'err'); }
+  });
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT) || 'null');
+    if (d) {
+      $('subject').value = d.subject || '';
+      $('preheader').value = d.preheader || '';
+      setEditorHtml(d.body || '');
+      refreshPreview();
+      toast('Draft restored.');
+    }
+  } catch (e) {}
+
+  refreshPreview();
+  bootGate();
+});
+
+/* If the committee member already signed in on this device (Supabase keeps the
+   session), a reload only asks for the PIN again — not the password too. */
+async function bootGate() {
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    });
+    const { data } = await supa.auth.getSession();
+    const email = data.session && data.session.user ? data.session.user.email : '';
+    const saved = (() => { try { return sessionStorage.getItem(EMAIL_KEY) || localStorage.getItem(EMAIL_KEY) || ''; } catch (e) { return ''; } })();
+    if (email) {
+      hasSession = true;
+      $('pinEmail').value = email;
+      $('pinPass').value = '';
+      $('pinPass').placeholder = 'already signed in';
+      $('pinPass').disabled = true;
+      $('pinInput').focus();
+    } else if (saved) {
+      $('pinEmail').value = saved;
+      $('pinEmail').focus();
+    } else {
+      $('pinEmail').focus();
+    }
+  } catch (e) { $('pinEmail').focus(); }
+}
+</script>
+</body>
+</html>
