@@ -147,15 +147,12 @@ Deno.serve(async (req: Request) => {
     const pin = String(body.pin ?? '').trim();
     if (!pin) return json({ error: 'Missing PIN.' }, 400);
 
-    // Re-read the PIN with the service role so RLS can't get in the way.
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SERVICE_ROLE_KEY') ?? '',
-      { auth: { persistSession: false } },
-    );
-    const { data: secretRow, error: pinErr } = await admin
-      .from('app_secrets').select('value').eq('key', 'mailer_pin').maybeSingle();
-    if (pinErr || !secretRow || secretRow.value !== pin) return json({ error: 'Wrong PIN.' }, 403);
+    // Compare the PIN in the database via the security-definer RPC. app_secrets
+    // has no client-readable policy, so this is the only way in — and it means
+    // this function never needs the service-role key at all.
+    const { data: pinOk, error: pinErr } = await supabase.rpc('newsletter_check_pin', { p_pin: pin });
+    if (pinErr) return json({ error: 'PIN check failed: ' + pinErr.message }, 500);
+    if (pinOk !== true) return json({ error: 'Wrong PIN.' }, 403);
 
     /* 3 · payload ---------------------------------------------------------- */
     const subject = String(body.subject ?? '').trim();
