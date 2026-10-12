@@ -100,6 +100,7 @@ body{
   border-bottom:1px solid var(--line);border-top:3px solid var(--red);
 }
 .topbar h1{font-family:var(--font-display);font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.8px}
+.mailer-brand{display:flex;align-items:center;gap:10px}.mailer-brand img{width:34px;height:34px;object-fit:contain;border-radius:50%;background:#17130e}.mailer-brand small{font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--faint);text-transform:none;margin-top:2px}
 .topbar h1 small{display:block;font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--faint);text-transform:none;margin-top:2px}
 .topbar .spacer{flex:1}
 .who-chip{
@@ -132,6 +133,33 @@ body{
 
 /* ---------- form bits ---------- */
 .field{margin-bottom:12px}
+.composer-pad{padding:15px 15px 4px}
+.required-mark{color:#ff8f85;font-size:10px;font-style:normal;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.field-meta{display:flex;justify-content:space-between;gap:10px;margin-top:4px;color:var(--faint);font-size:10px}
+.builder-section{border-top:1px solid var(--line);padding:15px 0;margin-top:15px}
+.builder-step{display:flex;align-items:flex-start;gap:11px;margin:0 0 13px}
+.builder-step>span{display:grid;place-items:center;flex:0 0 31px;height:31px;border:1px solid rgba(var(--gold),.38);border-radius:9px;background:rgba(var(--gold),.08);color:rgba(var(--gold),.95);font:700 10px var(--font-body);letter-spacing:.5px}
+.builder-step b{display:block;color:var(--text);font-size:13px;line-height:1.3}
+.builder-step small{display:block;color:var(--faint);font-size:10.5px;line-height:1.45;margin-top:3px}
+.style-details{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);margin:5px 0 0;padding:0 10px}
+.style-details summary{cursor:pointer;list-style:none;padding:10px 0;font-size:11px;font-weight:800;color:var(--dim)}
+.style-details summary::-webkit-details-marker{display:none}
+.style-details summary::after{content:'＋';float:right;color:rgba(var(--gold),.85)}
+.style-details[open] summary::after{content:'−'}
+.style-details summary span{display:block;font-size:9.5px;font-weight:500;color:var(--faint);margin-top:2px}
+.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:3px 0 11px}
+.color-control{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--dim);font-size:10px}
+.color-control input{width:30px;height:25px;border:0;padding:0;background:transparent;cursor:pointer}
+@media(max-width:560px){.color-grid{grid-template-columns:1fr}.builder-step small{font-size:10px}.preview-frame{height:680px}.composer-pad{padding-left:12px;padding-right:12px}}
+.upload-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.upload-status{font-size:11px;color:var(--faint);line-height:1.4}
+.upload-status.ok{color:var(--ok)}.upload-status.err{color:var(--bad)}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.target-toggle{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);font-size:11px;color:var(--dim);cursor:pointer}
+.target-toggle input{margin:2px 0 0;accent-color:rgba(var(--gold),1)}
+.target-toggle small{display:block;color:var(--faint);font-size:9.5px;margin-top:2px}
+.quick-blocks{gap:6px}.quick-blocks .btn{flex:1 1 115px}
+.required-note{font-size:10px;color:var(--faint);margin:0 0 10px;line-height:1.5}
 .field-label{
   display:block;font-size:9.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;
   color:var(--faint);margin-bottom:5px;
@@ -158,10 +186,10 @@ body{
 .tool:hover{background:rgba(255,255,255,.07);color:var(--text)}
 .tool.sep{border-left:1px solid var(--line);margin:0 3px;padding:0;width:1px}
 #editor{
-  min-height:260px;max-height:480px;overflow-y:auto;padding:15px;
+  min-height:230px;max-height:480px;overflow-y:auto;padding:13px;
   background:var(--panel-2);color:var(--text);font-size:14.5px;line-height:1.7;outline:none;
 }
-#editor:empty::before{content:'Write the news… e.g. "Sign Day rehearsal is on Friday at 4pm."';color:var(--faint)}
+#editor:empty::before{content:'Write the detailed message…';color:var(--faint)}
 #editor h2{font-family:var(--font-display);font-size:20px;margin:.6em 0 .3em;letter-spacing:.3px}
 #editor h3{font-family:var(--font-display);font-size:16px;margin:.6em 0 .3em;letter-spacing:.3px}
 #editor p{margin:0 0 .9em}
@@ -174,7 +202,7 @@ body{
 .src-box.on{display:block}
 
 /* ---------- preview ---------- */
-.preview-frame{width:100%;height:620px;border:0;display:block;background:#fff}
+.preview-frame{width:100%;height:720px;border:0;display:block;background:#f3ecd9;transition:max-width .2s}
 .preview-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
 .seg{display:inline-flex;border:1px solid var(--line-hi);border-radius:8px;overflow:hidden}
 .seg button{font:inherit;font-size:11px;font-weight:700;padding:5px 11px;background:transparent;border:0;color:var(--dim);cursor:pointer}
@@ -249,7 +277,7 @@ td.name{color:var(--text);font-weight:600}
 <!-- ============ PANEL ============ -->
 <div id="appView" class="hidden">
   <div class="topbar">
-    <h1>NGHSIANS Mailer<small>Newsletter · sent from your account list</small></h1>
+    <h1 class="mailer-brand"><img src="assets/mailer/logo.png" alt="NGHSIANS crest"><span>NGHSIANS Mailer<small>Newsletter · sent from your account list</small></span></h1>
     <div class="spacer"></div>
     <span class="who-chip" id="whoChip">Signed in as <b>—</b></span>
     <button class="btn btn-sm" id="refreshBtn">↻ Refresh</button>
@@ -267,50 +295,132 @@ td.name{color:var(--text);font-weight:600}
         <div class="spacer"></div>
         <button class="btn btn-sm" id="clearBtn">Clear</button>
       </div>
-      <div class="panel-body" style="padding:0">
-        <div style="padding:15px 15px 0">
+      <div class="panel-body composer" style="padding:0">
+        <div class="composer-pad">
           <div class="field">
-            <label class="field-label" for="subject">Subject line</label>
-            <input id="subject" class="input" placeholder="Sign Day rehearsal — Friday 4pm" autocomplete="off">
+            <label class="field-label" for="subject">Subject line <span class="required-mark">*</span></label>
+            <input id="subject" class="input" placeholder="Sign Day rehearsal — Friday 4pm" autocomplete="off" maxlength="180">
+            <div class="field-meta"><span>Short, specific subjects are easiest to scan.</span><span id="subjectCount">0 / 180</span></div>
           </div>
           <div class="field">
-            <label class="field-label" for="preheader">Preview text <span class="muted">(shown after the subject in the inbox)</span></label>
-            <input id="preheader" class="input" placeholder="Everything you need to know before Friday." autocomplete="off">
+            <label class="field-label" for="preheader">Inbox preview text <span class="muted">(the line after your subject)</span></label>
+            <input id="preheader" class="input" placeholder="Everything you need to know before Friday." autocomplete="off" maxlength="180">
+            <div class="field-meta"><span>Keep it distinct from the subject.</span><span id="preheaderCount">0 / 180</span></div>
           </div>
-        </div>
 
-        <div class="toolbar">
-          <button class="tool" data-cmd="bold" title="Bold"><b>B</b></button>
-          <button class="tool" data-cmd="italic" title="Italic"><i>I</i></button>
-          <button class="tool" data-cmd="underline" title="Underline"><u>U</u></button>
-          <span class="tool sep"></span>
-          <button class="tool" data-block="h2">Heading</button>
-          <button class="tool" data-block="h3">Sub-head</button>
-          <button class="tool" data-block="blockquote">Quote</button>
-          <button class="tool" data-cmd="insertUnorderedList">• List</button>
-          <button class="tool" data-cmd="insertOrderedList">1. List</button>
-          <span class="tool sep"></span>
-          <button class="tool" id="linkBtn">🔗 Link</button>
-          <button class="tool" id="imgBtn">🖼 Image</button>
-          <button class="tool" data-block="divider">— Divider</button>
-          <span class="tool sep"></span>
-          <button class="tool" id="srcBtn">&lt;/&gt; HTML</button>
-        </div>
-
-        <div id="editor" contenteditable="true" spellcheck="true"></div>
-        <textarea id="srcBox" class="src-box" spellcheck="false"></textarea>
-
-        <div style="padding:11px 15px;border-top:1px solid var(--line);background:var(--panel-2)">
-          <div class="field-label" style="margin-bottom:6px">Quick blocks</div>
-          <div class="row" style="gap:6px">
-            <button class="btn btn-sm" data-tpl="announce">Announcement</button>
-            <button class="btn btn-sm" data-tpl="event">Event / meetup</button>
-            <button class="btn btn-sm" data-tpl="merch">Merch drop</button>
-            <button class="btn btn-sm" data-tpl="signout">Sign off</button>
+          <div class="builder-section">
+            <div class="builder-step"><span>DESIGN</span><div><b>Choose your theme</b><small>Colors and fonts stay editable.</small></div></div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="themeSelect">Theme</label>
+                <select id="themeSelect" class="input">
+                  <option value="nghsians">NGHSIANS · dark gold (default)</option>
+                  <option value="signday60">60th Sign Day · vintage poster</option>
+                  <option value="custom">Custom colors</option>
+                </select>
+              </div>
+              <div class="field"><label class="field-label" for="headingFont">Heading font</label>
+                <select id="headingFont" class="input">
+                  <option value="'Anton',Impact,'Arial Narrow',sans-serif">Anton · Impact (default)</option>
+                  <option value="Arial,Helvetica,sans-serif">Arial</option>
+                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="bodyFont">Body font</label>
+                <select id="bodyFont" class="input">
+                  <option value="'DM Sans',Arial,Helvetica,sans-serif">DM Sans · Arial (default)</option>
+                  <option value="Arial,Helvetica,sans-serif">Arial</option>
+                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                  <option value="Verdana,Geneva,sans-serif">Verdana</option>
+                  <option value="Tahoma,Arial,sans-serif">Tahoma</option>
+                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                </select>
+              </div>
+              <div class="field"><label class="field-label" for="textAlign">Text alignment</label>
+                <select id="textAlign" class="input"><option value="center">Center (default)</option><option value="left">Left</option></select>
+              </div>
+            </div>
+            <details class="style-details" open>
+              <summary>Customize colors <span>Outer background, card, text, accents, button and footer</span></summary>
+              <div class="color-grid">
+                <label class="color-control"><span>Page background</span><input type="color" id="colorOuter" value="#0b0c0d"></label>
+                <label class="color-control"><span>Message card</span><input type="color" id="colorCard" value="#121316"></label>
+                <label class="color-control"><span>Main text</span><input type="color" id="colorText" value="#f3ecd9"></label>
+                <label class="color-control"><span>Secondary text</span><input type="color" id="colorMuted" value="#aaa391"></label>
+                <label class="color-control"><span>Accent / headings</span><input type="color" id="colorAccent" value="#ffeb80"></label>
+                <label class="color-control"><span>Secondary accent</span><input type="color" id="colorAccent2" value="#710c04"></label>
+                <label class="color-control"><span>Button background</span><input type="color" id="colorButton" value="#8d0f05"></label>
+                <label class="color-control"><span>Button text</span><input type="color" id="colorButtonText" value="#fff7e6"></label>
+                <label class="color-control"><span>Footer background</span><input type="color" id="colorFooter" value="#050505"></label>
+                <label class="color-control"><span>Footer text</span><input type="color" id="colorFooterText" value="#e8e1d2"></label>
+              </div>
+            </details>
           </div>
-          <div class="hint">
-            Placeholders you can type anywhere: <code>{{name}}</code> <code>{{batch}}</code> <code>{{email}}</code> — each
-            recipient sees their own. The NGHSIANS header, footer and unsubscribe link are added automatically.
+
+          <div class="builder-section">
+            <div class="builder-step"><span>01</span><div><b>Hero image <i class="required-mark">required</i></b><small>Always appears first in the email. Use a landscape image exactly 1920 × 1080.</small></div></div>
+            <div class="upload-row">
+              <label for="heroFile" class="btn btn-sm">＋ Choose image</label>
+              <input id="heroFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp">
+              <span id="heroStatus" class="upload-status">No image selected yet.</span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(filled after upload; or paste a public HTTPS image URL)</span></label>
+              <input id="heroImageUrl" class="input" type="url" placeholder="https://…" autocomplete="url">
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label" for="heroAlt">Describe the image for readers who can’t see it <span class="required-mark">*</span></label>
+              <input id="heroAlt" class="input" placeholder="e.g. Students celebrating at Sign Day" maxlength="180">
+            </div>
+            <p class="hint">The bucket is public-read for email delivery; only signed-in admins can upload. Run <code>supabase-newsletter-media.sql</code> once to enable uploads; a public HTTPS URL also works.</p>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>02</span><div><b>Headline</b><small>Centered by default; merge tags work here too.</small></div></div>
+            <div class="field"><label class="field-label" for="heading1">Heading 1 <span class="required-mark">*</span></label><input id="heading1" class="input" placeholder="Your main headline" maxlength="140"></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label" for="heading2">Subheading <span class="required-mark">*</span></label><input id="heading2" class="input" placeholder="A short line to explain the news" maxlength="220"></div>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>03</span><div><b>Detailed message</b><small>Formatting stays compatible with common email apps.</small></div></div>
+            <div class="toolbar">
+              <button type="button" class="tool" data-cmd="bold" title="Bold"><b>B</b></button>
+              <button type="button" class="tool" data-cmd="italic" title="Italic"><i>I</i></button>
+              <button type="button" class="tool" data-cmd="underline" title="Underline"><u>U</u></button>
+              <span class="tool sep"></span>
+              <button type="button" class="tool" data-cmd="insertUnorderedList">• List</button>
+              <button type="button" class="tool" data-cmd="insertOrderedList">1. List</button>
+              <button type="button" class="tool" data-block="blockquote">Quote</button>
+              <button type="button" class="tool" id="linkBtn">🔗 Link</button>
+              <span class="tool sep"></span>
+              <button type="button" class="tool" id="srcBtn">&lt;/&gt; Advanced HTML</button>
+            </div>
+            <div id="editor" contenteditable="true" spellcheck="true" aria-label="Detailed newsletter message"></div>
+            <textarea id="srcBox" class="src-box" spellcheck="false" aria-label="Advanced HTML source"></textarea>
+            <div class="hint">Personalization: <code>{{name}}</code>, <code>{{batch}}</code>, <code>{{email}}</code>. Each recipient sees their own details.</div>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>04</span><div><b>Section & call-to-action</b><small>Button is included in the email; set its destination.</small></div></div>
+            <div class="field"><label class="field-label" for="sectionTitle">Section subheading <span class="required-mark">*</span></label><input id="sectionTitle" class="input" placeholder="What happens next?" maxlength="140"></div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="buttonText">Button name <span class="required-mark">*</span></label><input id="buttonText" class="input" placeholder="Read more" maxlength="48"></div>
+              <div class="field"><label class="field-label" for="buttonUrl">Button link <span class="required-mark">*</span></label><input id="buttonUrl" class="input" type="url" placeholder="https://nghsians.com/" autocomplete="url"></div>
+            </div>
+            <label class="target-toggle"><input type="checkbox" id="buttonNewTab" checked><span>Ask the reader’s browser to open the button link in a new tab <small>(email apps may choose their own behavior)</small></span></label>
+          </div>
+
+          <div class="builder-section">
+            <div class="field-label">Start from a quick draft</div>
+            <div class="row quick-blocks">
+              <button type="button" class="btn btn-sm" data-tpl="announce">Announcement</button>
+              <button type="button" class="btn btn-sm" data-tpl="event">Event / meetup</button>
+              <button type="button" class="btn btn-sm" data-tpl="merch">Merch drop</button>
+              <button type="button" class="btn btn-sm" data-tpl="signout">Sign off</button>
+            </div>
+            <p class="hint">The footer, logo, social links, website address, preference link and unsubscribe link are added automatically.</p>
           </div>
         </div>
       </div>
@@ -330,10 +440,9 @@ td.name{color:var(--text);font-weight:600}
         <div class="preview-bar">
           <span class="muted" style="font-size:11.5px">Exactly what lands in the inbox.</span>
           <div class="spacer" style="flex:1"></div>
-          <button class="btn btn-sm" id="diagBtn">⚕ Sender check</button>
           <button class="btn btn-sm" id="testBtn">Send me a test</button>
         </div>
-        <iframe id="preview" class="preview-frame" title="Email preview"></iframe>
+        <iframe id="preview" class="preview-frame" title="Email preview" sandbox="allow-same-origin"></iframe>
       </section>
 
       <section class="panel">
@@ -396,21 +505,16 @@ td.name{color:var(--text);font-weight:600}
           public.app_secrets. The PIN is never stored in this file.
 
    HOW SENDING WORKS
-     See MAILER below: 'edge' (Supabase Edge Function + Resend) or 'emailjs'.
+     All sends go through the Supabase Edge Function to Resend. The Resend API
+     key stays server-side; this page never uses a browser email provider.
    ============================================================================ */
 const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
 
 const MAILER = {
-  /* 'edge'    → Supabase Edge Function + Resend. Recommended: the API key stays
-                 server-side, ~3,000 free emails a month. Deploy the function in
-                 supabase/functions/send-newsletter and set the RESEND_API_KEY
-                 secret, then nothing else changes here.
-     'emailjs' → zero backend, but the public key is visible in this page and
-                 the free tier is ~200 emails a month. Fine for a small list.  */
-  mode: 'edge',
+  // Resend is called only by the authenticated Supabase Edge Function; its
+  // secret never reaches this browser page.
   edgeUrl: SUPABASE_URL + '/functions/v1/send-newsletter',
-  emailjs: { serviceId: '', templateId: '', publicKey: '' },
 
   /* The From address must be a domain you have verified in Resend (or
      whatever you use). Mail to a From address you don't own goes to spam. */
@@ -418,7 +522,9 @@ const MAILER = {
   replyTo: 'nghsians@gmail.com',
   siteUrl: 'https://nghsians.com',
   brand:   'NGHSIANS',
-  tagline: 'Nasirabad Government High School · Chattogram'
+  assetsBucket: 'newsletter-media',
+  logoUrl: 'https://nghsians.com/assets/mailer/logo.png',
+  footerLogoUrl: 'https://nghsians.com/assets/mailer/footer-logo.png'
 };
 
 const EMAIL_KEY = 'nghsmailer_email';
@@ -449,49 +555,75 @@ function modal(title, bodyHtml, actions) {
   return $('modalHost');
 }
 
-/* ------------------------------------------------- the email shell (preview)
-   The Edge Function has the same wrapper server-side so the sent mail matches
-   this preview exactly. Change both if you restyle the template.            */
-function emailShell(o) {
-  const body = o.body || '<p style="color:#8b8577">(empty)</p>';
-  const pre  = o.preheader ? '<div style="display:none;max-height:0;overflow:hidden;opacity:0">' + esc(o.preheader) + '</div>' : '';
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(o.subject || '')}</title></head>
-<body style="margin:0;padding:0;background:#0b0c0d">
-${pre}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0c0d;padding:26px 12px">
-<tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#121316;border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;font-family:'DM Sans',Helvetica,Arial,sans-serif">
-  <tr><td style="height:3px;background:linear-gradient(90deg,#FFEB80,#710C04,#FFEB80);font-size:0;line-height:0">&nbsp;</td></tr>
-  <tr><td style="padding:26px 30px 20px;text-align:center;background:#0f1013;border-bottom:1px solid rgba(255,255,255,.07)">
-    <div style="font-family:Anton,Impact,sans-serif;font-size:27px;letter-spacing:2px;color:#F3ECD9;text-transform:uppercase">${esc(MAILER.brand)}</div>
-    <div style="font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,235,128,.75);margin-top:5px">Newsletter</div>
-  </td></tr>
-  <tr><td style="padding:26px 30px 8px">
-    <h1 style="font-family:Anton,Impact,sans-serif;font-size:23px;line-height:1.25;margin:0 0 16px;color:#F3ECD9">${esc(o.subject || 'Newsletter')}</h1>
-    <div style="font-size:15px;line-height:1.75;color:#d8d2c4">${body}</div>
-  </td></tr>
-  <tr><td style="padding:22px 30px 26px">
-    <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:18px;font-size:12px;line-height:1.7;color:#7d7768;text-align:center">
-      <strong style="color:rgba(255,235,128,.8)">${esc(MAILER.brand)}</strong> · ${esc(MAILER.tagline)}<br>
-      You are getting this because you have an NGHSIANS account (or asked for news) at
-      <a href="${esc(MAILER.siteUrl)}" style="color:#7d7768">${esc(MAILER.siteUrl.replace(/^https?:\/\//,''))}</a>.<br>
-      <a href="${esc(o.unsubUrl || (MAILER.siteUrl + '/unsubscribe.html'))}" style="color:#8a8474;text-decoration:underline">Unsubscribe</a>
-      &nbsp;·&nbsp; <a href="${esc(MAILER.siteUrl + '/account.html')}" style="color:#8a8474;text-decoration:underline">Manage preferences</a>
-    </div>
-  </td></tr>
-</table>
-</td></tr></table></body></html>`;
-}
-function unsubUrlFor(r) { return MAILER.siteUrl + '/unsubscribe.html?u=' + encodeURIComponent(r.unsub_token || ''); }
-function fillPlaceholders(html, r) {
-  return String(html)
-    .replace(/\{\{\s*name\s*\}\}/gi,  esc(r.name || 'there'))
-    .replace(/\{\{\s*batch\s*\}\}/gi, esc(r.batch_year || ''))
-    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''));
-}
+/* ------------------------------------------------------ campaign design */
+const THEME_PRESETS = {
+  nghsians: {
+    outer:'#0b0c0d', card:'#121316', text:'#f3ecd9', muted:'#aaa391',
+    accent:'#ffeb80', accent2:'#710c04', button:'#8d0f05', buttonText:'#fff7e6',
+    footer:'#050505', footerText:'#e8e1d2',
+    headingFont:"'Anton',Impact,'Arial Narrow',sans-serif",
+    bodyFont:"'DM Sans',Arial,Helvetica,sans-serif", align:'center'
+  },
+  signday60: {
+    outer:'#17130e', card:'#f4ecd8', text:'#201812', muted:'#5a4a38',
+    accent:'#8f1a12', accent2:'#c9a227', button:'#8f1a12', buttonText:'#f4ecd8',
+    footer:'#17130e', footerText:'#f3ecd9',
+    headingFont:"'Anton',Impact,'Arial Narrow',sans-serif",
+    bodyFont:"'DM Sans',Arial,Helvetica,sans-serif", align:'center'
+  }
+};
+const COLOR_FIELDS = {
+  outer:'colorOuter', card:'colorCard', text:'colorText', muted:'colorMuted',
+  accent:'colorAccent', accent2:'colorAccent2', button:'colorButton',
+  buttonText:'colorButtonText', footer:'colorFooter', footerText:'colorFooterText'
+};
+let changingPreset = false;
 
-/* ---------------------------------------------------------------- editor */
+function applyTheme(name) {
+  const preset = THEME_PRESETS[name];
+  if (!preset) { refreshPreview(); return; }
+  changingPreset = true;
+  Object.entries(COLOR_FIELDS).forEach(([key,id]) => $(id).value = preset[key]);
+  $('headingFont').value = preset.headingFont;
+  $('bodyFont').value = preset.bodyFont;
+  $('textAlign').value = preset.align;
+  $('themeSelect').value = name;
+  changingPreset = false;
+  refreshPreview();
+}
+function markCustomTheme() {
+  if (changingPreset) return;
+  $('themeSelect').value = 'custom';
+  refreshPreview();
+}
+function designValues() {
+  const colors = Object.fromEntries(Object.entries(COLOR_FIELDS).map(([key,id]) => [key,$(id).value]));
+  return {
+    theme:$('themeSelect').value, colors,
+    headingFont:$('headingFont').value, bodyFont:$('bodyFont').value,
+    align:$('textAlign').value === 'left' ? 'left' : 'center'
+  };
+}
+function normalizeLink(raw) {
+  const value = String(raw || '').trim();
+  if (!value) throw new Error('Add a destination for the call-to-action button.');
+  if (value.startsWith('/') && !value.startsWith('//')) return new URL(value, MAILER.siteUrl).href;
+  let parsed;
+  try { parsed = new URL(value); } catch (e) { throw new Error('Use a website URL, a mailto link, or a site path such as /account.html.'); }
+  if (!['https:','http:','mailto:'].includes(parsed.protocol)) throw new Error('Use an HTTPS, HTTP, or email link for the button.');
+  return parsed.href;
+}
+function normalizeHeroUrl(raw) {
+  const value = String(raw || '').trim();
+  if (!value) throw new Error('Add the required 1920 × 1080 hero image first.');
+  let parsed;
+  try { parsed = new URL(value, MAILER.siteUrl); }
+  catch (e) { throw new Error('Use a public HTTPS image URL or upload the image to newsletter storage.'); }
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+    throw new Error('The hero image must use a public HTTPS URL.');
+  }
+  return parsed.href;
+}
 function editorHtml() {
   return $('srcBox').classList.contains('on') ? $('srcBox').value : $('editor').innerHTML;
 }
@@ -499,27 +631,123 @@ function setEditorHtml(html) {
   $('editor').innerHTML = html || '';
   $('srcBox').value = html || '';
 }
+function fillPreviewPlaceholders(html, r) {
+  const unsubscribe = MAILER.siteUrl + '/unsubscribe.html?u=' + encodeURIComponent(r.unsub_token || '');
+  return String(html)
+    .replace(/\{\{\s*name\s*\}\}/gi, esc(r.name || 'there'))
+    .replace(/\{\{\s*batch\s*\}\}/gi, esc(r.batch_year || r.batch || ''))
+    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''))
+    .replace(/\{\{\s*unsubscribe_url\s*\}\}/gi, esc(unsubscribe));
+}
 function exec(cmd) { $('editor').focus(); try { document.execCommand(cmd, false, null); } catch (e) {} refreshPreview(); }
 function block(tag) {
   $('editor').focus();
-  try {
-    if (tag === 'divider') document.execCommand('insertHTML', false, '<hr><p><br></p>');
-    else document.execCommand('formatBlock', false, tag);
-  } catch (e) {}
+  try { document.execCommand('formatBlock', false, tag); } catch (e) {}
   refreshPreview();
 }
-function refreshPreview() {
-  const html = editorHtml();
-  const demo = { name: 'Rahim', batch_year: '2019', email: 'rahim@example.com', unsub_token: 'preview' };
-  const doc = emailShell({
-    subject: $('subject').value.trim(),
-    preheader: $('preheader').value.trim(),
-    body: fillPlaceholders(html, demo)
+function editorText() {
+  const box = document.createElement('div');
+  box.innerHTML = editorHtml();
+  return (box.textContent || '').replace(/\u00a0/g,' ').trim();
+}
+function getComposerError() {
+  if (!$('subject').value.trim()) return 'Add a subject line first.';
+  try { normalizeHeroUrl($('heroImageUrl').value); } catch (e) { return e.message; }
+  if (!$('heroAlt').value.trim()) return 'Add a short description for the hero image (alt text).';
+  if (!$('heading1').value.trim()) return 'Add Heading 1.';
+  if (!$('heading2').value.trim()) return 'Add the subheading.';
+  if (!editorText()) return 'Add the detailed message.';
+  if (!$('sectionTitle').value.trim()) return 'Add the section subheading.';
+  if (!$('buttonText').value.trim()) return 'Add a name for the call-to-action button.';
+  try { normalizeLink($('buttonUrl').value); } catch (e) { return e.message; }
+  return '';
+}
+function readImageDimensions(src) {
+  return new Promise((resolve,reject) => {
+    const img = new Image();
+    const timer = setTimeout(() => reject(new Error('The hero image took too long to load. Use a public HTTPS image URL.')), 15000);
+    img.onload = () => {
+      clearTimeout(timer);
+      if (img.naturalWidth !== 1920 || img.naturalHeight !== 1080) {
+        reject(new Error('The hero image must be exactly 1920 × 1080 pixels; this one is ' + img.naturalWidth + ' × ' + img.naturalHeight + '.'));
+      } else resolve({width:img.naturalWidth,height:img.naturalHeight});
+    };
+    img.onerror = () => { clearTimeout(timer); reject(new Error('Could not load the hero image. Check that its HTTPS URL is public and works outside your Drive.')); };
+    img.referrerPolicy = 'no-referrer';
+    img.src = src;
   });
+}
+function checkImageDimensions(src) {
+  return readImageDimensions(normalizeHeroUrl(src));
+}
+function emailShell() {
+  const d = designValues(), c = d.colors;
+  const themeIsSignDay = d.theme === 'signday60';
+  const headerLogo = MAILER.logoUrl;
+  const headerLabel = themeIsSignDay ? 'NGHS 60th Sign Day' : MAILER.brand;
+  const headerSub = themeIsSignDay ? 'BATCH 2027 · IT’S NOW OR NEVER' : 'NEWS FROM THE NGHSIANS COMMUNITY';
+  const subject = $('subject').value.trim() || 'NGHSIANS Update';
+  const preheader = $('preheader').value.trim();
+  let heroUrl = '';
+  try { heroUrl = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
+  const heroAlt = $('heroAlt').value.trim() || 'NGHSIANS newsletter image';
+  const h1 = $('heading1').value.trim() || 'Your main headline';
+  const h2 = $('heading2').value.trim() || 'A short supporting line';
+  const sectionTitle = $('sectionTitle').value.trim() || 'What happens next?';
+  const buttonText = $('buttonText').value.trim() || 'Read more';
+  const body = editorHtml().trim() || '<p style="margin:0">Write your detailed message here.</p>';
+  let buttonHref = '#preview-button';
+  try { buttonHref = normalizeLink($('buttonUrl').value); } catch (e) {}
+  const target = $('buttonNewTab').checked ? '_blank' : '_self';
+  const align = d.align;
+  const button = `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:20px auto 0"><tr><td align="center" bgcolor="${c.button}" style="border:1px solid ${c.accent2};border-radius:6px"><a href="${esc(buttonHref)}" target="${target}" rel="noopener" style="display:inline-block;padding:15px 26px;min-width:150px;color:${c.buttonText};font-family:${d.bodyFont};font-size:15px;line-height:1.2;font-weight:700;text-decoration:none;text-align:center;border-radius:6px">${esc(buttonText)}</a></td></tr></table>`;
+  const pre = preheader ? `<div style="display:none!important;max-height:0;max-width:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all">${esc(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>` : '';
+  const hero = heroUrl
+    ? `<img src="${esc(heroUrl)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">`
+    : `<div style="padding:70px 18px;background:${c.accent2};color:${c.buttonText};font-family:${d.bodyFont};font-size:13px;font-weight:700;text-align:center">Required 1920 × 1080 hero image will appear here</div>`;
+  const signDayRibbon = themeIsSignDay
+    ? `<tr><td align="center" style="padding:11px 22px;background:${c.accent};color:${c.buttonText};font-family:${d.headingFont};font-size:12px;letter-spacing:2px;text-transform:uppercase">60TH SIGN DAY · BATCH 2027</td></tr>` : '';
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><title>${esc(subject)}</title></head>
+<body style="margin:0;padding:0;background:${c.outer};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%">
+${pre}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 auto;background:${c.outer}"><tr><td align="center" style="padding:22px 10px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;margin:0 auto;background:${c.card};border:1px solid ${c.accent2};border-radius:8px;overflow:hidden">
+<tr><td style="padding:0;background:${c.card}">${hero}</td></tr>
+<tr><td height="5" bgcolor="${c.accent}" style="height:5px;font-size:0;line-height:0">&nbsp;</td></tr>
+<tr><td align="center" style="padding:20px 24px 16px;background:${c.card};text-align:center"><img src="${esc(headerLogo)}" width="66" height="66" alt="${esc(headerLabel)}" style="display:block;width:66px;height:66px;object-fit:contain;margin:0 auto 8px;border:0"><div style="font-family:${d.headingFont};font-size:20px;line-height:1.15;letter-spacing:1px;text-transform:uppercase;color:${c.text}">${esc(headerLabel)}</div><div style="margin-top:5px;font-family:${d.bodyFont};font-size:10px;line-height:1.4;letter-spacing:1.5px;color:${c.muted}">${esc(headerSub)}</div></td></tr>
+${signDayRibbon}
+<tr><td align="${align}" style="padding:28px 30px 34px;text-align:${align};font-family:${d.bodyFont};color:${c.text}">
+<h1 style="margin:0 0 11px;font-family:${d.headingFont};font-size:30px;line-height:1.16;font-weight:700;letter-spacing:.2px;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(h1)}</h1>
+<h2 style="margin:0 auto 22px;font-family:${d.bodyFont};font-size:18px;line-height:1.45;font-weight:600;color:${c.text};text-align:${align}">${esc(h2)}</h2>
+<div style="font-family:${d.bodyFont};font-size:15px;line-height:1.75;color:${c.text};text-align:${align}">${body}</div>
+<div style="height:1px;margin:25px auto 20px;max-width:100px;background:${c.accent2};font-size:0;line-height:0">&nbsp;</div>
+<h3 style="margin:0;font-family:${d.headingFont};font-size:20px;line-height:1.25;font-weight:700;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(sectionTitle)}</h3>
+${button}
+</td></tr>
+<tr><td align="center" style="padding:24px 22px 26px;background:${c.footer};border-top:3px solid ${c.accent2};text-align:center;font-family:${d.bodyFont};color:${c.footerText}">
+<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(MAILER.footerLogoUrl)}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;object-fit:contain;margin:0 auto 13px;border:0"></a>
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px"><tr>
+<td style="padding:0 4px"><a href="https://facebook.com/NasirabadBoys" aria-label="Facebook" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">f</a></td>
+<td style="padding:0 4px"><a href="https://youtube.com/@nghsians" aria-label="YouTube" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;border-radius:3px">▶</a></td>
+<td style="padding:0 4px"><a href="https://instagram.com/nghsians" aria-label="Instagram" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">◎</a></td>
+<td style="padding:0 4px"><a href="${esc(MAILER.siteUrl)}" aria-label="Website" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;border-radius:3px">↗</a></td>
+</tr></table>
+<div style="font-family:${d.headingFont};font-size:18px;line-height:1.2;letter-spacing:1.2px;color:${c.footerText};text-transform:uppercase;margin-bottom:10px">NGHSIANS</div>
+<div style="max-width:460px;margin:0 auto;font-size:12px;line-height:1.65;color:${c.footerText};opacity:.88">You received this email because you signed up on our website.</div>
+<div style="margin-top:11px;font-size:12px;line-height:1.7"><a href="{{unsubscribe_url}}" style="color:${c.footerText};font-weight:700;text-decoration:underline">Unsubscribe</a><span style="padding:0 7px;color:${c.footerText}">·</span><a href="${esc(MAILER.siteUrl)}/account.html" style="color:${c.footerText};text-decoration:underline">Manage preferences</a></div>
+</td></tr>
+</table>
+</td></tr></table></body></html>`;
+}
+function refreshPreview() {
+  const demo = { name:'Rahim', batch_year:'2019', email:'rahim@example.com', unsub_token:'preview' };
   const f = $('preview');
-  f.srcdoc = doc;
+  f.srcdoc = fillPreviewPlaceholders(emailShell(), demo);
   f.style.maxWidth = '';
+  f.style.margin = '';
   if (f.dataset.view === 'mobile') { f.style.maxWidth = '390px'; f.style.margin = '0 auto'; }
+  $('subjectCount').textContent = $('subject').value.length + ' / 180';
+  $('preheaderCount').textContent = $('preheader').value.length + ' / 180';
 }
 
 /* ------------------------------------------------------------ subscribers */
@@ -632,71 +860,6 @@ async function edgeFetch(payload) {
   return { ok: true, status: resp.status, data: json || {} };
 }
 
-/* A three-step probe that isolates exactly where a send is breaking.
-   Step 1 (GET) proves the function exists and sends CORS headers.
-   Step 2 (OPTIONS) proves the browser's preflight is accepted.
-   Step 3 (POST, empty recipients) proves auth + admin + PIN all pass —
-   the function answers 400 "No recipients." only after every check clears. */
-async function diagnoseSender() {
-  const lines = [];
-  const add = (label, pass, detail) => lines.push(
-    '<tr><td style="white-space:nowrap">' + (pass === null ? '•' : (pass ? '✅' : '❌')) +
-    ' ' + esc(label) + '</td><td style="color:var(--dim);font-size:11.5px;word-break:break-all">' + esc(detail || '') + '</td></tr>');
-
-  add('Endpoint', null, MAILER.edgeUrl);
-  const { data } = await supa.auth.getSession();
-  const email = data.session && data.session.user ? data.session.user.email : '';
-  add('Signed in', !!email, email || 'no session — sign in again');
-  add('Token', !!(data.session && data.session.access_token), data.session ? (data.session.access_token || '').slice(0, 18) + '…' : 'none');
-
-  // Step 1 — reachability + CORS
-  let step1 = 'blocked';
-  try {
-    const r = await fetch(MAILER.edgeUrl, { method: 'GET' });
-    step1 = 'HTTP ' + r.status + (r.ok ? '' : ' (expected 405 — function is there)');
-  } catch (e) { step1 = 'FAILED — ' + ((e && e.message) || e); }
-  add('1 · reachable', /HTTP 40[0-5]/.test(step1), step1);
-
-  // Step 2 — preflight
-  let step2 = 'blocked';
-  try {
-    const r = await fetch(MAILER.edgeUrl, {
-      method: 'OPTIONS',
-      headers: { 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization,content-type' }
-    });
-    step2 = 'HTTP ' + r.status;
-  } catch (e) { step2 = 'FAILED — ' + ((e && e.message) || e); }
-  add('2 · preflight', /HTTP 20[0-4]/.test(step2), step2);
-
-  // Step 3 — the real thing, minus recipients
-  let step3 = 'not reached';
-  if (email) {
-    const res = await edgeFetch({ pin: PIN, subject: 'probe', preheader: '', body: 'probe', recipients: [] });
-    step3 = res.ok ? 'HTTP ' + res.status + ' — all checks passed'
-                   : (res.kind === 'network' ? 'FAILED — ' + res.detail : res.msg);
-  } else step3 = 'skipped — not signed in';
-  add('3 · auth + PIN', /all checks passed/.test(step3), step3);
-
-  const verdict = /all checks passed/.test(step3)
-    ? '<p style="color:var(--ok);font-weight:700;margin:0 0 10px">Sender is working. Try the test email again.</p>'
-    : '<p style="color:var(--bad);font-weight:700;margin:0 0 10px">Something is blocking the send — copy this and send it to whoever is helping you.</p>';
-
-  const plain = lines.map(l => l.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()).join('\n');
-  const m = modal('Sender check',
-    verdict +
-    '<table style="width:100%;font-size:12.5px;border-collapse:collapse">' + lines.join('') + '</table>',
-    '<button class="btn" data-close>Close</button><button class="btn btn-gold" id="copyRep">Copy report</button>');
-  m.querySelector('#copyRep').addEventListener('click', async (ev) => {
-    const btn = ev.currentTarget;
-    try {
-      await navigator.clipboard.writeText('NGHSIANS mailer — sender check\n' + plain);
-      btn.textContent = 'Copied ✓';
-    } catch (e) {
-      m.querySelector('.modal').insertAdjacentHTML('beforeend', '<pre>' + esc(plain) + '</pre>');
-      btn.textContent = 'Select manually ↑';
-    }
-  });
-}
 
 /* ---------------------------------------------------------------- sending */
 function currentRecipients() { return subscribers.filter(r => selected.has(r.email)); }
@@ -706,11 +869,13 @@ function setSending(on, label) {
 }
 async function sendNewsletter() {
   const subject = $('subject').value.trim();
-  const body    = editorHtml().trim();
-  const recips  = currentRecipients();
-  if (!subject)                 { toast('Add a subject line first.', 'warn'); $('subject').focus(); return; }
-  if (!body || body === '<br>') { toast('The email body is empty.', 'warn'); $('editor').focus(); return; }
-  if (!recips.length)           { toast('No recipients selected.', 'warn'); return; }
+  const error = getComposerError();
+  const recips = currentRecipients();
+  if (error) { toast(error, 'warn'); return; }
+  if (!recips.length) { toast('No recipients selected.', 'warn'); return; }
+  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
+  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
+  const body = emailShell();
 
   const ok = await new Promise(res => {
     const m = modal('Send to ' + recips.length + ' people?',
@@ -730,44 +895,17 @@ async function sendNewsletter() {
 
   let result;
   try {
-    if (MAILER.mode === 'edge') {
-      const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload });
-      if (!res.ok) {
-        // Not a thrown error — edgeFetch already knows which of the four
-        // failure modes it was, so report that instead of guessing.
-        $('progBar').style.width = '0%';
-        $('sendNote').textContent = 'Not sent.';
-        setSending(false);
-        toast('Send failed: ' + res.msg, 'err');
-        if (res.kind === 'network' || res.kind === 'missing' || res.kind === 'auth') diagnoseSender();
-        return;
-      }
-      result = res.data;
-    } else if (MAILER.mode === 'emailjs') {
-      const cfg = MAILER.emailjs;
-      if (!cfg.serviceId || !cfg.templateId || !cfg.publicKey) throw new Error('Fill in MAILER.emailjs first (serviceId / templateId / publicKey).');
-      if (!window.emailjs) await new Promise((res, rej) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-        s.onload = res; s.onerror = rej; document.head.appendChild(s);
-      });
-      window.emailjs.init(cfg.publicKey);
-      let sent = 0, failed = 0;
-      for (let i = 0; i < payload.length; i++) {
-        const r = payload[i];
-        try {
-          await window.emailjs.send(cfg.serviceId, cfg.templateId, {
-            to_email: r.email, to_name: r.name || 'there', subject: subject,
-            message_html: emailShell({ subject, preheader, body: fillPlaceholders(body, { name: r.name, batch_year: r.batch }), unsubUrl: unsubUrlFor(r) })
-          });
-          sent++;
-        } catch (e) { console.error(e); failed++; }
-        $('progBar').style.width = Math.round(12 + 86 * (i + 1) / payload.length) + '%';
-      }
-      result = { sent, failed };
-    } else {
-      throw new Error('MAILER.mode must be "edge" or "emailjs".');
+    const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload });
+    if (!res.ok) {
+      // Keep the gateway response so we can distinguish auth, deployment,
+      // network and provider errors without guessing.
+      $('progBar').style.width = '0%';
+      $('sendNote').textContent = 'Not sent.';
+      setSending(false);
+      toast('Send failed: ' + res.msg, 'err');
+      return;
     }
+    result = res.data;
   } catch (err) {
     console.error(err);
     $('progBar').style.width = '0%';
@@ -791,8 +929,12 @@ async function sendTest() {
   const { data: sess } = await supa.auth.getSession();
   const me = sess.session && sess.session.user ? sess.session.user.email : '';
   if (!me) { toast('Sign in first.', 'warn'); return; }
-  const subject = $('subject').value.trim() || '(no subject)';
-  const body = editorHtml().trim() || '<p>(empty)</p>';
+  const subject = $('subject').value.trim();
+  const error = getComposerError();
+  if (error) { toast(error, 'warn'); return; }
+  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
+  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
+  const body = emailShell();
   const btn = $('testBtn');
   const was = btn.textContent;
   btn.disabled = true; btn.textContent = 'Sending…';
@@ -803,10 +945,16 @@ async function sendTest() {
   });
   btn.disabled = false; btn.textContent = was;
   if (res.ok) {
-    toast('Test sent to ' + me + ' — check your inbox (and spam).');
+    const sent = Number(res.data && res.data.sent || 0);
+    const failed = Number(res.data && res.data.failed || 0);
+    const providerError = res.data && Array.isArray(res.data.errors) ? res.data.errors[0] : '';
+    if (sent > 0 && failed === 0) {
+      toast('Resend accepted the test for ' + me + ' — check Inbox, Spam, and Promotions.');
+    } else {
+      toast('The test was not sent' + (providerError ? ': ' + providerError : ' — Resend reported no successful delivery.'), 'err');
+    }
   } else if (res.kind === 'network') {
-    toast('Could not reach the Edge Function: ' + res.detail + ' — run the sender check.', 'err');
-    diagnoseSender();
+    toast('Could not reach the sender: ' + (res.detail || res.msg), 'err');
   } else {
     toast('Test failed: ' + res.msg, 'err');
   }
@@ -815,46 +963,78 @@ async function sendTest() {
 /* ------------------------------------------------------------ CSV import */
 function csvToRows(text) {
   const lines = String(text).replace(/\r/g, '').split('\n').filter(l => l.trim());
-  if (!lines.length) return [];
-  const split = (l) => {
-    const out = []; let cur = '', q = false;
-    for (let i = 0; i < l.length; i++) {
-      const ch = l[i];
-      if (ch === '"') { if (q && l[i + 1] === '"') { cur += '"'; i++; } else q = !q; }
-      else if (ch === ',' && !q) { out.push(cur); cur = ''; }
+  if (!lines.length) return { rows:[], hasStatus:false, skippedInactive:0, skippedInvalid:0, duplicates:0 };
+  const split = (line) => {
+    const out = []; let cur = '', quoted = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (quoted && line[i + 1] === '"') { cur += '"'; i++; } else quoted = !quoted; }
+      else if (ch === ',' && !quoted) { out.push(cur); cur = ''; }
       else cur += ch;
     }
-    out.push(cur); return out.map(s => s.trim());
+    out.push(cur); return out.map(v => v.trim());
   };
-  const head = split(lines[0]).map(h => h.toLowerCase());
-  const iEmail = head.findIndex(h => /mail/.test(h));
-  const iName  = head.findIndex(h => /name|first/.test(h));
+  const head = split(lines[0]).map(h => h.trim().toLowerCase());
+  let iEmail = head.findIndex(h => ['email','e-mail','email address','subscriber','subscriber email'].includes(h));
+  if (iEmail < 0) iEmail = head.findIndex(h => /e-?mail/.test(h));
+  const iName = head.findIndex(h => /^(name|first name|full name|subscriber name)$/.test(h));
   const iBatch = head.findIndex(h => /batch|year|class/.test(h));
-  if (iEmail < 0) return [];
-  return lines.slice(1).map(l => {
-    const c = split(l);
-    return { email: c[iEmail] || '', name: iName >= 0 ? (c[iName] || '') : '', batch_year: iBatch >= 0 ? (c[iBatch] || '') : '' };
-  }).filter(r => r.email && r.email.includes('@'));
+  const iStatus = head.findIndex(h => /^(status|subscription status|subscriber status)$/.test(h));
+  if (iEmail < 0) return { rows:[], hasStatus:iStatus >= 0, skippedInactive:0, skippedInvalid:lines.length - 1, duplicates:0 };
+  const rows = [], seen = new Set();
+  let skippedInactive = 0, skippedInvalid = 0, duplicates = 0;
+  lines.slice(1).forEach(line => {
+    const c = split(line), email = String(c[iEmail] || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { skippedInvalid++; return; }
+    if (iStatus >= 0) {
+      const status = String(c[iStatus] || '').trim().toLowerCase();
+      if (!['active','subscribed','confirmed','active subscriber','subscribed/active'].includes(status)) { skippedInactive++; return; }
+    }
+    if (seen.has(email)) { duplicates++; return; }
+    seen.add(email);
+    rows.push({ email, name:iName >= 0 ? (c[iName] || '') : '', batch_year:iBatch >= 0 ? (c[iBatch] || '') : '' });
+  });
+  return { rows, hasStatus:iStatus >= 0, skippedInactive, skippedInvalid, duplicates };
 }
 function openImport() {
   const m = modal('Import subscribers',
-    '<p>Paste a MailerLite (or any) CSV export. Emails that already belong to an NGHSIANS account get opted in on that ' +
-    'account; the rest are added as imported contacts. Duplicates are skipped.</p>' +
-    '<textarea id="impCsv" class="ta" style="min-height:150px;font-size:12px" placeholder="email,name,batch&#10;someone@example.com,Someone,2019"></textarea>' +
-    '<p class="hint" style="margin-top:8px">Expected columns: <code>email</code>, <code>name</code>, <code>batch</code> — in any order, extra columns ignored.</p>',
-    '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goImport">Import</button>');
+    '<p>Choose the MailerLite CSV file or paste its contents. The importer understands both <code>email</code> and MailerLite’s <code>Subscriber</code> column, and ignores send/open/click/location statistics.</p>' +
+    '<label class="field-label" for="impFile">CSV file</label><input id="impFile" class="input" type="file" accept=".csv,text/csv" style="margin-bottom:10px">' +
+    '<textarea id="impCsv" class="ta" style="min-height:145px;font-size:12px" placeholder="email,name,batch,status&#10;someone@example.com,Someone,2019,active"></textarea>' +
+    '<p class="hint" style="margin-top:8px">Unsubscribed, bounced, junk, unconfirmed, and unknown statuses are excluded. If the CSV has no status column, import only if it is an export of currently subscribed people. Importing never sends an email.</p>',
+    '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goImport">Review import</button>');
+  const fileInput = m.querySelector('#impFile');
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0]; if (!file) return;
+    try {
+      m.querySelector('#impCsv').value = await file.text();
+      toast('Loaded ' + file.name + ' — review before importing.');
+    } catch (e) { toast('Could not read that CSV file.', 'err'); }
+  });
   m.querySelector('#goImport').addEventListener('click', async (ev) => {
     const btn = ev.currentTarget;
-    const rows = csvToRows(m.querySelector('#impCsv').value);
-    if (!rows.length) { toast('No valid rows found (need an email column).', 'warn'); return; }
+    const parsed = csvToRows(m.querySelector('#impCsv').value);
+    if (!parsed.rows.length) { toast('No valid email rows found. Check for an email or Subscriber column.', 'warn'); return; }
+    const noStatus = !parsed.hasStatus;
+    const summary = '<p><strong>' + parsed.rows.length + ' active-looking email(s)</strong> are ready to import.</p>' +
+      '<p>Duplicates in this file: ' + parsed.duplicates + '. Invalid rows: ' + parsed.skippedInvalid + '. Inactive/unknown statuses excluded: ' + parsed.skippedInactive + '.</p>' +
+      (noStatus ? '<p style="color:var(--warn)"><strong>This CSV has no subscription-status column.</strong> Continue only if this is MailerLite’s current active/subscribed list; do not use an export containing unsubscribed people.</p>' : '<p>Rows without an active/subscribed status will not be imported.</p>') +
+      '<p>Matching account emails are added to the account subscriber list; unmatched emails become imported contacts. <strong>No email will be sent.</strong></p>';
+    const confirmed = await new Promise(resolve => {
+      const c = modal('Confirm subscriber import', summary,
+        '<button class="btn" data-close>Go back</button><button class="btn btn-primary" id="confirmImport">Import ' + parsed.rows.length + '</button>');
+      c.querySelector('#confirmImport').addEventListener('click', () => { $('modalHost').innerHTML = ''; resolve(true); });
+      c.querySelector('[data-close]').addEventListener('click', () => resolve(false));
+    });
+    if (!confirmed) return;
     btn.disabled = true; btn.textContent = 'Importing…';
     try {
-      const { data, error } = await supa.rpc('newsletter_admin_import', { p_pin: PIN, p_rows: rows });
+      const { data, error } = await supa.rpc('newsletter_admin_import', { p_pin: PIN, p_rows: parsed.rows });
       if (error) throw error;
       $('modalHost').innerHTML = '';
-      toast('Imported — ' + data.matched_accounts + ' matched accounts, ' + data.contacts_added + ' new contacts, ' + data.skipped + ' skipped.');
+      toast('Imported — ' + data.matched_accounts + ' matched accounts, ' + data.contacts_added + ' new contacts, ' + data.skipped + ' skipped.' + (parsed.skippedInactive ? ' ' + parsed.skippedInactive + ' inactive rows excluded.' : ''));
       loadSubs(); loadHistory();
-    } catch (err) { console.error(err); btn.disabled = false; btn.textContent = 'Import'; toast('Import failed: ' + (err.message || err), 'err'); }
+    } catch (err) { console.error(err); btn.disabled = false; btn.textContent = 'Review import'; toast('Import failed: ' + (err.message || err), 'err'); }
   });
 }
 
@@ -910,18 +1090,58 @@ $('pinForm').addEventListener('submit', async (e) => {
   }
 });
 
+async function uploadHeroFile(file) {
+  const status = $('heroStatus');
+  if (!file) return;
+  status.className = 'upload-status';
+  status.textContent = 'Checking image dimensions…';
+  try {
+    if (!supa) throw new Error('Unlock the mailer before uploading an image.');
+    if (!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('Choose a PNG, JPEG, or WebP image.');
+    if (file.size > 8 * 1024 * 1024) throw new Error('This image is larger than 8 MB. Please compress it before upload.');
+    const localUrl = URL.createObjectURL(file);
+    try { await readImageDimensions(localUrl); } finally { URL.revokeObjectURL(localUrl); }
+    status.textContent = 'Uploading to newsletter image storage…';
+    const ext = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+    const nonce = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+    const path = 'campaigns/' + Date.now() + '-' + nonce + '.' + ext;
+    const { error } = await supa.storage.from(MAILER.assetsBucket).upload(path, file, {
+      cacheControl:'31536000', contentType:file.type, upsert:false
+    });
+    if (error) {
+      if (/bucket.*not found|does not exist/i.test(error.message || '')) throw new Error('Image storage is not set up yet. Run supabase-newsletter-media.sql once, or paste a public HTTPS image URL instead.');
+      throw new Error(error.message || 'Upload failed.');
+    }
+    const { data } = supa.storage.from(MAILER.assetsBucket).getPublicUrl(path);
+    if (!data || !data.publicUrl) throw new Error('Upload finished, but Supabase did not return the public image URL.');
+    $('heroImageUrl').value = data.publicUrl;
+    $('heroImageUrl').dispatchEvent(new Event('input', { bubbles:true }));
+    if (!$('heroAlt').value.trim()) {
+      $('heroAlt').value = 'NGHSIANS newsletter hero image';
+      $('heroAlt').dispatchEvent(new Event('input', { bubbles:true }));
+    }
+    status.className = 'upload-status ok';
+    status.textContent = 'Uploaded and ready · 1920 × 1080';
+    refreshPreview();
+  } catch (e) {
+    status.className = 'upload-status err';
+    status.textContent = e.message || 'Could not upload this image.';
+    toast(status.textContent, 'err');
+  }
+}
+
 /* ---------------------------------------------------------------- wiring */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.tool[data-cmd]').forEach(b => b.addEventListener('click', () => exec(b.dataset.cmd)));
   document.querySelectorAll('.tool[data-block]').forEach(b => b.addEventListener('click', () => block(b.dataset.block)));
 
   $('linkBtn').addEventListener('click', () => {
-    const url = prompt('Link URL (https://…)');
-    if (url) { $('editor').focus(); try { document.execCommand('createLink', false, url); } catch (e) {} refreshPreview(); }
-  });
-  $('imgBtn').addEventListener('click', () => {
-    const url = prompt('Image URL (https://…)');
-    if (url) { $('editor').focus(); try { document.execCommand('insertHTML', false, '<img src="' + url.replace(/"/g, '%22') + '" alt="" style="max-width:100%;border-radius:8px"><p><br></p>'); } catch (e) {} refreshPreview(); }
+    const raw = prompt('Link URL (https://…, /account.html, or mailto:…)');
+    if (!raw) return;
+    try {
+      const url = normalizeLink(raw);
+      $('editor').focus(); document.execCommand('createLink', false, url); refreshPreview();
+    } catch (e) { toast(e.message || 'That link is not valid.', 'warn'); }
   });
   $('srcBtn').addEventListener('click', () => {
     const box = $('srcBox'), ed = $('editor'), on = !box.classList.contains('on');
@@ -931,18 +1151,52 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const TPLS = {
-    announce: '<h2>Announcement</h2><p>Write the news here. Keep it short — two or three lines is plenty.</p><p><br></p>',
-    event:    '<h2>Meetup</h2><p><strong>When:</strong> Friday, 4:00 pm<br><strong>Where:</strong> School field<br><strong>Bring:</strong> yourself</p><blockquote>Anyone from any batch is welcome.</blockquote><p><br></p>',
-    merch:    '<h2>Merch drop</h2><p>The new batch tee is live on the Merch page.</p><p><a href="https://nghsians.com/merch.html">See the store →</a></p><p><br></p>',
-    signout:  '<p style="color:#7d7768;font-size:13px">— The NGHSIANS team</p><p><br></p>'
+    announce: {
+      subject:'NGHSIANS Announcement', h1:'An update from NGHSIANS', h2:'Important news for our community',
+      body:'<p>Write the important update here. Keep the opening clear, then add any useful details below.</p><p><br></p>',
+      section:'What you need to know', button:'Read the update', url:'https://nghsians.com/'
+    },
+    event: {
+      subject:'You’re invited · NGHSIANS meetup', h1:'Let’s meet again', h2:'A day for our school community',
+      body:'<p><strong>When:</strong> Add the date and time<br><strong>Where:</strong> Add the location<br><strong>Bring:</strong> Yourself and your school memories</p><blockquote>Everyone from every batch is welcome.</blockquote><p><br></p>',
+      section:'Save your place', button:'Event details', url:'https://nghsians.com/'
+    },
+    merch: {
+      subject:'A new NGHSIANS merch drop', h1:'The new collection is here', h2:'Made for the memories we share',
+      body:'<p>Tell everyone what is new, what it costs, and when orders close.</p><p><br></p>',
+      section:'See the collection', button:'Visit the store', url:'https://nghsians.com/merch.html'
+    },
+    signout: {
+      subject:'A note from the NGHSIANS team', h1:'Until next time', h2:'Thank you for being part of this community',
+      body:'<p>Write your final note here.</p><p><br></p>',
+      section:'With appreciation', button:'Visit NGHSIANS', url:'https://nghsians.com/'
+    }
   };
   document.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => {
-    $('editor').focus();
-    try { document.execCommand('insertHTML', false, TPLS[b.dataset.tpl]); } catch (e) {}
-    refreshPreview();
+    const t = TPLS[b.dataset.tpl]; if (!t) return;
+    $('subject').value = t.subject; $('heading1').value = t.h1; $('heading2').value = t.h2;
+    setEditorHtml(t.body); $('sectionTitle').value = t.section;
+    $('buttonText').value = t.button; $('buttonUrl').value = t.url;
+    refreshPreview(); scheduleAutosave();
   }));
 
-  ['subject','preheader'].forEach(id => $(id).addEventListener('input', refreshPreview));
+  applyTheme('nghsians');
+  $('themeSelect').addEventListener('change', () => {
+    if ($('themeSelect').value === 'custom') refreshPreview();
+    else applyTheme($('themeSelect').value);
+  });
+  Object.values(COLOR_FIELDS).forEach(id => $(id).addEventListener('input', markCustomTheme));
+  ['headingFont','bodyFont','textAlign'].forEach(id => $(id).addEventListener('change', markCustomTheme));
+  $('heroFile').addEventListener('change', e => uploadHeroFile(e.target.files && e.target.files[0]));
+  $('heroImageUrl').addEventListener('input', () => {
+    const hasUrl = !!$('heroImageUrl').value.trim();
+    $('heroStatus').className = 'upload-status' + (hasUrl ? ' ok' : '');
+    $('heroStatus').textContent = hasUrl ? 'Image URL set · exact dimensions checked before sending' : 'No image selected yet.';
+    refreshPreview();
+  });
+  const composerInputs = ['subject','preheader','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'];
+  composerInputs.forEach(id => $(id).addEventListener('input', refreshPreview));
+  $('buttonNewTab').addEventListener('change', refreshPreview);
   $('editor').addEventListener('input', refreshPreview);
   $('srcBox').addEventListener('input', refreshPreview);
 
@@ -970,7 +1224,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('sendBtn').addEventListener('click', sendNewsletter);
   $('testBtn').addEventListener('click', sendTest);
-  $('diagBtn').addEventListener('click', diagnoseSender);
   $('refreshBtn').addEventListener('click', () => { loadSubs(); loadHistory(); toast('Refreshed.'); });
   $('histBtn').addEventListener('click', loadHistory);
   $('importBtn').addEventListener('click', openImport);
@@ -978,29 +1231,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('clearBtn').addEventListener('click', async () => {
     const ok = await new Promise(res => {
-      const m = modal('Clear the composer?', '<p>The subject, preview text and body will be emptied. Subscribers are untouched.</p>',
+      const m = modal('Clear the composer?', '<p>This clears campaign content and the hero image URL. Your theme, recipient list and saved campaigns stay unchanged.</p>',
         '<button class="btn" data-close>Cancel</button><button class="btn btn-danger" id="goClear">Clear it</button>');
       m.querySelector('#goClear').addEventListener('click', () => { $('modalHost').innerHTML = ''; res(true); });
       m.querySelector('[data-close]').addEventListener('click', () => res(false));
     });
     if (!ok) return;
-    $('subject').value = ''; $('preheader').value = ''; setEditorHtml(''); refreshPreview();
+    ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = '');
+    $('heroFile').value = ''; $('heroStatus').className = 'upload-status'; $('heroStatus').textContent = 'No image selected yet.';
+    $('buttonNewTab').checked = true; setEditorHtml(''); refreshPreview(); saveDraftSilently();
   });
 
-  // Drafts live in this browser only — handy if you get interrupted mid-write.
+  // Drafts stay in this browser only; no subscriber data or login credentials are saved.
   const DRAFT = 'nghsmailer_draft';
-  $('saveDraft').addEventListener('click', () => {
-    try {
-      localStorage.setItem(DRAFT, JSON.stringify({ subject: $('subject').value, preheader: $('preheader').value, body: editorHtml() }));
-      toast('Draft saved in this browser.');
-    } catch (e) { toast('Could not save the draft.', 'err'); }
-  });
+  const draftSnapshot = () => {
+    const d = designValues();
+    return {
+      version:2, subject:$('subject').value, preheader:$('preheader').value,
+      theme:d.theme, colors:d.colors, headingFont:d.headingFont, bodyFont:d.bodyFont, align:d.align,
+      heroImageUrl:$('heroImageUrl').value, heroAlt:$('heroAlt').value,
+      heading1:$('heading1').value, heading2:$('heading2').value, body:editorHtml(),
+      sectionTitle:$('sectionTitle').value, buttonText:$('buttonText').value,
+      buttonUrl:$('buttonUrl').value, buttonNewTab:$('buttonNewTab').checked
+    };
+  };
+  const saveDraftSilently = () => {
+    try { localStorage.setItem(DRAFT, JSON.stringify(draftSnapshot())); } catch (e) {}
+  };
+  let autosaveTimer;
+  const scheduleAutosave = () => { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveDraftSilently, 650); };
+  [...composerInputs,'heroImageUrl','editor','srcBox','buttonNewTab'].forEach(id => $(id).addEventListener('input', scheduleAutosave));
+  Object.values(COLOR_FIELDS).forEach(id => $(id).addEventListener('input', scheduleAutosave));
+  ['themeSelect','headingFont','bodyFont','textAlign'].forEach(id => $(id).addEventListener('change', scheduleAutosave));
+  $('saveDraft').addEventListener('click', () => { saveDraftSilently(); toast('Draft saved in this browser.'); });
   try {
     const d = JSON.parse(localStorage.getItem(DRAFT) || 'null');
     if (d) {
-      $('subject').value = d.subject || '';
-      $('preheader').value = d.preheader || '';
+      if (d.theme && d.theme !== 'custom' && THEME_PRESETS[d.theme]) applyTheme(d.theme);
+      if (d.colors) Object.entries(COLOR_FIELDS).forEach(([key,id]) => { if (/^#[0-9a-f]{6}$/i.test(d.colors[key] || '')) $(id).value = d.colors[key]; });
+      if (d.headingFont) $('headingFont').value = d.headingFont;
+      if (d.bodyFont) $('bodyFont').value = d.bodyFont;
+      if (d.align) $('textAlign').value = d.align === 'left' ? 'left' : 'center';
+      $('themeSelect').value = d.theme || 'nghsians';
+      ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = d[id] || '');
+      $('buttonNewTab').checked = d.buttonNewTab !== false;
       setEditorHtml(d.body || '');
+      if (d.heroImageUrl) { $('heroStatus').className = 'upload-status ok'; $('heroStatus').textContent = 'Saved image URL · dimensions checked before sending'; }
       refreshPreview();
       toast('Draft restored.');
     }

@@ -1,6 +1,6 @@
 # Newsletter → Account merge
 
-**Date:** 2026-10-12 · **Status:** code done, pending the Supabase migration + one deploy
+**Date:** 2026-10-12 · **Status:** account/signup migration in place; refreshed mailer composer awaiting review, media-bucket setup and function redeploy
 
 The standalone Newsletter (the MailerLite embed) is **gone**. The NGHSIANS account *is* the
 subscription now: if you have an account, you're on the list, at the email you log in with.
@@ -25,6 +25,8 @@ No other page changed visually. `27form.html` was **not touched**, exactly as as
 | `mailer.html` | PIN-locked committee mailer (compose, preview, recipients, send, history, CSV import) |
 | `unsubscribe.html` | the public one-click unsubscribe page linked from every email footer |
 | `supabase/functions/send-newsletter/index.ts` | Supabase Edge Function that actually sends the mail (Resend) |
+| `supabase-newsletter-media.sql` | admin-only image upload policy + public-read bucket required for email images |
+| `assets/mailer/logo.png`, `assets/mailer/footer-logo.png` | the two Mail Files Drive logos used by the mailer and the generated email footer |
 | `account.html` | consent checkbox on signup, one-time notice popup, newsletter row + Edit toggle |
 
 ---
@@ -65,9 +67,10 @@ Every existing account should be `opt_in = true, notified = false, source = 'leg
 `notified = false` is deliberate — it is what fires the popup.
 
 ### 3 · Import the MailerLite subscribers
-Open `mailer.html` → **⇪ Import** → paste the CSV export → **Import**.
-Emails that match an account get opted in on that account; the rest become imported
-contacts and still receive news.
+Open `mailer.html` → **⇪ Import** → choose the CSV or paste its contents → review the import summary → confirm.
+The importer recognizes both an `email` column and MailerLite's `Subscriber` column, de-duplicates addresses, and ignores open/click/location analytics. If a status column exists, only active/subscribed/confirmed records are imported; unsubscribed, bounced, junk and unknown statuses are skipped. If the file has no status column, the panel warns you to verify it is an active-subscriber export before proceeding. Matching emails join their account; others become imported contacts. An account with an explicit unsubscribe is skipped rather than re-added as a separate contact. Importing never sends mail.
+
+Do not add the CSV or subscriber addresses to GitHub. They are private contact data; the CSV stays in Drive and is imported through the PIN-locked panel.
 
 ### 4 · Deploy the sender (only needed to actually send)
 **4a · the API key** — Supabase → Project Settings → Edge Functions → Secrets →
@@ -94,6 +97,8 @@ add the SPF/DKIM/DMARC records it gives you. Then set `MAILER.from` in `mailer.h
 to an address on that domain. Mail sent from an unverified or mismatched From address
 is silently dumped in spam, and bulk mail from a `gmail.com` address is worse still.
 
+**4d · hero-image uploads** — run `supabase-newsletter-media.sql` once in the SQL Editor. It creates a public-read `newsletter-media` bucket (email apps must be able to load images) while restricting uploads to signed-in newsletter admins. The bucket accepts PNG, JPEG, and WebP up to 8 MB. Uploaded campaign images must be exactly **1920 × 1080**; the editor also accepts an already-public HTTPS image URL.
+
 ### 5 · Change the mailer PIN
 ```sql
 update public.app_secrets set value = 'YOUR-NEW-PIN' where key = 'mailer_pin';
@@ -104,6 +109,21 @@ in `mailer.html`'s source, so view-source can't reveal it (unlike the 27rep pane
 ### 6 · Turn MailerLite off
 Once the first send has gone out cleanly, cancel the MailerLite account / delete the
 form so nobody doubles up.
+
+---
+
+## Mailer design builder
+
+The compose panel now produces a single-column, centered, 600px email with a fixed order: required 1920 × 1080 hero image at the top, branded masthead, Heading 1, subheading, detailed message, section subheading, call-to-action button, then the branded footer. The CTA text, URL and requested tab target are editable; the new-tab preference is advisory because many email apps control link-opening behavior themselves.
+
+Two presets are included:
+
+- **NGHSIANS** — the existing charcoal, gold and red identity; DM Sans and Anton are the defaults.
+- **60th Sign Day** — paper, ink, deep red and gold inspired by `27form.html`, `27rep.html`, and the 60th Sign Day card in `index.html`.
+
+Every palette role is editable (canvas, card, text, muted text, accents, button and footer); heading/body fonts can be changed. Center alignment is the default, with left alignment available. The email uses table-based structure, inline styles, alt text, desktop/mobile preview, a test send, local draft autosave, and per-recipient name/batch/email merge tags. The footer follows the Drive reference order (logo, social links, brand, copy, unsubscribe) and keeps its line verbatim: “You received this email because you signed up on our website.” A per-person unsubscribe URL and account-preferences link are included. The full HTML is generated before sending so preview and delivered content use the same layout.
+
+These decisions follow established builders' useful patterns—saved/reusable content blocks and responsive previews—while keeping this campaign structure intentionally simple and reliable across email clients. See [Mailchimp's new builder guide](https://mailchimp.com/help/design-an-email-new-builder/) and [Litmus's accessibility checklist](https://www.litmus.com/blog/7-simple-tricks-to-make-your-email-code-more-accessible) for the reference patterns (responsive preview, semantic structure, alt text, readable color contrast).
 
 ---
 
@@ -118,6 +138,7 @@ newsletter_tokens          → per-account secret unsubscribe token (no client a
 newsletter_contacts        → imported people with no account
 newsletter_send_log        → one row per send
 app_secrets                → mailer_pin
+storage.buckets            → newsletter-media (public email-image reads; admin-only campaign uploads)
 ```
 
 **Why a separate token table?** `verified_profiles` is readable with the anon key (the
@@ -153,12 +174,12 @@ view. It needs checking against `account.html`'s network panel and `27rep.html` 
 
 ---
 
-## Still needed from you
+## Remaining rollout steps
 
 | # | Item | Blocking |
 |---|---|---|
-| 1 | Run `supabase-newsletter-merge.sql` in the Supabase SQL editor | everything |
-| 2 | MailerLite subscriber export (CSV, or just a list of emails) | importing the old list |
-| 3 | Create a Resend account + add the `RESEND_API_KEY` secret | sending |
-| 4 | Verify `nghsians.com` in Resend and add its DNS records | deliverability |
-| 5 | Confirm the mailer PIN (default is in section 6 of the SQL) | opening mailer.html |
+| 1 | After merge, safely rerun `supabase-newsletter-merge.sql` (updates the importer opt-out guard), then deploy the updated `send-newsletter` Edge Function | importer safety + full-render email delivery |
+| 2 | Run `supabase-newsletter-media.sql` once in the SQL Editor | in-panel hero-image uploads (public HTTPS URLs can still be pasted) |
+| 3 | Confirm that the Mail Files CSV is the current active/subscribed list before importing; it has no status column | safe import of the legacy contacts |
+| 4 | Send a test and check the delivered message in desktop and mobile inboxes | production send confidence |
+| 5 | After the first clean campaign, retire the MailerLite account/form to avoid double opt-ins | MailerLite shutdown |

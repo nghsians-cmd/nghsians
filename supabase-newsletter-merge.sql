@@ -202,10 +202,10 @@ revoke all on function public.newsletter_admin_history(text, int) from public;
 grant execute on function public.newsletter_admin_history(text, int) to anon, authenticated, service_role;
 
 
-/* ── 14. Admin: import MailerLite subscribers (skips duplicates) ────────────
-      Paste a MailerLite export here. Anyone whose email already has an
-      account gets newsletter_opt_in = true on that account; everyone else is
-      inserted into newsletter_contacts.                                       */
+/* ── 14. Admin: import MailerLite subscribers (skips duplicates/opt-outs) ───
+      Paste a verified active-subscriber export here. An account without an
+      explicit opt-out is joined; an unsubscribed account is skipped (never
+      re-added as a separate contact). Other addresses become contacts.        */
 create or replace function public.newsletter_admin_import(p_pin text, p_rows json) returns json language plpgsql security definer set search_path = public as $fn$
 declare r json; v_email text; v_name text; v_batch text; matched int := 0; inserted int := 0; skipped int := 0;
 begin
@@ -222,6 +222,10 @@ begin
            newsletter_source = coalesce(newsletter_source, 'import')
      where lower(email) = v_email and newsletter_unsubscribed_at is null;
     if found then matched := matched + 1;
+    elsif exists (select 1 from public.verified_profiles where lower(email) = v_email) then
+      -- Never bypass an account's explicit opt-out by inserting the same
+      -- address as a separate imported contact.
+      skipped := skipped + 1;
     else
       insert into public.newsletter_contacts (email, name, batch_year, source)
       values (v_email, v_name, v_batch, 'mailerlite-import')

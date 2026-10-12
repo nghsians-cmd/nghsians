@@ -37,7 +37,6 @@ const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://nghsians.com';
 const BRAND = 'NGHSIANS';
-const TAGLINE = 'Nasirabad Government High School · Chattogram';
 const BATCH_SIZE = 100;          // Resend accepts 100 emails per request
 const BATCH_PAUSE_MS = 600;      // stay under 2 requests/second
 
@@ -61,42 +60,8 @@ function fill(html: string, r: Recipient) {
   return String(html)
     .replace(/\{\{\s*name\s*\}\}/gi, esc(r.name || 'there'))
     .replace(/\{\{\s*batch\s*\}\}/gi, esc(r.batch || ''))
-    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''));
-}
-
-/* Keep in step with emailShell() in mailer.html — that one renders the preview,
-   this one renders the mail that goes out. Change both together. */
-function shell(o: { subject: string; preheader: string; body: string; unsub: string }): string {
-  const pre = o.preheader
-    ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(o.preheader)}</div>`
-    : '';
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(o.subject)}</title></head>
-<body style="margin:0;padding:0;background:#0b0c0d">
-${pre}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b0c0d;padding:26px 12px">
-<tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#121316;border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;font-family:'DM Sans',Helvetica,Arial,sans-serif">
-  <tr><td style="height:3px;background:linear-gradient(90deg,#FFEB80,#710C04,#FFEB80);font-size:0;line-height:0">&nbsp;</td></tr>
-  <tr><td style="padding:26px 30px 20px;text-align:center;background:#0f1013;border-bottom:1px solid rgba(255,255,255,.07)">
-    <div style="font-family:Anton,Impact,sans-serif;font-size:27px;letter-spacing:2px;color:#F3ECD9;text-transform:uppercase">${esc(BRAND)}</div>
-    <div style="font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:rgba(255,235,128,.75);margin-top:5px">Newsletter</div>
-  </td></tr>
-  <tr><td style="padding:26px 30px 8px">
-    <h1 style="font-family:Anton,Impact,sans-serif;font-size:23px;line-height:1.25;margin:0 0 16px;color:#F3ECD9">${esc(o.subject)}</h1>
-    <div style="font-size:15px;line-height:1.75;color:#d8d2c4">${o.body}</div>
-  </td></tr>
-  <tr><td style="padding:22px 30px 26px">
-    <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:18px;font-size:12px;line-height:1.7;color:#7d7768;text-align:center">
-      <strong style="color:rgba(255,235,128,.8)">${esc(BRAND)}</strong> · ${esc(TAGLINE)}<br>
-      You are getting this because you have an NGHSIANS account (or asked for news) at
-      <a href="${esc(SITE_URL)}" style="color:#7d7768">${esc(SITE_URL.replace(/^https?:\/\//, ''))}</a>.<br>
-      <a href="${esc(o.unsub)}" style="color:#8a8474;text-decoration:underline">Unsubscribe</a>
-      &nbsp;·&nbsp; <a href="${esc(SITE_URL)}/account.html" style="color:#8a8474;text-decoration:underline">Manage preferences</a>
-    </div>
-  </td></tr>
-</table>
-</td></tr></table></body></html>`;
+    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''))
+    .replace(/\{\{\s*unsubscribe_url\s*\}\}/gi, esc(unsubUrl(r.unsub_token ?? '')));
 }
 
 interface Recipient { email: string; name?: string; batch?: string; unsub_token?: string }
@@ -108,10 +73,16 @@ interface Payload {
 /* --------------------------------------------------------- the only Resend call */
 async function deliver(batch: { from: string; reply_to: string; to: string[]; subject: string; html: string }[]) {
   if (!RESEND_API_KEY) throw new Error('RESEND_API_KEY is not set — run: supabase secrets set RESEND_API_KEY=re_…');
-  const res = await fetch('https://api.resend.com/emails', {
+  // Resend's /emails endpoint accepts ONE email object; arrays must go to
+  // /emails/batch. Tests and fallback retries have one item, so send those as
+  // an object too. Posting a one-item array to /emails is rejected by Resend.
+  const isBatch = batch.length > 1;
+  const endpoint = isBatch ? 'https://api.resend.com/emails/batch' : 'https://api.resend.com/emails';
+  const payload = isBatch ? batch : batch[0];
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(batch),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -156,7 +127,6 @@ Deno.serve(async (req: Request) => {
 
     /* 3 · payload ---------------------------------------------------------- */
     const subject = String(body.subject ?? '').trim();
-    const preheader = String(body.preheader ?? '').trim();
     const htmlBody = String(body.body ?? '').trim();
     const recipients = (body.recipients ?? []).filter((r) => r && r.email && r.email.includes('@'));
     if (!subject) return json({ error: 'Missing subject.' }, 400);
@@ -173,12 +143,8 @@ Deno.serve(async (req: Request) => {
       reply_to: replyTo,
       to: [r.email],
       subject,
-      html: shell({
-        subject,
-        preheader,
-        body: fill(htmlBody, r),
-        unsub: unsubUrl(r.unsub_token ?? ''),
-      }),
+      // mailer.html sends the complete responsive HTML (header, hero, CTA and footer).
+      html: fill(htmlBody, r),
     }));
 
     let sent = 0;
