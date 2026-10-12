@@ -253,6 +253,17 @@ td.name{color:var(--text);font-weight:600}
 .modal h3{font-family:var(--font-display);font-size:18px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.6px}
 .modal p{font-size:13px;color:var(--dim);line-height:1.6;margin:0 0 14px}
 .modal pre{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px;font-size:11px;overflow-x:auto;color:var(--dim);max-height:220px;overflow-y:auto}
+
+/* ---------- hero cropper ---------- */
+.cropper-modal{max-width:540px}
+.crop-stage{position:relative;margin:12px auto;background:#0b0c0d;border:1px solid var(--line-hi);overflow:hidden;user-select:none}
+.crop-img{display:block;position:absolute;top:0;left:0;pointer-events:none}
+.crop-box{position:absolute;border:1px solid rgba(255,235,128,.95);box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;touch-action:none}
+.crop-box .ch{position:absolute;width:12px;height:12px;background:rgba(255,235,128,1);border:1px solid #000;border-radius:2px}
+.crop-box .nw{left:-6px;top:-6px;cursor:nwse-resize}.crop-box .n{left:50%;top:-6px;margin-left:-6px;cursor:ns-resize}.crop-box .ne{right:-6px;top:-6px;cursor:nesw-resize}
+.crop-box .e{right:-6px;top:50%;margin-top:-6px;cursor:ew-resize}.crop-box .se{right:-6px;bottom:-6px;cursor:nwse-resize}.crop-box .s{left:50%;bottom:-6px;margin-left:-6px;cursor:ns-resize}
+.crop-box .sw{left:-6px;bottom:-6px;cursor:nesw-resize}.crop-box .w{left:-6px;top:50%;margin-top:-6px;cursor:ew-resize}
+.crop-controls{margin-top:10px}
 </style>
 </head>
 <body>
@@ -360,21 +371,22 @@ td.name{color:var(--text);font-weight:600}
           </div>
 
           <div class="builder-section">
-            <div class="builder-step"><span>01</span><div><b>Hero image <i class="required-mark">required</i></b><small>Always appears first in the email. Use a landscape image exactly 1920 × 1080.</small></div></div>
+            <div class="builder-step"><span>01</span><div><b>Hero image <i class="required-mark">required</i></b><small>Appears first in the email. Any size works — after you choose a file, drag the edges and use the slider to crop and resize. The image is embedded in the email and never stored on Supabase.</small></div></div>
             <div class="upload-row">
               <label for="heroFile" class="btn btn-sm">＋ Choose image</label>
               <input id="heroFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp">
+              <button type="button" class="btn btn-sm" id="cropBtn" style="display:none">✂ Crop / resize</button>
               <span id="heroStatus" class="upload-status">No image selected yet.</span>
             </div>
             <div class="field">
-              <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(filled after upload; or paste a public HTTPS image URL)</span></label>
+              <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(or paste a public HTTPS image URL instead — nothing is stored either way)</span></label>
               <input id="heroImageUrl" class="input" type="url" placeholder="https://…" autocomplete="url">
             </div>
             <div class="field" style="margin-bottom:0">
               <label class="field-label" for="heroAlt">Describe the image for readers who can’t see it <span class="required-mark">*</span></label>
               <input id="heroAlt" class="input" placeholder="e.g. Students celebrating at Sign Day" maxlength="180">
             </div>
-            <p class="hint">The bucket is public-read for email delivery; only signed-in admins can upload. Run <code>supabase-newsletter-media.sql</code> once to enable uploads; a public HTTPS URL also works.</p>
+            <p class="hint">Images are embedded directly inside each email (inline), so nothing is kept on Supabase and the picture travels with the message and disappears after send. You can also paste a public HTTPS image URL.</p>
           </div>
 
           <div class="builder-section">
@@ -529,6 +541,7 @@ const MAILER = {
 
 const EMAIL_KEY = 'nghsmailer_email';
 let supa = null, PIN = '', subscribers = [], selected = new Set();
+let heroInline = null, heroMode = 'none', heroOriginal = null;  // heroMode: 'none' | 'url' | 'inline'
 let hasSession = false;   // already signed in → only the PIN is asked for
 
 /* ------------------------------------------------------------------ helpers */
@@ -615,7 +628,7 @@ function normalizeLink(raw) {
 }
 function normalizeHeroUrl(raw) {
   const value = String(raw || '').trim();
-  if (!value) throw new Error('Add the required 1920 × 1080 hero image first.');
+  if (!value) throw new Error('Add the required hero image first (upload a file or paste a public HTTPS image URL).');
   let parsed;
   try { parsed = new URL(value, MAILER.siteUrl); }
   catch (e) { throw new Error('Use a public HTTPS image URL or upload the image to newsletter storage.'); }
@@ -652,7 +665,8 @@ function editorText() {
 }
 function getComposerError() {
   if (!$('subject').value.trim()) return 'Add a subject line first.';
-  try { normalizeHeroUrl($('heroImageUrl').value); } catch (e) { return e.message; }
+  const hero = validateHero();
+  if (!hero.ok) return hero.msg;
   if (!$('heroAlt').value.trim()) return 'Add a short description for the hero image (alt text).';
   if (!$('heading1').value.trim()) return 'Add Heading 1.';
   if (!$('heading2').value.trim()) return 'Add the subheading.';
@@ -662,25 +676,27 @@ function getComposerError() {
   try { normalizeLink($('buttonUrl').value); } catch (e) { return e.message; }
   return '';
 }
-function readImageDimensions(src) {
+/* Loads an image's natural dimensions without enforcing any size. The hero is
+   now free-form — any dimensions are accepted; cropping/resizing happens in the
+   in-email cropper and the image is embedded inline (never stored on Supabase). */
+function loadImageInfo(src) {
   return new Promise((resolve,reject) => {
     const img = new Image();
-    const timer = setTimeout(() => reject(new Error('The hero image took too long to load. Use a public HTTPS image URL.')), 15000);
-    img.onload = () => {
-      clearTimeout(timer);
-      if (img.naturalWidth !== 1920 || img.naturalHeight !== 1080) {
-        reject(new Error('The hero image must be exactly 1920 × 1080 pixels; this one is ' + img.naturalWidth + ' × ' + img.naturalHeight + '.'));
-      } else resolve({width:img.naturalWidth,height:img.naturalHeight});
-    };
-    img.onerror = () => { clearTimeout(timer); reject(new Error('Could not load the hero image. Check that its HTTPS URL is public and works outside your Drive.')); };
+    const timer = setTimeout(() => reject(new Error('The image took too long to load. Use a public HTTPS image URL.')), 15000);
+    img.onload = () => { clearTimeout(timer); resolve({ width: img.naturalWidth, height: img.naturalHeight }); };
+    img.onerror = () => { clearTimeout(timer); reject(new Error('Could not load the image. Check that its HTTPS URL is public and works outside your Drive.')); };
     img.referrerPolicy = 'no-referrer';
     img.src = src;
   });
 }
-function checkImageDimensions(src) {
-  return readImageDimensions(normalizeHeroUrl(src));
+/* Hero is either an embedded (inline) image or a public URL — no fixed size and
+   no Supabase storage. Returns { ok:true } or { ok:false, msg }. */
+function validateHero() {
+  if (heroMode === 'inline' && heroInline) return { ok:true };
+  try { normalizeHeroUrl($('heroImageUrl').value); return { ok:true }; }
+  catch (e) { return { ok:false, msg: e.message }; }
 }
-function emailShell() {
+function emailShell(forPreview) {
   const d = designValues(), c = d.colors;
   const themeIsSignDay = d.theme === 'signday60';
   const headerLogo = MAILER.logoUrl;
@@ -688,8 +704,12 @@ function emailShell() {
   const headerSub = themeIsSignDay ? 'BATCH 2027 · IT’S NOW OR NEVER' : 'NEWS FROM THE NGHSIANS COMMUNITY';
   const subject = $('subject').value.trim() || 'NGHSIANS Update';
   const preheader = $('preheader').value.trim();
-  let heroUrl = '';
-  try { heroUrl = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
+  let heroSrc = '';
+  if (heroMode === 'inline' && heroInline) {
+    heroSrc = forPreview ? heroInline.dataUrl : 'cid:hero';
+  } else {
+    try { heroSrc = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
+  }
   const heroAlt = $('heroAlt').value.trim() || 'NGHSIANS newsletter image';
   const h1 = $('heading1').value.trim() || 'Your main headline';
   const h2 = $('heading2').value.trim() || 'A short supporting line';
@@ -702,9 +722,9 @@ function emailShell() {
   const align = d.align;
   const button = `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:20px auto 0"><tr><td align="center" bgcolor="${c.button}" style="border:1px solid ${c.accent2};border-radius:6px"><a href="${esc(buttonHref)}" target="${target}" rel="noopener" style="display:inline-block;padding:15px 26px;min-width:150px;color:${c.buttonText};font-family:${d.bodyFont};font-size:15px;line-height:1.2;font-weight:700;text-decoration:none;text-align:center;border-radius:6px">${esc(buttonText)}</a></td></tr></table>`;
   const pre = preheader ? `<div style="display:none!important;max-height:0;max-width:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all">${esc(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>` : '';
-  const hero = heroUrl
-    ? `<img src="${esc(heroUrl)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">`
-    : `<div style="padding:70px 18px;background:${c.accent2};color:${c.buttonText};font-family:${d.bodyFont};font-size:13px;font-weight:700;text-align:center">Required 1920 × 1080 hero image will appear here</div>`;
+  const hero = heroSrc
+    ? `<img src="${esc(heroSrc)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">`
+    : `<div style="padding:70px 18px;background:${c.accent2};color:${c.buttonText};font-family:${d.bodyFont};font-size:13px;font-weight:700;text-align:center">Required hero image will appear here</div>`;
   const signDayRibbon = themeIsSignDay
     ? `<tr><td align="center" style="padding:11px 22px;background:${c.accent};color:${c.buttonText};font-family:${d.headingFont};font-size:12px;letter-spacing:2px;text-transform:uppercase">60TH SIGN DAY · BATCH 2027</td></tr>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><title>${esc(subject)}</title></head>
@@ -742,7 +762,7 @@ ${button}
 function refreshPreview() {
   const demo = { name:'Rahim', batch_year:'2019', email:'rahim@example.com', unsub_token:'preview' };
   const f = $('preview');
-  f.srcdoc = fillPreviewPlaceholders(emailShell(), demo);
+  f.srcdoc = fillPreviewPlaceholders(emailShell(true), demo);
   f.style.maxWidth = '';
   f.style.margin = '';
   if (f.dataset.view === 'mobile') { f.style.maxWidth = '390px'; f.style.margin = '0 auto'; }
@@ -873,9 +893,16 @@ async function sendNewsletter() {
   const recips = currentRecipients();
   if (error) { toast(error, 'warn'); return; }
   if (!recips.length) { toast('No recipients selected.', 'warn'); return; }
-  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
-  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
-  const body = emailShell();
+  const hero = validateHero();
+  if (!hero.ok) { toast(hero.msg || 'Check the hero image.', 'err'); return; }
+  const body = emailShell(false);
+  const attachments = heroInline ? [{
+    filename: heroInline.filename,
+    content: heroInline.base64,
+    content_type: heroInline.contentType,
+    content_id: 'hero',
+    disposition: 'inline'
+  }] : [];
 
   const ok = await new Promise(res => {
     const m = modal('Send to ' + recips.length + ' people?',
@@ -895,7 +922,7 @@ async function sendNewsletter() {
 
   let result;
   try {
-    const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload });
+    const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload, attachments });
     if (!res.ok) {
       // Keep the gateway response so we can distinguish auth, deployment,
       // network and provider errors without guessing.
@@ -932,15 +959,19 @@ async function sendTest() {
   const subject = $('subject').value.trim();
   const error = getComposerError();
   if (error) { toast(error, 'warn'); return; }
-  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
-  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
-  const body = emailShell();
+  const hero = validateHero();
+  if (!hero.ok) { toast(hero.msg || 'Check the hero image.', 'err'); return; }
+  const body = emailShell(false);
+  const attachments = heroInline ? [{
+    filename: heroInline.filename, content: heroInline.base64,
+    content_type: heroInline.contentType, content_id: 'hero', disposition: 'inline'
+  }] : [];
   const btn = $('testBtn');
   const was = btn.textContent;
   btn.disabled = true; btn.textContent = 'Sending…';
   const res = await edgeFetch({
     pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(),
-    body, from: MAILER.from, replyTo: MAILER.replyTo,
+    body, from: MAILER.from, replyTo: MAILER.replyTo, attachments,
     recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }]
   });
   btn.disabled = false; btn.textContent = was;
@@ -1090,44 +1121,151 @@ $('pinForm').addEventListener('submit', async (e) => {
   }
 });
 
-async function uploadHeroFile(file) {
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Could not read the file.'));
+    r.readAsDataURL(file);
+  });
+}
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+/* Choose a file → read it in the browser → open the crop/resize modal. The result
+   is embedded inline in the email (CID attachment) so it is NEVER stored on
+   Supabase and disappears after the send. */
+async function handleHeroFile(file) {
   const status = $('heroStatus');
   if (!file) return;
   status.className = 'upload-status';
-  status.textContent = 'Checking image dimensions…';
+  status.textContent = 'Reading image…';
   try {
-    if (!supa) throw new Error('Unlock the mailer before uploading an image.');
     if (!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('Choose a PNG, JPEG, or WebP image.');
-    if (file.size > 8 * 1024 * 1024) throw new Error('This image is larger than 8 MB. Please compress it before upload.');
-    const localUrl = URL.createObjectURL(file);
-    try { await readImageDimensions(localUrl); } finally { URL.revokeObjectURL(localUrl); }
-    status.textContent = 'Uploading to newsletter image storage…';
-    const ext = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
-    const nonce = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
-    const path = 'campaigns/' + Date.now() + '-' + nonce + '.' + ext;
-    const { error } = await supa.storage.from(MAILER.assetsBucket).upload(path, file, {
-      cacheControl:'31536000', contentType:file.type, upsert:false
+    if (file.size > 8 * 1024 * 1024) throw new Error('This image is larger than 8 MB. Please compress it first.');
+    const dataUrl = await fileToDataUrl(file);
+    heroOriginal = dataUrl;
+    openCropper(dataUrl, (result) => {
+      heroInline = result;
+      heroMode = 'inline';
+      $('heroImageUrl').value = 'Embedded image (sent inline, not stored)';
+      $('heroImageUrl').dispatchEvent(new Event('input', { bubbles:true }));
+      if (!$('heroAlt').value.trim()) { $('heroAlt').value = 'NGHSIANS newsletter hero image'; $('heroAlt').dispatchEvent(new Event('input', { bubbles:true })); }
+      $('cropBtn').style.display = '';
+      status.className = 'upload-status ok';
+      status.textContent = 'Embedded · ' + result.width + ' × ' + result.height + ' (not stored on Supabase)';
+      refreshPreview();
+    }, (errMsg) => {
+      status.className = 'upload-status err';
+      status.textContent = errMsg;
+      toast(errMsg, 'err');
     });
-    if (error) {
-      if (/bucket.*not found|does not exist/i.test(error.message || '')) throw new Error('Image storage is not set up yet. Run supabase-newsletter-media.sql once, or paste a public HTTPS image URL instead.');
-      throw new Error(error.message || 'Upload failed.');
-    }
-    const { data } = supa.storage.from(MAILER.assetsBucket).getPublicUrl(path);
-    if (!data || !data.publicUrl) throw new Error('Upload finished, but Supabase did not return the public image URL.');
-    $('heroImageUrl').value = data.publicUrl;
-    $('heroImageUrl').dispatchEvent(new Event('input', { bubbles:true }));
-    if (!$('heroAlt').value.trim()) {
-      $('heroAlt').value = 'NGHSIANS newsletter hero image';
-      $('heroAlt').dispatchEvent(new Event('input', { bubbles:true }));
-    }
-    status.className = 'upload-status ok';
-    status.textContent = 'Uploaded and ready · 1920 × 1080';
-    refreshPreview();
   } catch (e) {
     status.className = 'upload-status err';
-    status.textContent = e.message || 'Could not upload this image.';
+    status.textContent = e.message || 'Could not read this image.';
     toast(status.textContent, 'err');
   }
+}
+
+/* In-email crop + resize. Drag the box edges to crop; the slider sets the final
+   pixel size. Exports a compressed JPEG so the embedded copy stays small. */
+function openCropper(src, onDone, onError) {
+  const img = new Image();
+  img.onload = () => {
+    const natW = img.naturalWidth, natH = img.naturalHeight;
+    const STAGE_W = 460, STAGE_H = 340;
+    const dispScale = Math.min(STAGE_W / natW, STAGE_H / natH);
+    const dispW = Math.round(natW * dispScale), dispH = Math.round(natH * dispScale);
+    let box = { x:0, y:0, w:dispW, h:dispH };
+    let outScale = 1;
+    const host = $('modalHost');
+    host.innerHTML = '<div class="modal-mask"><div class="modal cropper-modal">' +
+      '<h3>Adjust hero image</h3>' +
+      '<p class="hint">Drag the edges of the box to crop. Use the slider to resize the final image. The result is embedded in the email.</p>' +
+      '<div class="crop-stage" style="width:' + STAGE_W + 'px;height:' + STAGE_H + 'px">' +
+        '<img class="crop-img" src="' + src + '" style="width:' + dispW + 'px;height:' + dispH + 'px">' +
+        '<div class="crop-box" id="cropBox">' +
+          '<span class="ch nw" data-h="nw"></span><span class="ch n" data-h="n"></span><span class="ch ne" data-h="ne"></span>' +
+          '<span class="ch e" data-h="e"></span><span class="ch se" data-h="se"></span><span class="ch s" data-h="s"></span>' +
+          '<span class="ch sw" data-h="sw"></span><span class="ch w" data-h="w"></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="crop-controls">' +
+        '<label class="field-label">Resize output <span id="cropDim" class="muted"></span></label>' +
+        '<input id="cropScale" type="range" min="25" max="150" value="100" style="width:100%">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">' +
+        '<button class="btn" id="cropCancel">Cancel</button>' +
+        '<button class="btn btn-primary" id="cropApply">Use this image</button>' +
+      '</div>' +
+    '</div></div>';
+    const boxEl = host.querySelector('#cropBox');
+    const scaleInput = host.querySelector('#cropScale');
+    const dimEl = host.querySelector('#cropDim');
+    function placeBox() {
+      boxEl.style.left = box.x + 'px'; boxEl.style.top = box.y + 'px';
+      boxEl.style.width = box.w + 'px'; boxEl.style.height = box.h + 'px';
+      updateDim();
+    }
+    function updateDim() {
+      const sw = Math.round(box.w / dispScale), sh = Math.round(box.h / dispScale);
+      dimEl.textContent = Math.round(sw * outScale) + ' × ' + Math.round(sh * outScale) + ' px';
+    }
+    placeBox();
+    let mode = null, start = null;
+    function onDown(e) {
+      const h = e.target.dataset ? e.target.dataset.h : null;
+      mode = h || 'move';
+      start = { px:e.clientX, py:e.clientY, box:{ x:box.x, y:box.y, w:box.w, h:box.h } };
+      e.preventDefault();
+    }
+    function onMove(e) {
+      if (!mode) return;
+      const dx = e.clientX - start.px, dy = e.clientY - start.py;
+      const b = { x:start.box.x, y:start.box.y, w:start.box.w, h:start.box.h };
+      if (mode === 'move') {
+        b.x = clamp(b.x + dx, 0, dispW - b.w); b.y = clamp(b.y + dy, 0, dispH - b.h);
+      } else {
+        if (mode.indexOf('w') >= 0) { b.x = clamp(start.box.x + dx, 0, start.box.x + start.box.w - 20); b.w = start.box.w - (b.x - start.box.x); }
+        if (mode.indexOf('e') >= 0) { b.w = clamp(start.box.w + dx, 20, dispW - start.box.x); }
+        if (mode.indexOf('n') >= 0) { b.y = clamp(start.box.y + dy, 0, start.box.y + start.box.h - 20); b.h = start.box.h - (b.y - start.box.y); }
+        if (mode.indexOf('s') >= 0) { b.h = clamp(start.box.h + dy, 20, dispH - start.box.y); }
+      }
+      box = b; placeBox();
+    }
+    function onUp() { mode = null; }
+    function cleanup() { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); }
+    boxEl.addEventListener('pointerdown', onDown);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    scaleInput.addEventListener('input', () => { outScale = (+scaleInput.value) / 100; updateDim(); });
+    host.querySelector('#cropCancel').addEventListener('click', () => { cleanup(); host.innerHTML = ''; });
+    host.querySelector('#cropApply').addEventListener('click', () => {
+      try {
+        const sw = box.w / dispScale, sh = box.h / dispScale;
+        let ow = Math.round(sw * outScale), oh = Math.round(sh * outScale);
+        const CAP = 1400;
+        const m = Math.max(ow, oh);
+        if (m > CAP) { const k = CAP / m; ow = Math.round(ow * k); oh = Math.round(oh * k); }
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, ow); canvas.height = Math.max(1, oh);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, box.x / dispScale, box.y / dispScale, sw, sh, 0, 0, ow, oh);
+        canvas.toBlob((blob) => {
+          if (!blob) { onError('Could not process the image.'); return; }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataUrl = reader.result;
+            const base64 = String(dataUrl).split(',')[1];
+            cleanup(); host.innerHTML = '';
+            onDone({ dataUrl, base64, contentType:'image/jpeg', filename:'hero.jpg', width:ow, height:oh });
+          };
+          reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.85);
+      } catch (err) { onError('Could not crop the image: ' + (err.message || err)); }
+    });
+  };
+  img.onerror = () => onError('Could not load the image for cropping.');
+  img.src = src;
 }
 
 /* ---------------------------------------------------------------- wiring */
@@ -1187,12 +1325,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   Object.values(COLOR_FIELDS).forEach(id => $(id).addEventListener('input', markCustomTheme));
   ['headingFont','bodyFont','textAlign'].forEach(id => $(id).addEventListener('change', markCustomTheme));
-  $('heroFile').addEventListener('change', e => uploadHeroFile(e.target.files && e.target.files[0]));
+  $('heroFile').addEventListener('change', e => handleHeroFile(e.target.files && e.target.files[0]));
   $('heroImageUrl').addEventListener('input', () => {
-    const hasUrl = !!$('heroImageUrl').value.trim();
-    $('heroStatus').className = 'upload-status' + (hasUrl ? ' ok' : '');
-    $('heroStatus').textContent = hasUrl ? 'Image URL set · exact dimensions checked before sending' : 'No image selected yet.';
+    const v = $('heroImageUrl').value.trim();
+    if (v && !/^Embedded/i.test(v)) {
+      heroMode = 'url'; heroInline = null; heroOriginal = null; $('cropBtn').style.display = 'none';
+      $('heroStatus').className = 'upload-status ok';
+      $('heroStatus').textContent = 'Public image URL set (nothing stored).';
+    } else if (!v) {
+      heroMode = 'none'; heroInline = null; heroOriginal = null; $('cropBtn').style.display = 'none';
+      $('heroStatus').className = 'upload-status';
+      $('heroStatus').textContent = 'No image selected yet.';
+    }
     refreshPreview();
+  });
+  $('cropBtn').addEventListener('click', () => {
+    if (!heroOriginal) { toast('Choose an image first, then crop it.', 'warn'); return; }
+    openCropper(heroOriginal, (result) => {
+      heroInline = result; heroMode = 'inline';
+      $('heroImageUrl').value = 'Embedded image (sent inline, not stored)';
+      $('heroImageUrl').dispatchEvent(new Event('input', { bubbles:true }));
+      $('heroStatus').className = 'upload-status ok';
+      $('heroStatus').textContent = 'Embedded · ' + result.width + ' × ' + result.height + ' (not stored on Supabase)';
+      refreshPreview();
+    }, (errMsg) => { toast(errMsg, 'err'); });
   });
   const composerInputs = ['subject','preheader','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'];
   composerInputs.forEach(id => $(id).addEventListener('input', refreshPreview));
@@ -1237,8 +1393,10 @@ document.addEventListener('DOMContentLoaded', () => {
       m.querySelector('[data-close]').addEventListener('click', () => res(false));
     });
     if (!ok) return;
-    ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = '');
-    $('heroFile').value = ''; $('heroStatus').className = 'upload-status'; $('heroStatus').textContent = 'No image selected yet.';
+    ['subject','preheader','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = '');
+    $('heroImageUrl').value = ''; heroInline = null; heroMode = 'none'; heroOriginal = null;
+    $('heroFile').value = ''; $('cropBtn').style.display = 'none';
+    $('heroStatus').className = 'upload-status'; $('heroStatus').textContent = 'No image selected yet.';
     $('buttonNewTab').checked = true; setEditorHtml(''); refreshPreview(); saveDraftSilently();
   });
 
@@ -1273,10 +1431,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (d.bodyFont) $('bodyFont').value = d.bodyFont;
       if (d.align) $('textAlign').value = d.align === 'left' ? 'left' : 'center';
       $('themeSelect').value = d.theme || 'nghsians';
-      ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = d[id] || '');
+      ['subject','preheader','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = d[id] || '');
+      if (d.heroImageUrl && /^https?:/i.test(d.heroImageUrl)) {
+        $('heroImageUrl').value = d.heroImageUrl; heroMode = 'url'; heroInline = null; heroOriginal = null;
+        $('cropBtn').style.display = 'none';
+        $('heroStatus').className = 'upload-status ok'; $('heroStatus').textContent = 'Saved image URL · embedded inline not restored';
+      } else {
+        $('heroImageUrl').value = ''; heroMode = 'none'; heroInline = null; heroOriginal = null;
+        $('cropBtn').style.display = 'none';
+        $('heroStatus').className = 'upload-status'; $('heroStatus').textContent = 'No image selected yet.';
+      }
       $('buttonNewTab').checked = d.buttonNewTab !== false;
       setEditorHtml(d.body || '');
-      if (d.heroImageUrl) { $('heroStatus').className = 'upload-status ok'; $('heroStatus').textContent = 'Saved image URL · dimensions checked before sending'; }
       refreshPreview();
       toast('Draft restored.');
     }

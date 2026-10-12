@@ -65,9 +65,12 @@ function fill(html: string, r: Recipient) {
 }
 
 interface Recipient { email: string; name?: string; batch?: string; unsub_token?: string }
+interface Attachment { filename: string; content: string; content_type?: string; content_id?: string; disposition?: string }
 interface Payload {
   pin?: string; subject?: string; preheader?: string; body?: string;
   from?: string; replyTo?: string; recipients?: Recipient[];
+  // Inline hero image (CID attachment) — embedded in the email, never stored.
+  attachments?: Attachment[];
 }
 
 /* --------------------------------------------------------- the only Resend call */
@@ -145,6 +148,9 @@ Deno.serve(async (req: Request) => {
       subject,
       // mailer.html sends the complete responsive HTML (header, hero, CTA and footer).
       html: fill(htmlBody, r),
+      // Inline attachments (e.g. the embedded hero image via cid:hero) ride along
+      // with every email. Nothing is persisted to storage.
+      attachments: (body.attachments ?? []),
     }));
 
     let sent = 0;
