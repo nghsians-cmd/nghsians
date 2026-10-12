@@ -3,7 +3,26 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="robots" content="noindex,nofollow">
+<!-- ===== keep every crawler out of the committee panel =====
+     noindex/nofollow is the part search engines actually honour; the rest are
+     belt-and-braces (AI crawlers, archivers, preview unfurlers). -->
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex, nosnippet, nocache, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot-news" content="noindex, nofollow">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="slurp" content="noindex, nofollow">
+<meta name="duckduckbot" content="noindex, nofollow">
+<meta name="baiduspider" content="noindex, nofollow">
+<meta name="yandex" content="noindex, nofollow">
+<meta name="GPTBot" content="noindex, nofollow, noarchive">
+<meta name="ChatGPT-User" content="noindex, nofollow">
+<meta name="Google-Extended" content="noindex, nofollow">
+<meta name="CCBot" content="noindex, nofollow">
+<meta name="anthropic-ai" content="noindex, nofollow">
+<meta name="Applebot-Extended" content="noindex, nofollow">
+<meta name="ia_archiver" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://nghsians.com/">
 <title>NGHSIANS Mailer — Newsletter Panel</title>
 <link rel="icon" href="favLogo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
@@ -311,6 +330,7 @@ td.name{color:var(--text);font-weight:600}
         <div class="preview-bar">
           <span class="muted" style="font-size:11.5px">Exactly what lands in the inbox.</span>
           <div class="spacer" style="flex:1"></div>
+          <button class="btn btn-sm" id="diagBtn">⚕ Sender check</button>
           <button class="btn btn-sm" id="testBtn">Send me a test</button>
         </div>
         <iframe id="preview" class="preview-frame" title="Email preview"></iframe>
@@ -569,6 +589,115 @@ async function loadHistory() {
   } catch (err) { console.error(err); }
 }
 
+/* --------------------------------------------- talking to the Edge Function
+   A bare "Failed to fetch" out of the browser is useless — it hides which of
+   the four things is actually wrong (not deployed / CORS / auth / PIN). This
+   wrapper keeps the HTTP status and the response body so we can say which.  */
+async function edgeFetch(payload) {
+  const { data } = await supa.auth.getSession();
+  const token = data.session ? data.session.access_token : '';
+  if (!token) return { ok: false, kind: 'auth', msg: 'Not signed in — there is no access token to send.' };
+
+  let resp;
+  try {
+    resp = await fetch(MAILER.edgeUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    // fetch() itself threw — DNS, offline, or the gateway/preflight refused us
+    // before any response came back. This is the "Failed to fetch" case.
+    return {
+      ok: false, kind: 'network',
+      msg: 'The browser could not reach the Edge Function at all.',
+      detail: String((e && e.message) || e)
+    };
+  }
+
+  const text = await resp.text().catch(() => '');
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (e) { /* not JSON */ }
+
+  if (resp.status === 404) {
+    return { ok: false, kind: 'missing', status: 404,
+      msg: 'HTTP 404 — nothing is deployed at that address. Either the function was not deployed, or its name is not exactly "send-newsletter".',
+      detail: text.slice(0, 300) };
+  }
+  if (!resp.ok) {
+    return { ok: false, kind: 'http', status: resp.status,
+      msg: (json && (json.error || json.message)) || ('HTTP ' + resp.status + ' with no message'),
+      detail: text.slice(0, 300) };
+  }
+  return { ok: true, status: resp.status, data: json || {} };
+}
+
+/* A three-step probe that isolates exactly where a send is breaking.
+   Step 1 (GET) proves the function exists and sends CORS headers.
+   Step 2 (OPTIONS) proves the browser's preflight is accepted.
+   Step 3 (POST, empty recipients) proves auth + admin + PIN all pass —
+   the function answers 400 "No recipients." only after every check clears. */
+async function diagnoseSender() {
+  const lines = [];
+  const add = (label, pass, detail) => lines.push(
+    '<tr><td style="white-space:nowrap">' + (pass === null ? '•' : (pass ? '✅' : '❌')) +
+    ' ' + esc(label) + '</td><td style="color:var(--dim);font-size:11.5px;word-break:break-all">' + esc(detail || '') + '</td></tr>');
+
+  add('Endpoint', null, MAILER.edgeUrl);
+  const { data } = await supa.auth.getSession();
+  const email = data.session && data.session.user ? data.session.user.email : '';
+  add('Signed in', !!email, email || 'no session — sign in again');
+  add('Token', !!(data.session && data.session.access_token), data.session ? (data.session.access_token || '').slice(0, 18) + '…' : 'none');
+
+  // Step 1 — reachability + CORS
+  let step1 = 'blocked';
+  try {
+    const r = await fetch(MAILER.edgeUrl, { method: 'GET' });
+    step1 = 'HTTP ' + r.status + (r.ok ? '' : ' (expected 405 — function is there)');
+  } catch (e) { step1 = 'FAILED — ' + ((e && e.message) || e); }
+  add('1 · reachable', /HTTP 40[0-5]/.test(step1), step1);
+
+  // Step 2 — preflight
+  let step2 = 'blocked';
+  try {
+    const r = await fetch(MAILER.edgeUrl, {
+      method: 'OPTIONS',
+      headers: { 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'authorization,content-type' }
+    });
+    step2 = 'HTTP ' + r.status;
+  } catch (e) { step2 = 'FAILED — ' + ((e && e.message) || e); }
+  add('2 · preflight', /HTTP 20[0-4]/.test(step2), step2);
+
+  // Step 3 — the real thing, minus recipients
+  let step3 = 'not reached';
+  if (email) {
+    const res = await edgeFetch({ pin: PIN, subject: 'probe', preheader: '', body: 'probe', recipients: [] });
+    step3 = res.ok ? 'HTTP ' + res.status + ' — all checks passed'
+                   : (res.kind === 'network' ? 'FAILED — ' + res.detail : res.msg);
+  } else step3 = 'skipped — not signed in';
+  add('3 · auth + PIN', /all checks passed/.test(step3), step3);
+
+  const verdict = /all checks passed/.test(step3)
+    ? '<p style="color:var(--ok);font-weight:700;margin:0 0 10px">Sender is working. Try the test email again.</p>'
+    : '<p style="color:var(--bad);font-weight:700;margin:0 0 10px">Something is blocking the send — copy this and send it to whoever is helping you.</p>';
+
+  const plain = lines.map(l => l.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()).join('\n');
+  const m = modal('Sender check',
+    verdict +
+    '<table style="width:100%;font-size:12.5px;border-collapse:collapse">' + lines.join('') + '</table>',
+    '<button class="btn" data-close>Close</button><button class="btn btn-gold" id="copyRep">Copy report</button>');
+  m.querySelector('#copyRep').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    try {
+      await navigator.clipboard.writeText('NGHSIANS mailer — sender check\n' + plain);
+      btn.textContent = 'Copied ✓';
+    } catch (e) {
+      m.querySelector('.modal').insertAdjacentHTML('beforeend', '<pre>' + esc(plain) + '</pre>');
+      btn.textContent = 'Select manually ↑';
+    }
+  });
+}
+
 /* ---------------------------------------------------------------- sending */
 function currentRecipients() { return subscribers.filter(r => selected.has(r.email)); }
 function setSending(on, label) {
@@ -602,15 +731,18 @@ async function sendNewsletter() {
   let result;
   try {
     if (MAILER.mode === 'edge') {
-      const { data: sess } = await supa.auth.getSession();
-      const resp = await fetch(MAILER.edgeUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (sess.session ? sess.session.access_token : SUPABASE_KEY) },
-        body: JSON.stringify({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload })
-      });
-      const json = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(json.error || json.message || ('Send failed (' + resp.status + ')'));
-      result = json;
+      const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload });
+      if (!res.ok) {
+        // Not a thrown error — edgeFetch already knows which of the four
+        // failure modes it was, so report that instead of guessing.
+        $('progBar').style.width = '0%';
+        $('sendNote').textContent = 'Not sent.';
+        setSending(false);
+        toast('Send failed: ' + res.msg, 'err');
+        if (res.kind === 'network' || res.kind === 'missing' || res.kind === 'auth') diagnoseSender();
+        return;
+      }
+      result = res.data;
     } else if (MAILER.mode === 'emailjs') {
       const cfg = MAILER.emailjs;
       if (!cfg.serviceId || !cfg.templateId || !cfg.publicKey) throw new Error('Fill in MAILER.emailjs first (serviceId / templateId / publicKey).');
@@ -661,17 +793,23 @@ async function sendTest() {
   if (!me) { toast('Sign in first.', 'warn'); return; }
   const subject = $('subject').value.trim() || '(no subject)';
   const body = editorHtml().trim() || '<p>(empty)</p>';
-  try {
-    const { data: s2 } = await supa.auth.getSession();
-    const resp = await fetch(MAILER.edgeUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (s2.session ? s2.session.access_token : SUPABASE_KEY) },
-      body: JSON.stringify({ pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(), body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }] })
-    });
-    const json = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(json.error || json.message || 'Test failed');
-    toast('Test sent to ' + me);
-  } catch (err) { console.error(err); toast('Test failed: ' + (err.message || err), 'err'); }
+  const btn = $('testBtn');
+  const was = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const res = await edgeFetch({
+    pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(),
+    body, from: MAILER.from, replyTo: MAILER.replyTo,
+    recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }]
+  });
+  btn.disabled = false; btn.textContent = was;
+  if (res.ok) {
+    toast('Test sent to ' + me + ' — check your inbox (and spam).');
+  } else if (res.kind === 'network') {
+    toast('Could not reach the Edge Function: ' + res.detail + ' — run the sender check.', 'err');
+    diagnoseSender();
+  } else {
+    toast('Test failed: ' + res.msg, 'err');
+  }
 }
 
 /* ------------------------------------------------------------ CSV import */
@@ -832,6 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('sendBtn').addEventListener('click', sendNewsletter);
   $('testBtn').addEventListener('click', sendTest);
+  $('diagBtn').addEventListener('click', diagnoseSender);
   $('refreshBtn').addEventListener('click', () => { loadSubs(); loadHistory(); toast('Refreshed.'); });
   $('histBtn').addEventListener('click', loadHistory);
   $('importBtn').addEventListener('click', openImport);
