@@ -37,9 +37,10 @@ No other page changed visually. `27form.html` was **not touched**, exactly as as
 | **New signups on `account.html`** | required checkbox *"I agree to receive news from NGHSIANS"* at the bottom of the form | `true` when ticked (can't create the account without it) | `true` — no popup |
 | **Signups through `27form.html`** | no checkbox there (page untouched) → they get the same one-time popup on their first `account.html` visit | `false` → set to `true` by "I understood" | `false` → popup |
 
-The popup is non-dismissable except by its two buttons, and it carries a small
-*"Don't send me news"* link so nobody is subscribed against their will.
-Both states are reversible from **Edit** on the ID card.
+The popup has exactly one button — **I UNDERSTOOD / আমি বুঝেছি** — and cannot be
+dismissed any other way, same as the WhatsApp/Instagram gate. There is deliberately no
+decline link in the popup itself; the way out is the newsletter toggle in **Edit**, or
+the unsubscribe link in the footer of any email (which has an Undo, for misclicks).
 
 If the required WhatsApp/Instagram gate is also open, the newsletter notice waits
 behind it — the two modals never stack, and neither do the celebrations.
@@ -69,14 +70,29 @@ Emails that match an account get opted in on that account; the rest become impor
 contacts and still receive news.
 
 ### 4 · Deploy the sender (only needed to actually send)
+**4a · the API key** — Supabase → Project Settings → Edge Functions → Secrets →
+add `RESEND_API_KEY` = your Resend key (starts `re_`).
+
+**4b · the function** — either way works:
+
+*Dashboard (no CLI):* Edge Functions → **Deploy a new function** → name it
+`send-newsletter` → paste the whole contents of
+`supabase/functions/send-newsletter/index.ts` into the editor → deploy →
+open the function's **Details** and turn **Verify JWT** off (the function checks
+the caller's own JWT, so the gateway must not reject it first).
+
+*CLI:*
 ```bash
 supabase login
 supabase link --project-ref mctjlcznxpuvtetqnaeh
 supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxx
 supabase functions deploy send-newsletter --no-verify-jwt
 ```
-Then in Resend: add + verify **nghsians.com** as a sending domain, and set `MAILER.from`
-in `mailer.html` to an address on it. Mail from an unverified From address goes to spam.
+
+**4c · the sending domain (do not skip this)** — in Resend, add **nghsians.com** and
+add the SPF/DKIM/DMARC records it gives you. Then set `MAILER.from` in `mailer.html`
+to an address on that domain. Mail sent from an unverified or mismatched From address
+is silently dumped in spam, and bulk mail from a `gmail.com` address is worse still.
 
 ### 5 · Change the mailer PIN
 ```sql
@@ -115,3 +131,34 @@ Section 18 of `supabase-newsletter-merge.sql` has a one-pass `drop` script for
 everything it created. `account.html` degrades gracefully if the migration is not run:
 the consent checkbox and the ID-card row are hidden and the popup never fires, so
 signup and login keep working normally.
+
+
+---
+
+## Known issue (pre-existing, not caused by this change)
+
+`verified_profiles` carries the policy *"Public profiles are viewable by everyone"*, so
+anyone with the public anon key can read every member's **email, WhatsApp number and
+Instagram username** — the network page needs read access, but it currently gets
+everything. Left as-is for now, deliberately.
+
+The newsletter data added here does **not** widen that: `newsletter_tokens`,
+`newsletter_contacts`, `newsletter_send_log` and `app_secrets` all have no client-readable
+policy, and the subscriber list is only reachable through `newsletter_admin_list()`,
+which checks the admin JWT **and** the PIN.
+
+When we decide to close it, the fix is to swap the blanket `using (true)` select policy
+for one that hides the contact columns from `anon`, and serve the network page from a
+view. It needs checking against `account.html`'s network panel and `27rep.html` first.
+
+---
+
+## Still needed from you
+
+| # | Item | Blocking |
+|---|---|---|
+| 1 | Run `supabase-newsletter-merge.sql` in the Supabase SQL editor | everything |
+| 2 | MailerLite subscriber export (CSV, or just a list of emails) | importing the old list |
+| 3 | Create a Resend account + add the `RESEND_API_KEY` secret | sending |
+| 4 | Verify `nghsians.com` in Resend and add its DNS records | deliverability |
+| 5 | Confirm the mailer PIN (default is in section 6 of the SQL) | opening mailer.html |

@@ -627,13 +627,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .news-why em { color: rgba(var(--gold), 0.8); font-style: normal; }
 #news-ok { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 12px; padding-bottom: 12px; }
 .news-btn-bn { font-family: var(--font-bangla); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; opacity: 0.8; }
-.news-foot { margin-top: 14px; font-size: 0.75rem; color: var(--text-dim); line-height: 1.5; }
-.news-foot button {
-  background: none; border: none; color: var(--text-dim); cursor: pointer;
-  font-family: var(--font-body); font-size: 0.75rem; text-decoration: underline;
-  text-underline-offset: 2px; padding: 0;
-}
-.news-foot button:hover { color: #ff6b6b; }
 #newsletter-row .data-val { font-size: 0.8rem; }
 .news-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
 .news-toggle input { cursor: pointer; accent-color: rgba(var(--gold),1); width: 14px; height: 14px; }
@@ -1343,15 +1336,13 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </div>
     <div class="news-why">
       <strong>Why?</strong> The old Newsletter form is gone. Your NGHSIANS account is now the
-      subscription — same email you log in with. Change it any time from <em>Edit</em>.
+      subscription — same email you log in with. Prefer not to get news? Switch it off
+      from <em>Edit</em>, or use the unsubscribe link at the bottom of any email.
     </div>
     <button type="button" id="news-ok" class="btn-action" onclick="handleNewsAck()">
       I UNDERSTOOD
       <span class="news-btn-bn" lang="bn">আমি বুঝেছি</span>
     </button>
-    <p class="news-foot">
-      Rather not? <button type="button" id="news-decline" onclick="handleNewsDecline()">Don't send me news</button>
-    </p>
   </div>
 </div>
 <!-- ===== MEMBER DETAIL MODAL ===== -->
@@ -1852,22 +1843,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderNewsletterCell(currentProfile);
     showToast("You're subscribed ✓");
     flushCeleb();            // celebration queued behind this notice
-    signdayFlushCeleb();
-  };
-  // "Don't send me news" → they stayed opted out. Reversible from Edit.
-  window.handleNewsDecline = async function() {
-    closeNewsNotice();
-    if (!currentUser || !hasNewsletterColumns) return;
-    const patch = {
-      id: currentUser.id, newsletter_notified: true, newsletter_opt_in: false,
-      newsletter_unsubscribed_at: new Date().toISOString()
-    };
-    const { error } = await supabase.from('verified_profiles').upsert([patch], { onConflict: 'id' });
-    if (error) { console.error(error); showToast("Could not save your newsletter choice.", true); return; }
-    currentProfile = { ...(currentProfile || {}), ...patch };
-    renderNewsletterCell(currentProfile);
-    showToast("No problem — you won't get news emails.");
-    flushCeleb();
     signdayFlushCeleb();
   };
   window.handleSaveDetails = async function(e) {
