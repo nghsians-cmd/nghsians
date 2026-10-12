@@ -264,6 +264,31 @@ td.name{color:var(--text);font-weight:600}
 .crop-box .e{right:-6px;top:50%;margin-top:-6px;cursor:ew-resize}.crop-box .se{right:-6px;bottom:-6px;cursor:nwse-resize}.crop-box .s{left:50%;bottom:-6px;margin-left:-6px;cursor:ns-resize}
 .crop-box .sw{left:-6px;bottom:-6px;cursor:nesw-resize}.crop-box .w{left:-6px;top:50%;margin-top:-6px;cursor:ew-resize}
 .crop-controls{margin-top:10px}
+
+/* ---------- history status + per-recipient details ---------- */
+.hist th.num, .hist td.num{text-align:right;font-variant-numeric:tabular-nums}
+.hist td.subj{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist td.num.ok{color:var(--ok)}
+.detail-row td{padding:0 8px 12px}
+.detail-box{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px;max-height:320px;overflow:auto}
+table.mini{width:100%;border-collapse:collapse;font-size:11.5px}
+table.mini th{position:static;text-align:left;padding:6px 10px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertical-align:top}
+
+/* ---------- mobile ---------- */
+@media (max-width:600px){
+  .topbar{flex-direction:column;align-items:stretch;gap:8px}
+  .topbar .spacer{display:none}
+  .mailer-brand{justify-content:center}
+  .topbar .btn{width:100%}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .sendbar{flex-direction:column;align-items:stretch;margin:0 10px 14px;gap:9px}
+  .sendbar .btn-primary{width:100%}
+  .modal{padding:16px}
+  .preview-frame{height:560px}
+  .composer-pad{padding-left:12px;padding-right:12px}
+  .hint, .required-note{font-size:10px}
+}
 </style>
 </head>
 <body>
@@ -483,8 +508,8 @@ td.name{color:var(--text);font-weight:600}
 
       <section class="panel">
         <div class="panel-head"><h2>Send history</h2><div class="spacer"></div><button class="btn btn-sm" id="histBtn">↻</button></div>
-        <div class="rec-list" style="max-height:200px"><table>
-          <thead><tr><th>Subject</th><th style="width:66px">Sent</th><th style="width:110px">When</th></tr></thead>
+        <div class="rec-list" style="max-height:280px;overflow-x:auto"><table class="hist">
+          <thead><tr><th>Subject</th><th class="num">Recipients</th><th class="num">Sent</th><th class="num">Received</th><th class="num">Opened</th><th class="num">Link opened</th><th>When</th><th></th></tr></thead>
           <tbody id="histBody"></tbody>
         </table><div class="empty" id="histEmpty">No sends logged yet.</div></div>
       </section>
@@ -535,7 +560,10 @@ const MAILER = {
   siteUrl: 'https://nghsians.com',
   brand:   'NGHSIANS',
   assetsBucket: 'newsletter-media',
-  logoUrl: 'https://nghsians.com/assets/mailer/logo.png',
+  // Sender logo: your shared Drive logo.png (no Supabase involved). If it ever
+  // fails to render in Gmail, drop logo.png into assets/mailer/ and switch this
+  // back to the site-hosted 'https://nghsians.com/assets/mailer/logo.png'.
+  logoUrl: 'https://drive.google.com/uc?export=view&id=14zb7QoDvm-ZSleFQ6HWrixfDqrugmAZw',
   footerLogoUrl: 'https://nghsians.com/assets/mailer/footer-logo.png'
 };
 
@@ -826,16 +854,49 @@ function renderRecipients() {
 }
 async function loadHistory() {
   try {
-    const { data, error } = await supa.rpc('newsletter_admin_history', { p_pin: PIN, p_limit: 25 });
+    const { data, error } = await supa.rpc('newsletter_admin_send_status', { p_pin: PIN });
     if (error) throw error;
     const rows = data || [];
     $('histEmpty').classList.toggle('hidden', rows.length > 0);
     $('histBody').innerHTML = rows.map(h =>
-      '<tr><td>' + esc(h.subject || '(no subject)') + '</td>' +
-      '<td>' + esc(h.recipient_count) + '</td>' +
-      '<td class="muted">' + esc(String(h.created_at || '').slice(0, 16).replace('T', ' ')) + '</td></tr>').join('');
+      '<tr data-send="' + esc(h.id) + '">' +
+        '<td class="subj">' + esc(h.subject || '(no subject)') + '</td>' +
+        '<td class="num">' + (h.recipient_count ?? 0) + '</td>' +
+        '<td class="num ok">' + (h.sent ?? 0) + '</td>' +
+        '<td class="num">' + (h.received ?? 0) + '</td>' +
+        '<td class="num">' + (h.opened ?? 0) + '</td>' +
+        '<td class="num">' + (h.clicked ?? 0) + '</td>' +
+        '<td class="muted">' + esc(String(h.created_at || '').slice(0, 16).replace('T', ' ')) + '</td>' +
+        '<td><button type="button" class="btn btn-sm" data-detail="' + esc(h.id) + '">▾ Status</button></td>' +
+      '</tr>' +
+      '<tr class="detail-row hidden" data-detailrow="' + esc(h.id) + '"><td colspan="8"><div class="detail-box" id="detail-' + esc(h.id) + '"></div></td></tr>'
+    ).join('');
   } catch (err) { console.error(err); }
 }
+function fmtTs(ts) {
+  if (!ts) return '<span class="muted">—</span>';
+  return esc(String(ts).slice(0, 16).replace('T', ' '));
+}
+// Expand a history row to show per-recipient status.
+$('histBody').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-detail]'); if (!btn) return;
+  const id = btn.getAttribute('data-detail');
+  const row = document.querySelector('[data-detailrow="' + id + '"]');
+  if (!row) return;
+  const hidden = row.classList.toggle('hidden');
+  if (!hidden) {
+    const box = document.getElementById('detail-' + id);
+    box.innerHTML = '<div class="muted" style="padding:8px 4px">Loading…</div>';
+    try {
+      const { data, error } = await supa.rpc('newsletter_admin_send_detail', { p_pin: PIN, p_send_id: id });
+      if (error) throw error;
+      const rows = data || [];
+      box.innerHTML = '<table class="mini"><thead><tr><th>Email</th><th>Sent</th><th>Received</th><th>Opened</th><th>Link opened</th></tr></thead><tbody>' +
+        rows.map(r => '<tr><td class="email">' + esc(r.email) + '</td><td>' + fmtTs(r.sent_at) + '</td><td>' + fmtTs(r.delivered_at) + '</td><td>' + fmtTs(r.opened_at) + '</td><td>' + fmtTs(r.clicked_at) + '</td></tr>').join('') +
+        '</tbody></table>';
+    } catch (err) { box.innerHTML = '<div class="muted" style="padding:8px 4px">Could not load recipient status.</div>'; }
+  }
+});
 
 /* --------------------------------------------- talking to the Edge Function
    A bare "Failed to fetch" out of the browser is useless — it hides which of
@@ -947,7 +1008,8 @@ async function sendNewsletter() {
   const failed = result.failed || 0;
   $('sendNote').textContent = sent + ' sent' + (failed ? ', ' + failed + ' failed' : '');
   setSending(false);
-  try { await supa.rpc('newsletter_admin_log', { p_pin: PIN, p_subject: subject, p_preview: preheader, p_body: body, p_count: sent }); } catch (e) { console.error(e); }
+  // The send-newsletter Edge Function already recorded this send (and its
+  // per-recipient tracking rows) before delivering, so nothing else is needed.
   loadHistory(); renderStats();
   toast('Sent to ' + sent + ' subscribers' + (failed ? ' (' + failed + ' failed)' : '') + '.', failed ? 'warn' : '');
   setTimeout(() => { $('progBar').style.width = '0%'; }, 2500);
@@ -970,7 +1032,7 @@ async function sendTest() {
   const was = btn.textContent;
   btn.disabled = true; btn.textContent = 'Sending…';
   const res = await edgeFetch({
-    pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(),
+    pin: PIN, test: true, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(),
     body, from: MAILER.from, replyTo: MAILER.replyTo, attachments,
     recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }]
   });
@@ -1172,7 +1234,7 @@ function openCropper(src, onDone, onError) {
   const img = new Image();
   img.onload = () => {
     const natW = img.naturalWidth, natH = img.naturalHeight;
-    const STAGE_W = 460, STAGE_H = 340;
+    const STAGE_W = Math.max(260, Math.min(460, (window.innerWidth || 480) - 56)), STAGE_H = 340;
     const dispScale = Math.min(STAGE_W / natW, STAGE_H / natH);
     const dispW = Math.round(natW * dispScale), dispH = Math.round(natH * dispScale);
     let box = { x:0, y:0, w:dispW, h:dispH };
