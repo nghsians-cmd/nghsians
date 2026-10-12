@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<!-- ===== keep every crawler out of the committee panel =====
+     noindex/nofollow is the part search engines actually honour; the rest are
+     belt-and-braces (AI crawlers, archivers, preview unfurlers). -->
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex, nosnippet, nocache, notranslate">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot-news" content="noindex, nofollow">
+<meta name="bingbot" content="noindex, nofollow, noarchive">
+<meta name="slurp" content="noindex, nofollow">
+<meta name="duckduckbot" content="noindex, nofollow">
+<meta name="baiduspider" content="noindex, nofollow">
+<meta name="yandex" content="noindex, nofollow">
+<meta name="GPTBot" content="noindex, nofollow, noarchive">
+<meta name="ChatGPT-User" content="noindex, nofollow">
+<meta name="Google-Extended" content="noindex, nofollow">
+<meta name="CCBot" content="noindex, nofollow">
+<meta name="anthropic-ai" content="noindex, nofollow">
+<meta name="Applebot-Extended" content="noindex, nofollow">
+<meta name="ia_archiver" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="canonical" href="https://nghsians.com/">
+<title>NGHSIANS Mailer — Newsletter Panel</title>
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ============================================================
+   mailer.html — NGHSIANS committee mailer (PIN locked)
+   Replaces MailerLite: reads the subscriber list straight from
+   Supabase (the account IS the subscription), composes in the
+   site theme, and sends through the send-newsletter Edge
+   Function. No visual change to the public site.
+   ============================================================ */
+:root{
+  --gold:255,235,128; --red:113,12,4; --red-deep:#8d0f05;
+  --bg:#0b0c0d; --panel:#121316; --panel-2:#171a1d; --panel-3:#1e2226;
+  --text:#F3ECD9; --dim:rgba(243,236,217,.60); --faint:rgba(243,236,217,.34);
+  --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.18);
+  --ok:#3ddc84; --warn:#ffb84d; --bad:#ff6b5e;
+  --font-display:'Anton',sans-serif; --font-body:'DM Sans',sans-serif; --font-bangla:'Hind Siliguri',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:var(--font-body); font-size:14px; line-height:1.55;
+  background-image:
+    radial-gradient(1000px 520px at 90% -10%, rgba(113,12,4,.20), transparent 60%),
+    radial-gradient(800px 480px at -10% 110%, rgba(255,235,128,.05), transparent 60%);
+  min-height:100vh;
+}
+.hidden{display:none !important}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- PIN gate ---------- */
+.pin-wrap{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}
+.pin-card{
+  width:100%;max-width:390px;background:var(--panel);border:1px solid var(--line-hi);
+  border-radius:16px;padding:30px 26px 26px;text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.pin-card::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,rgba(var(--gold),.9),var(--red),rgba(var(--gold),.9))}
+.pin-lock{font-size:30px;margin-bottom:12px}
+.pin-card h1{font-family:var(--font-display);font-size:24px;margin:0 0 6px;text-transform:uppercase;letter-spacing:.5px}
+.pin-card p{margin:0 0 20px;font-size:13px;color:var(--dim);line-height:1.55}
+.pin-card input{
+  width:100%;font:inherit;font-size:14px;padding:11px 13px;margin-bottom:10px;
+  background:var(--panel-2);border:1px solid var(--line-hi);border-radius:9px;color:var(--text);
+}
+.pin-card input:focus{outline:none;border-color:rgba(var(--gold),.6);box-shadow:0 0 0 3px rgba(var(--gold),.12)}
+.pin-err{color:var(--bad);font-size:12.5px;font-weight:600;min-height:20px;margin:8px 0 6px}
+.pin-card.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.btn{
+  font:inherit;font-weight:800;font-size:12px;letter-spacing:.7px;text-transform:uppercase;
+  border:1px solid var(--line-hi);border-radius:9px;padding:10px 15px;cursor:pointer;
+  background:var(--panel-2);color:var(--text);transition:.15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;
+}
+.btn:hover{border-color:rgba(var(--gold),.4);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(180deg,#8d0f05,var(--red));border-color:rgba(var(--gold),.25)}
+.btn-primary:hover{filter:brightness(1.15)}
+.btn-gold{background:rgba(var(--gold),.14);border-color:rgba(var(--gold),.35);color:rgba(var(--gold),1)}
+.btn-danger{border-color:rgba(255,107,94,.4);color:var(--bad)}
+.btn-sm{padding:7px 11px;font-size:11px}
+.btn-block{width:100%}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:60;display:flex;align-items:center;flex-wrap:wrap;gap:10px;
+  padding:11px 18px;background:rgba(11,12,13,.94);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);border-top:3px solid var(--red);
+}
+.topbar h1{font-family:var(--font-display);font-size:18px;margin:0;text-transform:uppercase;letter-spacing:.8px}
+.mailer-brand{display:flex;align-items:center;gap:10px}.mailer-brand img{width:34px;height:34px;object-fit:contain;border-radius:50%;background:#17130e}.mailer-brand small{font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--faint);text-transform:none;margin-top:2px}
+.topbar h1 small{display:block;font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.2px;color:var(--faint);text-transform:none;margin-top:2px}
+.topbar .spacer{flex:1}
+.who-chip{
+  display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line-hi);padding:5px 11px;font-size:12px;border-radius:999px;
+}
+.who-chip b{color:rgba(var(--gold),1);max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- stats ---------- */
+.stats{display:flex;flex-wrap:wrap;gap:10px;max-width:1500px;margin:16px auto 0;padding:0 18px}
+.stat{flex:1 1 130px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-family:var(--font-display);font-size:25px;line-height:1;color:rgba(var(--gold),1)}
+.stat span{font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--faint)}
+.stat.s-ok b{color:var(--ok)} .stat.s-dim b{color:var(--dim)}
+
+/* ---------- layout ---------- */
+.grid{
+  max-width:1500px;margin:16px auto;padding:0 18px 60px;
+  display:grid;gap:16px;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+}
+@media (max-width:1080px){ .grid{grid-template-columns:1fr} }
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel-head{
+  display:flex;align-items:center;gap:10px;padding:11px 15px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);
+}
+.panel-head h2{font-family:var(--font-display);font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.9px;color:var(--text)}
+.panel-head .spacer{flex:1}
+.panel-body{padding:15px}
+
+/* ---------- form bits ---------- */
+.field{margin-bottom:12px}
+.composer-pad{padding:15px 15px 4px}
+.required-mark{color:#ff8f85;font-size:10px;font-style:normal;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.field-meta{display:flex;justify-content:space-between;gap:10px;margin-top:4px;color:var(--faint);font-size:10px}
+.builder-section{border-top:1px solid var(--line);padding:15px 0;margin-top:15px}
+.builder-step{display:flex;align-items:flex-start;gap:11px;margin:0 0 13px}
+.builder-step>span{display:grid;place-items:center;flex:0 0 31px;height:31px;border:1px solid rgba(var(--gold),.38);border-radius:9px;background:rgba(var(--gold),.08);color:rgba(var(--gold),.95);font:700 10px var(--font-body);letter-spacing:.5px}
+.builder-step b{display:block;color:var(--text);font-size:13px;line-height:1.3}
+.builder-step small{display:block;color:var(--faint);font-size:10.5px;line-height:1.45;margin-top:3px}
+.style-details{border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);margin:5px 0 0;padding:0 10px}
+.style-details summary{cursor:pointer;list-style:none;padding:10px 0;font-size:11px;font-weight:800;color:var(--dim)}
+.style-details summary::-webkit-details-marker{display:none}
+.style-details summary::after{content:'＋';float:right;color:rgba(var(--gold),.85)}
+.style-details[open] summary::after{content:'−'}
+.style-details summary span{display:block;font-size:9.5px;font-weight:500;color:var(--faint);margin-top:2px}
+.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:3px 0 11px}
+.color-control{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--dim);font-size:10px}
+.color-control input{width:30px;height:25px;border:0;padding:0;background:transparent;cursor:pointer}
+@media(max-width:560px){.color-grid{grid-template-columns:1fr}.builder-step small{font-size:10px}.preview-frame{height:680px}.composer-pad{padding-left:12px;padding-right:12px}}
+.upload-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.upload-status{font-size:11px;color:var(--faint);line-height:1.4}
+.upload-status.ok{color:var(--ok)}.upload-status.err{color:var(--bad)}
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.target-toggle{display:flex;align-items:flex-start;gap:9px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel-2);font-size:11px;color:var(--dim);cursor:pointer}
+.target-toggle input{margin:2px 0 0;accent-color:rgba(var(--gold),1)}
+.target-toggle small{display:block;color:var(--faint);font-size:9.5px;margin-top:2px}
+.quick-blocks{gap:6px}.quick-blocks .btn{flex:1 1 115px}
+.required-note{font-size:10px;color:var(--faint);margin:0 0 10px;line-height:1.5}
+.field-label{
+  display:block;font-size:9.5px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;
+  color:var(--faint);margin-bottom:5px;
+}
+.input, .ta{
+  width:100%;font:inherit;font-size:14px;padding:10px 12px;
+  background:var(--panel-2);border:1px solid var(--line-hi);border-radius:9px;color:var(--text);
+}
+.input:focus,.ta:focus{outline:none;border-color:rgba(var(--gold),.55);box-shadow:0 0 0 3px rgba(var(--gold),.10)}
+.ta{resize:vertical;min-height:70px;line-height:1.6}
+.hint{font-size:11px;color:var(--faint);margin-top:5px;line-height:1.5}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 150px}
+
+/* ---------- editor ---------- */
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:4px;padding:7px 8px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);
+}
+.tool{
+  font:inherit;font-size:11.5px;font-weight:700;padding:5px 9px;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:6px;color:var(--dim);
+}
+.tool:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.tool.sep{border-left:1px solid var(--line);margin:0 3px;padding:0;width:1px}
+#editor{
+  min-height:230px;max-height:480px;overflow-y:auto;padding:13px;
+  background:var(--panel-2);color:var(--text);font-size:14.5px;line-height:1.7;outline:none;
+}
+#editor:empty::before{content:'Write the detailed message…';color:var(--faint)}
+#editor h2{font-family:var(--font-display);font-size:20px;margin:.6em 0 .3em;letter-spacing:.3px}
+#editor h3{font-family:var(--font-display);font-size:16px;margin:.6em 0 .3em;letter-spacing:.3px}
+#editor p{margin:0 0 .9em}
+#editor a{color:rgba(var(--gold),1)}
+#editor blockquote{margin:0 0 .9em;padding:9px 14px;border-left:3px solid rgba(var(--gold),.7);background:rgba(255,235,128,.05);color:var(--dim)}
+#editor ul,#editor ol{margin:0 0 .9em;padding-left:22px}
+#editor img{max-width:100%;border-radius:8px}
+#editor hr{border:none;border-top:1px solid var(--line);margin:1.2em 0}
+.src-box{display:none;width:100%;min-height:220px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;padding:12px;background:var(--panel-2);border:0;border-radius:0;color:var(--text);resize:vertical}
+.src-box.on{display:block}
+
+/* ---------- preview ---------- */
+.preview-frame{width:100%;height:720px;border:0;display:block;background:#f3ecd9;transition:max-width .2s}
+.preview-bar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:8px 15px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.seg{display:inline-flex;border:1px solid var(--line-hi);border-radius:8px;overflow:hidden}
+.seg button{font:inherit;font-size:11px;font-weight:700;padding:5px 11px;background:transparent;border:0;color:var(--dim);cursor:pointer}
+.seg button.on{background:rgba(var(--gold),.16);color:rgba(var(--gold),1)}
+
+/* ---------- recipients ---------- */
+.rec-list{max-height:330px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{
+  position:sticky;top:0;z-index:2;background:var(--panel-2);text-align:left;
+  padding:8px 12px;font-size:9.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+  color:var(--faint);border-bottom:1px solid var(--line);
+}
+tbody td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+td.email{color:rgba(var(--gold),.95);word-break:break-all}
+td.name{color:var(--text);font-weight:600}
+.tag{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:20px;border:1px solid var(--line);color:var(--faint)}
+.tag.account{color:rgba(var(--gold),.9);border-color:rgba(var(--gold),.3);background:rgba(var(--gold),.07)}
+.tag.contact{color:var(--ok);border-color:rgba(61,220,132,.3);background:rgba(61,220,132,.07)}
+.muted{color:var(--faint)}
+.empty{padding:26px;text-align:center;color:var(--faint);font-size:12.5px}
+
+/* ---------- send bar ---------- */
+.sendbar{
+  position:sticky;bottom:0;z-index:50;margin:0 18px 18px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 16px;background:rgba(18,19,22,.97);backdrop-filter:blur(12px);
+  border:1px solid var(--line-hi);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.5);
+}
+.sendbar .count{font-size:12.5px;color:var(--dim)}
+.sendbar .count b{color:rgba(var(--gold),1);font-family:var(--font-display);font-size:17px}
+.progress{height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;flex:1 1 140px;min-width:100px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,rgba(var(--gold),1),var(--red));transition:width .25s}
+
+/* ---------- toasts ---------- */
+#toast{position:fixed;right:18px;bottom:18px;z-index:9000;display:flex;flex-direction:column;gap:8px;max-width:min(92vw,380px)}
+.toast{
+  background:var(--panel-3);border:1px solid var(--line-hi);border-left:3px solid var(--ok);
+  border-radius:10px;padding:11px 14px;font-size:12.5px;box-shadow:0 14px 40px rgba(0,0,0,.55);
+  animation:slideIn .22s ease both;
+}
+.toast.err{border-left-color:var(--bad)}
+.toast.warn{border-left-color:var(--warn)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.modal-mask{position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:100%;max-width:520px;background:var(--panel);border:1px solid var(--line-hi);border-radius:14px;padding:24px;max-height:88vh;overflow-y:auto}
+.modal h3{font-family:var(--font-display);font-size:18px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.6px}
+.modal p{font-size:13px;color:var(--dim);line-height:1.6;margin:0 0 14px}
+.modal pre{background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px;font-size:11px;overflow-x:auto;color:var(--dim);max-height:220px;overflow-y:auto}
+</style>
+</head>
+<body>
+
+<!-- ============ PIN GATE ============ -->
+<div class="pin-wrap" id="pinView">
+  <div class="pin-card" id="pinCard">
+    <div class="pin-lock">🔒</div>
+    <h1>NGHSIANS Mailer</h1>
+    <p>Committee only. Sign in with an admin NGHSIANS account and enter the mailer PIN to open the newsletter panel.</p>
+    <form id="pinForm" autocomplete="off">
+      <input id="pinEmail" type="email" inputmode="email" autocomplete="username" placeholder="admin@nghsians email">
+      <input id="pinPass"  type="password" autocomplete="current-password" placeholder="account password">
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Mailer PIN">
+      <div class="pin-err" id="pinErr"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="pinBtn" style="padding:12px;font-size:13px">Unlock mailer</button>
+    </form>
+    <p style="margin-top:16px;font-size:11px;opacity:.7">The PIN is checked by the database, not by this page — it never appears in the source.</p>
+  </div>
+</div>
+
+<!-- ============ PANEL ============ -->
+<div id="appView" class="hidden">
+  <div class="topbar">
+    <h1 class="mailer-brand"><img src="assets/mailer/logo.png" alt="NGHSIANS crest"><span>NGHSIANS Mailer<small>Newsletter · sent from your account list</small></span></h1>
+    <div class="spacer"></div>
+    <span class="who-chip" id="whoChip">Signed in as <b>—</b></span>
+    <button class="btn btn-sm" id="refreshBtn">↻ Refresh</button>
+    <button class="btn btn-sm" id="importBtn">⇪ Import</button>
+    <button class="btn btn-sm btn-danger" id="lockBtn">🔒 Lock</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="grid">
+    <!-- ---------- COMPOSE ---------- -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Compose</h2>
+        <div class="spacer"></div>
+        <button class="btn btn-sm" id="clearBtn">Clear</button>
+      </div>
+      <div class="panel-body composer" style="padding:0">
+        <div class="composer-pad">
+          <div class="field">
+            <label class="field-label" for="subject">Subject line <span class="required-mark">*</span></label>
+            <input id="subject" class="input" placeholder="Sign Day rehearsal — Friday 4pm" autocomplete="off" maxlength="180">
+            <div class="field-meta"><span>Short, specific subjects are easiest to scan.</span><span id="subjectCount">0 / 180</span></div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="preheader">Inbox preview text <span class="muted">(the line after your subject)</span></label>
+            <input id="preheader" class="input" placeholder="Everything you need to know before Friday." autocomplete="off" maxlength="180">
+            <div class="field-meta"><span>Keep it distinct from the subject.</span><span id="preheaderCount">0 / 180</span></div>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>DESIGN</span><div><b>Choose your theme</b><small>Colors and fonts stay editable.</small></div></div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="themeSelect">Theme</label>
+                <select id="themeSelect" class="input">
+                  <option value="nghsians">NGHSIANS · dark gold (default)</option>
+                  <option value="signday60">60th Sign Day · vintage poster</option>
+                  <option value="custom">Custom colors</option>
+                </select>
+              </div>
+              <div class="field"><label class="field-label" for="headingFont">Heading font</label>
+                <select id="headingFont" class="input">
+                  <option value="'Anton',Impact,'Arial Narrow',sans-serif">Anton · Impact (default)</option>
+                  <option value="Arial,Helvetica,sans-serif">Arial</option>
+                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="bodyFont">Body font</label>
+                <select id="bodyFont" class="input">
+                  <option value="'DM Sans',Arial,Helvetica,sans-serif">DM Sans · Arial (default)</option>
+                  <option value="Arial,Helvetica,sans-serif">Arial</option>
+                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                  <option value="Verdana,Geneva,sans-serif">Verdana</option>
+                  <option value="Tahoma,Arial,sans-serif">Tahoma</option>
+                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                </select>
+              </div>
+              <div class="field"><label class="field-label" for="textAlign">Text alignment</label>
+                <select id="textAlign" class="input"><option value="center">Center (default)</option><option value="left">Left</option></select>
+              </div>
+            </div>
+            <details class="style-details" open>
+              <summary>Customize colors <span>Outer background, card, text, accents, button and footer</span></summary>
+              <div class="color-grid">
+                <label class="color-control"><span>Page background</span><input type="color" id="colorOuter" value="#0b0c0d"></label>
+                <label class="color-control"><span>Message card</span><input type="color" id="colorCard" value="#121316"></label>
+                <label class="color-control"><span>Main text</span><input type="color" id="colorText" value="#f3ecd9"></label>
+                <label class="color-control"><span>Secondary text</span><input type="color" id="colorMuted" value="#aaa391"></label>
+                <label class="color-control"><span>Accent / headings</span><input type="color" id="colorAccent" value="#ffeb80"></label>
+                <label class="color-control"><span>Secondary accent</span><input type="color" id="colorAccent2" value="#710c04"></label>
+                <label class="color-control"><span>Button background</span><input type="color" id="colorButton" value="#8d0f05"></label>
+                <label class="color-control"><span>Button text</span><input type="color" id="colorButtonText" value="#fff7e6"></label>
+                <label class="color-control"><span>Footer background</span><input type="color" id="colorFooter" value="#050505"></label>
+                <label class="color-control"><span>Footer text</span><input type="color" id="colorFooterText" value="#e8e1d2"></label>
+              </div>
+            </details>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>01</span><div><b>Hero image <i class="required-mark">required</i></b><small>Always appears first in the email. Use a landscape image exactly 1920 × 1080.</small></div></div>
+            <div class="upload-row">
+              <label for="heroFile" class="btn btn-sm">＋ Choose image</label>
+              <input id="heroFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp">
+              <span id="heroStatus" class="upload-status">No image selected yet.</span>
+            </div>
+            <div class="field">
+              <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(filled after upload; or paste a public HTTPS image URL)</span></label>
+              <input id="heroImageUrl" class="input" type="url" placeholder="https://…" autocomplete="url">
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label class="field-label" for="heroAlt">Describe the image for readers who can’t see it <span class="required-mark">*</span></label>
+              <input id="heroAlt" class="input" placeholder="e.g. Students celebrating at Sign Day" maxlength="180">
+            </div>
+            <p class="hint">The bucket is public-read for email delivery; only signed-in admins can upload. Run <code>supabase-newsletter-media.sql</code> once to enable uploads; a public HTTPS URL also works.</p>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>02</span><div><b>Headline</b><small>Centered by default; merge tags work here too.</small></div></div>
+            <div class="field"><label class="field-label" for="heading1">Heading 1 <span class="required-mark">*</span></label><input id="heading1" class="input" placeholder="Your main headline" maxlength="140"></div>
+            <div class="field" style="margin-bottom:0"><label class="field-label" for="heading2">Subheading <span class="required-mark">*</span></label><input id="heading2" class="input" placeholder="A short line to explain the news" maxlength="220"></div>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>03</span><div><b>Detailed message</b><small>Formatting stays compatible with common email apps.</small></div></div>
+            <div class="toolbar">
+              <button type="button" class="tool" data-cmd="bold" title="Bold"><b>B</b></button>
+              <button type="button" class="tool" data-cmd="italic" title="Italic"><i>I</i></button>
+              <button type="button" class="tool" data-cmd="underline" title="Underline"><u>U</u></button>
+              <span class="tool sep"></span>
+              <button type="button" class="tool" data-cmd="insertUnorderedList">• List</button>
+              <button type="button" class="tool" data-cmd="insertOrderedList">1. List</button>
+              <button type="button" class="tool" data-block="blockquote">Quote</button>
+              <button type="button" class="tool" id="linkBtn">🔗 Link</button>
+              <span class="tool sep"></span>
+              <button type="button" class="tool" id="srcBtn">&lt;/&gt; Advanced HTML</button>
+            </div>
+            <div id="editor" contenteditable="true" spellcheck="true" aria-label="Detailed newsletter message"></div>
+            <textarea id="srcBox" class="src-box" spellcheck="false" aria-label="Advanced HTML source"></textarea>
+            <div class="hint">Personalization: <code>{{name}}</code>, <code>{{batch}}</code>, <code>{{email}}</code>. Each recipient sees their own details.</div>
+          </div>
+
+          <div class="builder-section">
+            <div class="builder-step"><span>04</span><div><b>Section & call-to-action</b><small>Button is included in the email; set its destination.</small></div></div>
+            <div class="field"><label class="field-label" for="sectionTitle">Section subheading <span class="required-mark">*</span></label><input id="sectionTitle" class="input" placeholder="What happens next?" maxlength="140"></div>
+            <div class="row">
+              <div class="field"><label class="field-label" for="buttonText">Button name <span class="required-mark">*</span></label><input id="buttonText" class="input" placeholder="Read more" maxlength="48"></div>
+              <div class="field"><label class="field-label" for="buttonUrl">Button link <span class="required-mark">*</span></label><input id="buttonUrl" class="input" type="url" placeholder="https://nghsians.com/" autocomplete="url"></div>
+            </div>
+            <label class="target-toggle"><input type="checkbox" id="buttonNewTab" checked><span>Ask the reader’s browser to open the button link in a new tab <small>(email apps may choose their own behavior)</small></span></label>
+          </div>
+
+          <div class="builder-section">
+            <div class="field-label">Start from a quick draft</div>
+            <div class="row quick-blocks">
+              <button type="button" class="btn btn-sm" data-tpl="announce">Announcement</button>
+              <button type="button" class="btn btn-sm" data-tpl="event">Event / meetup</button>
+              <button type="button" class="btn btn-sm" data-tpl="merch">Merch drop</button>
+              <button type="button" class="btn btn-sm" data-tpl="signout">Sign off</button>
+            </div>
+            <p class="hint">The footer, logo, social links, website address, preference link and unsubscribe link are added automatically.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PREVIEW + RECIPIENTS ---------- -->
+    <div style="display:grid;gap:16px;min-width:0">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Preview</h2>
+          <div class="spacer"></div>
+          <div class="seg" id="viewSeg">
+            <button data-view="desktop" class="on">Desktop</button>
+            <button data-view="mobile">Mobile</button>
+          </div>
+        </div>
+        <div class="preview-bar">
+          <span class="muted" style="font-size:11.5px">Exactly what lands in the inbox.</span>
+          <div class="spacer" style="flex:1"></div>
+          <button class="btn btn-sm" id="testBtn">Send me a test</button>
+        </div>
+        <iframe id="preview" class="preview-frame" title="Email preview" sandbox="allow-same-origin"></iframe>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Recipients</h2>
+          <div class="spacer"></div>
+          <button class="btn btn-sm" id="selAll">All</button>
+          <button class="btn btn-sm" id="selNone">None</button>
+          <button class="btn btn-sm" id="selCopy">Copy emails</button>
+        </div>
+        <div style="padding:11px 15px;border-bottom:1px solid var(--line)">
+          <input id="recSearch" class="input" placeholder="Search name, email or batch…" autocomplete="off">
+          <div class="row" style="margin-top:9px">
+            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fAccount" checked style="accent-color:#ffeb80"> Accounts</label>
+            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fContact" checked style="accent-color:#3ddc84"> Imported</label>
+          </div>
+        </div>
+        <div class="rec-list">
+          <table>
+            <thead><tr><th style="width:34px"></th><th>Name</th><th>Email</th><th style="width:86px">Source</th></tr></thead>
+            <tbody id="recBody"></tbody>
+          </table>
+          <div class="empty" id="recEmpty">Loading subscribers…</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Send history</h2><div class="spacer"></div><button class="btn btn-sm" id="histBtn">↻</button></div>
+        <div class="rec-list" style="max-height:200px"><table>
+          <thead><tr><th>Subject</th><th style="width:66px">Sent</th><th style="width:110px">When</th></tr></thead>
+          <tbody id="histBody"></tbody>
+        </table><div class="empty" id="histEmpty">No sends logged yet.</div></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ---------- SEND BAR ---------- -->
+  <div class="sendbar">
+    <span class="count"><b id="selCount">0</b> selected</span>
+    <div class="progress"><i id="progBar"></i></div>
+    <span class="count muted" id="sendNote">Nothing sending.</span>
+    <div class="spacer" style="flex:1"></div>
+    <button class="btn btn-sm" id="saveDraft">Save draft here</button>
+    <button class="btn btn-primary" id="sendBtn">✉ Send newsletter</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="modalHost"></div>
+
+<script>
+/* ============================================================================
+   mailer.html
+   ----------------------------------------------------------------------------
+   HOW ACCESS WORKS
+     Two locks, both checked by the database, not by this page:
+       1. Supabase sign-in — the signed-in email must be one of the admin
+          addresses in newsletter_is_admin().
+       2. The mailer PIN — compared inside newsletter_check_pin() against
+          public.app_secrets. The PIN is never stored in this file.
+
+   HOW SENDING WORKS
+     All sends go through the Supabase Edge Function to Resend. The Resend API
+     key stays server-side; this page never uses a browser email provider.
+   ============================================================================ */
+const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+
+const MAILER = {
+  // Resend is called only by the authenticated Supabase Edge Function; its
+  // secret never reaches this browser page.
+  edgeUrl: SUPABASE_URL + '/functions/v1/send-newsletter',
+
+  /* The From address must be a domain you have verified in Resend (or
+     whatever you use). Mail to a From address you don't own goes to spam. */
+  from:    'NGHSIANS <news@nghsians.com>',
+  replyTo: 'nghsians@gmail.com',
+  siteUrl: 'https://nghsians.com',
+  brand:   'NGHSIANS',
+  assetsBucket: 'newsletter-media',
+  logoUrl: 'https://nghsians.com/assets/mailer/logo.png',
+  footerLogoUrl: 'https://nghsians.com/assets/mailer/footer-logo.png'
+};
+
+const EMAIL_KEY = 'nghsmailer_email';
+let supa = null, PIN = '', subscribers = [], selected = new Set();
+let hasSession = false;   // already signed in → only the PIN is asked for
+
+/* ------------------------------------------------------------------ helpers */
+const $  = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+function toast(msg, kind) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg;
+  $('toast').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; }, 4200);
+  setTimeout(() => t.remove(), 4700);
+}
+function modal(title, bodyHtml, actions) {
+  $('modalHost').innerHTML =
+    '<div class="modal-mask"><div class="modal"><h3>' + esc(title) + '</h3>' + bodyHtml +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:18px">' +
+    (actions || '<button class="btn" data-close>Close</button>') + '</div></div></div>';
+  $('modalHost').querySelectorAll('[data-close]').forEach(b =>
+    b.addEventListener('click', () => $('modalHost').innerHTML = ''));
+  return $('modalHost');
+}
+
+/* ------------------------------------------------------ campaign design */
+const THEME_PRESETS = {
+  nghsians: {
+    outer:'#0b0c0d', card:'#121316', text:'#f3ecd9', muted:'#aaa391',
+    accent:'#ffeb80', accent2:'#710c04', button:'#8d0f05', buttonText:'#fff7e6',
+    footer:'#050505', footerText:'#e8e1d2',
+    headingFont:"'Anton',Impact,'Arial Narrow',sans-serif",
+    bodyFont:"'DM Sans',Arial,Helvetica,sans-serif", align:'center'
+  },
+  signday60: {
+    outer:'#17130e', card:'#f4ecd8', text:'#201812', muted:'#5a4a38',
+    accent:'#8f1a12', accent2:'#c9a227', button:'#8f1a12', buttonText:'#f4ecd8',
+    footer:'#17130e', footerText:'#f3ecd9',
+    headingFont:"'Anton',Impact,'Arial Narrow',sans-serif",
+    bodyFont:"'DM Sans',Arial,Helvetica,sans-serif", align:'center'
+  }
+};
+const COLOR_FIELDS = {
+  outer:'colorOuter', card:'colorCard', text:'colorText', muted:'colorMuted',
+  accent:'colorAccent', accent2:'colorAccent2', button:'colorButton',
+  buttonText:'colorButtonText', footer:'colorFooter', footerText:'colorFooterText'
+};
+let changingPreset = false;
+
+function applyTheme(name) {
+  const preset = THEME_PRESETS[name];
+  if (!preset) { refreshPreview(); return; }
+  changingPreset = true;
+  Object.entries(COLOR_FIELDS).forEach(([key,id]) => $(id).value = preset[key]);
+  $('headingFont').value = preset.headingFont;
+  $('bodyFont').value = preset.bodyFont;
+  $('textAlign').value = preset.align;
+  $('themeSelect').value = name;
+  changingPreset = false;
+  refreshPreview();
+}
+function markCustomTheme() {
+  if (changingPreset) return;
+  $('themeSelect').value = 'custom';
+  refreshPreview();
+}
+function designValues() {
+  const colors = Object.fromEntries(Object.entries(COLOR_FIELDS).map(([key,id]) => [key,$(id).value]));
+  return {
+    theme:$('themeSelect').value, colors,
+    headingFont:$('headingFont').value, bodyFont:$('bodyFont').value,
+    align:$('textAlign').value === 'left' ? 'left' : 'center'
+  };
+}
+function normalizeLink(raw) {
+  const value = String(raw || '').trim();
+  if (!value) throw new Error('Add a destination for the call-to-action button.');
+  if (value.startsWith('/') && !value.startsWith('//')) return new URL(value, MAILER.siteUrl).href;
+  let parsed;
+  try { parsed = new URL(value); } catch (e) { throw new Error('Use a website URL, a mailto link, or a site path such as /account.html.'); }
+  if (!['https:','http:','mailto:'].includes(parsed.protocol)) throw new Error('Use an HTTPS, HTTP, or email link for the button.');
+  return parsed.href;
+}
+function normalizeHeroUrl(raw) {
+  const value = String(raw || '').trim();
+  if (!value) throw new Error('Add the required 1920 × 1080 hero image first.');
+  let parsed;
+  try { parsed = new URL(value, MAILER.siteUrl); }
+  catch (e) { throw new Error('Use a public HTTPS image URL or upload the image to newsletter storage.'); }
+  if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+    throw new Error('The hero image must use a public HTTPS URL.');
+  }
+  return parsed.href;
+}
+function editorHtml() {
+  return $('srcBox').classList.contains('on') ? $('srcBox').value : $('editor').innerHTML;
+}
+function setEditorHtml(html) {
+  $('editor').innerHTML = html || '';
+  $('srcBox').value = html || '';
+}
+function fillPreviewPlaceholders(html, r) {
+  const unsubscribe = MAILER.siteUrl + '/unsubscribe.html?u=' + encodeURIComponent(r.unsub_token || '');
+  return String(html)
+    .replace(/\{\{\s*name\s*\}\}/gi, esc(r.name || 'there'))
+    .replace(/\{\{\s*batch\s*\}\}/gi, esc(r.batch_year || r.batch || ''))
+    .replace(/\{\{\s*email\s*\}\}/gi, esc(r.email || ''))
+    .replace(/\{\{\s*unsubscribe_url\s*\}\}/gi, esc(unsubscribe));
+}
+function exec(cmd) { $('editor').focus(); try { document.execCommand(cmd, false, null); } catch (e) {} refreshPreview(); }
+function block(tag) {
+  $('editor').focus();
+  try { document.execCommand('formatBlock', false, tag); } catch (e) {}
+  refreshPreview();
+}
+function editorText() {
+  const box = document.createElement('div');
+  box.innerHTML = editorHtml();
+  return (box.textContent || '').replace(/\u00a0/g,' ').trim();
+}
+function getComposerError() {
+  if (!$('subject').value.trim()) return 'Add a subject line first.';
+  try { normalizeHeroUrl($('heroImageUrl').value); } catch (e) { return e.message; }
+  if (!$('heroAlt').value.trim()) return 'Add a short description for the hero image (alt text).';
+  if (!$('heading1').value.trim()) return 'Add Heading 1.';
+  if (!$('heading2').value.trim()) return 'Add the subheading.';
+  if (!editorText()) return 'Add the detailed message.';
+  if (!$('sectionTitle').value.trim()) return 'Add the section subheading.';
+  if (!$('buttonText').value.trim()) return 'Add a name for the call-to-action button.';
+  try { normalizeLink($('buttonUrl').value); } catch (e) { return e.message; }
+  return '';
+}
+function readImageDimensions(src) {
+  return new Promise((resolve,reject) => {
+    const img = new Image();
+    const timer = setTimeout(() => reject(new Error('The hero image took too long to load. Use a public HTTPS image URL.')), 15000);
+    img.onload = () => {
+      clearTimeout(timer);
+      if (img.naturalWidth !== 1920 || img.naturalHeight !== 1080) {
+        reject(new Error('The hero image must be exactly 1920 × 1080 pixels; this one is ' + img.naturalWidth + ' × ' + img.naturalHeight + '.'));
+      } else resolve({width:img.naturalWidth,height:img.naturalHeight});
+    };
+    img.onerror = () => { clearTimeout(timer); reject(new Error('Could not load the hero image. Check that its HTTPS URL is public and works outside your Drive.')); };
+    img.referrerPolicy = 'no-referrer';
+    img.src = src;
+  });
+}
+function checkImageDimensions(src) {
+  return readImageDimensions(normalizeHeroUrl(src));
+}
+function emailShell() {
+  const d = designValues(), c = d.colors;
+  const themeIsSignDay = d.theme === 'signday60';
+  const headerLogo = MAILER.logoUrl;
+  const headerLabel = themeIsSignDay ? 'NGHS 60th Sign Day' : MAILER.brand;
+  const headerSub = themeIsSignDay ? 'BATCH 2027 · IT’S NOW OR NEVER' : 'NEWS FROM THE NGHSIANS COMMUNITY';
+  const subject = $('subject').value.trim() || 'NGHSIANS Update';
+  const preheader = $('preheader').value.trim();
+  let heroUrl = '';
+  try { heroUrl = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
+  const heroAlt = $('heroAlt').value.trim() || 'NGHSIANS newsletter image';
+  const h1 = $('heading1').value.trim() || 'Your main headline';
+  const h2 = $('heading2').value.trim() || 'A short supporting line';
+  const sectionTitle = $('sectionTitle').value.trim() || 'What happens next?';
+  const buttonText = $('buttonText').value.trim() || 'Read more';
+  const body = editorHtml().trim() || '<p style="margin:0">Write your detailed message here.</p>';
+  let buttonHref = '#preview-button';
+  try { buttonHref = normalizeLink($('buttonUrl').value); } catch (e) {}
+  const target = $('buttonNewTab').checked ? '_blank' : '_self';
+  const align = d.align;
+  const button = `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:20px auto 0"><tr><td align="center" bgcolor="${c.button}" style="border:1px solid ${c.accent2};border-radius:6px"><a href="${esc(buttonHref)}" target="${target}" rel="noopener" style="display:inline-block;padding:15px 26px;min-width:150px;color:${c.buttonText};font-family:${d.bodyFont};font-size:15px;line-height:1.2;font-weight:700;text-decoration:none;text-align:center;border-radius:6px">${esc(buttonText)}</a></td></tr></table>`;
+  const pre = preheader ? `<div style="display:none!important;max-height:0;max-width:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all">${esc(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>` : '';
+  const hero = heroUrl
+    ? `<img src="${esc(heroUrl)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">`
+    : `<div style="padding:70px 18px;background:${c.accent2};color:${c.buttonText};font-family:${d.bodyFont};font-size:13px;font-weight:700;text-align:center">Required 1920 × 1080 hero image will appear here</div>`;
+  const signDayRibbon = themeIsSignDay
+    ? `<tr><td align="center" style="padding:11px 22px;background:${c.accent};color:${c.buttonText};font-family:${d.headingFont};font-size:12px;letter-spacing:2px;text-transform:uppercase">60TH SIGN DAY · BATCH 2027</td></tr>` : '';
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><title>${esc(subject)}</title></head>
+<body style="margin:0;padding:0;background:${c.outer};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%">
+${pre}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 auto;background:${c.outer}"><tr><td align="center" style="padding:22px 10px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;margin:0 auto;background:${c.card};border:1px solid ${c.accent2};border-radius:8px;overflow:hidden">
+<tr><td style="padding:0;background:${c.card}">${hero}</td></tr>
+<tr><td height="5" bgcolor="${c.accent}" style="height:5px;font-size:0;line-height:0">&nbsp;</td></tr>
+<tr><td align="center" style="padding:20px 24px 16px;background:${c.card};text-align:center"><img src="${esc(headerLogo)}" width="66" height="66" alt="${esc(headerLabel)}" style="display:block;width:66px;height:66px;object-fit:contain;margin:0 auto 8px;border:0"><div style="font-family:${d.headingFont};font-size:20px;line-height:1.15;letter-spacing:1px;text-transform:uppercase;color:${c.text}">${esc(headerLabel)}</div><div style="margin-top:5px;font-family:${d.bodyFont};font-size:10px;line-height:1.4;letter-spacing:1.5px;color:${c.muted}">${esc(headerSub)}</div></td></tr>
+${signDayRibbon}
+<tr><td align="${align}" style="padding:28px 30px 34px;text-align:${align};font-family:${d.bodyFont};color:${c.text}">
+<h1 style="margin:0 0 11px;font-family:${d.headingFont};font-size:30px;line-height:1.16;font-weight:700;letter-spacing:.2px;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(h1)}</h1>
+<h2 style="margin:0 auto 22px;font-family:${d.bodyFont};font-size:18px;line-height:1.45;font-weight:600;color:${c.text};text-align:${align}">${esc(h2)}</h2>
+<div style="font-family:${d.bodyFont};font-size:15px;line-height:1.75;color:${c.text};text-align:${align}">${body}</div>
+<div style="height:1px;margin:25px auto 20px;max-width:100px;background:${c.accent2};font-size:0;line-height:0">&nbsp;</div>
+<h3 style="margin:0;font-family:${d.headingFont};font-size:20px;line-height:1.25;font-weight:700;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(sectionTitle)}</h3>
+${button}
+</td></tr>
+<tr><td align="center" style="padding:24px 22px 26px;background:${c.footer};border-top:3px solid ${c.accent2};text-align:center;font-family:${d.bodyFont};color:${c.footerText}">
+<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(MAILER.footerLogoUrl)}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;object-fit:contain;margin:0 auto 13px;border:0"></a>
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px"><tr>
+<td style="padding:0 4px"><a href="https://facebook.com/NasirabadBoys" aria-label="Facebook" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">f</a></td>
+<td style="padding:0 4px"><a href="https://youtube.com/@nghsians" aria-label="YouTube" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;border-radius:3px">▶</a></td>
+<td style="padding:0 4px"><a href="https://instagram.com/nghsians" aria-label="Instagram" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">◎</a></td>
+<td style="padding:0 4px"><a href="${esc(MAILER.siteUrl)}" aria-label="Website" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;border-radius:3px">↗</a></td>
+</tr></table>
+<div style="font-family:${d.headingFont};font-size:18px;line-height:1.2;letter-spacing:1.2px;color:${c.footerText};text-transform:uppercase;margin-bottom:10px">NGHSIANS</div>
+<div style="max-width:460px;margin:0 auto;font-size:12px;line-height:1.65;color:${c.footerText};opacity:.88">You received this email because you signed up on our website.</div>
+<div style="margin-top:11px;font-size:12px;line-height:1.7"><a href="{{unsubscribe_url}}" style="color:${c.footerText};font-weight:700;text-decoration:underline">Unsubscribe</a><span style="padding:0 7px;color:${c.footerText}">·</span><a href="${esc(MAILER.siteUrl)}/account.html" style="color:${c.footerText};text-decoration:underline">Manage preferences</a></div>
+</td></tr>
+</table>
+</td></tr></table></body></html>`;
+}
+function refreshPreview() {
+  const demo = { name:'Rahim', batch_year:'2019', email:'rahim@example.com', unsub_token:'preview' };
+  const f = $('preview');
+  f.srcdoc = fillPreviewPlaceholders(emailShell(), demo);
+  f.style.maxWidth = '';
+  f.style.margin = '';
+  if (f.dataset.view === 'mobile') { f.style.maxWidth = '390px'; f.style.margin = '0 auto'; }
+  $('subjectCount').textContent = $('subject').value.length + ' / 180';
+  $('preheaderCount').textContent = $('preheader').value.length + ' / 180';
+}
+
+/* ------------------------------------------------------------ subscribers */
+async function loadSubs() {
+  $('recEmpty').textContent = 'Loading subscribers…';
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_list', { p_pin: PIN });
+    if (error) throw error;
+    subscribers = data || [];
+    selected = new Set(subscribers.map(r => r.email));
+    renderRecipients(); renderStats();
+  } catch (err) {
+    console.error(err);
+    $('recEmpty').textContent = 'Could not load: ' + (err.message || err);
+    toast('Could not load subscribers: ' + (err.message || err), 'err');
+  }
+}
+async function renderStats() {
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_stats', { p_pin: PIN });
+    if (error) throw error;
+    const s = data || {};
+    $('stats').innerHTML = [
+      ['Total subscribers', s.total || 0, ''],
+      ['With accounts',     s.accounts || 0, 's-ok'],
+      ['Imported contacts', s.contacts || 0, ''],
+      ['Opted out',         s.opted_out || 0, 's-dim'],
+      ['Last send',         s.last_send || '—', 's-dim']
+    ].map(([l, v, c]) =>
+      '<div class="stat ' + c + '"><b>' + esc(v) + '</b><span>' + esc(l) + '</span></div>').join('');
+  } catch (err) { console.error(err); }
+}
+function visibleRows() {
+  const q = ($('recSearch').value || '').trim().toLowerCase();
+  const a = $('fAccount').checked, c = $('fContact').checked;
+  return subscribers.filter(r => {
+    if (r.kind === 'account' && !a) return false;
+    if (r.kind === 'contact' && !c) return false;
+    if (!q) return true;
+    return (r.email + ' ' + (r.name || '') + ' ' + (r.batch_year || '')).toLowerCase().includes(q);
+  });
+}
+function renderRecipients() {
+  const rows = visibleRows();
+  $('recEmpty').classList.toggle('hidden', rows.length > 0);
+  if (!rows.length && subscribers.length) $('recEmpty').textContent = 'No match for that search.';
+  else if (!subscribers.length) $('recEmpty').textContent = 'No subscribers yet.';
+  $('recBody').innerHTML = rows.map(r =>
+    '<tr data-email="' + esc(r.email) + '">' +
+      '<td><input type="checkbox" data-pick="' + esc(r.email) + '"' + (selected.has(r.email) ? ' checked' : '') + ' style="accent-color:#ffeb80"></td>' +
+      '<td class="name">' + esc(r.name || '—') + (r.batch_year ? ' <span class="muted" style="font-weight:400">· ' + esc(r.batch_year) + '</span>' : '') + '</td>' +
+      '<td class="email">' + esc(r.email) + '</td>' +
+      '<td><span class="tag ' + esc(r.kind) + '">' + esc(r.kind === 'account' ? 'account' : 'imported') + '</span></td>' +
+    '</tr>').join('');
+  $('selCount').textContent = selected.size;
+}
+async function loadHistory() {
+  try {
+    const { data, error } = await supa.rpc('newsletter_admin_history', { p_pin: PIN, p_limit: 25 });
+    if (error) throw error;
+    const rows = data || [];
+    $('histEmpty').classList.toggle('hidden', rows.length > 0);
+    $('histBody').innerHTML = rows.map(h =>
+      '<tr><td>' + esc(h.subject || '(no subject)') + '</td>' +
+      '<td>' + esc(h.recipient_count) + '</td>' +
+      '<td class="muted">' + esc(String(h.created_at || '').slice(0, 16).replace('T', ' ')) + '</td></tr>').join('');
+  } catch (err) { console.error(err); }
+}
+
+/* --------------------------------------------- talking to the Edge Function
+   A bare "Failed to fetch" out of the browser is useless — it hides which of
+   the four things is actually wrong (not deployed / CORS / auth / PIN). This
+   wrapper keeps the HTTP status and the response body so we can say which.  */
+async function edgeFetch(payload) {
+  const { data } = await supa.auth.getSession();
+  const token = data.session ? data.session.access_token : '';
+  if (!token) return { ok: false, kind: 'auth', msg: 'Not signed in — there is no access token to send.' };
+
+  let resp;
+  try {
+    resp = await fetch(MAILER.edgeUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    // fetch() itself threw — DNS, offline, or the gateway/preflight refused us
+    // before any response came back. This is the "Failed to fetch" case.
+    return {
+      ok: false, kind: 'network',
+      msg: 'The browser could not reach the Edge Function at all.',
+      detail: String((e && e.message) || e)
+    };
+  }
+
+  const text = await resp.text().catch(() => '');
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (e) { /* not JSON */ }
+
+  if (resp.status === 404) {
+    return { ok: false, kind: 'missing', status: 404,
+      msg: 'HTTP 404 — nothing is deployed at that address. Either the function was not deployed, or its name is not exactly "send-newsletter".',
+      detail: text.slice(0, 300) };
+  }
+  if (!resp.ok) {
+    return { ok: false, kind: 'http', status: resp.status,
+      msg: (json && (json.error || json.message)) || ('HTTP ' + resp.status + ' with no message'),
+      detail: text.slice(0, 300) };
+  }
+  return { ok: true, status: resp.status, data: json || {} };
+}
+
+
+/* ---------------------------------------------------------------- sending */
+function currentRecipients() { return subscribers.filter(r => selected.has(r.email)); }
+function setSending(on, label) {
+  $('sendBtn').disabled = on;
+  $('sendBtn').textContent = on ? (label || 'Sending…') : '✉ Send newsletter';
+}
+async function sendNewsletter() {
+  const subject = $('subject').value.trim();
+  const error = getComposerError();
+  const recips = currentRecipients();
+  if (error) { toast(error, 'warn'); return; }
+  if (!recips.length) { toast('No recipients selected.', 'warn'); return; }
+  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
+  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
+  const body = emailShell();
+
+  const ok = await new Promise(res => {
+    const m = modal('Send to ' + recips.length + ' people?',
+      '<p>Subject: <strong style="color:rgba(255,235,128,1)">' + esc(subject) + '</strong></p>' +
+      '<p>This really sends the email. It cannot be undone — recipients can unsubscribe from the link in the footer.</p>',
+      '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goSend">Send to ' + recips.length + '</button>');
+    m.querySelector('#goSend').addEventListener('click', () => { $('modalHost').innerHTML = ''; res(true); });
+    m.querySelector('[data-close]').addEventListener('click', () => res(false));
+  });
+  if (!ok) return;
+
+  const preheader = $('preheader').value.trim();
+  const payload = recips.map(r => ({ email: r.email, name: r.name, batch: r.batch_year, unsub_token: r.unsub_token }));
+  setSending(true, 'Sending…');
+  $('progBar').style.width = '8%';
+  $('sendNote').textContent = 'Sending…';
+
+  let result;
+  try {
+    const res = await edgeFetch({ pin: PIN, subject, preheader, body, from: MAILER.from, replyTo: MAILER.replyTo, recipients: payload });
+    if (!res.ok) {
+      // Keep the gateway response so we can distinguish auth, deployment,
+      // network and provider errors without guessing.
+      $('progBar').style.width = '0%';
+      $('sendNote').textContent = 'Not sent.';
+      setSending(false);
+      toast('Send failed: ' + res.msg, 'err');
+      return;
+    }
+    result = res.data;
+  } catch (err) {
+    console.error(err);
+    $('progBar').style.width = '0%';
+    $('sendNote').textContent = 'Failed.';
+    setSending(false);
+    toast('Send failed: ' + (err.message || err), 'err');
+    return;
+  }
+
+  $('progBar').style.width = '100%';
+  const sent = result.sent != null ? result.sent : payload.length;
+  const failed = result.failed || 0;
+  $('sendNote').textContent = sent + ' sent' + (failed ? ', ' + failed + ' failed' : '');
+  setSending(false);
+  try { await supa.rpc('newsletter_admin_log', { p_pin: PIN, p_subject: subject, p_preview: preheader, p_body: body, p_count: sent }); } catch (e) { console.error(e); }
+  loadHistory(); renderStats();
+  toast('Sent to ' + sent + ' subscribers' + (failed ? ' (' + failed + ' failed)' : '') + '.', failed ? 'warn' : '');
+  setTimeout(() => { $('progBar').style.width = '0%'; }, 2500);
+}
+async function sendTest() {
+  const { data: sess } = await supa.auth.getSession();
+  const me = sess.session && sess.session.user ? sess.session.user.email : '';
+  if (!me) { toast('Sign in first.', 'warn'); return; }
+  const subject = $('subject').value.trim();
+  const error = getComposerError();
+  if (error) { toast(error, 'warn'); return; }
+  try { await checkImageDimensions($('heroImageUrl').value.trim()); }
+  catch (e) { toast(e.message || 'Check the hero image.', 'err'); return; }
+  const body = emailShell();
+  const btn = $('testBtn');
+  const was = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const res = await edgeFetch({
+    pin: PIN, subject: '[TEST] ' + subject, preheader: $('preheader').value.trim(),
+    body, from: MAILER.from, replyTo: MAILER.replyTo,
+    recipients: [{ email: me, name: 'Admin', batch: '', unsub_token: '' }]
+  });
+  btn.disabled = false; btn.textContent = was;
+  if (res.ok) {
+    const sent = Number(res.data && res.data.sent || 0);
+    const failed = Number(res.data && res.data.failed || 0);
+    const providerError = res.data && Array.isArray(res.data.errors) ? res.data.errors[0] : '';
+    if (sent > 0 && failed === 0) {
+      toast('Resend accepted the test for ' + me + ' — check Inbox, Spam, and Promotions.');
+    } else {
+      toast('The test was not sent' + (providerError ? ': ' + providerError : ' — Resend reported no successful delivery.'), 'err');
+    }
+  } else if (res.kind === 'network') {
+    toast('Could not reach the sender: ' + (res.detail || res.msg), 'err');
+  } else {
+    toast('Test failed: ' + res.msg, 'err');
+  }
+}
+
+/* ------------------------------------------------------------ CSV import */
+function csvToRows(text) {
+  const lines = String(text).replace(/\r/g, '').split('\n').filter(l => l.trim());
+  if (!lines.length) return { rows:[], hasStatus:false, skippedInactive:0, skippedInvalid:0, duplicates:0 };
+  const split = (line) => {
+    const out = []; let cur = '', quoted = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (quoted && line[i + 1] === '"') { cur += '"'; i++; } else quoted = !quoted; }
+      else if (ch === ',' && !quoted) { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+    out.push(cur); return out.map(v => v.trim());
+  };
+  const head = split(lines[0]).map(h => h.trim().toLowerCase());
+  let iEmail = head.findIndex(h => ['email','e-mail','email address','subscriber','subscriber email'].includes(h));
+  if (iEmail < 0) iEmail = head.findIndex(h => /e-?mail/.test(h));
+  const iName = head.findIndex(h => /^(name|first name|full name|subscriber name)$/.test(h));
+  const iBatch = head.findIndex(h => /batch|year|class/.test(h));
+  const iStatus = head.findIndex(h => /^(status|subscription status|subscriber status)$/.test(h));
+  if (iEmail < 0) return { rows:[], hasStatus:iStatus >= 0, skippedInactive:0, skippedInvalid:lines.length - 1, duplicates:0 };
+  const rows = [], seen = new Set();
+  let skippedInactive = 0, skippedInvalid = 0, duplicates = 0;
+  lines.slice(1).forEach(line => {
+    const c = split(line), email = String(c[iEmail] || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { skippedInvalid++; return; }
+    if (iStatus >= 0) {
+      const status = String(c[iStatus] || '').trim().toLowerCase();
+      if (!['active','subscribed','confirmed','active subscriber','subscribed/active'].includes(status)) { skippedInactive++; return; }
+    }
+    if (seen.has(email)) { duplicates++; return; }
+    seen.add(email);
+    rows.push({ email, name:iName >= 0 ? (c[iName] || '') : '', batch_year:iBatch >= 0 ? (c[iBatch] || '') : '' });
+  });
+  return { rows, hasStatus:iStatus >= 0, skippedInactive, skippedInvalid, duplicates };
+}
+function openImport() {
+  const m = modal('Import subscribers',
+    '<p>Choose the MailerLite CSV file or paste its contents. The importer understands both <code>email</code> and MailerLite’s <code>Subscriber</code> column, and ignores send/open/click/location statistics.</p>' +
+    '<label class="field-label" for="impFile">CSV file</label><input id="impFile" class="input" type="file" accept=".csv,text/csv" style="margin-bottom:10px">' +
+    '<textarea id="impCsv" class="ta" style="min-height:145px;font-size:12px" placeholder="email,name,batch,status&#10;someone@example.com,Someone,2019,active"></textarea>' +
+    '<p class="hint" style="margin-top:8px">Unsubscribed, bounced, junk, unconfirmed, and unknown statuses are excluded. If the CSV has no status column, import only if it is an export of currently subscribed people. Importing never sends an email.</p>',
+    '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goImport">Review import</button>');
+  const fileInput = m.querySelector('#impFile');
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0]; if (!file) return;
+    try {
+      m.querySelector('#impCsv').value = await file.text();
+      toast('Loaded ' + file.name + ' — review before importing.');
+    } catch (e) { toast('Could not read that CSV file.', 'err'); }
+  });
+  m.querySelector('#goImport').addEventListener('click', async (ev) => {
+    const btn = ev.currentTarget;
+    const parsed = csvToRows(m.querySelector('#impCsv').value);
+    if (!parsed.rows.length) { toast('No valid email rows found. Check for an email or Subscriber column.', 'warn'); return; }
+    const noStatus = !parsed.hasStatus;
+    const summary = '<p><strong>' + parsed.rows.length + ' active-looking email(s)</strong> are ready to import.</p>' +
+      '<p>Duplicates in this file: ' + parsed.duplicates + '. Invalid rows: ' + parsed.skippedInvalid + '. Inactive/unknown statuses excluded: ' + parsed.skippedInactive + '.</p>' +
+      (noStatus ? '<p style="color:var(--warn)"><strong>This CSV has no subscription-status column.</strong> Continue only if this is MailerLite’s current active/subscribed list; do not use an export containing unsubscribed people.</p>' : '<p>Rows without an active/subscribed status will not be imported.</p>') +
+      '<p>Matching account emails are added to the account subscriber list; unmatched emails become imported contacts. <strong>No email will be sent.</strong></p>';
+    const confirmed = await new Promise(resolve => {
+      const c = modal('Confirm subscriber import', summary,
+        '<button class="btn" data-close>Go back</button><button class="btn btn-primary" id="confirmImport">Import ' + parsed.rows.length + '</button>');
+      c.querySelector('#confirmImport').addEventListener('click', () => { $('modalHost').innerHTML = ''; resolve(true); });
+      c.querySelector('[data-close]').addEventListener('click', () => resolve(false));
+    });
+    if (!confirmed) return;
+    btn.disabled = true; btn.textContent = 'Importing…';
+    try {
+      const { data, error } = await supa.rpc('newsletter_admin_import', { p_pin: PIN, p_rows: parsed.rows });
+      if (error) throw error;
+      $('modalHost').innerHTML = '';
+      toast('Imported — ' + data.matched_accounts + ' matched accounts, ' + data.contacts_added + ' new contacts, ' + data.skipped + ' skipped.' + (parsed.skippedInactive ? ' ' + parsed.skippedInactive + ' inactive rows excluded.' : ''));
+      loadSubs(); loadHistory();
+    } catch (err) { console.error(err); btn.disabled = false; btn.textContent = 'Review import'; toast('Import failed: ' + (err.message || err), 'err'); }
+  });
+}
+
+/* ------------------------------------------------------------ PIN + boot */
+function lock() {
+  PIN = '';
+  $('pinInput').value = ''; $('pinErr').textContent = '';
+  $('appView').classList.add('hidden');
+  $('pinView').classList.remove('hidden');
+  $('pinEmail').focus();
+}
+function unlock() {
+  $('pinView').classList.add('hidden');
+  $('appView').classList.remove('hidden');
+  try { sessionStorage.setItem(EMAIL_KEY, $('pinEmail').value.trim()); } catch (e) {}
+  loadSubs(); loadHistory(); refreshPreview();
+}
+
+$('pinForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const card = $('pinCard'), err = $('pinErr'), btn = $('pinBtn');
+  const email = $('pinEmail').value.trim(), pass = $('pinPass').value, pin = $('pinInput').value.trim();
+  err.textContent = '';
+  if (!email) { err.textContent = 'Enter your admin email.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  if (!hasSession && !pass) { err.textContent = 'Enter your account password.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  if (!pin)   { err.textContent = 'Enter the mailer PIN.'; card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400); return; }
+  btn.disabled = true; btn.textContent = 'Checking…';
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    });
+    let userEmail = email;
+    if (!hasSession) {
+      const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      userEmail = (data.user && data.user.email) || email;
+    }
+    // Prove the PIN (and the admin claim) against the database before unlocking.
+    const { error: pinErr } = await supa.rpc('newsletter_admin_stats', { p_pin: pin });
+    if (pinErr) throw new Error(/Wrong PIN/i.test(pinErr.message) ? 'Wrong PIN — try again.' : pinErr.message);
+    PIN = pin;
+    hasSession = true;
+    $('whoChip').innerHTML = 'Signed in as <b>' + esc(userEmail) + '</b>';
+    btn.disabled = false; btn.textContent = 'Unlock mailer';
+    unlock();
+  } catch (err2) {
+    console.error(err2);
+    err.textContent = err2.message === 'Invalid login credentials'
+      ? 'Wrong email or password.' : (err2.message || 'Could not unlock.');
+    card.classList.add('shake'); setTimeout(() => card.classList.remove('shake'), 400);
+    btn.disabled = false; btn.textContent = 'Unlock mailer';
+    $('pinInput').select();
+  }
+});
+
+async function uploadHeroFile(file) {
+  const status = $('heroStatus');
+  if (!file) return;
+  status.className = 'upload-status';
+  status.textContent = 'Checking image dimensions…';
+  try {
+    if (!supa) throw new Error('Unlock the mailer before uploading an image.');
+    if (!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('Choose a PNG, JPEG, or WebP image.');
+    if (file.size > 8 * 1024 * 1024) throw new Error('This image is larger than 8 MB. Please compress it before upload.');
+    const localUrl = URL.createObjectURL(file);
+    try { await readImageDimensions(localUrl); } finally { URL.revokeObjectURL(localUrl); }
+    status.textContent = 'Uploading to newsletter image storage…';
+    const ext = file.type === 'image/jpeg' ? 'jpg' : file.type.split('/')[1];
+    const nonce = window.crypto && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
+    const path = 'campaigns/' + Date.now() + '-' + nonce + '.' + ext;
+    const { error } = await supa.storage.from(MAILER.assetsBucket).upload(path, file, {
+      cacheControl:'31536000', contentType:file.type, upsert:false
+    });
+    if (error) {
+      if (/bucket.*not found|does not exist/i.test(error.message || '')) throw new Error('Image storage is not set up yet. Run supabase-newsletter-media.sql once, or paste a public HTTPS image URL instead.');
+      throw new Error(error.message || 'Upload failed.');
+    }
+    const { data } = supa.storage.from(MAILER.assetsBucket).getPublicUrl(path);
+    if (!data || !data.publicUrl) throw new Error('Upload finished, but Supabase did not return the public image URL.');
+    $('heroImageUrl').value = data.publicUrl;
+    $('heroImageUrl').dispatchEvent(new Event('input', { bubbles:true }));
+    if (!$('heroAlt').value.trim()) {
+      $('heroAlt').value = 'NGHSIANS newsletter hero image';
+      $('heroAlt').dispatchEvent(new Event('input', { bubbles:true }));
+    }
+    status.className = 'upload-status ok';
+    status.textContent = 'Uploaded and ready · 1920 × 1080';
+    refreshPreview();
+  } catch (e) {
+    status.className = 'upload-status err';
+    status.textContent = e.message || 'Could not upload this image.';
+    toast(status.textContent, 'err');
+  }
+}
+
+/* ---------------------------------------------------------------- wiring */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.tool[data-cmd]').forEach(b => b.addEventListener('click', () => exec(b.dataset.cmd)));
+  document.querySelectorAll('.tool[data-block]').forEach(b => b.addEventListener('click', () => block(b.dataset.block)));
+
+  $('linkBtn').addEventListener('click', () => {
+    const raw = prompt('Link URL (https://…, /account.html, or mailto:…)');
+    if (!raw) return;
+    try {
+      const url = normalizeLink(raw);
+      $('editor').focus(); document.execCommand('createLink', false, url); refreshPreview();
+    } catch (e) { toast(e.message || 'That link is not valid.', 'warn'); }
+  });
+  $('srcBtn').addEventListener('click', () => {
+    const box = $('srcBox'), ed = $('editor'), on = !box.classList.contains('on');
+    if (on) { box.value = ed.innerHTML; box.classList.add('on'); ed.style.display = 'none'; }
+    else    { ed.innerHTML = box.value; box.classList.remove('on'); ed.style.display = ''; }
+    refreshPreview();
+  });
+
+  const TPLS = {
+    announce: {
+      subject:'NGHSIANS Announcement', h1:'An update from NGHSIANS', h2:'Important news for our community',
+      body:'<p>Write the important update here. Keep the opening clear, then add any useful details below.</p><p><br></p>',
+      section:'What you need to know', button:'Read the update', url:'https://nghsians.com/'
+    },
+    event: {
+      subject:'You’re invited · NGHSIANS meetup', h1:'Let’s meet again', h2:'A day for our school community',
+      body:'<p><strong>When:</strong> Add the date and time<br><strong>Where:</strong> Add the location<br><strong>Bring:</strong> Yourself and your school memories</p><blockquote>Everyone from every batch is welcome.</blockquote><p><br></p>',
+      section:'Save your place', button:'Event details', url:'https://nghsians.com/'
+    },
+    merch: {
+      subject:'A new NGHSIANS merch drop', h1:'The new collection is here', h2:'Made for the memories we share',
+      body:'<p>Tell everyone what is new, what it costs, and when orders close.</p><p><br></p>',
+      section:'See the collection', button:'Visit the store', url:'https://nghsians.com/merch.html'
+    },
+    signout: {
+      subject:'A note from the NGHSIANS team', h1:'Until next time', h2:'Thank you for being part of this community',
+      body:'<p>Write your final note here.</p><p><br></p>',
+      section:'With appreciation', button:'Visit NGHSIANS', url:'https://nghsians.com/'
+    }
+  };
+  document.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => {
+    const t = TPLS[b.dataset.tpl]; if (!t) return;
+    $('subject').value = t.subject; $('heading1').value = t.h1; $('heading2').value = t.h2;
+    setEditorHtml(t.body); $('sectionTitle').value = t.section;
+    $('buttonText').value = t.button; $('buttonUrl').value = t.url;
+    refreshPreview(); scheduleAutosave();
+  }));
+
+  applyTheme('nghsians');
+  $('themeSelect').addEventListener('change', () => {
+    if ($('themeSelect').value === 'custom') refreshPreview();
+    else applyTheme($('themeSelect').value);
+  });
+  Object.values(COLOR_FIELDS).forEach(id => $(id).addEventListener('input', markCustomTheme));
+  ['headingFont','bodyFont','textAlign'].forEach(id => $(id).addEventListener('change', markCustomTheme));
+  $('heroFile').addEventListener('change', e => uploadHeroFile(e.target.files && e.target.files[0]));
+  $('heroImageUrl').addEventListener('input', () => {
+    const hasUrl = !!$('heroImageUrl').value.trim();
+    $('heroStatus').className = 'upload-status' + (hasUrl ? ' ok' : '');
+    $('heroStatus').textContent = hasUrl ? 'Image URL set · exact dimensions checked before sending' : 'No image selected yet.';
+    refreshPreview();
+  });
+  const composerInputs = ['subject','preheader','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'];
+  composerInputs.forEach(id => $(id).addEventListener('input', refreshPreview));
+  $('buttonNewTab').addEventListener('change', refreshPreview);
+  $('editor').addEventListener('input', refreshPreview);
+  $('srcBox').addEventListener('input', refreshPreview);
+
+  $('viewSeg').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    $('viewSeg').querySelectorAll('button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); $('preview').dataset.view = b.dataset.view; refreshPreview();
+  });
+
+  $('recSearch').addEventListener('input', renderRecipients);
+  $('fAccount').addEventListener('change', renderRecipients);
+  $('fContact').addEventListener('change', renderRecipients);
+  $('recBody').addEventListener('change', (e) => {
+    const cb = e.target.closest('[data-pick]'); if (!cb) return;
+    if (cb.checked) selected.add(cb.dataset.pick); else selected.delete(cb.dataset.pick);
+    $('selCount').textContent = selected.size;
+  });
+  $('selAll').addEventListener('click',  () => { visibleRows().forEach(r => selected.add(r.email));  renderRecipients(); });
+  $('selNone').addEventListener('click', () => { visibleRows().forEach(r => selected.delete(r.email)); renderRecipients(); });
+  $('selCopy').addEventListener('click', async () => {
+    const list = currentRecipients().map(r => r.email).join(', ');
+    try { await navigator.clipboard.writeText(list); toast('Copied ' + currentRecipients().length + ' addresses.'); }
+    catch (e) { modal('Addresses', '<pre>' + esc(list) + '</pre>'); }
+  });
+
+  $('sendBtn').addEventListener('click', sendNewsletter);
+  $('testBtn').addEventListener('click', sendTest);
+  $('refreshBtn').addEventListener('click', () => { loadSubs(); loadHistory(); toast('Refreshed.'); });
+  $('histBtn').addEventListener('click', loadHistory);
+  $('importBtn').addEventListener('click', openImport);
+  $('lockBtn').addEventListener('click', lock);
+
+  $('clearBtn').addEventListener('click', async () => {
+    const ok = await new Promise(res => {
+      const m = modal('Clear the composer?', '<p>This clears campaign content and the hero image URL. Your theme, recipient list and saved campaigns stay unchanged.</p>',
+        '<button class="btn" data-close>Cancel</button><button class="btn btn-danger" id="goClear">Clear it</button>');
+      m.querySelector('#goClear').addEventListener('click', () => { $('modalHost').innerHTML = ''; res(true); });
+      m.querySelector('[data-close]').addEventListener('click', () => res(false));
+    });
+    if (!ok) return;
+    ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = '');
+    $('heroFile').value = ''; $('heroStatus').className = 'upload-status'; $('heroStatus').textContent = 'No image selected yet.';
+    $('buttonNewTab').checked = true; setEditorHtml(''); refreshPreview(); saveDraftSilently();
+  });
+
+  // Drafts stay in this browser only; no subscriber data or login credentials are saved.
+  const DRAFT = 'nghsmailer_draft';
+  const draftSnapshot = () => {
+    const d = designValues();
+    return {
+      version:2, subject:$('subject').value, preheader:$('preheader').value,
+      theme:d.theme, colors:d.colors, headingFont:d.headingFont, bodyFont:d.bodyFont, align:d.align,
+      heroImageUrl:$('heroImageUrl').value, heroAlt:$('heroAlt').value,
+      heading1:$('heading1').value, heading2:$('heading2').value, body:editorHtml(),
+      sectionTitle:$('sectionTitle').value, buttonText:$('buttonText').value,
+      buttonUrl:$('buttonUrl').value, buttonNewTab:$('buttonNewTab').checked
+    };
+  };
+  const saveDraftSilently = () => {
+    try { localStorage.setItem(DRAFT, JSON.stringify(draftSnapshot())); } catch (e) {}
+  };
+  let autosaveTimer;
+  const scheduleAutosave = () => { clearTimeout(autosaveTimer); autosaveTimer = setTimeout(saveDraftSilently, 650); };
+  [...composerInputs,'heroImageUrl','editor','srcBox','buttonNewTab'].forEach(id => $(id).addEventListener('input', scheduleAutosave));
+  Object.values(COLOR_FIELDS).forEach(id => $(id).addEventListener('input', scheduleAutosave));
+  ['themeSelect','headingFont','bodyFont','textAlign'].forEach(id => $(id).addEventListener('change', scheduleAutosave));
+  $('saveDraft').addEventListener('click', () => { saveDraftSilently(); toast('Draft saved in this browser.'); });
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT) || 'null');
+    if (d) {
+      if (d.theme && d.theme !== 'custom' && THEME_PRESETS[d.theme]) applyTheme(d.theme);
+      if (d.colors) Object.entries(COLOR_FIELDS).forEach(([key,id]) => { if (/^#[0-9a-f]{6}$/i.test(d.colors[key] || '')) $(id).value = d.colors[key]; });
+      if (d.headingFont) $('headingFont').value = d.headingFont;
+      if (d.bodyFont) $('bodyFont').value = d.bodyFont;
+      if (d.align) $('textAlign').value = d.align === 'left' ? 'left' : 'center';
+      $('themeSelect').value = d.theme || 'nghsians';
+      ['subject','preheader','heroImageUrl','heroAlt','heading1','heading2','sectionTitle','buttonText','buttonUrl'].forEach(id => $(id).value = d[id] || '');
+      $('buttonNewTab').checked = d.buttonNewTab !== false;
+      setEditorHtml(d.body || '');
+      if (d.heroImageUrl) { $('heroStatus').className = 'upload-status ok'; $('heroStatus').textContent = 'Saved image URL · dimensions checked before sending'; }
+      refreshPreview();
+      toast('Draft restored.');
+    }
+  } catch (e) {}
+
+  refreshPreview();
+  bootGate();
+});
+
+/* If the committee member already signed in on this device (Supabase keeps the
+   session), a reload only asks for the PIN again — not the password too. */
+async function bootGate() {
+  try {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false }
+    });
+    const { data } = await supa.auth.getSession();
+    const email = data.session && data.session.user ? data.session.user.email : '';
+    const saved = (() => { try { return sessionStorage.getItem(EMAIL_KEY) || localStorage.getItem(EMAIL_KEY) || ''; } catch (e) { return ''; } })();
+    if (email) {
+      hasSession = true;
+      $('pinEmail').value = email;
+      $('pinPass').value = '';
+      $('pinPass').placeholder = 'already signed in';
+      $('pinPass').disabled = true;
+      $('pinInput').focus();
+    } else if (saved) {
+      $('pinEmail').value = saved;
+      $('pinEmail').focus();
+    } else {
+      $('pinEmail').focus();
+    }
+  } catch (e) { $('pinEmail').focus(); }
+}
+</script>
+</body>
+</html>

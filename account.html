@@ -579,6 +579,65 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
   border: 1px solid rgba(var(--gold),0.2); border-radius: 20px;
   padding: 4px 11px; margin-bottom: 16px;
 }
+/* ============================================================
+   NEWSLETTER — merged into the account
+     • .news-consent   the required checkbox on the signup form
+     • .news-*         the one-time "you will start receiving news" notice
+   ============================================================ */
+.news-consent {
+  margin: 2px 0 16px; padding: 12px 14px;
+  border: 1px solid rgba(var(--gold), 0.16); border-radius: 10px;
+  background: var(--gold-glow); text-align: left;
+}
+.news-consent .checkbox-wrap { align-items: flex-start; gap: 9px; }
+.news-consent .checkbox-wrap input { margin-top: 2px; }
+.news-consent .checkbox-wrap span { color: var(--text); font-size: 0.84rem; line-height: 1.45; }
+.news-consent-note { margin: 7px 0 0 24px; font-size: 0.72rem; line-height: 1.5; color: var(--text-dim); }
+.news-consent-note em { color: rgba(var(--gold), 0.8); font-style: normal; }
+
+.news-overlay { z-index: 10000; background: rgba(0,0,0,0.94); }
+.news-box {
+  max-width: 430px; border-color: rgba(var(--gold), 0.3);
+  max-height: calc(100vh - 32px); overflow-y: auto;
+}
+.news-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase;
+  color: rgba(var(--gold), 0.85); background: var(--gold-dim);
+  border: 1px solid rgba(var(--gold), 0.2); border-radius: 20px;
+  padding: 4px 11px; margin-bottom: 16px;
+}
+.news-line { margin: 0 0 10px; font-size: 0.9rem; line-height: 1.6; color: var(--text-dim); }
+.news-line strong { color: rgba(var(--gold), 0.95); }
+.news-en { text-align: left; }
+.news-bn { font-family: var(--font-bangla); font-size: 0.95rem; line-height: 1.75; text-align: left; direction: ltr; }
+.news-mail {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--gold-glow); border: 1px solid rgba(var(--gold), 0.14);
+  border-radius: 10px; padding: 10px 14px; margin: 14px 0;
+}
+.news-mail-lbl { font-size: 0.68rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); }
+.news-mail-val { font-size: 0.85rem; font-weight: 600; color: rgba(var(--gold), 1); word-break: break-all; text-align: right; }
+.news-why {
+  background: var(--gold-glow); border: 1px solid rgba(var(--gold), 0.14);
+  border-radius: 10px; padding: 11px 14px; margin: 0 0 20px;
+  color: var(--text-dim); font-size: 0.8rem; line-height: 1.6; text-align: left;
+}
+.news-why strong { color: rgba(var(--gold), 0.95); }
+.news-why em { color: rgba(var(--gold), 0.8); font-style: normal; }
+#news-ok { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 12px; padding-bottom: 12px; }
+.news-btn-bn { font-family: var(--font-bangla); font-size: 0.78rem; font-weight: 600; letter-spacing: 0; opacity: 0.8; }
+#newsletter-row .data-val { font-size: 0.8rem; }
+.news-toggle { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.news-toggle input { cursor: pointer; accent-color: rgba(var(--gold),1); width: 14px; height: 14px; }
+.news-toggle span { font-size: 0.78rem; color: var(--text); }
+.news-pill {
+  display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: 1.1px;
+  text-transform: uppercase; border-radius: 20px; padding: 3px 9px;
+}
+.news-pill.on  { color: rgba(var(--gold), 1);        background: var(--gold-dim);      border: 1px solid rgba(var(--gold), 0.25); }
+.news-pill.off { color: var(--text-dim);             background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+
 .details-foot {
   margin-top: 16px; font-size: 0.75rem; color: var(--text-dim); line-height: 1.5;
 }
@@ -890,7 +949,6 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     </a>
 
     <div class="nav-right" id="navRight">
-        <a class="nav-link" href="index.html#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="index.html#submit" data-target="submit">Share</a>
         <a class="nav-link" href="alumnis.html">Alumni</a>
         <a class="nav-link" href="index.html#contact" data-target="contact">Contact</a>
@@ -1018,9 +1076,22 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <div class="input-group">
         <label>Create Password</label>
         <input type="password" id="sign-pass" class="input-box" required autocomplete="new-password">
-        <button type="button" class="toggle-pass" onclick="togglePassword('sign-pass')">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
+          <button type="button" class="toggle-pass" onclick="togglePassword('sign-pass')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      <!-- ===== NEWSLETTER CONSENT (replaces the old standalone Newsletter form) =====
+           Required: the account cannot be created unless this is ticked. Deliberately
+           NOT added to 27form.html — people who register there get the one-time notice
+           popup on their first visit here instead. -->
+      <div class="news-consent" id="news-consent-wrap">
+        <label class="checkbox-wrap">
+          <input type="checkbox" id="sign-newsletter" required>
+          <span>I agree to receive news from NGHSIANS</span>
+        </label>
+        <p class="news-consent-note" id="news-consent-note">
+          We'll send updates to the email above. You can switch this off anytime from <em>Edit</em>.
+        </p>
       </div>
       <button type="submit" id="sign-btn" class="btn-action">CREATE ACCOUNT</button>
     </form>
@@ -1141,6 +1212,11 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
           <span class="data-lbl">Email</span>
           <span id="display-email" class="data-val" style="font-size:0.78rem;word-break:break-all">---</span>
         </div>
+        <!-- ===== NEWSLETTER (merged into the account) ===== -->
+        <div class="data-row" id="newsletter-row">
+          <span class="data-lbl">Newsletter</span>
+          <span id="display-newsletter" class="data-val">---</span>
+        </div>
         <div class="data-row">
           <span class="data-lbl">WhatsApp</span>
           <span id="display-whatsapp" class="data-val">---</span>
@@ -1230,6 +1306,43 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
     <p class="details-foot">
       Wrong account? <button type="button" onclick="handleLogout()">Sign out</button>
     </p>
+  </div>
+</div>
+<!-- ===== ONE-TIME NEWSLETTER NOTICE =====
+     Shown once, the first time an account holder opens account.html after the
+     newsletter was merged into the account. Covers two groups:
+       • existing members (enrolled by the SQL backfill)
+       • people who signed up through 27form.html (no consent checkbox there)
+     Members who signed up here already ticked the box, so they never see it. -->
+<div id="news-modal" class="modal-overlay news-overlay" role="dialog" aria-modal="true" aria-labelledby="news-title">
+  <div class="modal-box news-box">
+    <div class="news-badge">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+      Newsletter
+    </div>
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+    </div>
+    <h2 class="modal-title" id="news-title">Notice</h2>
+    <p class="news-line news-en">
+      <strong>Notice:</strong> You will start receiving news in your registered email whenever we send.
+    </p>
+    <p class="news-line news-bn" lang="bn">
+      <strong>বিজ্ঞপ্তি:</strong> আমরা যখনই কোনো খবর পাঠাব, তা আপনার নিবন্ধিত ইমেইলে পৌঁছে যাবে।
+    </p>
+    <div class="news-mail">
+      <span class="news-mail-lbl">Sending to</span>
+      <span class="news-mail-val" id="news-email">—</span>
+    </div>
+    <div class="news-why">
+      <strong>Why?</strong> The old Newsletter form is gone. Your NGHSIANS account is now the
+      subscription — same email you log in with. Prefer not to get news? Switch it off
+      from <em>Edit</em>, or use the unsubscribe link at the bottom of any email.
+    </div>
+    <button type="button" id="news-ok" class="btn-action" onclick="handleNewsAck()">
+      I UNDERSTOOD
+      <span class="news-btn-bn" lang="bn">আমি বুঝেছি</span>
+    </button>
   </div>
 </div>
 <!-- ===== MEMBER DETAIL MODAL ===== -->
@@ -1379,6 +1492,16 @@ function renderContactCell(el, type, value) {
     ? '<a class="contact-link" href="' + href + '" target="_blank" rel="noopener noreferrer">' + escapeAttr(label) + '</a>'
     : fallback;
 }
+/* ---------- Newsletter cell on the ID card ---------- */
+function renderNewsletterCell(p) {
+  const el = getEl('display-newsletter');
+  if (!el) return;
+  const on = !!(p && p.newsletter_opt_in) && !p.newsletter_unsubscribed_at;
+  const off = !!(p && p.newsletter_unsubscribed_at);
+  el.innerHTML = off
+    ? '<span class="news-pill off">Unsubscribed</span>'
+    : (on ? '<span class="news-pill on">Subscribed</span>' : '<span class="news-pill off">Off</span>');
+}
 /* =============================================
    MAIN APP
    ============================================= */
@@ -1444,6 +1567,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Becomes false only if the DB is missing the new columns (SQL migration not
   // run yet). In that case the gate stays open so nobody gets locked out.
   let hasContactColumns = true;
+  // Same idea for the newsletter columns (supabase-newsletter-merge.sql). If
+  // the migration hasn't run, the notice popup and the consent checkbox are
+  // skipped instead of breaking signup / login.
+  let hasNewsletterColumns = true;
   // Network list cache + the member currently open in the detail modal
   let networkMembers = [];
   window.currentMemberId = null;
@@ -1459,6 +1586,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (error && isMissingColumnError(error)) hasContactColumns = false;
     } catch (err) { /* network hiccup — assume columns exist */ }
     return hasContactColumns;
+  }
+  /* ---- NEWSLETTER COLUMNS PROBE ----------------------------------------
+     Same safety net for the newsletter columns: if supabase-newsletter-merge.sql
+     has not been run yet, we hide the consent checkbox and never show the
+     notice popup, so signup and login keep working exactly as before.      */
+  async function probeNewsletterColumns() {
+    try {
+      const { error } = await supabase
+        .from('verified_profiles')
+        .select('newsletter_opt_in, newsletter_notified')
+        .limit(1);
+      if (error && isMissingColumnError(error)) hasNewsletterColumns = false;
+    } catch (err) { /* network hiccup — assume columns exist */ }
+    if (!hasNewsletterColumns) {
+      // Migration not run yet — hide the consent box, drop the "required" flag
+      // (otherwise signup would be impossible) and hide the ID-card row.
+      const wrap = getEl('news-consent-wrap');
+      if (wrap) wrap.style.display = 'none';
+      const chk = getEl('sign-newsletter');
+      if (chk) chk.required = false;
+      const row = getEl('newsletter-row');
+      if (row) row.classList.add('hidden');
+    }
+    return hasNewsletterColumns;
   }
   /* ---- AUTH HANDLERS ---- */
   window.handleLogin = async function(e) {
@@ -1482,15 +1633,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const name = getEl('sign-name').value.trim(), sid = getEl('sign-id').value, batch = getEl('sign-batch').value.trim();
     const whatsapp  = normalizeWhatsApp(getEl('sign-whatsapp').value);
     const instagram = normalizeInstagram(getEl('sign-instagram').value);
+    // Newsletter consent — required. The `required` attribute already blocks the
+    // submit; this is the belt-and-braces check (and covers old browsers).
+    const newsOptIn = getEl('sign-newsletter') ? getEl('sign-newsletter').checked : false;
     const fail = (msg) => { errEl.textContent = msg; errEl.style.display = 'block'; };
     try {
       if (!isValidWhatsApp(whatsapp)) throw new Error("Please enter a valid WhatsApp number, e.g. +8801700000000 (country code included).");
       if (!isValidInstagram(instagram)) throw new Error("Please enter a valid Instagram username (letters, numbers, dot or underscore — no @ or URL).");
+      if (hasNewsletterColumns && !newsOptIn) throw new Error("Please tick \"I agree to receive news from NGHSIANS\" to create your account.");
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       if (!data.user) throw new Error("Signup failed. Please try again.");
       const row = { id: data.user.id, username: name, school_id: sid, batch_year: batch, email };
       if (hasContactColumns) { row.whatsapp_number = whatsapp; row.instagram_username = instagram; }
+      // The account IS the subscription now. They ticked the box themselves, so
+      // newsletter_notified = true as well — they must not get the notice popup.
+      if (hasNewsletterColumns) {
+        row.newsletter_opt_in    = newsOptIn;
+        row.newsletter_notified  = newsOptIn;
+        if (newsOptIn) { row.newsletter_opt_in_at = new Date().toISOString(); row.newsletter_source = 'signup'; }
+      }
       const { error: dbError } = await supabase.from('verified_profiles').upsert([row], { onConflict: 'id' });
       if (dbError) throw dbError;
       if (!hasContactColumns) {
@@ -1557,6 +1719,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     getEl('display-year').innerHTML = `<input id="e-year" class="edit-input" value="${escapeAttr(p.batch_year)}" maxlength="4" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,4)">`;
     getEl('display-whatsapp').innerHTML  = `<input id="e-whatsapp" class="edit-input" type="tel" value="${escapeAttr(p.whatsapp_number)}" placeholder="+8801…">`;
     getEl('display-instagram').innerHTML = `<input id="e-instagram" class="edit-input" value="${escapeAttr(p.instagram_username)}" spellcheck="false" placeholder="username">`;
+    if (hasNewsletterColumns) {
+      const on = !!(p.newsletter_opt_in) && !p.newsletter_unsubscribed_at;
+      getEl('display-newsletter').innerHTML =
+        `<label class="news-toggle"><input type="checkbox" id="e-newsletter"${on ? ' checked' : ''}><span>Receive news by email</span></label>`;
+    }
   };
   window.cancelEdit = function() { renderProfile(currentProfile); resetEditBtns(); };
   window.saveProfile = async function() {
@@ -1570,6 +1737,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       whatsapp_number:    normalizeWhatsApp(getEl('e-whatsapp') ? getEl('e-whatsapp').value : ''),
       instagram_username: normalizeInstagram(getEl('e-instagram') ? getEl('e-instagram').value : '')
     };
+    // Newsletter — the account IS the subscription, so it is edited here too.
+    if (hasNewsletterColumns && getEl('e-newsletter')) {
+      const wants = getEl('e-newsletter').checked;
+      updates.newsletter_opt_in = wants;
+      updates.newsletter_notified = true;
+      if (wants) {
+        updates.newsletter_opt_in_at = new Date().toISOString();
+        updates.newsletter_unsubscribed_at = null;
+        updates.newsletter_source = 'profile';
+      } else {
+        updates.newsletter_unsubscribed_at = new Date().toISOString();
+      }
+    }
     try {
       if (!updates.username) throw new Error("Name can't be empty.");
       if (updates.batch_year && !/^\d{4}$/.test(updates.batch_year)) throw new Error("Batch year must be 4 digits.");
@@ -1607,7 +1787,64 @@ document.addEventListener('DOMContentLoaded', async () => {
   function closeDetailsGate() {
     getEl('details-modal').classList.remove('show');
     document.body.style.overflow = '';
+    flushNewsNotice();   // the newsletter notice was waiting for the gate to close
   }
+  /* ---- NEWSLETTER NOTICE (one time, after the merge) ---------------------
+     Only for people who never explicitly agreed: existing members (enrolled by
+     the SQL backfill) and anyone who registered via 27form.html, which has no
+     consent checkbox. Members who signed up here already ticked the box, so
+     newsletter_notified is true for them and this never fires.              */
+  let pendingNewsNotice = false;
+  // True while the details gate or the newsletter notice is up. Nothing else
+  // (celebrations, Sign Day pass) may stack on top of either.
+  function blockingModalOpen() {
+    return getEl('details-modal').classList.contains('show') ||
+           getEl('news-modal').classList.contains('show');
+  }
+  function openNewsNotice() {
+    pendingNewsNotice = false;
+    const mail = (currentProfile && currentProfile.email) || (currentUser && currentUser.email) || '';
+    getEl('news-email').textContent = mail || '—';
+    getEl('news-modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { try { getEl('news-ok').focus(); } catch (e) {} }, 350);
+  }
+  function closeNewsNotice() {
+    pendingNewsNotice = false;
+    getEl('news-modal').classList.remove('show');
+    if (!getEl('details-modal').classList.contains('show')) document.body.style.overflow = '';
+  }
+  // Called from loadProfile: shows the notice now, or parks it behind the
+  // WhatsApp/Instagram gate so two modals never stack.
+  function maybeOpenNewsNotice(p) {
+    if (!hasNewsletterColumns || !p || p.newsletter_notified) { closeNewsNotice(); return; }
+    pendingNewsNotice = true;
+    if (getEl('details-modal').classList.contains('show')) return;
+    openNewsNotice();
+  }
+  function flushNewsNotice() {
+    if (!pendingNewsNotice) return;
+    openNewsNotice();
+  }
+  // "I understood" → remember they were told, and enrol anyone who wasn't
+  // already opted in (the 27form.html crowd).
+  window.handleNewsAck = async function() {
+    closeNewsNotice();
+    if (!currentUser || !hasNewsletterColumns) return;
+    const patch = { id: currentUser.id, newsletter_notified: true };
+    if (currentProfile && !currentProfile.newsletter_unsubscribed_at && !currentProfile.newsletter_opt_in) {
+      patch.newsletter_opt_in   = true;
+      patch.newsletter_opt_in_at = new Date().toISOString();
+      patch.newsletter_source   = 'notice';
+    }
+    const { error } = await supabase.from('verified_profiles').upsert([patch], { onConflict: 'id' });
+    if (error) { console.error(error); showToast("Could not save your newsletter choice.", true); return; }
+    currentProfile = { ...(currentProfile || {}), ...patch };
+    renderNewsletterCell(currentProfile);
+    showToast("You're subscribed ✓");
+    flushCeleb();            // celebration queued behind this notice
+    signdayFlushCeleb();
+  };
   window.handleSaveDetails = async function(e) {
     if (e) e.preventDefault();
     if (!currentUser) return;
@@ -1834,6 +2071,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         closeDetailsGate();
       }
+      // ---- One-time newsletter notice ---------------------------
+      // Fires for existing members (enrolled by the SQL backfill) and for
+      // 27form.html registrants. Parked behind the details gate if that is
+      // already open, so the two never stack.
+      maybeOpenNewsNotice(data);
       // ----------------------------------------------------------
       renderProfile(data);
       loadNetwork();
@@ -1850,6 +2092,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     getEl('my-follower-count').innerText = p.follower_count || 0;
     renderContactCell(getEl('display-whatsapp'),  'whatsapp',  p.whatsapp_number);
     renderContactCell(getEl('display-instagram'), 'instagram', p.instagram_username);
+    renderNewsletterCell(p);
     const card    = getEl('profile-card');
     const avatar  = getEl('profile-avatar-container');
     const batchEl = getEl('display-batch');
@@ -1906,7 +2149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function checkCeleb(p, type, force) {
     if (!force && p.notified_of_verification) return;
     // Don't stack two modals: show the celebration after the details gate.
-    if (!force && getEl('details-modal').classList.contains('show')) {
+    if (!force && blockingModalOpen()) {
       pendingCeleb = { p, type };
       return;
     }
@@ -2260,7 +2503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function signdayCelebrate(p) {
     if (p.signday_notified) return;
     // never stack on top of the "complete your profile" gate
-    if (getEl('details-modal').classList.contains('show')) { pendingSigndayCeleb = p; return; }
+    if (blockingModalOpen()) { pendingSigndayCeleb = p; return; }
     signdayShowCeleb(p);
   }
   window.signdayFlushCeleb = function () {
@@ -2302,6 +2545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   // Check once whether the new contact columns exist (SQL migration applied).
   await probeContactColumns();
+  await probeNewsletterColumns();
   closeDetailsGate();
   // Recovery links are handled by reset.html (see the early redirect in <head>).
   // If one somehow reaches us anyway, don't create a session from it.

@@ -26,10 +26,6 @@
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);},l=d.createElement(e),l.async=1,l.src=u,n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})(window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-  ml('account', '1927434');
-</script>
 
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
 
@@ -397,8 +393,6 @@ header.scrolled {
 .social-icon-link:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.08); }
 .social-icon-link svg { width: 16px; height: 16px; stroke: var(--text); }
 .hero-ctas { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
-/* "Join Newsletter" under the social icons: hidden on request — the button stays in the markup */
-.hero-ctas { display: none !important; }
 
 /* Scroll indicator */
 .hero-scroll {
@@ -1005,43 +999,6 @@ body.results-modal-open { overflow: hidden; }
 .film-footer-title { font-family: var(--font-bangla); font-size: 1.1rem; color: #fff; }
 .film-footer-sub { color: var(--orange); font-size: 0.82rem; font-weight: 600; margin-top: 3px; }
 
-/* ============================================================
-   NEWSLETTER / MAILERLITE OVERRIDES
-   ============================================================ */
-.ml-embedded, .ml-embedded .ml-form-embedWrapper, .ml-embedded .ml-form-embedBody,
-.ml-embedded .ml-form-embedContent, .ml-form-align-center {
-  background: transparent !important; padding: 0 !important;
-  box-shadow: none !important; border: none !important;
-  text-align: left !important; margin-left: 0 !important; max-width: 100% !important;
-}
-.ml-form-embedWrapper.embedForm { max-width: 100% !important; width: 100% !important; }
-.ml-form-embedBody .ml-form-embedContent h4, .ml-form-embedBody .ml-form-embedContent p { display: none !important; }
-.ml-embedded input.form-control, .ml-embedded select.form-control {
-  background: transparent !important; background-image: none !important;
-  border: 1px solid var(--border-hi) !important; border-radius: 8px !important;
-  color: var(--text) !important; padding: 12px !important; height: auto !important;
-  font-family: var(--font-body) !important; font-size: 15px !important;
-  width: 100% !important; margin-bottom: 0 !important;
-}
-.ml-embedded input.form-control:focus { border-color: rgba(var(--gold),1) !important; outline: none !important; box-shadow: 0 0 0 2px rgba(var(--gold),0.15) !important; }
-.ml-embedded input.form-control::placeholder { color: var(--text-dim) !important; opacity: 0.7; }
-.ml-embedded select option { background-color: #0d0e10 !important; color: var(--text) !important; }
-.ml-embedded .ml-button-horizontal { width: 100% !important; }
-.ml-embedded button.primary {
-  background: var(--red-muted) !important; color: var(--text) !important;
-  border: 1px solid rgba(139,14,6,0.15) !important; font-weight: 700 !important;
-  font-size: 14px !important; border-radius: 8px !important; padding: 12px !important;
-  cursor: pointer !important; width: 100% !important; font-family: var(--font-body) !important;
-  transition: all 0.2s ease !important; text-transform: none !important; box-shadow: none !important;
-}
-.ml-embedded button.primary:hover { background: rgba(139,14,6,0.32) !important; transform: translateY(-2px) !important; color: #fff !important; }
-.ml-form-successBody .ml-form-successContent h4, .ml-form-successBody .ml-form-successContent p {
-  display: block !important; color: rgba(var(--gold),1) !important; font-family: var(--font-body) !important; text-align: center !important;
-}
-.ml-field-group { margin-bottom: 12px !important; text-align: left !important; }
-.card input:focus, .card select:focus, .card textarea:focus {
-  border-color: rgba(var(--gold),0.6) !important; box-shadow: 0 0 0 2px rgba(var(--gold),0.1) !important; outline: none !important;
-}
 
 /* ============================================================
    FOOTER / SOCIALS
@@ -1664,7 +1621,6 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
 
     <div class="right-group">
       <div class="nav-right" id="navRight">
-        <a class="nav-link" href="#newsletter" data-target="newsletter">Newsletter</a>
         <a class="nav-link" href="#submit"      data-target="submit">Share</a>
         <a class="nav-link" href="alumnis.html">Alumni</a>
         <a class="nav-link" href="#contact"     data-target="contact">Contact</a>
@@ -1756,12 +1712,6 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
         <a href="https://youtube.com/@nghsians" target="_blank" class="social-icon-link" aria-label="YouTube">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.42a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .5 5.33 2.78 2.78 0 0 0 1.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.42a2.78 2.78 0 0 0 1.94-2A29 29 0 0 0 23 11.75a29 29 0 0 0-.46-5.33z"/><polygon points="9.75 15 15.5 11.75 9.75 8.5 9.75 15"/></svg>
         </a>
-      </div>
-
-      <div class="hero-ctas" style="margin-top:22px">
-        <span class="magnetic" data-magnetic>
-          <button class="btn btn--primary" data-target="newsletter"><span class="btn-inner">Join Newsletter</span></button>
-        </span>
       </div>
     </div>
 
@@ -1992,20 +1942,6 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
             <span class="muted" style="font-size:11px">3 Jan 2026</span>
           </div>
         </div>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
-
-    <!-- ===== NEWSLETTER ===== -->
-    <section id="newsletter" class="reveal diag-feather">
-      <div class="section-head">
-        <div class="section-eyebrow">Stay Connected</div>
-        <h2 class="section-title">Newsletter</h2>
-        <p class="lead">Monthly throwbacks, meetups, and urgent announcements.</p>
-      </div>
-      <div class="card" style="max-width:540px">
-        <div class="ml-embedded" data-form="Q1EYDP"></div>
       </div>
     </section>
 

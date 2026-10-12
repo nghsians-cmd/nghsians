@@ -1,0 +1,35 @@
+# https://nghsians.com/robots.txt
+#
+# NOTE ON THE PRIVATE PANELS
+#   mailer.html and 27rep.html are PIN-locked. Each already carries a
+#   <meta name="robots" content="noindex, nofollow"> tag, which is what actually
+#   keeps them out of Google. These Disallow lines stop well-behaved crawlers
+#   from even asking for them.
+#
+#   One catch worth knowing: a Disallow also stops Google fetching the page, so
+#   it never sees the noindex tag. That is fine for these two (they are new /
+#   behind a PIN, and an index entry would be a bare URL at worst). But if either
+#   ever DOES show up in search results, delete its Disallow line below and let
+#   the noindex tag do the job — Google has to fetch the page to honour it.
+
+User-agent: *
+Allow: /
+
+# Committee-only panels
+Disallow: /mailer.html
+Disallow: /27rep.html
+
+# Functional pages with nothing to index
+Disallow: /unsubscribe.html
+Disallow: /reset.html
+
+# Server-side source (harmless — no keys in it — but not worth crawling)
+Disallow: /supabase/
+
+# AdSense crawler: it needs full access to match ads to pages
+User-agent: Mediapartners-Google
+Allow: /
+Disallow: /mailer.html
+Disallow: /27rep.html
+
+Sitemap: https://nghsians.com/sitemap.xml

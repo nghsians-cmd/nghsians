@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Unsubscribe · NGHSIANS</title>
+<meta name="description" content="Stop receiving NGHSIANS news emails.">
+<link rel="icon" href="favLogo.ico">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:255,235,128; --red:113,12,4; --red-deep:#710C04;
+    --bg:#0b0c0d; --panel:#121316; --panel-2:#171a1d;
+    --text:#F3ECD9; --dim:rgba(243,236,217,.58); --faint:rgba(243,236,217,.34);
+    --line:rgba(255,255,255,.09); --line-hi:rgba(255,255,255,.16);
+    --font-display:'Anton',sans-serif; --font-body:'DM Sans',sans-serif; --font-bangla:'Hind Siliguri',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-body); font-size:15px; line-height:1.6;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    background-image:
+      radial-gradient(900px 520px at 50% -10%, rgba(255,235,128,.07), transparent 60%),
+      radial-gradient(700px 420px at 110% 110%, rgba(113,12,4,.22), transparent 60%);
+  }
+  .card{
+    width:100%; max-width:460px; background:var(--panel);
+    border:1px solid var(--line); border-radius:16px;
+    padding:34px 28px 28px; text-align:center; position:relative; overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55);
+  }
+  .card::before{
+    content:''; position:absolute; inset:0 0 auto 0; height:3px;
+    background:linear-gradient(90deg, rgba(var(--gold),.9), rgba(var(--red),1), rgba(var(--gold),.9));
+  }
+  .mark{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(var(--gold),.10); border:1px solid rgba(var(--gold),.28);
+    color:rgba(var(--gold),.95); font-size:24px;
+  }
+  .mark.err{ background:rgba(255,90,80,.10); border-color:rgba(255,90,80,.30); color:#ff8b80; }
+  h1{ font-family:var(--font-display); font-size:25px; letter-spacing:.4px; margin:0 0 8px; text-transform:uppercase; }
+  .sub{ color:var(--dim); font-size:14px; margin:0 0 20px; }
+  .bn{ font-family:var(--font-bangla); font-size:14.5px; color:var(--dim); margin:0 0 22px; }
+  .state{ display:none; }
+  .state.on{ display:block; }
+  .pill{
+    display:inline-flex; align-items:center; gap:7px; font-size:10px; font-weight:800;
+    letter-spacing:1.6px; text-transform:uppercase; padding:5px 12px; border-radius:20px;
+    background:rgba(var(--gold),.10); border:1px solid rgba(var(--gold),.22); color:rgba(var(--gold),.9);
+    margin-bottom:16px;
+  }
+  .pill.err{ background:rgba(255,90,80,.10); border-color:rgba(255,90,80,.26); color:#ff8b80; }
+  .email-box{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:11px 14px; margin:0 0 22px; font-size:13.5px; color:rgba(var(--gold),.95);
+    word-break:break-all;
+  }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px 18px; border-radius:10px; cursor:pointer;
+    font-family:var(--font-body); font-size:13px; font-weight:800; letter-spacing:.6px;
+    text-transform:uppercase; border:1px solid transparent; transition:.18s;
+  }
+  .btn-primary{ background:linear-gradient(180deg,#8d0f05,var(--red-deep)); color:#F3ECD9; border-color:rgba(255,235,128,.22); }
+  .btn-primary:hover{ filter:brightness(1.14); transform:translateY(-1px); }
+  .btn-ghost{ background:transparent; color:var(--dim); border-color:var(--line-hi); margin-top:10px; }
+  .btn-ghost:hover{ color:var(--text); border-color:rgba(var(--gold),.35); }
+  .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; filter:none; }
+  .note{ margin-top:20px; font-size:12px; color:var(--faint); line-height:1.6; }
+  .note a{ color:rgba(var(--gold),.8); text-decoration:none; }
+  .note a:hover{ text-decoration:underline; }
+  .spinner{
+    width:15px; height:15px; border-radius:50%;
+    border:2px solid rgba(243,236,217,.28); border-top-color:rgba(var(--gold),.95);
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg) } }
+  .foot{ margin-top:22px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--faint); }
+  .foot strong{ color:rgba(var(--gold),.7); font-weight:700; }
+</style>
+</head>
+<body>
+
+<main class="card">
+
+  <!-- ===== WORKING ===== -->
+  <section class="state on" id="s-working">
+    <div class="mark"><div class="spinner"></div></div>
+    <h1>One moment…</h1>
+    <p class="sub">Updating your email preferences.</p>
+  </section>
+
+  <!-- ===== DONE ===== -->
+  <section class="state" id="s-done">
+    <div class="pill">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Unsubscribed
+    </div>
+    <div class="mark">✉︎</div>
+    <h1>You're off the list</h1>
+    <p class="sub">You will no longer receive NGHSIANS news emails.</p>
+    <p class="bn">আপনি আর NGHSIANS এর খবরের ইমেইল পাবেন না।</p>
+    <button class="btn btn-primary" id="undoBtn" onclick="undoUnsub()">
+      <span id="undoTxt">Undo — send them again</span>
+    </button>
+    <button class="btn btn-ghost" onclick="window.location.href='account.html'">Open my account</button>
+  </section>
+
+  <!-- ===== RESUBSCRIBED ===== -->
+  <section class="state" id="s-back">
+    <div class="pill">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Subscribed
+    </div>
+    <div class="mark">✓</div>
+    <h1>Welcome back</h1>
+    <p class="sub">You're on the list again — news will arrive as usual.</p>
+    <p class="bn">আপনি আবার তালিকায় যুক্ত হয়েছেন — খবর পেতে থাকবেন।</p>
+    <button class="btn btn-ghost" onclick="window.location.href='account.html'">Open my account</button>
+  </section>
+
+  <!-- ===== BAD / EXPIRED LINK ===== -->
+  <section class="state" id="s-bad">
+    <div class="pill err">Link not valid</div>
+    <div class="mark err">!</div>
+    <h1>This link has expired</h1>
+    <p class="sub">We couldn't match it to a subscription. It may be an old email.</p>
+    <p class="bn">এই লিংকটি আর কাজ করছে না।</p>
+    <button class="btn btn-ghost" onclick="window.location.href='account.html'">Manage in my account</button>
+  </section>
+
+  <div class="foot">
+    NGHSIANS · <strong>নাসিরাবাদ সরকারি উচ্চ বিদ্যালয়</strong> · Chattogram
+    <br>Preferences live on your account — <a href="account.html">account.html</a>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============================================================================
+   unsubscribe.html — one-click unsubscribe for NGHSIANS news emails
+   ----------------------------------------------------------------------------
+   Linked from the footer of every newsletter as ?u=<token>. The token is a
+   random UUID from public.newsletter_tokens / public.newsletter_contacts —
+   it never appears anywhere in the app, only in that one email, so nobody can
+   unsubscribe someone else by guessing it.
+
+   Unsubscribing is immediate (that is what anti-spam law expects), but the
+   page offers an Undo so an accidental click is not permanent.
+   ============================================================================ */
+const SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+
+function show(id) {
+  document.querySelectorAll('.state').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+async function main() {
+  const token = new URLSearchParams(window.location.search).get('u') ||
+                (window.location.hash || '').replace(/^#/, '') || '';
+  if (!window.supabase || !token) { show('s-bad'); return; }
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+
+  try {
+    const { data, error } = await supabase.rpc('newsletter_unsubscribe', { p_token: token });
+    if (error) throw error;
+    show(data === true ? 's-done' : 's-bad');
+  } catch (err) {
+    console.error(err);
+    show('s-bad');
+  }
+  window.__unsubToken = token;
+}
+
+async function undoUnsub() {
+  const btn = document.getElementById('undoBtn');
+  const txt = document.getElementById('undoTxt');
+  if (!window.supabase || !window.__unsubToken) return;
+  btn.disabled = true; txt.textContent = 'Working…';
+  try {
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
+    const { data, error } = await supabase.rpc('newsletter_resubscribe', { p_token: window.__unsubToken });
+    if (error) throw error;
+    show(data === true ? 's-back' : 's-bad');
+  } catch (err) {
+    console.error(err);
+    txt.textContent = 'Undo — send them again';
+    btn.disabled = false;
+  }
+}
+
+main();
+</script>
+</body>
+</html>
