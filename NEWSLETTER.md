@@ -27,6 +27,7 @@ No other page changed visually. `27form.html` was **not touched**, exactly as as
 | `supabase/functions/send-newsletter/index.ts` | Supabase Edge Function that actually sends the mail (Resend) |
 | `supabase-newsletter-media.sql` | legacy optional storage-bucket policy; the current mailer embeds uploaded images inline |
 | `assets/mailer/logo.png`, `assets/mailer/footer-logo.png` | site-hosted NGHSIANS artwork used by the mailer and generated email footer |
+| `assets/mailer/icons/` | vector social icons + their PNG exports for the email footer (see *Footer icons*) |
 | `account.html` | consent checkbox on signup, one-time notice popup, newsletter row + Edit toggle |
 
 ---
@@ -122,6 +123,38 @@ Two presets are included:
 - **60th Sign Day** — paper, ink, deep red and gold inspired by `27form.html`, `27rep.html`, and the 60th Sign Day card in `index.html`.
 
 Every palette role is editable (canvas, card, text, muted text, accents, button and footer); heading/body fonts can be changed. Center alignment is the default, with left alignment available. The email uses table-based structure, inline styles, optional image alt text, a test send, local draft autosave, and per-recipient name/batch/email merge tags. It declares light/dark color-scheme support and includes explicit dark-mode colors; some mail clients may still apply their own color transformations. The footer includes the logo, social links, brand, copy, unsubscribe link and account-preferences link. The full HTML is generated before sending so preview and delivered content use the same layout.
+
+### Footer icons
+
+The footer's social row (Instagram, Facebook, YouTube, website) is real icon artwork, not
+font characters — the previous version drew an Arial "f", a "▶" polygon, a "◎" and a "↗",
+which rendered differently in every client. The artwork is the same line-icon family as the
+icons above the site footer.
+
+| File | What it is |
+|---|---|
+| `assets/mailer/icons/*.svg` | the vector sources (Lucide, ISC licence) — the master copies |
+| `assets/mailer/icons/*-on-light.png` | ink glyph, for a light chip |
+| `assets/mailer/icons/*-on-dark.png` | cream glyph, for a dark chip |
+| `assets/mailer/icons/build-icons.mjs` | regenerates every PNG (and the ink crest) from the SVGs |
+| `assets/mailer/footer-logo-on-light.png` | ink version of the crest, for a light footer |
+
+The *sent* email links PNG, never SVG: Gmail, Outlook.com and most Android clients strip
+SVG from mail, so an SVG footer would show broken images for most of the list. Each export
+is 80×80 (4× the 20px display size) and stays transparent, so it is crisp on retina
+screens in every client. `border-radius` is dropped by Outlook on Windows; the chips
+degrade to plain squares in the same place rather than disappearing.
+
+Because a PNG carries one colour, each icon exists twice and `mailer.html` chooses by
+luminance — light chip → ink glyph, dark chip → cream glyph. The same test flips the
+footer crest between the white original and its ink twin, so the footer stays legible even
+if the committee sets a light footer background. Icons are 20px in a 40px chip, matching
+the 42/18 chips above the site footer; `aria-label` and `alt` carry the link's name.
+
+The on-page preview uses the relative path (`assets/mailer/icons/…`) while sent mail uses
+the absolute one (`https://nghsians.com/assets/mailer/icons/…`), so the preview works
+before the site is redeployed and still shows exactly what recipients get. Regenerating
+the PNGs needs `npm install sharp` and is only necessary when the SVG artwork changes.
 
 These decisions follow established builders' useful patterns—saved/reusable content blocks and responsive previews—while keeping this campaign structure intentionally simple and reliable across email clients. See [Mailchimp's new builder guide](https://mailchimp.com/help/design-an-email-new-builder/) and [Litmus's accessibility checklist](https://www.litmus.com/blog/7-simple-tricks-to-make-your-email-code-more-accessible) for the reference patterns (responsive preview, semantic structure, alt text, readable color contrast).
 
