@@ -761,6 +761,24 @@ footer { position: relative; }
 }
 .social-icon-link:active, .hero-socials a:active { transform: scale(.94) !important; }
 
+/* Footer social marks were being clipped by the shared glass-card overflow rule.
+   Give the touch targets a little breathing room and render the SVGs as blocks. */
+.socials-above-footer { align-items: center; overflow: visible; }
+.socials-above-footer .social-icon-link {
+  display: inline-flex;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  overflow: visible;
+}
+.socials-above-footer .social-icon-link svg {
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+}
+
 .skip-link {
   background: rgba(var(--gold),.95) !important;
   color: #17130a !important;

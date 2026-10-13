@@ -275,20 +275,155 @@ table.mini{width:100%;border-collapse:collapse;font-size:11.5px}
 table.mini th{position:static;text-align:left;padding:6px 10px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
 table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertical-align:top}
 
-/* ---------- mobile ---------- */
-@media (max-width:600px){
-  .topbar{flex-direction:column;align-items:stretch;gap:8px}
+/* ---------- responsive layout and touch defaults ---------- */
+:root{color-scheme:dark}
+.compose-intro{padding:13px 14px;margin:0 0 14px;background:linear-gradient(110deg,rgba(var(--gold),.08),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:11px}
+.compose-eyebrow{display:block;color:rgba(var(--gold),.95);font-size:10px;font-weight:800;letter-spacing:1.2px}
+.compose-intro p{margin:4px 0 0;color:var(--dim);font-size:12px;line-height:1.5}
+.quick-start{padding:11px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px}
+.quick-start .field-label{margin-bottom:8px}
+.quick-blocks{gap:7px}
+.quick-blocks .btn{min-height:40px;letter-spacing:.35px;text-transform:none;font-size:11px}
+.message-section{margin-top:13px}
+.optional-panel{margin-top:11px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.018);overflow:hidden}
+.optional-panel>summary{position:relative;display:block;list-style:none;cursor:pointer;padding:12px 40px 12px 13px;color:var(--text);font-size:12px;font-weight:800}
+.optional-panel>summary::-webkit-details-marker{display:none}
+.optional-panel>summary::after{content:'＋';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:rgba(var(--gold),.9);font-size:15px}
+.optional-panel[open]>summary::after{content:'−'}
+.optional-panel>summary small{display:block;margin-top:3px;color:var(--faint);font-size:10px;font-weight:500;line-height:1.45}
+.optional-panel-body{padding:0 13px 12px}
+.optional-panel-body>.builder-section:first-child{margin-top:0;padding-top:9px;border-top:0}
+.optional-panel .builder-section:last-child{padding-bottom:2px}
+.style-details{background:rgba(255,255,255,.025)}
+.style-details summary{font-size:11px}
+
+/* Recipient source controls select people; search only narrows the visible list. */
+.recipients-head{align-items:flex-start;flex-wrap:wrap}
+.panel-subtitle{display:block;margin-top:2px;color:var(--faint);font-size:10.5px}
+.recipient-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.recipient-actions .btn{padding:7px 9px;text-transform:none;letter-spacing:.1px;font-size:10px}
+.recipient-controls{padding:12px 15px;border-bottom:1px solid var(--line)}
+.recipient-controls .field-label{margin-bottom:5px}
+.source-heading{display:flex;align-items:baseline;gap:7px;margin:13px 0 7px;color:var(--dim);font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+.source-heading span{color:var(--faint);font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
+.source-selection{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.source-toggle{display:flex;align-items:center;gap:9px;min-width:0;min-height:58px;padding:9px 11px;border:1px solid var(--line-hi);border-radius:10px;background:var(--panel-2);cursor:pointer;transition:border-color .15s,background .15s}
+.source-toggle:has(input:checked){border-color:rgba(var(--gold),.4);background:rgba(var(--gold),.055)}
+.source-toggle.contact-toggle:has(input:checked){border-color:rgba(61,220,132,.38);background:rgba(61,220,132,.045)}
+.source-toggle input{flex:0 0 20px;width:20px;height:20px;margin:0;accent-color:rgba(var(--gold),1)}
+.contact-toggle input{accent-color:var(--ok)}
+.source-toggle span{display:block;min-width:0}
+.source-toggle b{display:block;font-size:11px;line-height:1.25;color:var(--text)}
+.source-toggle small{display:block;margin-top:3px;color:var(--faint);font-size:9.5px;line-height:1.3}
+.source-toggle input:disabled{opacity:.45}
+.recipient-controls>.hint{margin:8px 0 0}
+.recipient-table td.pick input{width:20px;height:20px;margin:0;accent-color:rgba(var(--gold),1);vertical-align:middle}
+.recipient-table td{min-width:0}
+.batch-year{white-space:nowrap}
+.preview-panel>summary{list-style:none;cursor:pointer}
+.preview-panel>summary::-webkit-details-marker{display:none}
+.preview-summary{position:relative;padding-right:42px}
+.preview-summary::after{content:'＋';position:absolute;right:15px;top:50%;transform:translateY(-50%);color:rgba(var(--gold),.9);font-size:15px}
+.preview-panel[open] .preview-summary::after{content:'−'}
+.preview-cue{font-size:10px;color:var(--faint)}
+.preview-tools{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.preview-note{font-size:10px;flex:1}
+.preview-frame{height:680px}
+.selection-count{white-space:nowrap}
+.selection-count b{margin-right:3px}
+
+@media(max-width:600px){
+  html{scroll-padding-bottom:120px}
+  .topbar{display:flex;flex-direction:row;align-items:center;gap:7px;padding:10px 12px}
   .topbar .spacer{display:none}
-  .mailer-brand{justify-content:center}
-  .topbar .btn{width:100%}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .sendbar{flex-direction:column;align-items:stretch;margin:0 10px 14px;gap:9px}
-  .sendbar .btn-primary{width:100%}
-  .modal{padding:16px}
-  .preview-frame{height:560px}
-  .composer-pad{padding-left:12px;padding-right:12px}
-  .hint, .required-note{font-size:10px}
+  .topbar .mailer-brand{flex:1 0 100%;justify-content:flex-start;min-width:0}
+  .mailer-brand span{min-width:0}
+  .mailer-brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .btn{order:1;width:auto;flex:1 1 0;min-width:0;min-height:42px;padding:8px 5px;font-size:10px;letter-spacing:.25px}
+  .topbar .who-chip{order:2;flex:1 1 100%;justify-content:center;min-width:0;padding:5px 9px}
+  .topbar .who-chip b{max-width:min(72vw,280px)}
+  .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px auto 0;padding:0 10px}
+  .stat{min-width:0;padding:10px 11px;border-radius:10px}
+  .stat b{font-size:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stat span{font-size:9px;letter-spacing:.8px}
+  .grid{gap:12px;margin:12px auto;padding:0 10px calc(92px + env(safe-area-inset-bottom))}
+  .panel{border-radius:12px}
+  .panel-head{gap:8px;padding:10px 11px}
+  .panel-head h2{font-size:13px}
+  .composer-pad{padding:12px 11px 13px}
+  .compose-intro{padding:11px 12px;margin-bottom:12px}
+  .compose-intro p{font-size:11.5px}
+  .field{margin-bottom:11px}
+  .hint,.required-note{font-size:11px}
+  .pin-card input,.input,.ta{font-size:16px;min-height:46px;padding:11px 12px}
+  .ta{min-height:90px}
+  .field-meta{font-size:9px;gap:6px}
+  .quick-start{padding:10px}
+  .quick-blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .quick-blocks .btn{width:100%;min-height:44px;padding:8px 6px;font-size:10.5px}
+  .builder-step{gap:9px;margin-bottom:10px}
+  .builder-step>span{flex-basis:28px;height:28px;font-size:9px}
+  .builder-step b{font-size:12px}
+  .builder-step small{font-size:10px}
+  .toolbar{gap:3px;padding:5px}
+  .tool{min-height:38px;padding:6px 8px;font-size:11px}
+  #editor{min-height:200px;max-height:420px;font-size:16px;padding:12px;scroll-margin-bottom:150px}
+  .optional-panel>summary{padding:12px 38px 12px 11px}
+  .optional-panel-body{padding:0 11px 11px}
+  .optional-panel .row{gap:0}
+  .optional-panel .row>*{flex:1 1 100%;min-width:0}
+  .upload-row .btn{min-height:40px}
+  .source-selection{gap:7px}
+  .source-toggle{min-height:66px;padding:8px;gap:7px}
+  .source-toggle input{flex-basis:19px;width:19px;height:19px}
+  .source-toggle b{font-size:10px}
+  .source-toggle small{font-size:9px}
+  .recipient-controls{padding:11px}
+  .recipient-actions{width:100%;justify-content:stretch;margin:4px 0 0}
+  .recipient-actions .btn{flex:1 1 0;min-height:38px;padding:6px 5px;font-size:9.5px}
+  .rec-list{max-height:min(48vh,430px);overflow-x:hidden;overscroll-behavior:contain}
+  .recipient-table{table-layout:fixed}
+  .recipient-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .recipient-table tbody tr{display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 8px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+  .recipient-table tbody td{display:block;min-width:0;padding:0;border:0;overflow-wrap:anywhere}
+  .recipient-table td.pick{grid-column:1;grid-row:1/4;align-self:center}
+  .recipient-table td.name{grid-column:2;grid-row:1;font-size:12px}
+  .recipient-table td.email{grid-column:2;grid-row:2;font-size:11px;line-height:1.35}
+  .recipient-table td.source{grid-column:2;grid-row:3;margin-top:2px}
+  .recipient-table td.pick input{width:24px;height:24px}
+  .preview-summary{padding-right:37px}
+  .preview-cue{max-width:120px;text-align:right;font-size:9px}
+  .preview-tools{gap:7px;padding:8px 10px}
+  .preview-note{display:none}
+  .preview-tools .btn{min-height:38px;margin-left:auto}
+  .preview-frame{height:420px}
+  .hist{min-width:760px}
+  .sendbar{position:sticky;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);grid-template-rows:auto 4px auto;align-items:center;bottom:max(6px,env(safe-area-inset-bottom));margin:0 8px calc(7px + env(safe-area-inset-bottom));padding:9px 10px;gap:7px 9px;border-radius:12px}
+  .sendbar .spacer{display:none}
+  .sendbar .count{font-size:11px}
+  .sendbar .selection-count{grid-column:1/-1;grid-row:1}
+  .sendbar #sendNote{display:none}
+  .sendbar .progress{grid-column:1/-1;grid-row:2;flex:none;width:100%;min-width:0;height:4px}
+  .sendbar .btn{min-height:44px;width:100%}
+  .sendbar #saveDraft{grid-column:1;grid-row:3;padding:8px 7px;font-size:9px}
+  .sendbar .btn-primary{grid-column:2;grid-row:3;font-size:11px}
+  .modal-mask{align-items:flex-end;padding:10px max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+  .modal{max-height:calc(100dvh - 24px);padding:17px 15px 15px;border-radius:16px}
+  .modal .btn{min-height:42px}
+  #toast{right:10px;bottom:calc(12px + env(safe-area-inset-bottom));left:10px;max-width:none}
 }
+@media(max-width:360px){
+  .mailer-brand img{width:30px;height:30px}
+  .topbar h1{font-size:16px}
+  .topbar .btn{font-size:9px}
+  .source-selection{grid-template-columns:1fr}
+  .source-toggle{min-height:56px}
+  .sendbar #saveDraft{font-size:8px;padding-inline:7px}
+}
+@media(prefers-reduced-motion:reduce){
+  .btn,.source-toggle,.preview-frame{transition:none}
+}
+
 </style>
 </head>
 <body>
@@ -316,9 +451,9 @@ table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertic
     <h1 class="mailer-brand"><img src="assets/mailer/logo.png" alt="NGHSIANS crest"><span>NGHSIANS Mailer<small>Newsletter · sent from your account list</small></span></h1>
     <div class="spacer"></div>
     <span class="who-chip" id="whoChip">Signed in as <b>—</b></span>
-    <button class="btn btn-sm" id="refreshBtn">↻ Refresh</button>
-    <button class="btn btn-sm" id="importBtn">⇪ Import</button>
-    <button class="btn btn-sm btn-danger" id="lockBtn">🔒 Lock</button>
+    <button type="button" class="btn btn-sm" id="refreshBtn">↻ Refresh</button>
+    <button type="button" class="btn btn-sm" id="importBtn">⇪ Import</button>
+    <button type="button" class="btn btn-sm btn-danger" id="lockBtn">🔒 Lock</button>
   </div>
 
   <div class="stats" id="stats"></div>
@@ -329,100 +464,39 @@ table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertic
       <div class="panel-head">
         <h2>Compose</h2>
         <div class="spacer"></div>
-        <button class="btn btn-sm" id="clearBtn">Clear</button>
+        <button type="button" class="btn btn-sm" id="clearBtn">Clear</button>
       </div>
       <div class="panel-body composer" style="padding:0">
         <div class="composer-pad">
+          <div class="compose-intro">
+            <span class="compose-eyebrow">WRITE YOUR EMAIL</span>
+            <p>Start from a template or write your own. Only a subject and message are required.</p>
+          </div>
+
           <div class="field">
-            <label class="field-label" for="subject">Subject line <span class="required-mark">*</span></label>
-            <input id="subject" class="input" placeholder="Sign Day rehearsal — Friday 4pm" autocomplete="off" maxlength="180">
-            <div class="field-meta"><span>Short, specific subjects are easiest to scan.</span><span id="subjectCount">0 / 180</span></div>
+            <label class="field-label" for="subject">Subject <span class="required-mark">required</span></label>
+            <input type="text" id="subject" class="input" placeholder="A clear, helpful subject" autocomplete="off" maxlength="180" required>
+            <div class="field-meta"><span>Keep it short and specific.</span><span id="subjectCount">0 / 180</span></div>
           </div>
           <div class="field">
-            <label class="field-label" for="preheader">Inbox preview text <span class="muted">(the line after your subject)</span></label>
-            <input id="preheader" class="input" placeholder="Everything you need to know before Friday." autocomplete="off" maxlength="180">
-            <div class="field-meta"><span>Keep it distinct from the subject.</span><span id="preheaderCount">0 / 180</span></div>
+            <label class="field-label" for="preheader">Inbox preview <span class="muted">(optional)</span></label>
+            <input type="text" id="preheader" class="input" placeholder="A short line shown beside the subject" autocomplete="off" maxlength="180">
+            <div class="field-meta"><span>Use this to add a little context.</span><span id="preheaderCount">0 / 180</span></div>
           </div>
 
-          <div class="builder-section">
-            <div class="builder-step"><span>DESIGN</span><div><b>Choose your theme</b><small>Colors and fonts stay editable.</small></div></div>
-            <div class="row">
-              <div class="field"><label class="field-label" for="themeSelect">Theme</label>
-                <select id="themeSelect" class="input">
-                  <option value="nghsians">NGHSIANS · dark gold (default)</option>
-                  <option value="signday60">60th Sign Day · vintage poster</option>
-                  <option value="custom">Custom colors</option>
-                </select>
-              </div>
-              <div class="field"><label class="field-label" for="headingFont">Heading font</label>
-                <select id="headingFont" class="input">
-                  <option value="'Anton',Impact,'Arial Narrow',sans-serif">Anton · Impact (default)</option>
-                  <option value="Arial,Helvetica,sans-serif">Arial</option>
-                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
-                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
-                </select>
-              </div>
+          <div class="quick-start">
+            <div class="field-label">Start from a template <span class="muted">(optional)</span></div>
+            <div class="row quick-blocks">
+              <button type="button" class="btn btn-sm" data-tpl="announce">Announcement</button>
+              <button type="button" class="btn btn-sm" data-tpl="event">Event / meetup</button>
+              <button type="button" class="btn btn-sm" data-tpl="merch">Merch drop</button>
+              <button type="button" class="btn btn-sm" data-tpl="signout">Thank you</button>
             </div>
-            <div class="row">
-              <div class="field"><label class="field-label" for="bodyFont">Body font</label>
-                <select id="bodyFont" class="input">
-                  <option value="'DM Sans',Arial,Helvetica,sans-serif">DM Sans · Arial (default)</option>
-                  <option value="Arial,Helvetica,sans-serif">Arial</option>
-                  <option value="Georgia,'Times New Roman',serif">Georgia</option>
-                  <option value="Verdana,Geneva,sans-serif">Verdana</option>
-                  <option value="Tahoma,Arial,sans-serif">Tahoma</option>
-                  <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
-                </select>
-              </div>
-              <div class="field"><label class="field-label" for="textAlign">Text alignment</label>
-                <select id="textAlign" class="input"><option value="center">Center (default)</option><option value="left">Left</option></select>
-              </div>
-            </div>
-            <details class="style-details" open>
-              <summary>Customize colors <span>Outer background, card, text, accents, button and footer</span></summary>
-              <div class="color-grid">
-                <label class="color-control"><span>Page background</span><input type="color" id="colorOuter" value="#0b0c0d"></label>
-                <label class="color-control"><span>Message card</span><input type="color" id="colorCard" value="#121316"></label>
-                <label class="color-control"><span>Main text</span><input type="color" id="colorText" value="#f3ecd9"></label>
-                <label class="color-control"><span>Secondary text</span><input type="color" id="colorMuted" value="#aaa391"></label>
-                <label class="color-control"><span>Accent / headings</span><input type="color" id="colorAccent" value="#ffeb80"></label>
-                <label class="color-control"><span>Secondary accent</span><input type="color" id="colorAccent2" value="#710c04"></label>
-                <label class="color-control"><span>Button background</span><input type="color" id="colorButton" value="#8d0f05"></label>
-                <label class="color-control"><span>Button text</span><input type="color" id="colorButtonText" value="#fff7e6"></label>
-                <label class="color-control"><span>Footer background</span><input type="color" id="colorFooter" value="#050505"></label>
-                <label class="color-control"><span>Footer text</span><input type="color" id="colorFooterText" value="#e8e1d2"></label>
-              </div>
-            </details>
           </div>
 
-          <div class="builder-section">
-            <div class="builder-step"><span>01</span><div><b>Hero image <i class="required-mark">required</i></b><small>Appears first in the email. Any size works — after you choose a file, drag the edges and use the slider to crop and resize. The image is embedded in the email and never stored on Supabase.</small></div></div>
-            <div class="upload-row">
-              <label for="heroFile" class="btn btn-sm">＋ Choose image</label>
-              <input id="heroFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp">
-              <button type="button" class="btn btn-sm" id="cropBtn" style="display:none">✂ Crop / resize</button>
-              <span id="heroStatus" class="upload-status">No image selected yet.</span>
-            </div>
-            <div class="field">
-              <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(or paste a public HTTPS image URL instead — nothing is stored either way)</span></label>
-              <input id="heroImageUrl" class="input" type="url" placeholder="https://…" autocomplete="url">
-            </div>
-            <div class="field" style="margin-bottom:0">
-              <label class="field-label" for="heroAlt">Describe the image for readers who can’t see it <span class="required-mark">*</span></label>
-              <input id="heroAlt" class="input" placeholder="e.g. Students celebrating at Sign Day" maxlength="180">
-            </div>
-            <p class="hint">Images are embedded directly inside each email (inline), so nothing is kept on Supabase and the picture travels with the message and disappears after send. You can also paste a public HTTPS image URL.</p>
-          </div>
-
-          <div class="builder-section">
-            <div class="builder-step"><span>02</span><div><b>Headline</b><small>Centered by default; merge tags work here too.</small></div></div>
-            <div class="field"><label class="field-label" for="heading1">Heading 1 <span class="required-mark">*</span></label><input id="heading1" class="input" placeholder="Your main headline" maxlength="140"></div>
-            <div class="field" style="margin-bottom:0"><label class="field-label" for="heading2">Subheading <span class="required-mark">*</span></label><input id="heading2" class="input" placeholder="A short line to explain the news" maxlength="220"></div>
-          </div>
-
-          <div class="builder-section">
-            <div class="builder-step"><span>03</span><div><b>Detailed message</b><small>Formatting stays compatible with common email apps.</small></div></div>
-            <div class="toolbar">
+          <div class="builder-section message-section">
+            <div class="builder-step"><span>01</span><div><b>Your message</b><small>Write the email in plain language. Formatting is optional.</small></div></div>
+            <div class="toolbar" role="toolbar" aria-label="Message formatting">
               <button type="button" class="tool" data-cmd="bold" title="Bold"><b>B</b></button>
               <button type="button" class="tool" data-cmd="italic" title="Italic"><i>I</i></button>
               <button type="button" class="tool" data-cmd="underline" title="Underline"><u>U</u></button>
@@ -434,72 +508,158 @@ table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertic
               <span class="tool sep"></span>
               <button type="button" class="tool" id="srcBtn">&lt;/&gt; Advanced HTML</button>
             </div>
-            <div id="editor" contenteditable="true" spellcheck="true" aria-label="Detailed newsletter message"></div>
+            <div id="editor" contenteditable="true" role="textbox" spellcheck="true" aria-label="Detailed newsletter message" aria-multiline="true"></div>
             <textarea id="srcBox" class="src-box" spellcheck="false" aria-label="Advanced HTML source"></textarea>
-            <div class="hint">Personalization: <code>{{name}}</code>, <code>{{batch}}</code>, <code>{{email}}</code>. Each recipient sees their own details.</div>
+            <div class="hint">Personalize with <code>{{name}}</code>, <code>{{batch}}</code> or <code>{{email}}</code>.</div>
           </div>
 
-          <div class="builder-section">
-            <div class="builder-step"><span>04</span><div><b>Section & call-to-action</b><small>Button is included in the email; set its destination.</small></div></div>
-            <div class="field"><label class="field-label" for="sectionTitle">Section subheading <span class="required-mark">*</span></label><input id="sectionTitle" class="input" placeholder="What happens next?" maxlength="140"></div>
-            <div class="row">
-              <div class="field"><label class="field-label" for="buttonText">Button name <span class="required-mark">*</span></label><input id="buttonText" class="input" placeholder="Read more" maxlength="48"></div>
-              <div class="field"><label class="field-label" for="buttonUrl">Button link <span class="required-mark">*</span></label><input id="buttonUrl" class="input" type="url" placeholder="https://nghsians.com/" autocomplete="url"></div>
-            </div>
-            <label class="target-toggle"><input type="checkbox" id="buttonNewTab" checked><span>Ask the reader’s browser to open the button link in a new tab <small>(email apps may choose their own behavior)</small></span></label>
-          </div>
+          <details class="optional-panel">
+            <summary><span>Add an image, headline or button<small>Optional — a simple text email is ready to send.</small></span></summary>
+            <div class="optional-panel-body">
+              <div class="builder-section">
+                <div class="builder-step"><span>IMAGE</span><div><b>Hero image <span class="muted">(optional)</span></b><small>Add a picture above your email. Upload a file or paste a public HTTPS image URL.</small></div></div>
+                <div class="upload-row">
+                  <label for="heroFile" class="btn btn-sm">＋ Choose image</label>
+                  <input id="heroFile" class="visually-hidden" type="file" accept="image/png,image/jpeg,image/webp">
+                  <button type="button" class="btn btn-sm" id="cropBtn" style="display:none">✂ Crop / resize</button>
+                  <span id="heroStatus" class="upload-status" aria-live="polite">No image selected.</span>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="heroImageUrl">Image URL <span class="muted">(optional alternative)</span></label>
+                  <input id="heroImageUrl" class="input" type="url" placeholder="https://…" autocomplete="url">
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label class="field-label" for="heroAlt">Image description <span class="muted">(optional)</span></label>
+                  <input type="text" id="heroAlt" class="input" placeholder="Describe the image for readers who can’t see it" maxlength="180">
+                </div>
+                <p class="hint">Uploaded images are attached to the email itself; they are not stored in your account.</p>
+              </div>
 
-          <div class="builder-section">
-            <div class="field-label">Start from a quick draft</div>
-            <div class="row quick-blocks">
-              <button type="button" class="btn btn-sm" data-tpl="announce">Announcement</button>
-              <button type="button" class="btn btn-sm" data-tpl="event">Event / meetup</button>
-              <button type="button" class="btn btn-sm" data-tpl="merch">Merch drop</button>
-              <button type="button" class="btn btn-sm" data-tpl="signout">Sign off</button>
+              <div class="builder-section">
+                <div class="builder-step"><span>HEADLINE</span><div><b>Headline and subheading <span class="muted">(optional)</span></b><small>Leave these blank for a clean, simple email.</small></div></div>
+                <div class="field"><label class="field-label" for="heading1">Headline</label><input type="text" id="heading1" class="input" placeholder="Your main headline" maxlength="140"></div>
+                <div class="field" style="margin-bottom:0"><label class="field-label" for="heading2">Supporting line</label><input type="text" id="heading2" class="input" placeholder="A short line to explain the news" maxlength="220"></div>
+              </div>
+
+              <div class="builder-section">
+                <div class="builder-step"><span>LINK</span><div><b>Call-to-action button <span class="muted">(optional)</span></b><small>Add both a button label and its destination.</small></div></div>
+                <div class="field"><label class="field-label" for="sectionTitle">Button section heading</label><input type="text" id="sectionTitle" class="input" placeholder="What happens next?" maxlength="140"></div>
+                <div class="row">
+                  <div class="field"><label class="field-label" for="buttonText">Button label</label><input type="text" id="buttonText" class="input" placeholder="Read more" maxlength="48"></div>
+                  <div class="field"><label class="field-label" for="buttonUrl">Button destination</label><input id="buttonUrl" class="input" type="url" placeholder="https://nghsians.com/" autocomplete="url"></div>
+                </div>
+                <label class="target-toggle"><input type="checkbox" id="buttonNewTab" checked><span>Ask the reader’s browser to open the link in a new tab <small>Email apps may choose their own behavior.</small></span></label>
+              </div>
             </div>
-            <p class="hint">The footer, logo, social links, website address, preference link and unsubscribe link are added automatically.</p>
-          </div>
+          </details>
+
+          <details class="optional-panel">
+            <summary><span>Customize the appearance<small>The NGHSIANS look is ready to use as-is.</small></span></summary>
+            <div class="optional-panel-body">
+              <div class="builder-section">
+                <div class="builder-step"><span>STYLE</span><div><b>Theme and typography</b><small>Optional. Changing these affects the email, not this page.</small></div></div>
+                <div class="row">
+                  <div class="field"><label class="field-label" for="themeSelect">Theme</label>
+                    <select id="themeSelect" class="input">
+                      <option value="nghsians">NGHSIANS · dark gold</option>
+                      <option value="signday60">60th Sign Day · vintage</option>
+                      <option value="custom">Custom colors</option>
+                    </select>
+                  </div>
+                  <div class="field"><label class="field-label" for="headingFont">Heading font</label>
+                    <select id="headingFont" class="input">
+                      <option value="'Anton',Impact,'Arial Narrow',sans-serif">Anton · Impact</option>
+                      <option value="Arial,Helvetica,sans-serif">Arial</option>
+                      <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                      <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="field"><label class="field-label" for="bodyFont">Body font</label>
+                    <select id="bodyFont" class="input">
+                      <option value="'DM Sans',Arial,Helvetica,sans-serif">DM Sans · Arial</option>
+                      <option value="Arial,Helvetica,sans-serif">Arial</option>
+                      <option value="Georgia,'Times New Roman',serif">Georgia</option>
+                      <option value="Verdana,Geneva,sans-serif">Verdana</option>
+                      <option value="Tahoma,Arial,sans-serif">Tahoma</option>
+                      <option value="'Trebuchet MS',Arial,sans-serif">Trebuchet MS</option>
+                    </select>
+                  </div>
+                  <div class="field"><label class="field-label" for="textAlign">Text alignment</label>
+                    <select id="textAlign" class="input"><option value="center">Center</option><option value="left">Left</option></select>
+                  </div>
+                </div>
+                <details class="style-details">
+                  <summary>Customize colors <span>Page, message card, text, buttons and footer</span></summary>
+                  <div class="color-grid">
+                    <label class="color-control"><span>Page background</span><input type="color" id="colorOuter" value="#0b0c0d"></label>
+                    <label class="color-control"><span>Message card</span><input type="color" id="colorCard" value="#121316"></label>
+                    <label class="color-control"><span>Main text</span><input type="color" id="colorText" value="#f3ecd9"></label>
+                    <label class="color-control"><span>Secondary text</span><input type="color" id="colorMuted" value="#aaa391"></label>
+                    <label class="color-control"><span>Accent / headings</span><input type="color" id="colorAccent" value="#ffeb80"></label>
+                    <label class="color-control"><span>Secondary accent</span><input type="color" id="colorAccent2" value="#710c04"></label>
+                    <label class="color-control"><span>Button background</span><input type="color" id="colorButton" value="#8d0f05"></label>
+                    <label class="color-control"><span>Button text</span><input type="color" id="colorButtonText" value="#fff7e6"></label>
+                    <label class="color-control"><span>Footer background</span><input type="color" id="colorFooter" value="#050505"></label>
+                    <label class="color-control"><span>Footer text</span><input type="color" id="colorFooterText" value="#e8e1d2"></label>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </details>
+
         </div>
       </div>
     </section>
 
     <!-- ---------- PREVIEW + RECIPIENTS ---------- -->
     <div style="display:grid;gap:16px;min-width:0">
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Preview</h2>
-          <div class="spacer"></div>
-          <div class="seg" id="viewSeg">
-            <button data-view="desktop" class="on">Desktop</button>
-            <button data-view="mobile">Mobile</button>
+      <details class="panel preview-panel" id="previewPanel">
+        <summary class="panel-head preview-summary">
+          <h2>Email preview</h2>
+          <span class="spacer"></span>
+          <span class="preview-cue">Open to check how it looks</span>
+        </summary>
+        <div class="preview-tools">
+          <div class="seg" id="viewSeg" role="group" aria-label="Preview size">
+            <button type="button" data-view="desktop" class="on">Desktop</button>
+            <button type="button" data-view="mobile">Mobile</button>
           </div>
-        </div>
-        <div class="preview-bar">
-          <span class="muted" style="font-size:11.5px">Exactly what lands in the inbox.</span>
-          <div class="spacer" style="flex:1"></div>
-          <button class="btn btn-sm" id="testBtn">Send me a test</button>
+          <span class="muted preview-note">Send yourself a test before a real send.</span>
+          <button type="button" class="btn btn-sm" id="testBtn">Send me a test</button>
         </div>
         <iframe id="preview" class="preview-frame" title="Email preview" sandbox="allow-same-origin"></iframe>
-      </section>
+      </details>
 
-      <section class="panel">
-        <div class="panel-head">
-          <h2>Recipients</h2>
-          <div class="spacer"></div>
-          <button class="btn btn-sm" id="selAll">All</button>
-          <button class="btn btn-sm" id="selNone">None</button>
-          <button class="btn btn-sm" id="selCopy">Copy emails</button>
-        </div>
-        <div style="padding:11px 15px;border-bottom:1px solid var(--line)">
-          <input id="recSearch" class="input" placeholder="Search name, email or batch…" autocomplete="off">
-          <div class="row" style="margin-top:9px">
-            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fAccount" checked style="accent-color:#ffeb80"> Accounts</label>
-            <label class="who-chip" style="cursor:pointer"><input type="checkbox" id="fContact" checked style="accent-color:#3ddc84"> Imported</label>
+      <section class="panel" id="recipientsPanel">
+        <div class="panel-head recipients-head">
+          <div><h2>Recipients</h2><span class="panel-subtitle" id="recipientTotal" aria-live="polite">Loading list…</span></div>
+          <div class="recipient-actions">
+            <button type="button" class="btn btn-sm" id="selAll">Select shown</button>
+            <button type="button" class="btn btn-sm" id="selNone">Clear shown</button>
+            <button type="button" class="btn btn-sm" id="selCopy">Copy emails</button>
           </div>
         </div>
+        <div class="recipient-controls">
+          <label class="field-label" for="recSearch">Find someone</label>
+          <input id="recSearch" class="input" type="search" placeholder="Name, email or batch…" autocomplete="off">
+          <div class="source-heading">Select a whole group <span>Tap again to clear it.</span></div>
+          <div class="source-selection" role="group" aria-label="Select recipient sources">
+            <label class="source-toggle account-toggle">
+              <input type="checkbox" id="fAccount" checked aria-label="Select all account subscribers">
+              <span><b>Accounts</b><small id="accountSelectMeta">0 selected</small></span>
+            </label>
+            <label class="source-toggle contact-toggle">
+              <input type="checkbox" id="fContact" checked aria-label="Select all imported contacts">
+              <span><b>Imported contacts</b><small id="contactSelectMeta">0 selected</small></span>
+            </label>
+          </div>
+          <p class="hint">Each group checkbox selects or clears that source. You can still change individual people below.</p>
+        </div>
         <div class="rec-list">
-          <table>
-            <thead><tr><th style="width:34px"></th><th>Name</th><th>Email</th><th style="width:86px">Source</th></tr></thead>
+          <table class="recipient-table">
+            <thead><tr><th style="width:34px"><span class="visually-hidden">Select</span></th><th>Name</th><th>Email</th><th style="width:86px">Source</th></tr></thead>
             <tbody id="recBody"></tbody>
           </table>
           <div class="empty" id="recEmpty">Loading subscribers…</div>
@@ -507,7 +667,7 @@ table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertic
       </section>
 
       <section class="panel">
-        <div class="panel-head"><h2>Send history</h2><div class="spacer"></div><button class="btn btn-sm" id="histBtn">↻</button></div>
+        <div class="panel-head"><h2>Send history</h2><div class="spacer"></div><button type="button" class="btn btn-sm" id="histBtn">↻</button></div>
         <div class="rec-list" style="max-height:280px;overflow-x:auto"><table class="hist">
           <thead><tr><th>Subject</th><th class="num">Recipients</th><th class="num">Sent</th><th class="num">Received</th><th class="num">Opened</th><th class="num">Link opened</th><th>When</th><th></th></tr></thead>
           <tbody id="histBody"></tbody>
@@ -518,12 +678,12 @@ table.mini td{padding:5px 10px;border-top:1px solid rgba(255,255,255,.05);vertic
 
   <!-- ---------- SEND BAR ---------- -->
   <div class="sendbar">
-    <span class="count"><b id="selCount">0</b> selected</span>
+    <span class="count selection-count" aria-live="polite"><b id="selCount">0</b><span id="selectionLabel"> selected</span></span>
     <div class="progress"><i id="progBar"></i></div>
     <span class="count muted" id="sendNote">Nothing sending.</span>
     <div class="spacer" style="flex:1"></div>
-    <button class="btn btn-sm" id="saveDraft">Save draft here</button>
-    <button class="btn btn-primary" id="sendBtn">✉ Send newsletter</button>
+    <button type="button" class="btn btn-sm" id="saveDraft">Save draft here</button>
+    <button type="button" class="btn btn-primary" id="sendBtn">✉ Send newsletter</button>
   </div>
 </div>
 
@@ -560,15 +720,13 @@ const MAILER = {
   siteUrl: 'https://nghsians.com',
   brand:   'NGHSIANS',
   assetsBucket: 'newsletter-media',
-  // Sender logo: your shared Drive logo.png (no Supabase involved). If it ever
-  // fails to render in Gmail, drop logo.png into assets/mailer/ and switch this
-  // back to the site-hosted 'https://nghsians.com/assets/mailer/logo.png'.
-  logoUrl: 'https://drive.google.com/uc?export=view&id=14zb7QoDvm-ZSleFQ6HWrixfDqrugmAZw',
+  // Use the site-hosted logo so email clients do not have to follow Drive redirects.
+  logoUrl: 'https://nghsians.com/assets/mailer/logo.png',
   footerLogoUrl: 'https://nghsians.com/assets/mailer/footer-logo.png'
 };
 
 const EMAIL_KEY = 'nghsmailer_email';
-let supa = null, PIN = '', subscribers = [], selected = new Set();
+let supa = null, PIN = '', subscribers = [], selected = new Set(), subscribersLoaded = false;
 let heroInline = null, heroMode = 'none', heroOriginal = null;  // heroMode: 'none' | 'url' | 'inline'
 let hasSession = false;   // already signed in → only the PIN is asked for
 
@@ -656,10 +814,10 @@ function normalizeLink(raw) {
 }
 function normalizeHeroUrl(raw) {
   const value = String(raw || '').trim();
-  if (!value) throw new Error('Add the required hero image first (upload a file or paste a public HTTPS image URL).');
+  if (!value) throw new Error('Add a public HTTPS image URL, or leave the optional image field blank.');
   let parsed;
   try { parsed = new URL(value, MAILER.siteUrl); }
-  catch (e) { throw new Error('Use a public HTTPS image URL or upload the image to newsletter storage.'); }
+  catch (e) { throw new Error('Use a public HTTPS image URL or choose an image file from this device.'); }
   if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
     throw new Error('The hero image must use a public HTTPS URL.');
   }
@@ -693,15 +851,15 @@ function editorText() {
 }
 function getComposerError() {
   if (!$('subject').value.trim()) return 'Add a subject line first.';
+  if (!editorText()) return 'Write a message before sending.';
   const hero = validateHero();
   if (!hero.ok) return hero.msg;
-  if (!$('heroAlt').value.trim()) return 'Add a short description for the hero image (alt text).';
-  if (!$('heading1').value.trim()) return 'Add Heading 1.';
-  if (!$('heading2').value.trim()) return 'Add the subheading.';
-  if (!editorText()) return 'Add the detailed message.';
-  if (!$('sectionTitle').value.trim()) return 'Add the section subheading.';
-  if (!$('buttonText').value.trim()) return 'Add a name for the call-to-action button.';
-  try { normalizeLink($('buttonUrl').value); } catch (e) { return e.message; }
+  const buttonText = $('buttonText').value.trim();
+  const buttonUrl = $('buttonUrl').value.trim();
+  if (!!buttonText !== !!buttonUrl) return 'For a call-to-action button, add both its label and destination — or leave both blank.';
+  if (buttonUrl) {
+    try { normalizeLink(buttonUrl); } catch (e) { return e.message; }
+  }
   return '';
 }
 /* Loads an image's natural dimensions without enforcing any size. The hero is
@@ -721,6 +879,7 @@ function loadImageInfo(src) {
    no Supabase storage. Returns { ok:true } or { ok:false, msg }. */
 function validateHero() {
   if (heroMode === 'inline' && heroInline) return { ok:true };
+  if (!$('heroImageUrl').value.trim()) return { ok:true };
   try { normalizeHeroUrl($('heroImageUrl').value); return { ok:true }; }
   catch (e) { return { ok:false, msg: e.message }; }
 }
@@ -735,53 +894,92 @@ function emailShell(forPreview) {
   let heroSrc = '';
   if (heroMode === 'inline' && heroInline) {
     heroSrc = forPreview ? heroInline.dataUrl : 'cid:hero';
-  } else {
+  } else if ($('heroImageUrl').value.trim()) {
     try { heroSrc = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
   }
   const heroAlt = $('heroAlt').value.trim() || 'NGHSIANS newsletter image';
-  const h1 = $('heading1').value.trim() || 'Your main headline';
-  const h2 = $('heading2').value.trim() || 'A short supporting line';
-  const sectionTitle = $('sectionTitle').value.trim() || 'What happens next?';
-  const buttonText = $('buttonText').value.trim() || 'Read more';
-  const body = editorHtml().trim() || '<p style="margin:0">Write your detailed message here.</p>';
-  let buttonHref = '#preview-button';
-  try { buttonHref = normalizeLink($('buttonUrl').value); } catch (e) {}
+  const h1 = $('heading1').value.trim();
+  const h2 = $('heading2').value.trim();
+  const sectionTitle = $('sectionTitle').value.trim();
+  const buttonText = $('buttonText').value.trim();
+  const buttonUrl = $('buttonUrl').value.trim();
+  const body = editorHtml().trim() || '<p style="margin:0">Your message will appear here.</p>';
   const target = $('buttonNewTab').checked ? '_blank' : '_self';
   const align = d.align;
-  const button = `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:20px auto 0"><tr><td align="center" bgcolor="${c.button}" style="border:1px solid ${c.accent2};border-radius:6px"><a href="${esc(buttonHref)}" target="${target}" rel="noopener" style="display:inline-block;padding:15px 26px;min-width:150px;color:${c.buttonText};font-family:${d.bodyFont};font-size:15px;line-height:1.2;font-weight:700;text-decoration:none;text-align:center;border-radius:6px">${esc(buttonText)}</a></td></tr></table>`;
+  let buttonHref = '';
+  if (buttonText && buttonUrl) {
+    try { buttonHref = normalizeLink(buttonUrl); } catch (e) {}
+  }
+  const button = buttonHref
+    ? `<table role="presentation" align="center" cellpadding="0" cellspacing="0" style="margin:20px auto 0"><tr><td align="center" bgcolor="${c.button}" style="border:1px solid ${c.accent2};border-radius:6px"><a class="email-cta" href="${esc(buttonHref)}" target="${target}" rel="noopener" style="display:inline-block;box-sizing:border-box;padding:15px 26px;min-width:150px;background:${c.button};color:${c.buttonText};font-family:${d.bodyFont};font-size:15px;line-height:1.2;font-weight:700;text-decoration:none;text-align:center;border-radius:6px">${esc(buttonText)}</a></td></tr></table>`
+    : '';
   const pre = preheader ? `<div style="display:none!important;max-height:0;max-width:0;overflow:hidden;opacity:0;color:transparent;mso-hide:all">${esc(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>` : '';
   const hero = heroSrc
-    ? `<img src="${esc(heroSrc)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none">`
-    : `<div style="padding:70px 18px;background:${c.accent2};color:${c.buttonText};font-family:${d.bodyFont};font-size:13px;font-weight:700;text-align:center">Required hero image will appear here</div>`;
+    ? `<tr><td class="email-header" bgcolor="${c.card}" style="padding:0;background:${c.card}"><img src="${esc(heroSrc)}" width="600" alt="${esc(heroAlt)}" style="display:block;width:100%;max-width:600px;height:auto;border:0;outline:none;text-decoration:none"></td></tr>`
+    : '';
   const signDayRibbon = themeIsSignDay
-    ? `<tr><td align="center" style="padding:11px 22px;background:${c.accent};color:${c.buttonText};font-family:${d.headingFont};font-size:12px;letter-spacing:2px;text-transform:uppercase">60TH SIGN DAY · BATCH 2027</td></tr>` : '';
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><title>${esc(subject)}</title></head>
-<body style="margin:0;padding:0;background:${c.outer};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%">
+    ? `<tr><td class="email-ribbon" align="center" bgcolor="${c.accent}" style="padding:11px 22px;background:${c.accent};color:${c.buttonText};font-family:${d.headingFont};font-size:12px;letter-spacing:2px;text-transform:uppercase">60TH SIGN DAY · BATCH 2027</td></tr>` : '';
+  const headings = (h1 ? `<h1 class="email-accent" style="margin:0 0 11px;font-family:${d.headingFont};font-size:30px;line-height:1.16;font-weight:700;letter-spacing:.2px;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(h1)}</h1>` : '') +
+    (h2 ? `<h2 class="email-text" style="margin:0 auto 22px;font-family:${d.bodyFont};font-size:18px;line-height:1.45;font-weight:600;color:${c.text};text-align:${align}">${esc(h2)}</h2>` : '');
+  const section = sectionTitle
+    ? `<h3 class="email-accent" style="margin:0;font-family:${d.headingFont};font-size:20px;line-height:1.25;font-weight:700;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(sectionTitle)}</h3>`
+    : '';
+  const divider = (section || button)
+    ? `<div class="email-divider" style="height:1px;margin:25px auto 20px;max-width:100px;background:${c.accent2};font-size:0;line-height:0">&nbsp;</div>`
+    : '';
+  const colorModeStyles = `<style type="text/css">
+:root { color-scheme: light dark; supported-color-schemes: light dark; }
+@media (prefers-color-scheme: dark) {
+  body.email-body { background-color:${c.outer} !important; color:${c.text} !important; }
+  .email-outer, .email-outer-cell { background-color:${c.outer} !important; }
+  .email-card, .email-header, .email-main { background-color:${c.card} !important; }
+  .email-main, .email-text, .email-copy { color:${c.text} !important; }
+  .email-accent { color:${c.accent} !important; }
+  .email-muted { color:${c.muted} !important; }
+  .email-footer { background-color:${c.footer} !important; color:${c.footerText} !important; }
+  .email-footer a:not(.email-social) { color:${c.footerText} !important; }
+  .email-footer-title, .email-footer-copy { color:${c.footerText} !important; }
+  .email-footer .email-social { background-color:${c.footerText} !important; color:${c.footer} !important; }
+  .email-main .email-cta { background-color:${c.button} !important; color:${c.buttonText} !important; }
+  .email-ribbon { background-color:${c.accent} !important; color:${c.buttonText} !important; }
+  .email-divider { background-color:${c.accent2} !important; }
+}
+[data-ogsc] .email-outer, [data-ogsc] .email-outer-cell { background-color:${c.outer} !important; }
+[data-ogsc] .email-card, [data-ogsc] .email-header, [data-ogsc] .email-main { background-color:${c.card} !important; }
+[data-ogsc] .email-main, [data-ogsc] .email-text, [data-ogsc] .email-copy { color:${c.text} !important; }
+[data-ogsc] .email-accent { color:${c.accent} !important; }
+[data-ogsc] .email-muted { color:${c.muted} !important; }
+[data-ogsc] .email-footer { background-color:${c.footer} !important; color:${c.footerText} !important; }
+[data-ogsc] .email-footer a:not(.email-social), [data-ogsc] .email-footer-title, [data-ogsc] .email-footer-copy { color:${c.footerText} !important; }
+[data-ogsc] .email-footer .email-social { background-color:${c.footerText} !important; color:${c.footer} !important; }
+[data-ogsc] .email-main .email-cta { background-color:${c.button} !important; color:${c.buttonText} !important; }
+</style>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">${colorModeStyles}<title>${esc(subject)}</title></head>
+<body class="email-body" style="margin:0;padding:0;background:${c.outer};color:${c.text};-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%">
 ${pre}
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 auto;background:${c.outer}"><tr><td align="center" style="padding:22px 10px">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;margin:0 auto;background:${c.card};border:1px solid ${c.accent2};border-radius:8px;overflow:hidden">
-<tr><td style="padding:0;background:${c.card}">${hero}</td></tr>
-<tr><td height="5" bgcolor="${c.accent}" style="height:5px;font-size:0;line-height:0">&nbsp;</td></tr>
-<tr><td align="center" style="padding:20px 24px 16px;background:${c.card};text-align:center"><img src="${esc(headerLogo)}" width="66" height="66" alt="${esc(headerLabel)}" style="display:block;width:66px;height:66px;object-fit:contain;margin:0 auto 8px;border:0"><div style="font-family:${d.headingFont};font-size:20px;line-height:1.15;letter-spacing:1px;text-transform:uppercase;color:${c.text}">${esc(headerLabel)}</div><div style="margin-top:5px;font-family:${d.bodyFont};font-size:10px;line-height:1.4;letter-spacing:1.5px;color:${c.muted}">${esc(headerSub)}</div></td></tr>
+<table class="email-outer" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${c.outer}" style="width:100%;margin:0 auto;background:${c.outer}"><tr><td class="email-outer-cell" align="center" bgcolor="${c.outer}" style="padding:22px 10px;background:${c.outer}">
+<table class="email-card" role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${c.card}" style="width:100%;max-width:600px;margin:0 auto;background:${c.card};border:1px solid ${c.accent2};border-radius:8px;overflow:hidden">
+${hero}
+<tr><td class="email-ribbon" height="5" bgcolor="${c.accent}" style="height:5px;background:${c.accent};font-size:0;line-height:0">&nbsp;</td></tr>
+<tr><td class="email-header" align="center" bgcolor="${c.card}" style="padding:20px 24px 16px;background:${c.card};text-align:center"><img src="${esc(headerLogo)}" width="66" height="66" alt="${esc(headerLabel)}" style="display:block;width:66px;height:66px;margin:0 auto 8px;border:0"><div class="email-text" style="font-family:${d.headingFont};font-size:20px;line-height:1.15;letter-spacing:1px;text-transform:uppercase;color:${c.text}">${esc(headerLabel)}</div><div class="email-muted" style="margin-top:5px;font-family:${d.bodyFont};font-size:10px;line-height:1.4;letter-spacing:1.5px;color:${c.muted}">${esc(headerSub)}</div></td></tr>
 ${signDayRibbon}
-<tr><td align="${align}" style="padding:28px 30px 34px;text-align:${align};font-family:${d.bodyFont};color:${c.text}">
-<h1 style="margin:0 0 11px;font-family:${d.headingFont};font-size:30px;line-height:1.16;font-weight:700;letter-spacing:.2px;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(h1)}</h1>
-<h2 style="margin:0 auto 22px;font-family:${d.bodyFont};font-size:18px;line-height:1.45;font-weight:600;color:${c.text};text-align:${align}">${esc(h2)}</h2>
-<div style="font-family:${d.bodyFont};font-size:15px;line-height:1.75;color:${c.text};text-align:${align}">${body}</div>
-<div style="height:1px;margin:25px auto 20px;max-width:100px;background:${c.accent2};font-size:0;line-height:0">&nbsp;</div>
-<h3 style="margin:0;font-family:${d.headingFont};font-size:20px;line-height:1.25;font-weight:700;color:${c.accent};text-align:${align};text-transform:uppercase">${esc(sectionTitle)}</h3>
+<tr><td class="email-main" align="${align}" bgcolor="${c.card}" style="padding:28px 30px 34px;background:${c.card};text-align:${align};font-family:${d.bodyFont};color:${c.text}">
+${headings}
+<div class="email-copy" style="font-family:${d.bodyFont};font-size:15px;line-height:1.75;color:${c.text};text-align:${align}">${body}</div>
+${divider}
+${section}
 ${button}
 </td></tr>
-<tr><td align="center" style="padding:24px 22px 26px;background:${c.footer};border-top:3px solid ${c.accent2};text-align:center;font-family:${d.bodyFont};color:${c.footerText}">
-<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(MAILER.footerLogoUrl)}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;object-fit:contain;margin:0 auto 13px;border:0"></a>
-<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px"><tr>
-<td style="padding:0 4px"><a href="https://facebook.com/NasirabadBoys" aria-label="Facebook" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">f</a></td>
-<td style="padding:0 4px"><a href="https://youtube.com/@nghsians" aria-label="YouTube" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;border-radius:3px">▶</a></td>
-<td style="padding:0 4px"><a href="https://instagram.com/nghsians" aria-label="Instagram" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:16px;font-weight:bold;text-decoration:none;border-radius:3px">◎</a></td>
-<td style="padding:0 4px"><a href="${esc(MAILER.siteUrl)}" aria-label="Website" style="display:block;width:30px;height:30px;line-height:30px;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;border-radius:3px">↗</a></td>
+<tr><td class="email-footer" align="center" bgcolor="${c.footer}" style="padding:24px 22px 26px;background:${c.footer};border-top:3px solid ${c.accent2};text-align:center;font-family:${d.bodyFont};color:${c.footerText}">
+<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(MAILER.footerLogoUrl)}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;margin:0 auto 13px;border:0"></a>
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px;border-collapse:separate"><tr>
+<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://facebook.com/NasirabadBoys" aria-label="Facebook" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:17px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">f</a></td>
+<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://youtube.com/@nghsians" aria-label="YouTube" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">▶</a></td>
+<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://instagram.com/nghsians" aria-label="Instagram" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:18px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">◎</a></td>
+<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="${esc(MAILER.siteUrl)}" aria-label="Website" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:18px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">↗</a></td>
 </tr></table>
-<div style="font-family:${d.headingFont};font-size:18px;line-height:1.2;letter-spacing:1.2px;color:${c.footerText};text-transform:uppercase;margin-bottom:10px">NGHSIANS</div>
-<div style="max-width:460px;margin:0 auto;font-size:12px;line-height:1.65;color:${c.footerText};opacity:.88">You received this email because you signed up on our website.</div>
+<div class="email-footer-title" style="font-family:${d.headingFont};font-size:18px;line-height:1.2;letter-spacing:1.2px;color:${c.footerText};text-transform:uppercase;margin-bottom:10px">NGHSIANS</div>
+<div class="email-footer-copy" style="max-width:460px;margin:0 auto;font-size:12px;line-height:1.65;color:${c.footerText}">You received this email because you signed up on our website.</div>
 <div style="margin-top:11px;font-size:12px;line-height:1.7"><a href="{{unsubscribe_url}}" style="color:${c.footerText};font-weight:700;text-decoration:underline">Unsubscribe</a><span style="padding:0 7px;color:${c.footerText}">·</span><a href="${esc(MAILER.siteUrl)}/account.html" style="color:${c.footerText};text-decoration:underline">Manage preferences</a></div>
 </td></tr>
 </table>
@@ -804,8 +1002,13 @@ async function loadSubs() {
   try {
     const { data, error } = await supa.rpc('newsletter_admin_list', { p_pin: PIN });
     if (error) throw error;
+    const previousSelection = selected;
     subscribers = data || [];
-    selected = new Set(subscribers.map(r => r.email));
+    const currentEmails = new Set(subscribers.map(r => r.email));
+    selected = subscribersLoaded
+      ? new Set([...previousSelection].filter(email => currentEmails.has(email)))
+      : new Set(currentEmails);
+    subscribersLoaded = true;
     renderRecipients(); renderStats();
   } catch (err) {
     console.error(err);
@@ -830,13 +1033,34 @@ async function renderStats() {
 }
 function visibleRows() {
   const q = ($('recSearch').value || '').trim().toLowerCase();
-  const a = $('fAccount').checked, c = $('fContact').checked;
-  return subscribers.filter(r => {
-    if (r.kind === 'account' && !a) return false;
-    if (r.kind === 'contact' && !c) return false;
-    if (!q) return true;
-    return (r.email + ' ' + (r.name || '') + ' ' + (r.batch_year || '')).toLowerCase().includes(q);
+  return subscribers.filter(r => !q ||
+    (r.email + ' ' + (r.name || '') + ' ' + (r.batch_year || '')).toLowerCase().includes(q));
+}
+function updateSelectionSummary() {
+  const groups = [
+    { kind:'account', checkbox:$('fAccount'), meta:$('accountSelectMeta') },
+    { kind:'contact', checkbox:$('fContact'), meta:$('contactSelectMeta') }
+  ];
+  groups.forEach(group => {
+    const members = subscribers.filter(r => r.kind === group.kind);
+    const chosen = members.filter(r => selected.has(r.email)).length;
+    group.checkbox.checked = members.length > 0 && chosen === members.length;
+    group.checkbox.indeterminate = chosen > 0 && chosen < members.length;
+    group.checkbox.disabled = members.length === 0;
+    group.meta.textContent = members.length ? chosen + ' of ' + members.length + ' selected' : 'No people in this group';
   });
+  $('selCount').textContent = selected.size;
+  $('selectionLabel').textContent = ' of ' + subscribers.length + ' selected';
+  $('recipientTotal').textContent = subscribers.length
+    ? selected.size + ' of ' + subscribers.length + ' selected'
+    : 'No subscribers yet';
+}
+function setGroupSelection(kind, checked) {
+  subscribers.filter(r => r.kind === kind).forEach(r => {
+    if (checked) selected.add(r.email);
+    else selected.delete(r.email);
+  });
+  renderRecipients();
 }
 function renderRecipients() {
   const rows = visibleRows();
@@ -845,12 +1069,12 @@ function renderRecipients() {
   else if (!subscribers.length) $('recEmpty').textContent = 'No subscribers yet.';
   $('recBody').innerHTML = rows.map(r =>
     '<tr data-email="' + esc(r.email) + '">' +
-      '<td><input type="checkbox" data-pick="' + esc(r.email) + '"' + (selected.has(r.email) ? ' checked' : '') + ' style="accent-color:#ffeb80"></td>' +
-      '<td class="name">' + esc(r.name || '—') + (r.batch_year ? ' <span class="muted" style="font-weight:400">· ' + esc(r.batch_year) + '</span>' : '') + '</td>' +
+      '<td class="pick"><input type="checkbox" data-pick="' + esc(r.email) + '" aria-label="Select ' + esc(r.name || r.email) + '"' + (selected.has(r.email) ? ' checked' : '') + '></td>' +
+      '<td class="name">' + esc(r.name || '—') + (r.batch_year ? ' <span class="muted batch-year">· ' + esc(r.batch_year) + '</span>' : '') + '</td>' +
       '<td class="email">' + esc(r.email) + '</td>' +
-      '<td><span class="tag ' + esc(r.kind) + '">' + esc(r.kind === 'account' ? 'account' : 'imported') + '</span></td>' +
+      '<td class="source"><span class="tag ' + esc(r.kind) + '">' + esc(r.kind === 'account' ? 'account' : 'imported') + '</span></td>' +
     '</tr>').join('');
-  $('selCount').textContent = selected.size;
+  updateSelectionSummary();
 }
 async function loadHistory() {
   try {
@@ -1093,7 +1317,7 @@ function openImport() {
   const m = modal('Import subscribers',
     '<p>Choose the MailerLite CSV file or paste its contents. The importer understands both <code>email</code> and MailerLite’s <code>Subscriber</code> column, and ignores send/open/click/location statistics.</p>' +
     '<label class="field-label" for="impFile">CSV file</label><input id="impFile" class="input" type="file" accept=".csv,text/csv" style="margin-bottom:10px">' +
-    '<textarea id="impCsv" class="ta" style="min-height:145px;font-size:12px" placeholder="email,name,batch,status&#10;someone@example.com,Someone,2019,active"></textarea>' +
+    '<textarea id="impCsv" class="ta" style="min-height:145px;font-size:16px" placeholder="email,name,batch,status&#10;someone@example.com,Someone,2019,active"></textarea>' +
     '<p class="hint" style="margin-top:8px">Unsubscribed, bounced, junk, unconfirmed, and unknown statuses are excluded. If the CSV has no status column, import only if it is an export of currently subscribed people. Importing never sends an email.</p>',
     '<button class="btn" data-close>Cancel</button><button class="btn btn-primary" id="goImport">Review import</button>');
   const fileInput = m.querySelector('#impFile');
@@ -1418,6 +1642,8 @@ document.addEventListener('DOMContentLoaded', () => {
   $('editor').addEventListener('input', refreshPreview);
   $('srcBox').addEventListener('input', refreshPreview);
 
+  if (window.matchMedia && window.matchMedia('(min-width: 601px)').matches) $('previewPanel').open = true;
+
   $('viewSeg').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     $('viewSeg').querySelectorAll('button').forEach(x => x.classList.remove('on'));
@@ -1425,12 +1651,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   $('recSearch').addEventListener('input', renderRecipients);
-  $('fAccount').addEventListener('change', renderRecipients);
-  $('fContact').addEventListener('change', renderRecipients);
+  $('fAccount').addEventListener('change', () => setGroupSelection('account', $('fAccount').checked));
+  $('fContact').addEventListener('change', () => setGroupSelection('contact', $('fContact').checked));
   $('recBody').addEventListener('change', (e) => {
     const cb = e.target.closest('[data-pick]'); if (!cb) return;
     if (cb.checked) selected.add(cb.dataset.pick); else selected.delete(cb.dataset.pick);
-    $('selCount').textContent = selected.size;
+    updateSelectionSummary();
   });
   $('selAll').addEventListener('click',  () => { visibleRows().forEach(r => selected.add(r.email));  renderRecipients(); });
   $('selNone').addEventListener('click', () => { visibleRows().forEach(r => selected.delete(r.email)); renderRecipients(); });

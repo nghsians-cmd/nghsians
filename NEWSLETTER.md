@@ -1,6 +1,6 @@
 # Newsletter → Account merge
 
-**Date:** 2026-10-12 · **Status:** account/signup migration in place; refreshed mailer composer awaiting review, media-bucket setup and function redeploy
+**Date:** 2026-10-12 · **Status:** account/signup migration in place; mailer UX refreshed; sending still requires the deployed Edge Function and verified sender domain
 
 The standalone Newsletter (the MailerLite embed) is **gone**. The NGHSIANS account *is* the
 subscription now: if you have an account, you're on the list, at the email you log in with.
@@ -25,8 +25,8 @@ No other page changed visually. `27form.html` was **not touched**, exactly as as
 | `mailer.html` | PIN-locked committee mailer (compose, preview, recipients, send, history, CSV import) |
 | `unsubscribe.html` | the public one-click unsubscribe page linked from every email footer |
 | `supabase/functions/send-newsletter/index.ts` | Supabase Edge Function that actually sends the mail (Resend) |
-| `supabase-newsletter-media.sql` | admin-only image upload policy + public-read bucket required for email images |
-| `assets/mailer/logo.png`, `assets/mailer/footer-logo.png` | the two Mail Files Drive logos used by the mailer and the generated email footer |
+| `supabase-newsletter-media.sql` | legacy optional storage-bucket policy; the current mailer embeds uploaded images inline |
+| `assets/mailer/logo.png`, `assets/mailer/footer-logo.png` | site-hosted NGHSIANS artwork used by the mailer and generated email footer |
 | `account.html` | consent checkbox on signup, one-time notice popup, newsletter row + Edit toggle |
 
 ---
@@ -97,7 +97,7 @@ add the SPF/DKIM/DMARC records it gives you. Then set `MAILER.from` in `mailer.h
 to an address on that domain. Mail sent from an unverified or mismatched From address
 is silently dumped in spam, and bulk mail from a `gmail.com` address is worse still.
 
-**4d · hero-image uploads** — run `supabase-newsletter-media.sql` once in the SQL Editor. It creates a public-read `newsletter-media` bucket (email apps must be able to load images) while restricting uploads to signed-in newsletter admins. The bucket accepts PNG, JPEG, and WebP up to 8 MB. Uploaded campaign images must be exactly **1920 × 1080**; the editor also accepts an already-public HTTPS image URL.
+**4d · optional campaign images** — no storage bucket is required for the current editor. An uploaded PNG, JPEG or WebP is cropped in the browser and attached directly to the email; alternatively, paste a public HTTPS image URL. The legacy `supabase-newsletter-media.sql` migration is not used by this inline-image flow.
 
 ### 5 · Change the mailer PIN
 ```sql
@@ -114,14 +114,14 @@ form so nobody doubles up.
 
 ## Mailer design builder
 
-The compose panel now produces a single-column, centered, 600px email with a fixed order: required 1920 × 1080 hero image at the top, branded masthead, Heading 1, subheading, detailed message, section subheading, call-to-action button, then the branded footer. The CTA text, URL and requested tab target are editable; the new-tab preference is advisory because many email apps control link-opening behavior themselves.
+The compose panel starts with the essentials: subject and message. Templates, inbox preview text, images, headlines, buttons and styling are optional and tucked away until needed. The generated email is a single-column, centered, 600px layout with a branded masthead and footer; optional blocks are omitted when left blank. The preview can be opened on demand, and desktop/mobile inbox sizing is available there. The CTA's new-tab preference is advisory because many email apps control link-opening behavior themselves.
 
 Two presets are included:
 
 - **NGHSIANS** — the existing charcoal, gold and red identity; DM Sans and Anton are the defaults.
 - **60th Sign Day** — paper, ink, deep red and gold inspired by `27form.html`, `27rep.html`, and the 60th Sign Day card in `index.html`.
 
-Every palette role is editable (canvas, card, text, muted text, accents, button and footer); heading/body fonts can be changed. Center alignment is the default, with left alignment available. The email uses table-based structure, inline styles, alt text, desktop/mobile preview, a test send, local draft autosave, and per-recipient name/batch/email merge tags. The footer follows the Drive reference order (logo, social links, brand, copy, unsubscribe) and keeps its line verbatim: “You received this email because you signed up on our website.” A per-person unsubscribe URL and account-preferences link are included. The full HTML is generated before sending so preview and delivered content use the same layout.
+Every palette role is editable (canvas, card, text, muted text, accents, button and footer); heading/body fonts can be changed. Center alignment is the default, with left alignment available. The email uses table-based structure, inline styles, optional image alt text, a test send, local draft autosave, and per-recipient name/batch/email merge tags. It declares light/dark color-scheme support and includes explicit dark-mode colors; some mail clients may still apply their own color transformations. The footer includes the logo, social links, brand, copy, unsubscribe link and account-preferences link. The full HTML is generated before sending so preview and delivered content use the same layout.
 
 These decisions follow established builders' useful patterns—saved/reusable content blocks and responsive previews—while keeping this campaign structure intentionally simple and reliable across email clients. See [Mailchimp's new builder guide](https://mailchimp.com/help/design-an-email-new-builder/) and [Litmus's accessibility checklist](https://www.litmus.com/blog/7-simple-tricks-to-make-your-email-code-more-accessible) for the reference patterns (responsive preview, semantic structure, alt text, readable color contrast).
 
@@ -138,7 +138,7 @@ newsletter_tokens          → per-account secret unsubscribe token (no client a
 newsletter_contacts        → imported people with no account
 newsletter_send_log        → one row per send
 app_secrets                → mailer_pin
-storage.buckets            → newsletter-media (public email-image reads; admin-only campaign uploads)
+storage.buckets            → newsletter-media (legacy/optional; inline campaign images need no bucket)
 ```
 
 **Why a separate token table?** `verified_profiles` is readable with the anon key (the
@@ -179,7 +179,6 @@ view. It needs checking against `account.html`'s network panel and `27rep.html` 
 | # | Item | Blocking |
 |---|---|---|
 | 1 | After merge, safely rerun `supabase-newsletter-merge.sql` (updates the importer opt-out guard), then deploy the updated `send-newsletter` Edge Function | importer safety + full-render email delivery |
-| 2 | Run `supabase-newsletter-media.sql` once in the SQL Editor | in-panel hero-image uploads (public HTTPS URLs can still be pasted) |
-| 3 | Confirm that the Mail Files CSV is the current active/subscribed list before importing; it has no status column | safe import of the legacy contacts |
-| 4 | Send a test and check the delivered message in desktop and mobile inboxes | production send confidence |
-| 5 | After the first clean campaign, retire the MailerLite account/form to avoid double opt-ins | MailerLite shutdown |
+| 2 | Confirm that the Mail Files CSV is the current active/subscribed list before importing; it has no status column | safe import of the legacy contacts |
+| 3 | Send a test and check the delivered message in desktop and mobile inboxes | production send confidence |
+| 4 | After the first clean campaign, retire the MailerLite account/form to avoid double opt-ins | MailerLite shutdown |
