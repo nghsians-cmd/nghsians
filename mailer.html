@@ -720,10 +720,22 @@ const MAILER = {
   siteUrl: 'https://nghsians.com',
   brand:   'NGHSIANS',
   assetsBucket: 'newsletter-media',
-  // Use the site-hosted logo so email clients do not have to follow Drive redirects.
-  logoUrl: 'https://nghsians.com/assets/mailer/logo.png',
-  footerLogoUrl: 'https://nghsians.com/assets/mailer/footer-logo.png'
+  /* Every piece of artwork the e-mail uses — masthead logo, footer crest and
+     the footer social icons — is served from the site so email clients never
+     follow a Drive redirect. Sent mail needs absolute URLs; the preview and
+     assetUrl() below keep it honest about what actually goes out. */
+  assetBase: 'https://nghsians.com/assets/mailer'
 };
+
+/* The footer social row, in the same order and with the same artwork as the
+   icons above the site footer. Every entry needs <icon>.svg plus its two PNG
+   exports in assets/mailer/icons/. */
+const FOOTER_SOCIALS = [
+  { icon:'instagram', label:'Instagram', href:'https://instagram.com/nghsians' },
+  { icon:'facebook',  label:'Facebook',  href:'https://facebook.com/NasirabadBoys' },
+  { icon:'youtube',   label:'YouTube',   href:'https://youtube.com/@nghsians' },
+  { icon:'website',   label:'Website',   href:MAILER.siteUrl }
+];
 
 const EMAIL_KEY = 'nghsmailer_email';
 let supa = null, PIN = '', subscribers = [], selected = new Set(), subscribersLoaded = false;
@@ -743,6 +755,13 @@ function toast(msg, kind) {
   $('toast').appendChild(t);
   setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; }, 4200);
   setTimeout(() => t.remove(), 4700);
+}
+/* Every image the e-mail links resolves through here. Sent mail gets the
+   absolute site URL (email clients cannot resolve a relative path); the
+   on-page preview resolves the same file relatively, so what the preview
+   shows is what the inbox gets — and it works before the site is deployed. */
+function assetUrl(forPreview, path) {
+  return (forPreview ? 'assets/mailer' : MAILER.assetBase) + path;
 }
 function modal(title, bodyHtml, actions) {
   $('modalHost').innerHTML =
@@ -875,6 +894,37 @@ function loadImageInfo(src) {
     img.src = src;
   });
 }
+/* ------------------------------------------------- footer social icons ---
+   Real vector artwork (assets/mailer/icons/*.svg) exported to 4× PNG, because
+   Gmail, Outlook and most Android apps strip SVG from mail. Each icon sits in
+   a chip painted with the footer-text colour, so one icon scale works for
+   every palette. A PNG can only carry one colour, so the artwork is exported
+   twice and the chip's luminance picks the glyph tone: light chip → ink glyph
+   (-on-light.png), dark chip → cream glyph (-on-dark.png). Chips are 40px
+   circles around a 20px glyph, matching the 42/18 chips above the site
+   footer. border-radius is dropped by Outlook on Windows, where the chips
+   degrade to the same cream squares in the same place. */
+const relativeLuminance = (hex) => {
+  const raw = String(hex || '').trim().replace('#', '');
+  const full = raw.length === 3 ? raw.split('').map(ch => ch + ch).join('') : raw;
+  if (!/^[0-9a-f]{6}$/i.test(full)) return 1;              // unusable value → light chip
+  const [r, g, b] = [0, 2, 4].map(i => {
+    const c = parseInt(full.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+function footerSocialRow(forPreview, chipColor) {
+  const variant = relativeLuminance(chipColor) > 0.35 ? 'on-light' : 'on-dark';
+  const gap = '<td style="width:10px;font-size:0;line-height:0">&nbsp;</td>';
+  const chip = ({ icon, label, href }) =>
+    `<td class="email-social" align="center" valign="middle" bgcolor="${esc(chipColor)}" style="padding:10px;background:${chipColor};border-radius:20px;line-height:0;mso-line-height-rule:exactly">` +
+      `<a href="${esc(href)}" target="_blank" rel="noopener" aria-label="${esc(label)}" style="display:block;line-height:0;text-decoration:none">` +
+        `<img src="${esc(assetUrl(forPreview, `/icons/${icon}-${variant}.png`))}" width="20" height="20" alt="${esc(label)}" style="display:block;width:20px;height:20px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic">` +
+      `</a>` +
+    `</td>`;
+  return FOOTER_SOCIALS.map(chip).join(gap);
+}
 /* Hero is either an embedded (inline) image or a public URL — no fixed size and
    no Supabase storage. Returns { ok:true } or { ok:false, msg }. */
 function validateHero() {
@@ -886,7 +936,7 @@ function validateHero() {
 function emailShell(forPreview) {
   const d = designValues(), c = d.colors;
   const themeIsSignDay = d.theme === 'signday60';
-  const headerLogo = MAILER.logoUrl;
+  const headerLogo = assetUrl(forPreview, '/logo.png');
   const headerLabel = themeIsSignDay ? 'NGHS 60th Sign Day' : MAILER.brand;
   const headerSub = themeIsSignDay ? 'BATCH 2027 · IT’S NOW OR NEVER' : 'NEWS FROM THE NGHSIANS COMMUNITY';
   const subject = $('subject').value.trim() || 'NGHSIANS Update';
@@ -898,6 +948,7 @@ function emailShell(forPreview) {
     try { heroSrc = normalizeHeroUrl($('heroImageUrl').value); } catch (e) {}
   }
   const heroAlt = $('heroAlt').value.trim() || 'NGHSIANS newsletter image';
+  const footerIsLight = relativeLuminance(c.footer) > 0.35;   // crest + icon tone
   const h1 = $('heading1').value.trim();
   const h2 = $('heading2').value.trim();
   const sectionTitle = $('sectionTitle').value.trim();
@@ -939,7 +990,7 @@ function emailShell(forPreview) {
   .email-footer { background-color:${c.footer} !important; color:${c.footerText} !important; }
   .email-footer a:not(.email-social) { color:${c.footerText} !important; }
   .email-footer-title, .email-footer-copy { color:${c.footerText} !important; }
-  .email-footer .email-social { background-color:${c.footerText} !important; color:${c.footer} !important; }
+  .email-footer .email-social { background-color:${c.footerText} !important; }
   .email-main .email-cta { background-color:${c.button} !important; color:${c.buttonText} !important; }
   .email-ribbon { background-color:${c.accent} !important; color:${c.buttonText} !important; }
   .email-divider { background-color:${c.accent2} !important; }
@@ -951,7 +1002,7 @@ function emailShell(forPreview) {
 [data-ogsc] .email-muted { color:${c.muted} !important; }
 [data-ogsc] .email-footer { background-color:${c.footer} !important; color:${c.footerText} !important; }
 [data-ogsc] .email-footer a:not(.email-social), [data-ogsc] .email-footer-title, [data-ogsc] .email-footer-copy { color:${c.footerText} !important; }
-[data-ogsc] .email-footer .email-social { background-color:${c.footerText} !important; color:${c.footer} !important; }
+[data-ogsc] .email-footer .email-social { background-color:${c.footerText} !important; }
 [data-ogsc] .email-main .email-cta { background-color:${c.button} !important; color:${c.buttonText} !important; }
 </style>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light dark"><meta name="supported-color-schemes" content="light dark"><link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">${colorModeStyles}<title>${esc(subject)}</title></head>
@@ -971,12 +1022,9 @@ ${section}
 ${button}
 </td></tr>
 <tr><td class="email-footer" align="center" bgcolor="${c.footer}" style="padding:24px 22px 26px;background:${c.footer};border-top:3px solid ${c.accent2};text-align:center;font-family:${d.bodyFont};color:${c.footerText}">
-<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(MAILER.footerLogoUrl)}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;margin:0 auto 13px;border:0"></a>
-<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 14px;border-collapse:separate"><tr>
-<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://facebook.com/NasirabadBoys" aria-label="Facebook" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:17px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">f</a></td>
-<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://youtube.com/@nghsians" aria-label="YouTube" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:13px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">▶</a></td>
-<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="https://instagram.com/nghsians" aria-label="Instagram" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:18px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">◎</a></td>
-<td valign="middle" style="padding:0 4px;vertical-align:middle;line-height:34px"><a class="email-social" href="${esc(MAILER.siteUrl)}" aria-label="Website" style="display:block;box-sizing:border-box;width:34px;height:34px;line-height:34px;overflow:visible;text-align:center;background:${c.footerText};color:${c.footer};font-family:Arial,sans-serif;font-size:18px;font-weight:bold;text-decoration:none;border-radius:5px;mso-line-height-rule:exactly">↗</a></td>
+<a href="${esc(MAILER.siteUrl)}" style="text-decoration:none"><img src="${esc(assetUrl(forPreview, footerIsLight ? '/footer-logo-on-light.png' : '/footer-logo.png'))}" width="72" height="72" alt="NGHSIANS crest" style="display:block;width:72px;height:72px;margin:0 auto 13px;border:0"></a>
+<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px"><tr>
+${footerSocialRow(forPreview, c.footerText)}
 </tr></table>
 <div class="email-footer-title" style="font-family:${d.headingFont};font-size:18px;line-height:1.2;letter-spacing:1.2px;color:${c.footerText};text-transform:uppercase;margin-bottom:10px">NGHSIANS</div>
 <div class="email-footer-copy" style="max-width:460px;margin:0 auto;font-size:12px;line-height:1.65;color:${c.footerText}">You received this email because you signed up on our website.</div>

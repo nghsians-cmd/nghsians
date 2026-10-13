@@ -1,0 +1,11 @@
+<!-- NGHSIANS e-mail footer icon — Instagram.
+     Artwork: Lucide (ISC licence), 24×24 grid, 2px stroke, round caps/joins.
+     Same geometry as the icon in the site footer, so the site and the
+     newsletter share one icon language. stroke="currentColor" is replaced by
+     build-icons.mjs when the PNG exports are produced. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2.75" y="2.75" width="18.5" height="18.5" rx="5" ry="5"/>
+  <circle cx="12" cy="12" r="4"/>
+  <line x1="17.3" y1="6.7" x2="17.301" y2="6.7"/>
+</svg>
