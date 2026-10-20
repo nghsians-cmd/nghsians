@@ -1088,3 +1088,156 @@ body.nghs-account .btn-action:hover {
 @media (min-width: 1201px) {
   .menu-toggle { display: none !important; }
 }
+
+/* ============================================================================
+   12 · ICON NAVIGATION — desktop neighbour-wave, unchanged header geometry
+   Scoped adaptation of the supplied animation: no demo resets/theme/layout.
+   ============================================================================ */
+.nghs-nav-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  pointer-events: none;
+}
+.nghs-nav-face { display: inline-flex; align-items: center; gap: 6px; }
+header .nghs-nav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* Make room for the glyph inside the existing navigation groups. */
+  padding-inline: 8px !important;
+}
+header .nghs-nav-item:focus-visible,
+#mobileMenu .nghs-nav-item:focus-visible {
+  outline: 2px solid var(--gold-solid);
+  outline-offset: 4px;
+}
+
+@media (min-width: 1201px) {
+  header .nav-left, header .nav-right { isolation: isolate; }
+  /* Keep the default less specific than hover/neighbor rules. Geometry
+     guards below need an ID, but motion variables must not inherit that weight. */
+  header .nghs-nav-item { --nav-wave: 0; --nav-speed: .25s; }
+  header#siteHeader .nghs-nav-item {
+    overflow: visible;
+    /* Never animate the anchor itself: its hit area must not move. */
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+    translate: none !important;
+  }
+  header .nghs-nav-face {
+    position: relative;
+    padding: 9px 8px;
+    border: 1px solid transparent;
+    border-radius: var(--r-pill);
+    translate: 0 calc(var(--nav-wave) * 80%);
+    transition: translate .48s cubic-bezier(.22, 1, .36, 1), color .2s ease,
+      background var(--nav-speed), border-color var(--nav-speed),
+      box-shadow var(--nav-speed) !important;
+  }
+  header .nghs-nav-item:is(:hover, :focus-visible) {
+    --nav-wave: 1;
+    z-index: 5;
+    transform: none;
+    color: #fff !important;
+    border-color: rgba(var(--gold), .32) !important;
+  }
+  header .nghs-nav-item:has(+ .nghs-nav-item:is(:hover, :focus-visible)),
+  header .nghs-nav-item:is(:hover, :focus-visible) + .nghs-nav-item {
+    --nav-wave: .5; /* sin(30deg) */
+    z-index: 4;
+  }
+  header .nghs-nav-item:has(+ .nghs-nav-item + .nghs-nav-item:is(:hover, :focus-visible)),
+  header .nghs-nav-item:is(:hover, :focus-visible) + .nghs-nav-item + .nghs-nav-item {
+    --nav-wave: .342; /* sin(20deg) */
+    z-index: 3;
+  }
+  header .nghs-nav-item:has(+ .nghs-nav-item + .nghs-nav-item + .nghs-nav-item:is(:hover, :focus-visible)),
+  header .nghs-nav-item:is(:hover, :focus-visible) + .nghs-nav-item + .nghs-nav-item + .nghs-nav-item {
+    --nav-wave: .174; /* sin(10deg) */
+    z-index: 2;
+  }
+  header .nghs-nav-item::before,
+  header .nghs-nav-item::after { display: none !important; }
+  header .nghs-nav-face::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    inset: auto 0 0;
+    height: 300%;
+    border-radius: 0 0 14px 14px;
+    border-right: 1px solid rgba(var(--gold), .14);
+    background: linear-gradient(180deg, rgba(10,10,14,.58), rgba(22,21,25,.40));
+    -webkit-backdrop-filter: blur(20px) saturate(145%);
+            backdrop-filter: blur(20px) saturate(145%);
+    box-shadow: 0 12px 24px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 1px 0 0 rgba(255,255,255,.06);
+    transform: none;
+    opacity: 0;
+    transition: opacity var(--nav-speed);
+  }
+  header .nghs-nav-item:is(:hover, :focus-visible) .nghs-nav-face::before {
+    opacity: 1;
+    transform: none;
+  }
+  header .nghs-nav-item.active .nghs-nav-face {
+    background: rgba(var(--gold), .10);
+    border-color: rgba(var(--gold), .3);
+    box-shadow: 0 10px 28px rgba(var(--gold), .10);
+  }
+  header .nghs-nav-item:is(:hover, :focus-visible) .nghs-nav-face {
+    transition-duration: .28s;
+    transition-timing-function: cubic-bezier(.2, 1.4, .4, 1);
+    border-color: rgba(var(--gold), .32);
+    box-shadow: 0 10px 26px rgba(0,0,0,.42);
+  }
+  header .nghs-nav-icon {
+    opacity: .75;
+    rotate: 0deg;
+    scale: 1;
+    transition: opacity .375s, rotate .25s, scale .25s;
+  }
+  header .nghs-nav-item:is(:hover, :focus-visible) .nghs-nav-icon {
+    opacity: 1;
+    rotate: -45deg;
+    scale: 1.1;
+    color: var(--gold-bright);
+  }
+  /* The old ripple requires overflow:hidden, which would clip the wave panel. */
+  header .nghs-nav-item .nghs-ripple { display: none; }
+}
+
+/* Keep the existing mobile sheet; names sit beside the custom glyphs. */
+#mobileMenu .nghs-nav-item {
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 52px;
+}
+#mobileMenu .nghs-nav-face { gap: 14px; }
+#mobileMenu .nghs-nav-label {
+  display: inline !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  clip-path: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#mobileMenu .nghs-nav-icon { width: 24px; height: 24px; flex-basis: 24px; }
+#mobileMenu .nghs-nav-item::before { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  header .nghs-nav-item, header .nghs-nav-face { translate: none !important; }
+  header .nghs-nav-icon { rotate: none !important; scale: 1 !important; }
+  #mobileMenu .nghs-nav-item { opacity: 1; transform: none; }
+}

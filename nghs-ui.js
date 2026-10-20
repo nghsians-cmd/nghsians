@@ -80,7 +80,7 @@
       var el = e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
       if (!el) return;
       if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
-      if (getComputedStyle(el).overflow !== 'hidden') el.style.overflow = 'hidden';
+      if (!el.classList.contains('nghs-nav-item') && getComputedStyle(el).overflow !== 'hidden') el.style.overflow = 'hidden';
       rippleFor(el, e.clientX, e.clientY);
     }, { passive: true });
   }
@@ -168,6 +168,41 @@
         • the link pointing at the current page is the active one
         • the mobile sheet closes when a link is tapped
      ------------------------------------------------------------------------ */
+  /* Hand-drawn, shared navigation glyphs. Keep the original link text and hrefs. */
+  var NAV_ICONS = {
+    'about': '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',
+    'news': '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 8h8M12 12h4M12 16h4"/><path d="M8 12h.01M8 16h.01"/>',
+    'result': '<path d="M5 20V10h4v10M10 20V4h4v16M15 20v-7h4v7M3 20h18"/>',
+    'dress code': '<path d="m8 4 4 3 4-3 6 5-4 4-2-2v9H8v-9l-2 2-4-4 6-5Z"/><path d="m8 4 4 8 4-8M12 12v5"/>',
+    'gallery': '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8" cy="9" r="1.5"/><path d="m3 17 5-5 4 4 4-6 5 7"/>',
+    'share': '<path d="M12 16V3m-5 5 5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+    'alumni': '<path d="m2 8 10-5 10 5-10 5L2 8Zm4 3v5c3 3 9 3 12 0v-5M22 8v7"/>',
+    'contact': '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/>',
+    'merch': '<path d="M5 7h14l2 14H3L5 7Z"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/>',
+    'sign day': '<path d="m14 5 5 5M4 20l5-1L21 7a2 2 0 0 0-5-5L4 14l-1 7 6-2M13 21h8"/>'
+  };
+
+  function decorateNavLink(a) {
+    if (a.querySelector('.nghs-nav-icon')) return;
+    var label = a.textContent.trim();
+    var drawing = NAV_ICONS[label.toLowerCase()];
+    if (!drawing) return;
+    a.classList.add('nghs-nav-item');
+    a.setAttribute('aria-label', label);
+    a.setAttribute('title', label);
+    var text = document.createElement('span');
+    text.className = 'nghs-nav-label';
+    while (a.firstChild) text.appendChild(a.firstChild);
+    a.innerHTML = '<svg class="nghs-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + drawing + '</svg>';
+    a.appendChild(text);
+    /* The anchor stays in place; only this visual face takes part in the wave.
+       Both the resting anchor and its moved child remain clickable. */
+    var face = document.createElement('span');
+    face.className = 'nghs-nav-face';
+    while (a.firstChild) face.appendChild(a.firstChild);
+    a.appendChild(face);
+  }
+
   function normaliseMenu() {
     var links = document.querySelectorAll('header .nav-link');
     if (!links.length) return;
@@ -175,6 +210,7 @@
     var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
     links.forEach(function (a) {
+      decorateNavLink(a);
       a.classList.add('nghs-nav-item');
       if (!a.hasAttribute('data-nghs-ripple')) a.setAttribute('data-nghs-ripple', '');
 
@@ -218,11 +254,11 @@
   function syncMobileClasses() {
     var menu = document.getElementById('mobileMenu');
     if (!menu) return;
-    var mo = new MutationObserver(function () {
-      menu.querySelectorAll('.nav-link').forEach(function (a) {
-        a.classList.add('nghs-nav-item');
-      });
-    });
+    var decorate = function () {
+      menu.querySelectorAll('.nav-link').forEach(decorateNavLink);
+    };
+    decorate();
+    var mo = new MutationObserver(decorate);
     mo.observe(menu, { childList: true, subtree: true });
   }
 
