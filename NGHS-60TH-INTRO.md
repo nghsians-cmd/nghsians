@@ -7,23 +7,19 @@ above the existing NGHSIANS homepage, not a replacement for that homepage.
 
 1. In `index.html`, delete the head block from
    `TEMPORARY — NGHS 60th Intro / NGHS 60th Sign Day Intro — START` through
-   `<!-- TEMPORARY — NGHS 60th Intro — END -->` (inclusive).
-2. In that file's `initNewsPopup` timeout, delete the three-line temporary guard:
-   ```js
-   // TEMPORARY — NGHS 60th Intro — START: don't repeat this announcement.
-   if(document.querySelector('nghs-60th-intro[data-intro-shown]'))return;
-   // TEMPORARY — NGHS 60th Intro — END
-   ```
-   This restores the original registration popup's behavior exactly.
-3. Delete `assets/nghs-60th-intro/`, `tests/nghs-60th-intro.test.cjs`, and this file.
+   `<!-- TEMPORARY — NGHS 60th Intro — END -->` (inclusive). That block is the
+   only integration point in the homepage; the registration popup and every
+   other script in `index.html` are untouched.
+2. Delete `assets/nghs-60th-intro/`, `tests/nghs-60th-intro.test.cjs`, and this file.
 
 **Do not remove or alter the existing `#hero27`, other homepage sections, original
-images, `nghs-ui.*`, `27form.html`, registration code, or database scripts.** Those
-are independent of this intro. No content was moved out of the homepage.
+images, `nghs-ui.*`, `27form.html`, the `#newsPopup` registration announcement,
+registration code, or database scripts.** Those are independent of this intro.
+No content was moved out of the homepage.
 
 ## Files and integration
 
-- `index.html`: one marked head integration block, plus the marked popup guard.
+- `index.html`: one marked head integration block, and nothing else.
 - `assets/nghs-60th-intro/entry.css`: uniquely named, locally hosted fonts, the
   brief loading cover, and a scroll lock **only while the intro is open**.
 - `assets/nghs-60th-intro/intro.js`: an isolated Shadow DOM containing a native
@@ -44,9 +40,13 @@ are independent of this intro. No content was moved out of the homepage.
   reload or redirect away from the existing homepage. Escape also dismisses it.
 - **Register**, in the last chapter, is a normal same-tab link to `27form.html`.
   Modified-click / open-in-new-tab browser behavior remains available.
-- The old popup announces the same registration. The narrow, temporary guard
-  prevents it appearing a second time on a page where this intro was shown.
-  It remains unchanged for direct anchor visits or if the intro cannot load.
+- The existing `#newsPopup` registration announcement is **never suppressed,
+  closed or delayed by this intro** — its code in `index.html` is byte-for-byte
+  the original, on its original 1.5s timer and its original once-per-session
+  key. While the intro is on screen the popup simply sits behind the native
+  modal; the moment the visitor proceeds (or presses Escape) the popup is
+  already open and receives focus, so the announcement is never lost.
+  Direct anchor visits show it exactly as before, with no intro at all.
 - No JavaScript means the original site is shown. A missing or failed module /
   stylesheet fails open, and the loading cover has a five-second safety timeout.
   Missing illustrations do not prevent either required action from working.
@@ -111,4 +111,6 @@ Browser regression checklist: desktop / tablet / phone and landscape widths;
 first and final actions; skipping each chapter; wheel, touch and keyboard;
 focus containment; Escape; reduced motion; rotation; direct anchor links;
 blocked JS / CSS / image requests; dialog fallback; and returning from the form.
-Check that the original homepage remains interactive and scrollable after skip.
+Check that the original homepage remains interactive and scrollable after skip,
+and that the `#newsPopup` registration announcement still appears — both after
+**Proceed to NGHSIANS** / Escape and on direct anchor links such as `/#news`.

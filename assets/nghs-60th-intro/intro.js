@@ -194,6 +194,20 @@
     host.remove();
   }
 
+  // Only used by the no-native-dialog fallback, which marks the rest of the
+  // page inert while this intro is open.
+  function restoreBackground() {
+    fallbackBackground.forEach(({ element, inert, ariaHidden }) => {
+      // The registration popup opens on its own 1.5s timer and may have become
+      // visible while this intro was on screen. Never restore a stale
+      // hidden / inert snapshot over that live announcement.
+      if (element.id === 'newsPopup' && element.classList.contains('show')) return;
+      element.inert = inert;
+      if (ariaHidden === null) element.removeAttribute('aria-hidden');
+      else element.setAttribute('aria-hidden', ariaHidden);
+    });
+  }
+
   function proceed() {
     if (!active) return;
     active = false;
@@ -202,15 +216,11 @@
     cleanup.splice(0).forEach((fn) => fn());
     if (typeof dialog.close === 'function' && dialog.open) dialog.close();
     else dialog.removeAttribute('open');
-    // Keep the inert, hidden marker for the lifetime of this page, solely to
-    // prevent the old registration popup from repeating the same announcement.
+    // Keep an inert, hidden marker for the lifetime of this page so the intro
+    // is never re-opened or re-measured after the visitor has left it.
     host.hidden = true;
     page.removeAttribute(opened);
-    fallbackBackground.forEach(({ element, inert, ariaHidden }) => {
-      element.inert = inert;
-      if (ariaHidden === null) element.removeAttribute('aria-hidden');
-      else element.setAttribute('aria-hidden', ariaHidden);
-    });
+    restoreBackground();
     const target = savedFocus && savedFocus !== document.body && savedFocus.isConnected && !savedFocus.closest('[inert]')
       ? savedFocus : document.getElementById('main');
     if (target) {
@@ -222,6 +232,14 @@
         target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
       }
       target.focus({ preventScroll: true });
+    }
+    // The registration popup is never closed by this intro. If it opened while
+    // this modal was on screen, the modal blocked focusing it; hand focus over
+    // now that the popup is the front-most layer again.
+    const popup = document.getElementById('newsPopup');
+    if (popup && popup.classList.contains('show')) {
+      const firstControl = popup.querySelector('button, a[href]');
+      if (firstControl) firstControl.focus({ preventScroll: true });
     }
   }
 
@@ -307,9 +325,9 @@
     if (!page.hasAttribute(pending) || location.hash) { failOpen(); return; }
     try {
       savedFocus = document.activeElement;
-      // If a slow stylesheet let the old popup appear first, dismiss it before
-      // the native modal takes over. Its original implementation is unchanged.
-      if (document.getElementById('newsPopup')?.classList.contains('show') && window.closeNewsPopup) window.closeNewsPopup();
+      // The existing registration popup is never suppressed or closed by this
+      // intro: it opens on its own schedule and stays open behind this modal,
+      // becoming visible again as soon as the visitor leaves the intro.
       if (typeof dialog.showModal === 'function') dialog.showModal();
       else {
         dialog.setAttribute('open', '');
@@ -373,11 +391,7 @@
       // A temporary event intro must never make the real website unusable.
       active = false;
       if (dialog.open && typeof dialog.close === 'function') dialog.close();
-      fallbackBackground.forEach(({ element, inert, ariaHidden }) => {
-        element.inert = inert;
-        if (ariaHidden === null) element.removeAttribute('aria-hidden');
-        else element.setAttribute('aria-hidden', ariaHidden);
-      });
+      restoreBackground();
       failOpen();
       console.warn('NGHS 60th Intro could not open; the homepage is available.', error);
     }

@@ -28,7 +28,8 @@
 <!-- ======================================================================
      TEMPORARY — NGHS 60th Intro / NGHS 60th Sign Day Intro — START
      Isolated, removable opening layer; the existing homepage stays intact.
-     To remove: follow NGHS-60TH-INTRO.md (also remove the popup guard below).
+     To remove: follow NGHS-60TH-INTRO.md. This block is the only integration
+     point; the registration popup below it is left completely untouched.
      ====================================================================== -->
 <link rel="stylesheet" href="assets/nghs-60th-intro/entry.css?v=1">
 <script>
@@ -2409,9 +2410,6 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
     let seen=false;try{seen=sessionStorage.getItem(key)==='seen'}catch(_){}
     if(!seen)setTimeout(()=>{
       if(document.hidden)return;
-      // TEMPORARY — NGHS 60th Intro — START: don't repeat this announcement.
-      if(document.querySelector('nghs-60th-intro[data-intro-shown]'))return;
-      // TEMPORARY — NGHS 60th Intro — END
       previousFocus=document.activeElement;popup.inert=false;popup.classList.add('show');popup.setAttribute('aria-hidden','false');
       document.body.style.overflow='hidden';background.forEach(el=>{if(el)el.inert=true});popup.querySelector('button').focus({preventScroll:true});
     },1500);
