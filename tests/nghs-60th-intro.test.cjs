@@ -15,8 +15,10 @@ const css = read('assets/nghs-60th-intro/intro.css');
 const entry = read('assets/nghs-60th-intro/entry.css');
 
 const removeIntroHooks = (html) => html
-  .replace(/<!-- =+\s*TEMPORARY — NGHS 60th Intro \/ NGHS 60th Sign Day Intro — START[\s\S]*?<!-- TEMPORARY — NGHS 60th Intro — END -->\n\n/, '')
-  .replace(/^      \/\/ TEMPORARY — NGHS 60th Intro — START:.*\n      if\(document\.querySelector\('nghs-60th-intro\[data-intro-shown\]'\)\)return;\n      \/\/ TEMPORARY — NGHS 60th Intro — END\n/m, '');
+  .replace(/<!-- =+\s*TEMPORARY — NGHS 60th Intro \/ NGHS 60th Sign Day Intro — START[\s\S]*?<!-- TEMPORARY — NGHS 60th Intro — END -->\n\n/, '');
+
+// The registration popup's own implementation, exactly as the homepage ships it.
+const newsPopup = home.match(/\(function initNewsPopup\(\) \{[\s\S]*?\n  \}\)\(\);/);
 
 test('only the homepage loads the temporary module', () => {
   for (const file of fs.readdirSync(root).filter((name) => name.endsWith('.html'))) {
@@ -31,6 +33,26 @@ test('marked hooks are removable without removing original site content', () => 
     assert.ok(removed.includes(`id="${id}"`), `Original #${id} is retained`);
   }
   assert.ok(removed.includes("const key='nghsians-signday-27-registration-2026-10-09'"));
+});
+
+test('the registration popup always shows: the intro never suppresses it', () => {
+  assert.ok(newsPopup, 'initNewsPopup is still present on the homepage');
+  // The popup's own implementation carries no temporary intro code at all.
+  assert.doesNotMatch(newsPopup[0], /nghs-60th-intro|TEMPORARY/i);
+  // It still fires on its original 1.5s timer, with its original session key.
+  assert.match(newsPopup[0], /if\(!seen\)setTimeout\(\(\)=>\{[\s\S]*?\},1500\);/);
+  assert.match(newsPopup[0], /if\(document\.hidden\)return;\s*\n\s*previousFocus=document\.activeElement;/);
+  assert.match(newsPopup[0], /popup\.classList\.add\('show'\)/);
+  // The intro never dismisses or hides the popup; it may only read it to hand
+  // focus back once the visitor leaves the intro.
+  assert.doesNotMatch(js, /closeNewsPopup/);
+  assert.doesNotMatch(js, /classList\.(?:remove|toggle)\(['"]show['"]\)/);
+  assert.doesNotMatch(js, /popup\.(?:hidden|inert)\s*=/);
+  assert.doesNotMatch(js, /popup\.setAttribute/);
+  assert.match(js, /popup\.classList\.contains\('show'\)/);
+  // The no-native-dialog fallback must not restore a stale hidden / inert
+  // snapshot over the popup once it has opened behind the intro.
+  assert.match(js, /if \(element\.id === 'newsPopup' && element\.classList\.contains\('show'\)\) return;/);
 });
 
 test('registration and the two skip actions are explicit native controls', () => {
