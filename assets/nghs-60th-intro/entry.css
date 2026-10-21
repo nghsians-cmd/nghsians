@@ -1,0 +1,50 @@
+/* ============================================================================
+   TEMPORARY — NGHS 60th Intro / NGHS 60th Sign Day Intro
+   Only namespaced fonts and the short, fail-open loading / modal scroll state
+   live outside the Shadow DOM. No existing website styles are changed.
+   Removal instructions: NGHS-60TH-INTRO.md at the repository root.
+   ============================================================================ */
+
+@font-face {
+  font-family: "NGHS60 Display";
+  src: url("fonts/anton-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NGHS60 Sans";
+  src: url("fonts/dm-sans-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "NGHS60 Hand";
+  src: url("fonts/caveat-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+html[data-nghs-60th-intro-pending]::after {
+  content: "NGHS · 60TH SIGN DAY";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: grid;
+  place-items: center;
+  background: #eee3ca url("paper.webp") repeat;
+  color: #a6261c;
+  font: 400 20px / 1.4 "NGHS60 Display", Impact, sans-serif;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+html[data-nghs-60th-intro-open],
+html[data-nghs-60th-intro-open] body {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}

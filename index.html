@@ -25,6 +25,27 @@
 <meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
+<!-- ======================================================================
+     TEMPORARY — NGHS 60th Intro / NGHS 60th Sign Day Intro — START
+     Isolated, removable opening layer; the existing homepage stays intact.
+     To remove: follow NGHS-60TH-INTRO.md (also remove the popup guard below).
+     ====================================================================== -->
+<link rel="stylesheet" href="assets/nghs-60th-intro/entry.css?v=1">
+<script>
+(function () {
+  // Keep direct links to the real site's sections working as before.
+  if (location.hash) return;
+  var root = document.documentElement;
+  root.setAttribute('data-nghs-60th-intro-pending', '');
+  // Fail open if the temporary module is blocked, missing, or too slow.
+  window.setTimeout(function () {
+    root.removeAttribute('data-nghs-60th-intro-pending');
+  }, 5000);
+})();
+</script>
+<script src="assets/nghs-60th-intro/intro.js?v=1" defer></script>
+<!-- TEMPORARY — NGHS 60th Intro — END -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -2388,6 +2409,9 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
     let seen=false;try{seen=sessionStorage.getItem(key)==='seen'}catch(_){}
     if(!seen)setTimeout(()=>{
       if(document.hidden)return;
+      // TEMPORARY — NGHS 60th Intro — START: don't repeat this announcement.
+      if(document.querySelector('nghs-60th-intro[data-intro-shown]'))return;
+      // TEMPORARY — NGHS 60th Intro — END
       previousFocus=document.activeElement;popup.inert=false;popup.classList.add('show');popup.setAttribute('aria-hidden','false');
       document.body.style.overflow='hidden';background.forEach(el=>{if(el)el.inert=true});popup.querySelector('button').focus({preventScroll:true});
     },1500);
