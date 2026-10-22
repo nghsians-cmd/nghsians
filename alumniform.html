@@ -162,7 +162,7 @@
     .choice-card input, .check-control { width: 20px; height: 20px; flex: 0 0 20px; margin: 0; accent-color: #e3b746; cursor: pointer; }
     .choice-title { color: var(--text); font-size: 13px; font-weight: 700; }
     .choice-title .bn { display: block; color: var(--muted); font-weight: 500; font-size: 12px; }
-    .other-occupation { margin-top: 10px; }
+    .occupation-followup { margin-top: 10px; }
     .consent-card { display: grid; grid-template-columns: 20px 1fr; align-items: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.025); cursor: pointer; transition: border-color .2s, background .2s; }
     .consent-card:hover { border-color: rgba(var(--gold-rgb),.3); background: rgba(255,255,255,.04); }
     .consent-card input { margin-top: 2px; }
@@ -198,10 +198,11 @@
     .rule-list li { display: grid; grid-template-columns: 21px minmax(0,1fr); align-items: start; gap: 8px; color: var(--muted); font-size: 11px; line-height: 1.65; }
     .rule-list .rule-copy { display: block; min-width: 0; overflow-wrap: anywhere; }
     .rule-list .rule-en { display: block; line-height: 1.65; }
-    .rule-list li span:first-child { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 6px; color: var(--gold); background: rgba(var(--gold-rgb),.09); font-size: 10px; font-weight: 800; }
+    .rule-list li > .rule-number { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 6px; color: var(--gold); background: rgba(var(--gold-rgb),.09); font-size: 10px; font-weight: 800; }
     .rule-list .bn { display: block; margin: 6px 0 0; color: var(--soft); font: 400 13px/1.85 var(--font-bangla); letter-spacing: 0; }
     .secure-note { display: flex; align-items: flex-start; gap: 9px; color: var(--soft); font-size: 10px; line-height: 1.55; }
     .secure-note svg { flex: 0 0 15px; margin-top: 1px; color: var(--gold); }
+    .secure-note > span { min-width: 0; overflow-wrap: anywhere; }
     .secure-note .bn { display: block; margin-top: 5px; line-height: 1.8; }
 
     .status-card { max-width: 700px; margin: 26px auto 80px; padding: clamp(26px, 6vw, 50px); text-align: center; animation: card-arrive .7s var(--ease) both; }
@@ -367,7 +368,15 @@
                   <label class="choice-card"><input type="radio" name="occupationChoice" value="student" required><span class="choice-title">Student<span class="bn" lang="bn">শিক্ষার্থী</span></span></label>
                   <label class="choice-card"><input type="radio" name="occupationChoice" value="other" required><span class="choice-title">Other<span class="bn" lang="bn">অন্যান্য</span></span></label>
                 </div>
-                <input class="control other-occupation" id="otherOccupation" name="occupation_other" maxlength="120" placeholder="Tell us your current occupation" disabled aria-label="Other current occupation">
+                <div id="studentInstitutionField" class="occupation-followup" hidden>
+                  <label for="collegeUniversity">Current college / university name <span class="required">*</span><span class="bn" lang="bn">আপনার বর্তমান কলেজ / বিশ্ববিদ্যালয়ের নাম</span></label>
+                  <input class="control" id="collegeUniversity" name="college_university" maxlength="180" autocomplete="organization" placeholder="e.g. University of Chittagong" disabled aria-describedby="collegeUniversityHelp">
+                  <p class="field-help" id="collegeUniversityHelp">Enter the college or university you currently attend.<span class="bn" lang="bn">আপনি বর্তমানে যে কলেজ বা বিশ্ববিদ্যালয়ে পড়ছেন, সেটির নাম লিখুন।</span></p>
+                </div>
+                <div id="otherOccupationField" class="occupation-followup" hidden>
+                  <label for="otherOccupation">What is your current occupation? <span class="required">*</span><span class="bn" lang="bn">আপনার বর্তমান পেশা কী?</span></label>
+                  <input class="control" id="otherOccupation" name="occupation_other" maxlength="120" placeholder="Tell us your current occupation" disabled>
+                </div>
               </div>
               <div class="field field-wide">
                 <label for="bloodGroup">Blood group <span class="required">*</span><span class="bn" lang="bn">রক্তের গ্রুপ</span></label>
@@ -404,8 +413,8 @@
             </label>
             <label class="consent-card" for="agreementAccepted">
               <input class="check-control" id="agreementAccepted" name="agreement_accepted" type="checkbox" required>
-              <span class="consent-copy"><strong>I agree:</strong> NGHSIANS may review or decline my request; my answers are accurate to the best of my knowledge; and the team may contact me by email or WhatsApp if more information is needed. I am a former (not current) NGHS student and a notable / familiar person in the Nasirabad Government High School community with a meaningful connection to the school. If approved, my name, batch, occupation, blood group and NGHS-related responses may appear on the public Alumni Interface; my email and phone will remain private. <span class="required">*</span>
-                <span class="bn" lang="bn">আমি সম্মত যে NGHSIANS আমার আবেদন পর্যালোচনা বা প্রত্যাখ্যান করতে পারে, আমার দেওয়া তথ্য আমার জ্ঞানে সঠিক, এবং প্রয়োজন হলে টিম ইমেইল বা WhatsApp-এ আমার সঙ্গে যোগাযোগ করতে পারে। আমি NGHS-এর সাবেক (বর্তমান নই) শিক্ষার্থী এবং Nasirabad Government High School সম্প্রদায়ের পরিচিত / উল্লেখযোগ্য ব্যক্তি; স্কুলের সঙ্গে আমার অর্থবহ সম্পৃক্ততা রয়েছে। অনুমোদিত হলে আমার নাম, ব্যাচ, পেশা, রক্তের গ্রুপ ও NGHS-সম্পর্কিত উত্তরগুলো প্রকাশ্য Alumni Interface-এ দেখানো হতে পারে; আমার ইমেইল ও ফোন নম্বর ব্যক্তিগত থাকবে।</span>
+              <span class="consent-copy"><strong>I agree:</strong> NGHSIANS may review or decline my request; my answers are accurate to the best of my knowledge; and the team may contact me by email or WhatsApp if more information is needed. I am a former (not current) NGHS student and a notable / familiar person in the Nasirabad Government High School community with a meaningful connection to the school. If approved, my name, batch, occupation, college / university (if I selected Student), blood group and NGHS-related responses may appear on the public Alumni Interface; my email and phone will remain private. <span class="required">*</span>
+                <span class="bn" lang="bn">আমি সম্মত যে NGHSIANS আমার আবেদন পর্যালোচনা বা প্রত্যাখ্যান করতে পারে, আমার দেওয়া তথ্য আমার জ্ঞানে সঠিক, এবং প্রয়োজন হলে টিম ইমেইল বা WhatsApp-এ আমার সঙ্গে যোগাযোগ করতে পারে। আমি NGHS-এর সাবেক (বর্তমান নই) শিক্ষার্থী এবং Nasirabad Government High School সম্প্রদায়ের পরিচিত / উল্লেখযোগ্য ব্যক্তি; স্কুলের সঙ্গে আমার অর্থবহ সম্পৃক্ততা রয়েছে। অনুমোদিত হলে আমার নাম, ব্যাচ, পেশা, কলেজ / বিশ্ববিদ্যালয় (শিক্ষার্থী নির্বাচন করলে), রক্তের গ্রুপ ও NGHS-সম্পর্কিত উত্তরগুলো প্রকাশ্য Alumni Interface-এ দেখানো হতে পারে; আমার ইমেইল ও ফোন নম্বর ব্যক্তিগত থাকবে।</span>
               </span>
             </label>
             <p class="agreement-note">Eligibility includes having been a former (not current) NGHS student and having a meaningful connection with the school community.<span class="bn" lang="bn">যোগ্যতার জন্য NGHS-এর সাবেক (বর্তমান নন) শিক্ষার্থী এবং স্কুল-সম্প্রদায়ের সঙ্গে অর্থবহ সম্পৃক্ততা থাকতে হবে।</span></p>
@@ -529,10 +538,19 @@
       function configureOccupation() {
         var selected = form.querySelector('input[name="occupationChoice"]:checked');
         var other = $('otherOccupation');
+        var otherField = $('otherOccupationField');
+        var institution = $('collegeUniversity');
+        var institutionField = $('studentInstitutionField');
         var isOther = selected && selected.value === 'other';
+        var isStudent = selected && selected.value === 'student';
         other.disabled = !isOther;
         other.required = !!isOther;
+        otherField.hidden = !isOther;
+        institution.disabled = !isStudent;
+        institution.required = !!isStudent;
+        institutionField.hidden = !isStudent;
         if (!isOther) { other.value = ''; other.setCustomValidity(''); }
+        if (!isStudent) { institution.value = ''; institution.setCustomValidity(''); }
       }
       function validateBatch() {
         var input = $('batchYear');
@@ -609,6 +627,7 @@
         var isStudent = !occupation || occupation.toLowerCase() === 'student';
         form.querySelector('input[name="occupationChoice"][value="' + (isStudent ? 'student' : 'other') + '"]').checked = !!occupation;
         $('otherOccupation').value = isStudent ? '' : occupation;
+        $('collegeUniversity').value = source.college_university || '';
         configureOccupation();
         updateProgress();
       }
@@ -624,6 +643,7 @@
           batch_year: batchIsValid ? Number(batchText) : null,
           phone_number: $('phoneNumber').value.trim(),
           occupation: occupation,
+          college_university: selectedOccupation && selectedOccupation.value === 'student' ? ($('collegeUniversity').value.trim() || null) : null,
           blood_group: $('bloodGroup').value.trim(),
           principal_names: $('principals').value.trim(),
           why_proud: $('whyProud').value.trim(),

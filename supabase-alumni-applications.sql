@@ -133,7 +133,8 @@ where lower(btrim(coalesce(p.role, 'member'))) not in ('architect', '27', 'alumn
       and r.batch_year <= (select max_eligible_batch from public.alumni_application_settings where setting_key = 'default')
   );
 
-create table if not exists public.alumni_applications (id uuid primary key default gen_random_uuid(), user_id uuid not null unique references auth.users(id) on delete cascade, full_name text not null default '', contact_email text, batch_year smallint, phone_number text not null default '', occupation text not null default '', blood_group text not null default '', principal_names text not null default '', why_proud text not null default '', contribution text not null default '', newsletter_subscribed boolean not null default false, agreement_accepted boolean not null default false, status text not null default 'pending', submitted_at timestamp with time zone not null default timezone('utc'::text, now()), updated_at timestamp with time zone not null default timezone('utc'::text, now()), reviewed_at timestamp with time zone, reviewed_by uuid references auth.users(id) on delete set null, review_note text, profile_role_before_approval text, profile_role_granted boolean not null default false);
+create table if not exists public.alumni_applications (id uuid primary key default gen_random_uuid(), user_id uuid not null unique references auth.users(id) on delete cascade, full_name text not null default '', contact_email text, batch_year smallint, phone_number text not null default '', occupation text not null default '', college_university text, blood_group text not null default '', principal_names text not null default '', why_proud text not null default '', contribution text not null default '', newsletter_subscribed boolean not null default false, agreement_accepted boolean not null default false, status text not null default 'pending', submitted_at timestamp with time zone not null default timezone('utc'::text, now()), updated_at timestamp with time zone not null default timezone('utc'::text, now()), reviewed_at timestamp with time zone, reviewed_by uuid references auth.users(id) on delete set null, review_note text, profile_role_before_approval text, profile_role_granted boolean not null default false);
+alter table public.alumni_applications add column if not exists college_university text;
 alter table public.alumni_applications alter column full_name set default '';
 alter table public.alumni_applications alter column batch_year drop not null;
 alter table public.alumni_applications alter column phone_number set default '';
@@ -152,6 +153,7 @@ alter table public.alumni_applications drop constraint if exists alumni_applicat
 alter table public.alumni_applications drop constraint if exists alumni_applications_email_check;
 alter table public.alumni_applications drop constraint if exists alumni_applications_phone_check;
 alter table public.alumni_applications drop constraint if exists alumni_applications_occupation_check;
+alter table public.alumni_applications drop constraint if exists alumni_applications_college_university_length_check;
 alter table public.alumni_applications drop constraint if exists alumni_applications_blood_check;
 alter table public.alumni_applications drop constraint if exists alumni_applications_principal_check;
 alter table public.alumni_applications drop constraint if exists alumni_applications_why_check;
@@ -168,6 +170,7 @@ alter table public.alumni_applications add constraint alumni_applications_name_c
 alter table public.alumni_applications add constraint alumni_applications_email_check check (status = 'draft' or (contact_email is not null and length(trim(contact_email)) between 3 and 254 and contact_email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$')) not valid;
 alter table public.alumni_applications add constraint alumni_applications_phone_check check (status = 'draft' or length(trim(phone_number)) between 5 and 40);
 alter table public.alumni_applications add constraint alumni_applications_occupation_check check (status = 'draft' or length(trim(occupation)) between 1 and 120);
+alter table public.alumni_applications add constraint alumni_applications_college_university_length_check check (college_university is null or length(trim(college_university)) <= 180) not valid;
 alter table public.alumni_applications add constraint alumni_applications_blood_check check (status = 'draft' or length(trim(blood_group)) between 1 and 20);
 alter table public.alumni_applications add constraint alumni_applications_principal_check check (status = 'draft' or length(trim(principal_names)) between 1 and 1000);
 alter table public.alumni_applications add constraint alumni_applications_why_check check (status = 'draft' or length(trim(why_proud)) between 5 and 5000);
@@ -188,6 +191,7 @@ grant select, insert, update on public.alumni_applications to authenticated;
 comment on table public.alumni_applications is 'Private NGHSIANS alumni-interface applications and account-linked drafts. Drafts remain private; completed submissions are pending, approved, or denied. Contact data is not exposed in alumni_directory.';
 comment on column public.alumni_applications.status is 'Private draft, pending, approved, or denied. Batches at or below the configured auto-approval year are approved on final submission; 2026 is manually reviewed.';
 comment on column public.alumni_applications.batch_year is 'Applicant-entered four-digit batch year. Maximum is controlled by alumni_application_settings.max_eligible_batch.';
+comment on column public.alumni_applications.college_university is 'Current college/university for applicants selecting Student; exposed on approved alumni cards.';
 comment on column public.alumni_applications.profile_role_granted is 'Internal marker used to safely restore a previous profile role if an approved application is later denied.';
 create index if not exists alumni_applications_status_batch_idx on public.alumni_applications (status, batch_year);
 create index if not exists alumni_applications_submitted_at_idx on public.alumni_applications (submitted_at desc);
@@ -218,6 +222,17 @@ begin
   new.contact_email := nullif(trim(coalesce(new.contact_email, '')), '');
   new.phone_number := trim(coalesce(new.phone_number, ''));
   new.occupation := trim(coalesce(new.occupation, ''));
+  new.college_university := nullif(trim(coalesce(new.college_university, '')), '');
+  if new.college_university is not null and length(new.college_university) > 180 then
+    raise exception 'College/university name must be 180 characters or fewer.' using errcode = '23514';
+  end if;
+  if lower(new.occupation) = 'student' and new.college_university is null then
+    if tg_op = 'INSERT' and new.status <> 'draft' then
+      raise exception 'Enter your current college or university before submitting.' using errcode = '23514';
+    elsif tg_op = 'UPDATE' and current_user = 'authenticated' and v_auth_uid = old.user_id and not v_is_admin and new.status <> 'draft' then
+      raise exception 'Enter your current college or university before submitting.' using errcode = '23514';
+    end if;
+  end if;
   new.blood_group := upper(trim(coalesce(new.blood_group, '')));
   new.principal_names := trim(coalesce(new.principal_names, ''));
   new.why_proud := trim(coalesce(new.why_proud, ''));
@@ -343,13 +358,13 @@ $alumni_sync$;
 drop trigger if exists alumni_applications_sync_role on public.alumni_applications;
 create trigger alumni_applications_sync_role after insert or update of status on public.alumni_applications for each row execute function public.sync_alumni_application_role();
 
-create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
+create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution, a.college_university from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
 grant select on public.alumni_directory to anon, authenticated;
-comment on view public.alumni_directory is 'Public-safe alumni interface records. Includes approved entries only and deliberately omits account IDs, emails, phone numbers, newsletter consent, review notes, and moderation metadata.';
+comment on view public.alumni_directory is 'Public-safe alumni interface records. Includes approved entries only and college/university when supplied; deliberately omits account IDs, emails, phone numbers, newsletter consent, review notes, and moderation metadata.';
 
 /* Verify the setup and review applications:
    select setting_key, max_eligible_batch, auto_approve_through_batch from public.alumni_application_settings;
-   select full_name, contact_email, batch_year, status, submitted_at, reviewed_at, review_note from public.alumni_applications order by submitted_at desc;
+   select full_name, contact_email, batch_year, occupation, college_university, status, submitted_at, reviewed_at, review_note from public.alumni_applications order by submitted_at desc;
 
    Manual 2026 review: set status to 'approved' or 'denied' in Table Editor, or run:
    update public.alumni_applications set status = 'approved' where id = '<application-uuid>';

@@ -278,6 +278,7 @@
     color: var(--muted); font-weight: 600;
   }
   .pill.blood { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.05); }
+  .pill.institution { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 
   /* Detail Popup Modal */
   .modal-backdrop {
@@ -1298,12 +1299,14 @@
     card.dataset.batch = String(person.batch_year || '');
     card.dataset.status = String(person.occupation || '');
     card.dataset.blood = String(person.blood_group || '');
+    card.dataset.institution = String(person.college_university || '');
     card.dataset.email = '';
     card.dataset.plainDesc = 'true';
     const descriptions = [];
     if (person.why_proud) descriptions.push('Why I am proud of NGHS:\n' + String(person.why_proud));
     if (person.contribution) descriptions.push('My NGHS story:\n' + String(person.contribution));
     if (person.principal_names) descriptions.push('Principal(s) I remember:\n' + String(person.principal_names));
+    if (card.dataset.institution) descriptions.push('Current college/university: ' + card.dataset.institution);
     card.dataset.desc = descriptions.join('\n\n');
     card.setAttribute('role','button');
     card.setAttribute('tabindex','0');
@@ -1342,6 +1345,12 @@
       blood.textContent = card.dataset.blood;
       pills.appendChild(blood);
     }
+    if (card.dataset.institution) {
+      const institution = document.createElement('span');
+      institution.className = 'pill institution';
+      institution.textContent = 'College / University: ' + card.dataset.institution;
+      pills.appendChild(institution);
+    }
     body.append(row,batch,pills);
     card.append(header,body);
     card.addEventListener('click',function(){ window.openAlumniModal(card); });
@@ -1353,7 +1362,7 @@
     const alumniDirectoryClient = window.supabase && window.supabase.createClient(ALUMNI_SUPABASE_URL, ALUMNI_SUPABASE_KEY);
     if (!grid || !alumniDirectoryClient) return;
     const { data, error } = await alumniDirectoryClient.from('alumni_directory')
-      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution');
+      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university');
     if (error) { console.info('Approved alumni applications are not available yet:', error.message); return; }
     const existing = new Set();
     grid.querySelectorAll('.alumni-card').forEach(card => existing.add(directoryCardKey(card.dataset.name || (card.querySelector('.alumni-name') || {}).textContent, card.dataset.batch || (card.querySelector('.alumni-batch') || {}).textContent.replace(/[^0-9]/g,''))));
