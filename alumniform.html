@@ -712,8 +712,52 @@
         maxEligibleBatch = Number(result.data.max_eligible_batch) || 2026;
         setEligibilityLabels();
       }
+      // Match the database's trimmed-text limits before final submission.
+      function validateSubmissionFields() {
+        var limits = { fullName: [2, 180], phoneNumber: [5, 40],
+          otherOccupation: [1, 120], collegeUniversity: [1, 180],
+          bloodGroup: [1, 20], principals: [1, 1000],
+          whyProud: [5, 5000], contribution: [5, 5000] };
+        Object.keys(limits).forEach(function (id) {
+          var field = $(id);
+          var range = limits[id];
+          var count = Array.from(field.value.trim()).length;
+          field.setCustomValidity(!field.disabled && (count < range[0] || count > range[1])
+            ? 'Please enter between ' + range[0] + ' and ' + range[1] + ' characters (excluding spaces at the start and end).'
+            : '');
+        });
+        var email = $('email');
+        email.setCustomValidity(/^[^\s@]+@[^\s@]+[.][^\s@]+$/.test(email.value.trim())
+          ? '' : 'Please enter a complete email address, such as name@example.com.');
+        return form.reportValidity();
+      }
+      form.addEventListener('input', function (event) {
+        if (event.target.setCustomValidity) event.target.setCustomValidity('');
+      });
+      function submissionErrorMessage(error) {
+        var code = String(error.code || '');
+        var detail = String(error.message || 'Unknown submission error');
+        if (code === '23514') {
+          var checks = {
+            name: 'Full name must contain at least 2 characters.',
+            email: 'Enter a valid email address.',
+            phone: 'Phone number must contain at least 5 characters.',
+            occupation: 'Enter your current occupation.',
+            blood: 'Enter your blood group.',
+            principal: 'Enter the principal name(s).',
+            why: 'Your answer about why you are proud must contain at least 5 characters.',
+            contribution: 'Your contribution answer must contain at least 5 characters.',
+            newsletter: 'Confirm your newsletter subscription.',
+            agreement: 'Accept the applicant agreement.'
+          };
+          var match = detail.match(/alumni_applications_(\w+)_check/);
+          if (match && checks[match[1]]) return checks[match[1]];
+        }
+        if (code === '42501') return 'The database denied this submission. Share this error with the NGHSIANS admin: ' + detail + ' [42501]';
+        return 'Submission failed' + (code ? ' [' + code + ']' : '') + ': ' + detail;
+      }
       function missingMigration(error) {
-        return error && (error.code === '42P01' || error.code === 'PGRST205' || /alumni_applications|alumni_application_settings|schema cache/i.test(error.message || ''));
+        return error && (error.code === '42P01' || error.code === 'PGRST205');
       }
       async function loadApplication() {
         var profileResult = await supabase.from('verified_profiles').select('full_name,username,email,batch_year,whatsapp_number,role').eq('id', signedInUser.id).maybeSingle();
@@ -811,7 +855,7 @@
           $('batchYear').reportValidity();
           return;
         }
-        if (!form.reportValidity()) return;
+        if (!validateSubmissionFields()) return;
         if (!signedInUser) { showGate(); return; }
         if (draftSaveTimer) { window.clearTimeout(draftSaveTimer); draftSaveTimer = null; }
         var submitButton = $('submitButton');
@@ -845,7 +889,7 @@
           } else if (submitError.code === '23505') {
             showMessage('An application is already linked to this account. Refresh the page to load it.', 'error');
           } else {
-            showMessage('We could not submit your application right now. Check your connection and try again.', 'error');
+            showMessage(submissionErrorMessage(submitError), 'error');
           }
         } finally {
           submitButton.disabled = false;
