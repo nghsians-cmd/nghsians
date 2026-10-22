@@ -421,8 +421,8 @@
           </section>
 
           <div class="submit-row">
-            <p class="submit-copy">Your request is linked to your signed-in NGHSIANS account. Batches through <span id="autoThroughLabel">2025</span> are auto-approved; the latest eligible batch is reviewed manually.
-              <span class="bn" lang="bn">আপনার আবেদনটি সাইন-ইন করা অ্যাকাউন্টের সঙ্গে যুক্ত হবে। <span id="autoThroughLabelBn">২০২৫</span> পর্যন্ত ব্যাচ স্বয়ংক্রিয়ভাবে অনুমোদিত; সর্বশেষ যোগ্য ব্যাচটি ম্যানুয়ালি পর্যালোচনা করা হবে।</span>
+            <p class="submit-copy">Your request is linked to your signed-in NGHSIANS account. Each application will be reviewed based on eligibility.
+              <span class="bn" lang="bn">আপনার আবেদনটি সাইন-ইন করা অ্যাকাউন্টের সঙ্গে যুক্ত হবে। প্রতিটি আবেদন যোগ্যতার ভিত্তিতে পর্যালোচনা করা হবে।</span>
             </p>
             <button class="btn submit-btn" id="submitButton" type="submit">Submit application <span aria-hidden="true">↗</span></button>
           </div>
@@ -469,7 +469,6 @@
         auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
       });
       var maxEligibleBatch = 2026;
-      var autoApproveThrough = 2025;
       var signedInUser = null;
       var signedInProfileRole = '';
       var existingApplication = null;
@@ -510,8 +509,6 @@
       function setEligibilityLabels() {
         $('maxBatchLabel').textContent = String(maxEligibleBatch);
         $('maxBatchLabelBn').textContent = toBanglaDigits(maxEligibleBatch);
-        $('autoThroughLabel').textContent = String(autoApproveThrough);
-        $('autoThroughLabelBn').textContent = toBanglaDigits(autoApproveThrough);
       }
       function toBanglaDigits(value) {
         return String(value).replace(/[0-9]/g, function (digit) { return '০১২৩৪৫৬৭৮৯'[Number(digit)]; });
@@ -709,11 +706,10 @@
       }
 
       async function loadSettings() {
-        var result = await supabase.from('alumni_application_settings').select('max_eligible_batch,auto_approve_through_batch').eq('setting_key', 'default').maybeSingle();
+        var result = await supabase.from('alumni_application_settings').select('max_eligible_batch').eq('setting_key', 'default').maybeSingle();
         if (result.error) throw result.error;
         if (!result.data) throw new Error('Eligibility settings were not found.');
         maxEligibleBatch = Number(result.data.max_eligible_batch) || 2026;
-        autoApproveThrough = Number(result.data.auto_approve_through_batch) || 2025;
         setEligibilityLabels();
       }
       function missingMigration(error) {
