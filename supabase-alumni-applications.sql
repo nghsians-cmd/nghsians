@@ -162,7 +162,10 @@ alter table public.alumni_applications add constraint alumni_applications_batch_
 alter table public.alumni_applications add constraint alumni_applications_batch_required_check check (status = 'draft' or batch_year is not null);
 alter table public.alumni_applications add constraint alumni_applications_status_check check (status in ('draft', 'pending', 'approved', 'denied'));
 alter table public.alumni_applications add constraint alumni_applications_name_check check (status = 'draft' or length(trim(full_name)) between 2 and 180);
-alter table public.alumni_applications add constraint alumni_applications_email_check check (status = 'draft' or (contact_email is not null and length(trim(contact_email)) between 3 and 254 and contact_email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$'));
+-- NOT VALID keeps rows from the earlier rollout from blocking this upgrade if
+-- contact_email was previously optional. PostgreSQL still enforces the check
+-- on every new or updated row, so new final submissions must include an email.
+alter table public.alumni_applications add constraint alumni_applications_email_check check (status = 'draft' or (contact_email is not null and length(trim(contact_email)) between 3 and 254 and contact_email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$')) not valid;
 alter table public.alumni_applications add constraint alumni_applications_phone_check check (status = 'draft' or length(trim(phone_number)) between 5 and 40);
 alter table public.alumni_applications add constraint alumni_applications_occupation_check check (status = 'draft' or length(trim(occupation)) between 1 and 120);
 alter table public.alumni_applications add constraint alumni_applications_blood_check check (status = 'draft' or length(trim(blood_group)) between 1 and 20);
