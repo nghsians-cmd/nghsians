@@ -193,6 +193,14 @@
   .alumni-card:hover .card-img {
     transform: scale(1.05);
   }
+  .database-alumni-card .card-img-placeholder {
+    color: rgba(var(--accent-gold),.88);
+    font-family: "Anton", Impact, sans-serif;
+    font-size: 2.7rem;
+    letter-spacing: .1em;
+    background: radial-gradient(ellipse at 50% 65%, rgba(113,12,4,.62), transparent 58%), linear-gradient(145deg,#171719,#0a0b0d);
+    text-shadow: 0 5px 25px rgba(0,0,0,.55), 0 0 30px rgba(var(--accent-gold),.14);
+  }
 
   /* Card Image Area */
   .card-header {
@@ -270,6 +278,7 @@
     color: var(--muted); font-weight: 600;
   }
   .pill.blood { color: #ff6b6b; border-color: rgba(255,107,107,0.2); background: rgba(255,107,107,0.05); }
+  .pill.institution { max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
 
   /* Detail Popup Modal */
   .modal-backdrop {
@@ -324,6 +333,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="nghs-ui.css?v=nav-wave-5">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="nghs-ui.js?v=nav-wave-5" defer></script>
 </head>
 <body>
@@ -1270,6 +1280,106 @@
   reveals.forEach(r => revealObserver.observe(r));
 
   /* ===========================
+     APPROVED APPLICATION CARDS
+     Only the safe alumni_directory view is public; private contact details
+     stay in the RLS-protected application table. Match existing cards by
+     normalized full name + batch so a legacy member never appears twice.
+     =========================== */
+  const ALUMNI_SUPABASE_URL = 'https://mctjlcznxpuvtetqnaeh.supabase.co';
+  const ALUMNI_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdGpsY3pueHB1dnRldHFuYWVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTQzMjQsImV4cCI6MjA3OTA3MDMyNH0.-gVaWU8XHnKIuURzgjpyBZgXNiqLEMC87SfvKMLZ4eg';
+  const ALUMNI_SEPARATORS = (function(){ try { return new RegExp('[^\\p{L}\\p{N}]+','gu'); } catch(e) { return /[^a-z0-9\u0980-\u09ff]+/gi; } })();
+  function directoryNameKey(value) {
+    return String(value == null ? '' : value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(ALUMNI_SEPARATORS,' ').replace(/\s+/g,' ').trim();
+  }
+  function directoryCardKey(name,batch) { return directoryNameKey(name) + '|' + String(batch == null ? '' : batch).trim(); }
+  function createApprovedCard(person) {
+    const card = document.createElement('article');
+    card.className = 'alumni-card reveal database-alumni-card';
+    card.dataset.name = String(person.full_name || '');
+    card.dataset.batch = String(person.batch_year || '');
+    card.dataset.status = String(person.occupation || '');
+    card.dataset.blood = String(person.blood_group || '');
+    card.dataset.institution = String(person.college_university || '');
+    card.dataset.email = '';
+    card.dataset.plainDesc = 'true';
+    const descriptions = [];
+    if (person.why_proud) descriptions.push('Why I am proud of NGHS:\n' + String(person.why_proud));
+    if (person.contribution) descriptions.push('My NGHS story:\n' + String(person.contribution));
+    if (person.principal_names) descriptions.push('Principal(s) I remember:\n' + String(person.principal_names));
+    if (card.dataset.institution) descriptions.push('Current college/university: ' + card.dataset.institution);
+    card.dataset.desc = descriptions.join('\n\n');
+    card.setAttribute('role','button');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label','View alumni profile for ' + card.dataset.name + ', batch ' + card.dataset.batch);
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    const initials = document.createElement('div');
+    initials.className = 'card-img-placeholder';
+    initials.textContent = 'NGHSIAN';
+    header.appendChild(initials);
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    const row = document.createElement('div');
+    row.className = 'name-row';
+    const name = document.createElement('div');
+    name.className = 'alumni-name';
+    name.textContent = card.dataset.name;
+    const badge = document.createElement('div');
+    badge.className = 'alumni-badge';
+    badge.textContent = 'Alumni';
+    row.append(name,badge);
+    const batch = document.createElement('div');
+    batch.className = 'alumni-batch';
+    batch.textContent = 'Batch ' + card.dataset.batch;
+    const pills = document.createElement('div');
+    pills.className = 'info-pills';
+    if (card.dataset.status) {
+      const status = document.createElement('span');
+      status.className = 'pill';
+      status.textContent = card.dataset.status;
+      pills.appendChild(status);
+    }
+    if (card.dataset.blood) {
+      const blood = document.createElement('span');
+      blood.className = 'pill blood';
+      blood.textContent = card.dataset.blood;
+      pills.appendChild(blood);
+    }
+    if (card.dataset.institution) {
+      const institution = document.createElement('span');
+      institution.className = 'pill institution';
+      institution.textContent = 'College / University: ' + card.dataset.institution;
+      pills.appendChild(institution);
+    }
+    body.append(row,batch,pills);
+    card.append(header,body);
+    card.addEventListener('click',function(){ window.openAlumniModal(card); });
+    card.addEventListener('keydown',function(event){ if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); window.openAlumniModal(card); } });
+    return card;
+  }
+  async function appendApprovedApplications() {
+    const grid = document.getElementById('alumniGrid');
+    const alumniDirectoryClient = window.supabase && window.supabase.createClient(ALUMNI_SUPABASE_URL, ALUMNI_SUPABASE_KEY);
+    if (!grid || !alumniDirectoryClient) return;
+    const { data, error } = await alumniDirectoryClient.from('alumni_directory')
+      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university');
+    if (error) { console.info('Approved alumni applications are not available yet:', error.message); return; }
+    const existing = new Set();
+    grid.querySelectorAll('.alumni-card').forEach(card => existing.add(directoryCardKey(card.dataset.name || (card.querySelector('.alumni-name') || {}).textContent, card.dataset.batch || (card.querySelector('.alumni-batch') || {}).textContent.replace(/[^0-9]/g,''))));
+    (data || []).forEach(person => {
+      const key = directoryCardKey(person.full_name,person.batch_year);
+      if (!person.full_name || !person.batch_year || existing.has(key)) return;
+      const card = createApprovedCard(person);
+      grid.appendChild(card);
+      existing.add(key);
+      if (revealObserver) revealObserver.observe(card);
+    });
+  }
+  const loadAlumniApplications = () => appendApprovedApplications().catch(error => console.warn('Approved alumni profiles could not be loaded:', error));
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadAlumniApplications, { once: true });
+  else loadAlumniApplications();
+
+  /* ===========================
      MODAL LOGIC
      =========================== */
   const modal = document.getElementById('alumniModal');
@@ -1281,17 +1391,26 @@
   window.openAlumniModal = function(card) {
     const name = card.dataset.name;
     const batch = card.dataset.batch;
-    const email = card.dataset.email;
+    const email = card.dataset.email || '';
     const desc = card.dataset.desc;
 
     mName.textContent = name;
     mSub.textContent = `Batch ${batch} • ${card.dataset.status}`;
     mEmail.textContent = email;
+    if (mEmail.parentElement) mEmail.parentElement.style.display = email ? '' : 'none';
     
-    // Handle Description
+    // Existing curated cards contain trusted <br> formatting; newly approved
+    // database cards are always rendered as plain text to prevent markup injection.
     if (desc && desc.trim() !== "") {
-        mDesc.innerHTML = desc;
+        if (card.dataset.plainDesc === 'true') {
+            mDesc.textContent = desc;
+            mDesc.style.whiteSpace = 'pre-line';
+        } else {
+            mDesc.style.whiteSpace = '';
+            mDesc.innerHTML = desc;
+        }
     } else {
+        mDesc.style.whiteSpace = '';
         mDesc.innerHTML = "<em>No details provided yet.</em>";
     }
 

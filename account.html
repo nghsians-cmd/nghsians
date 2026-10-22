@@ -767,6 +767,26 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 }
 .sd-notice[data-state="issued"]::before { background: repeating-linear-gradient(90deg, rgba(var(--gold),.85) 0 8px, transparent 8px 16px); }
 .sd-notice[data-state="issued"] .sd-notice-ico { color: #0b0a05; background: var(--sd-foil); }
+/* Inline Alumni Interface eligibility card; dismissal lasts for this visit only. */
+.alumni-apply-notice {
+  position: relative; overflow: hidden; display: grid; grid-template-columns: 34px minmax(0,1fr) 32px; gap: 11px; align-items: start;
+  padding: 14px; margin: 0 0 14px; border: 1px solid rgba(var(--gold),.28); border-radius: 16px;
+  background: linear-gradient(138deg, rgba(var(--gold),.12), rgba(139,14,6,.12) 58%, rgba(9,11,13,.96));
+  box-shadow: 0 17px 40px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+  opacity: 1; transform: translateY(0); transition: opacity .24s ease, transform .24s ease, margin .24s ease, padding .24s ease;
+}
+.alumni-apply-notice::before { content:""; position:absolute; inset:0 auto 0 0; width:2px; background:linear-gradient(180deg,rgba(var(--gold),.9),rgba(139,14,6,.6)); }
+.alumni-apply-notice.is-dismissed { opacity:0; transform:translateY(-8px); }
+.alumni-notice-icon { width:32px; height:32px; display:grid; place-items:center; border:1px solid rgba(var(--gold),.28); border-radius:10px; color:rgba(var(--gold),1); background:rgba(var(--gold),.09); }
+.alumni-notice-copy { min-width:0; }
+.alumni-notice-title { display:block; color:var(--text); font-size:.86rem; font-weight:800; line-height:1.35; }
+.alumni-notice-title .bn { display:block; margin-top:2px; color:rgba(var(--gold),.9); font-family:var(--font-bangla); font-size:.82rem; font-weight:700; }
+.alumni-notice-body { margin:6px 0 0; color:var(--text-dim); font-size:.72rem; line-height:1.55; }
+.alumni-notice-body .bn { display:block; margin-top:2px; font-family:var(--font-bangla); font-size:.76rem; }
+.alumni-notice-action { display:inline-flex; align-items:center; gap:6px; margin-top:9px; padding:7px 11px; border:1px solid rgba(var(--gold),.3); border-radius:8px; color:rgba(var(--gold),1); background:rgba(var(--gold),.07); font-size:.67rem; font-weight:800; letter-spacing:.06em; text-decoration:none; transition:transform .18s,background .18s,border-color .18s; }
+.alumni-notice-action:hover { transform:translateY(-1px); background:rgba(var(--gold),.13); border-color:rgba(var(--gold),.55); }
+.alumni-notice-close { width:30px; height:30px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.08); border-radius:9px; color:var(--text-dim); background:rgba(0,0,0,.2); cursor:pointer; transition:color .16s,border-color .16s,background .16s; }
+.alumni-notice-close:hover { color:var(--text); border-color:rgba(var(--gold),.3); background:rgba(255,255,255,.06); }
 /* ---------- the pass itself (the profile card in ticket shape) ------------ */
 .id-card.signday-pass {
   --sd-perf: 96px;          /* shorter stub: serial + barcode, no event logistics */
@@ -1134,6 +1154,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
          can sit above the pass card. Delete the wrapper too with the notice. -->
     <div class="profile-col">
     <div id="sd-notice" class="sd-notice hidden" data-state="unconfirmed" role="status" aria-live="polite"></div>
+    <div id="alumni-apply-notice" class="alumni-apply-notice hidden" role="status" aria-live="polite"></div>
     <!-- Profile / ID Card -->
     <div id="profile-card" class="id-card">
       <!-- ⏳ TEMP-SIGNDAY-60 · ticket head band (Sign Day emblem). Shown only
@@ -1519,6 +1540,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       autoRefreshToken: true
     }
   });
+  const accountQuery = new URLSearchParams(window.location.search || '');
+  const accountReturnTarget = accountQuery.get('next') === 'alumniform.html' ? 'alumniform.html' : '';
+  const accountInitialView = accountQuery.get('view') === 'signup' ? 'signup' : 'login';
   const ADMIN_EMAILS = ['nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'];
   /* ---- PRIVATE / TEST ACCOUNTS ------------------------------------------
      These accounts still appear in "Other NGHSIANS" (name, batch, followers,
@@ -1611,6 +1635,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     return hasNewsletterColumns;
   }
+  /* ---- ALUMNI APPLICATION ELIGIBILITY ----------------------------------
+     Legacy alumni are matched and backfilled server-side by the alumni SQL
+     migration. The profile page only reads the resulting role and decides
+     whether to show the inline bilingual application notice.                 */
+  let alumniSettingsPromise = null;
+  async function getAlumniApplicationSettings() {
+    if (!alumniSettingsPromise) {
+      alumniSettingsPromise = supabase.from('alumni_application_settings')
+        .select('max_eligible_batch,auto_approve_through_batch').eq('setting_key', 'default').maybeSingle()
+        .then(({ data, error }) => {
+          if (error || !data) return { max_eligible_batch: 2026, auto_approve_through_batch: 2025 };
+          return data;
+        }).catch(() => ({ max_eligible_batch: 2026, auto_approve_through_batch: 2025 }));
+    }
+    return alumniSettingsPromise;
+  }
+  window.dismissAlumniApplyNotice = function () {
+    const notice = getEl('alumni-apply-notice');
+    if (!notice || notice.classList.contains('hidden')) return;
+    notice.classList.add('is-dismissed');
+    window.setTimeout(() => { notice.classList.add('hidden'); notice.classList.remove('is-dismissed'); }, 260);
+  };
+  async function updateAlumniApplyNotice(profile) {
+    const notice = getEl('alumni-apply-notice');
+    if (!notice) return;
+    notice.classList.add('hidden');
+    const role = String((profile && profile.role) || 'member').toLowerCase();
+    if (!profile || role === 'architect' || role === '27' || role === 'alumni') return;
+    const batchText = String(profile.batch_year == null ? '' : profile.batch_year).trim();
+    if (!/^\d{4}$/.test(batchText)) return;
+    const settings = await getAlumniApplicationSettings();
+    if (Number(batchText) > Number(settings.max_eligible_batch || 2026)) return;
+    let applicationStatus = '';
+    try {
+      const { data, error } = await supabase.from('alumni_applications').select('status').eq('user_id', profile.id).maybeSingle();
+      if (!error && data) applicationStatus = String(data.status || '').toLowerCase();
+    } catch (error) { /* migration not run or network unavailable: leave the eligibility link available */ }
+    if (applicationStatus === 'approved') return;
+    const pending = applicationStatus === 'pending';
+    const draft = applicationStatus === 'draft';
+    const title = pending ? 'Your Alumni Interface request is under review.' : (draft ? 'Your Alumni Interface draft is saved.' : 'You may be eligible for the ALUMNI INTERFACE.');
+    const titleBn = pending ? 'আপনার Alumni Interface-এর আবেদনটি পর্যালোচনায় আছে।' : (draft ? 'আপনার Alumni Interface-এর খসড়াটি সংরক্ষিত আছে।' : 'আপনি ALUMNI INTERFACE-এর জন্য যোগ্য হতে পারেন।');
+    const body = pending ? 'You can check or update your application here.' : (draft ? 'Continue your saved application whenever you are ready.' : 'Add your story to the NGHSIANS alumni network.');
+    const bodyBn = pending ? 'এখানে আপনার আবেদন দেখতে বা তথ্য হালনাগাদ করতে পারেন।' : (draft ? 'সুবিধামতো আপনার সংরক্ষিত আবেদনটি সম্পন্ন করুন।' : 'NGHSIANS Alumni Network-এ আপনার গল্প যোগ করুন।');
+    const action = pending ? 'View application' : (draft ? 'Continue application' : 'Apply now');
+    notice.innerHTML = '<span class="alumni-notice-icon" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v5c0 4.5 3.1 7.8 8 9 4.9-1.2 8-4.5 8-9V7l-8-4Z"/><path d="M8 12h8M12 8v8"/></svg></span>' +
+      '<div class="alumni-notice-copy"><strong class="alumni-notice-title">' + title + '<span class="bn" lang="bn">' + titleBn + '</span></strong><p class="alumni-notice-body">' + body + '<span class="bn" lang="bn">' + bodyBn + '</span></p><a class="alumni-notice-action" href="alumniform.html">' + action + ' <span aria-hidden="true">→</span></a></div>' +
+      '<button class="alumni-notice-close" type="button" aria-label="Dismiss notice" onclick="dismissAlumniApplyNotice()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg></button>';
+    notice.classList.remove('hidden');
+  }
   /* ---- AUTH HANDLERS ---- */
   window.handleLogin = async function(e) {
     e.preventDefault();
@@ -1620,6 +1694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email: getEl('log-email').value, password: getEl('log-pass').value });
       if (error) throw error;
       currentUser = data.user;
+      if (accountReturnTarget) { window.location.replace(accountReturnTarget); return; }
       await loadProfile(currentUser);
     } catch (err) {
       errEl.textContent = "Invalid email or password."; errEl.style.display = 'block';
@@ -2079,6 +2154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // ----------------------------------------------------------
       renderProfile(data);
       loadNetwork();
+      updateAlumniApplyNotice(data).catch(err => console.warn('Alumni eligibility notice could not be loaded:', err));
     } catch(err) {
       console.error(err);
       showToast("Could not load your profile. Please refresh.", true);
@@ -2552,8 +2628,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const recoveryTarget = window.recoveryRedirectTarget ? window.recoveryRedirectTarget() : null;
   if (recoveryTarget) { window.location.replace(recoveryTarget); return; }
   const { data } = await supabase.auth.getSession();
-  if (data.session) { currentUser = data.session.user; await loadProfile(currentUser); }
-  else { switchView('login'); }
+  if (data.session) {
+    currentUser = data.session.user;
+    if (accountReturnTarget) { window.location.replace(accountReturnTarget); return; }
+    await loadProfile(currentUser);
+  } else {
+    switchView(accountInitialView);
+  }
 });
 </script>
 </body>
