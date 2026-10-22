@@ -258,6 +258,16 @@
     letter-spacing: 0.5px;
     position: relative; overflow: hidden;
   }
+  .database-alumni-card .new-alumni-tag {
+    position: absolute; top: 14px; right: 14px; z-index: 5;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 6px 10px; border-radius: 999px;
+    background: rgba(var(--accent-gold), .96);
+    border: 1px solid rgba(255,255,255,.65);
+    color: #17130b; font-size: .68rem; font-weight: 900;
+    letter-spacing: .08em; text-transform: uppercase;
+    box-shadow: 0 5px 16px rgba(0,0,0,.45);
+  }
   .alumni-badge::before {
     content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
@@ -1292,6 +1302,21 @@
     return String(value == null ? '' : value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(ALUMNI_SEPARATORS,' ').replace(/\s+/g,' ').trim();
   }
   function directoryCardKey(name,batch) { return directoryNameKey(name) + '|' + String(batch == null ? '' : batch).trim(); }
+  const NEW_ALUMNI_BADGE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+  function isWithinNewAlumniWindow(approvedAt) {
+    const approvedTime = Date.parse(String(approvedAt || ''));
+    const age = Date.now() - approvedTime;
+    return Number.isFinite(approvedTime) && age >= 0 && age < NEW_ALUMNI_BADGE_WINDOW_MS;
+  }
+  function scheduleNewAlumniTagExpiry(tag, approvedAt) {
+    const expiresAt = Date.parse(String(approvedAt || '')) + NEW_ALUMNI_BADGE_WINDOW_MS;
+    const removeWhenExpired = function () {
+      const remaining = expiresAt - Date.now();
+      if (remaining <= 0) { tag.remove(); return; }
+      window.setTimeout(removeWhenExpired, Math.min(remaining, 2147483647));
+    };
+    removeWhenExpired();
+  }
   function createApprovedCard(person) {
     const card = document.createElement('article');
     card.className = 'alumni-card reveal database-alumni-card';
@@ -1317,6 +1342,16 @@
     initials.className = 'card-img-placeholder';
     initials.textContent = 'NGHSIAN';
     header.appendChild(initials);
+    const approvedAt = String(person.approved_at || '');
+    if (isWithinNewAlumniWindow(approvedAt)) {
+      const newTag = document.createElement('span');
+      newTag.className = 'new-alumni-tag';
+      newTag.textContent = 'New';
+      newTag.title = 'Approved within the last 30 days';
+      newTag.setAttribute('aria-label', 'New alumni listing, approved within the last 30 days');
+      header.appendChild(newTag);
+      scheduleNewAlumniTagExpiry(newTag, approvedAt);
+    }
     const body = document.createElement('div');
     body.className = 'card-body';
     const row = document.createElement('div');
@@ -1362,7 +1397,7 @@
     const alumniDirectoryClient = window.supabase && window.supabase.createClient(ALUMNI_SUPABASE_URL, ALUMNI_SUPABASE_KEY);
     if (!grid || !alumniDirectoryClient) return;
     const { data, error } = await alumniDirectoryClient.from('alumni_directory')
-      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university');
+      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university,approved_at');
     if (error) { console.info('Approved alumni applications are not available yet:', error.message); return; }
     const existing = new Set();
     grid.querySelectorAll('.alumni-card').forEach(card => existing.add(directoryCardKey(card.dataset.name || (card.querySelector('.alumni-name') || {}).textContent, card.dataset.batch || (card.querySelector('.alumni-batch') || {}).textContent.replace(/[^0-9]/g,''))));

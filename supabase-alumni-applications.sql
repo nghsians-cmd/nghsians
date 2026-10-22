@@ -358,9 +358,9 @@ $alumni_sync$;
 drop trigger if exists alumni_applications_sync_role on public.alumni_applications;
 create trigger alumni_applications_sync_role after insert or update of status on public.alumni_applications for each row execute function public.sync_alumni_application_role();
 
-create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution, a.college_university from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
+create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution, a.college_university, a.reviewed_at as approved_at from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
 grant select on public.alumni_directory to anon, authenticated;
-comment on view public.alumni_directory is 'Public-safe alumni interface records. Includes approved entries only and college/university when supplied; deliberately omits account IDs, emails, phone numbers, newsletter consent, review notes, and moderation metadata.';
+comment on view public.alumni_directory is 'Public-safe approved alumni records. Includes college/university when supplied and the approval timestamp used for a temporary 30-day New badge; omits account IDs, emails, phone numbers, newsletter consent, review notes, and reviewer identity.';
 
 /* Verify the setup and review applications:
    select setting_key, max_eligible_batch, auto_approve_through_batch from public.alumni_application_settings;
