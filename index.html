@@ -25,27 +25,6 @@
 <meta name="twitter:image" content="https://nghsians.com/linkhero.jpg" />
 <meta itemprop="image" content="https://nghsians.com/linkhero.jpg" />
 
-<!-- ======================================================================
-     TEMPORARY — NGHS 60th Intro / NGHS 60th Sign Day Intro — START
-     Isolated, removable opening layer; the existing homepage stays intact.
-     To remove: follow NGHS-60TH-INTRO.md. This block is the only integration
-     point; the registration popup below it is left completely untouched.
-     ====================================================================== -->
-<link rel="stylesheet" href="assets/nghs-60th-intro/entry.css?v=1">
-<script>
-(function () {
-  // Keep direct links to the real site's sections working as before.
-  if (location.hash) return;
-  var root = document.documentElement;
-  root.setAttribute('data-nghs-60th-intro-pending', '');
-  // Fail open if the temporary module is blocked, missing, or too slow.
-  window.setTimeout(function () {
-    root.removeAttribute('data-nghs-60th-intro-pending');
-  }, 5000);
-})();
-</script>
-<script src="assets/nghs-60th-intro/intro.js?v=1" defer></script>
-<!-- TEMPORARY — NGHS 60th Intro — END -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
