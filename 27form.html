@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>NGHS 60th Sign Day — Batch 27 Registration Form</title>
+<title>NGHS 60th Sign Day — Thank You, Batch 27</title>
 <link rel="icon" href="favLogo.ico">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;700&family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -414,7 +414,7 @@ input[disabled] { background: rgba(32,24,18,.09); color: var(--ink-soft); cursor
     <img class="emblem" src="signday-emblem.png" alt="60th Sign Day emblem">
     <div>
       <h1>NGHS 60th Sign Day</h1>
-      <p>NGHS B-27 sign day · Registration Form · Batch 2027</p>
+      <p>NGHS B-27 Sign Day · Event complete · Batch 2027</p>
     </div>
   </div>
   <div class="account-chip" id="accountChip" hidden>
@@ -427,253 +427,25 @@ input[disabled] { background: rgba(32,24,18,.09); color: var(--ink-soft); cursor
 <section class="hero">
   <figure class="poster">
     <img src="signday-poster.jpg" alt="Batch 27 — It's now or never — NGHS 60th Sign Day vintage poster">
-    <figcaption>IT'S NOW OR NEVER — BATCH 27</figcaption>
+    <figcaption>THANK YOU FOR BEING A PART OF IT — BATCH 27</figcaption>
   </figure>
   <div class="hero-copy">
-    <span class="ribbon">MINIMUM DEPOSIT 399 TK</span>
-    <h2 class="hero-title">60<sup>TH</sup> SIGN DAY</h2>
+    <span class="ribbon">SIGN DAY HAPPENED · 12 NOVEMBER 2026</span>
+    <h2 class="hero-title">SIGN DAY<br>HAPPENED</h2>
     <p class="hero-sub">Nasirabad Government High School · Batch 2027</p>
-    <p class="hero-req"><span class="req">*</span> Indicates required question — every field on this form is required.</p>
-    <div class="hero-steps">
-      <div class="step"><b>1</b><span>Create your nghsians account (locked to batch 2027 — your email fills the form automatically)</span></div>
-      <div class="step"><b>2</b><span>Fill this form and pay the deposit — bKash online, or cash offline</span></div>
-      <div class="step"><b>3</b><span>The committee marks your pass ACTIVE — your account card turns PASS ACTIVE by itself</span></div>
-    </div>
+    <p class="hero-sub">Thank you for being a part of it. We are grateful to everyone who made our 60th Sign Day unforgettable.</p>
+    <p class="hero-req">The celebration took place on Thursday, 12 November 2026. Registration is now closed.</p>
+    <div class="hero-steps"><div class="step"><b>✓</b><span>One school, one legacy, and a day made unforgettable by you.</span></div><div class="step"><b>✓</b><span>Thank you for showing up, reconnecting, and celebrating together.</span></div><div class="step"><b>✓</b><span>60th Sign Day · Thursday, 12 November 2026 · Batch 2027</span></div></div>
   </div>
 </section>
 
 <main class="wrap">
 
-  <div class="setup-warn hidden" id="setupWarn">
-    ⚠ The registration storage is not set up yet. The admin must run
-    <b>supabase-signday-form-27.sql</b> in Supabase before this form can be submitted.
-  </div>
-
-  <!-- ============ CHECKING ============ -->
-  <section id="checking-view" class="card checking-card view hidden">
-    <div class="spinner"></div>
-    <p><b>Loading your account…</b></p>
+  <section class="card" style="max-width:760px;margin:32px auto;text-align:center;padding:40px 24px">
+    <h2>Thank you for being a part of it!</h2>
+    <p class="auth-sub">The NGHS 60th Sign Day happened on Thursday, 12 November 2026. Thank you, Batch 27, for being part of this milestone and making it such a memorable celebration.</p>
+    <p><a class="btn btn-primary" href="index.html">Back to NGHSIANS</a></p>
   </section>
-
-  <!-- ============ LOGIN ============ -->
-  <section id="login-view" class="card auth-card view hidden">
-    <h2>Sign in</h2>
-    <p class="auth-sub">You need an nghsians account to register for the Sign Day. Once you sign in, your email is locked into the form automatically — you cannot register for someone else.</p>
-    <form id="loginForm" novalidate>
-      <label class="field-label" for="login-email">Email</label>
-      <input id="login-email" type="email" required autocomplete="email" placeholder="you@example.com">
-      <label class="field-label" for="login-password">Password</label>
-      <div class="pw-wrap">
-        <input id="login-password" type="password" required autocomplete="current-password" placeholder="Your password">
-        <button type="button" class="pw-toggle" data-target="login-password">Show</button>
-      </div>
-      <button type="submit" class="btn btn-primary btn-lg btn-block" id="loginBtn">Sign in</button>
-    </form>
-    <div class="auth-links">
-      <button type="button" class="link-btn" id="toForgot">Forgot password?</button>
-      <button type="button" class="link-btn" id="toSignup">Create an account — batch 2027</button>
-    </div>
-  </section>
-
-  <!-- ============ SIGNUP ============ -->
-  <section id="signup-view" class="card auth-card view hidden">
-    <h2>Create account</h2>
-    <p class="auth-sub">One account per student. This form is only for <b>batch 2027</b> — the batch is locked and cannot be changed here.</p>
-    <form id="signupForm" novalidate>
-      <label class="field-label" for="sign-name">Full Name</label>
-      <input id="sign-name" type="text" required autocomplete="name" placeholder="Your full name">
-      <label class="field-label" for="sign-id">School ID</label>
-      <input id="sign-id" type="text" required placeholder="Your school ID number">
-      <label class="check-row"><input type="checkbox" id="no-id-check"> I don't have an ID number</label>
-      <label class="field-label" for="sign-batch">Batch Year</label>
-      <input id="sign-batch" type="text" value="2027" readonly disabled>
-      <p class="locked-note">🔒 Locked — this registration is only for batch 2027.</p>
-      <label class="field-label" for="sign-whatsapp">WhatsApp Number</label>
-      <input id="sign-whatsapp" type="tel" required inputmode="tel" placeholder="01XXXXXXXXX" autocomplete="tel">
-      <label class="field-label" for="sign-instagram">Instagram Username <span style="color:var(--ink-soft);font-weight:500">(optional)</span></label>
-      <input id="sign-instagram" type="text" placeholder="username" autocomplete="off">
-      <label class="field-label" for="sign-email">Email</label>
-      <input id="sign-email" type="email" required autocomplete="email" placeholder="you@example.com">
-      <label class="field-label" for="sign-password">Password</label>
-      <div class="pw-wrap">
-        <input id="sign-password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters">
-        <button type="button" class="pw-toggle" data-target="sign-password">Show</button>
-      </div>
-      <button type="submit" class="btn btn-primary btn-lg btn-block" id="signupBtn">Create account</button>
-    </form>
-    <div class="auth-links">
-      <span></span>
-      <button type="button" class="link-btn" id="toLogin">Already have an account? Sign in</button>
-    </div>
-  </section>
-
-  <!-- ============ FORGOT ============ -->
-  <section id="forgot-view" class="card auth-card view hidden">
-    <h2>Forgot password</h2>
-    <p class="auth-sub">Enter your account email — we will send a password reset link (handled by reset.html).</p>
-    <form id="forgotForm" novalidate>
-      <label class="field-label" for="forgot-email">Email</label>
-      <input id="forgot-email" type="email" required autocomplete="email" placeholder="you@example.com">
-      <button type="submit" class="btn btn-primary btn-lg btn-block" id="forgotBtn">Send reset link</button>
-    </form>
-    <div class="auth-links">
-      <span></span>
-      <button type="button" class="link-btn" id="toLogin2">Back to sign in</button>
-    </div>
-  </section>
-
-  <!-- ============ FORM ============ -->
-  <section id="form-view" class="view hidden">
-    <form id="signdayForm" novalidate>
-
-      <div class="card form-head">
-        <h2>NGHS 60th Sign Day</h2>
-        <p>NGHS B-27 sign day · Registration Form — every field is required</p>
-      </div>
-
-      <div class="card question">
-        <h3>Student Name/শিক্ষার্থীর নাম <span class="req">*</span></h3>
-        <input id="f-name" type="text" required autocomplete="name" placeholder="Your full name">
-      </div>
-
-      <div class="card question email-section">
-        <h3>Email/ইমেইল <span class="req">*</span></h3>
-        <label class="field-label" for="f-email">Email — from your logged-in account (cannot be changed)</label>
-        <input id="f-email" type="email" required readonly placeholder="you@example.com">
-
-        <label class="field-label" for="f-payment">Bkash or Cash? / Online (bKash) or Offline (Cash)? <span class="req">*</span></label>
-        <select id="f-payment" required>
-          <option value="" selected disabled>Select…</option>
-          <option value="online">Online (bKash)</option>
-          <option value="offline">Offline (Cash)</option>
-        </select>
-
-        <div id="onlineFields" class="branch" hidden>
-          <div class="bkash-box">
-            <p>Send the deposit (minimum <b>399 TK</b>) by <b>bKash → Send Money</b> to the number of your shift:</p>
-            <p class="bkash-number" id="bkashNumber">Morning shift: <b>01752068822</b> &nbsp;·&nbsp; Day shift: <b>01752068822</b></p>
-          </div>
-          <label class="field-label" for="f-bkash">বিকাশে হলে যেই নম্বর থেকে bikash korechen sei number likhun / 那个号码… লিখুন — the bKash number you paid from <span class="req">*</span></label>
-          <input id="f-bkash" type="tel" inputmode="numeric" placeholder="01XXXXXXXXX">
-        </div>
-
-        <div id="offlineFields" class="branch" hidden>
-          <label class="field-label" for="f-deposit">Who did u give ur deposit to / 你把押金交给了谁 — name of the person who collected your cash <span class="req">*</span></label>
-          <input id="f-deposit" type="text" placeholder="Name of the person who took your deposit">
-        </div>
-      </div>
-
-      <div class="card question">
-        <h3>Select your t-shirt size/আপনার T-shirt সাইজ Nirbachon করুন <span class="req">*</span></h3>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="tshirt" value="S" required><span>S</span></label>
-          <label class="radio"><input type="radio" name="tshirt" value="M"><span>M</span></label>
-          <label class="radio"><input type="radio" name="tshirt" value="L"><span>L</span></label>
-          <label class="radio"><input type="radio" name="tshirt" value="XL"><span>XL</span></label>
-          <label class="radio"><input type="radio" name="tshirt" value="XXL"><span>XXL</span></label>
-        </div>
-      </div>
-
-      <div class="card question">
-        <h3>Shift <span class="req">*</span></h3>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="shift" value="Morning" required><span>Morning</span></label>
-          <label class="radio"><input type="radio" name="shift" value="Day" required><span>Day</span></label>
-        </div>
-      </div>
-
-      <div class="card question">
-        <h3>Section / department/বিভাগ <span class="req">*</span></h3>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="section" value="A" required><span>A</span></label>
-          <label class="radio"><input type="radio" name="section" value="B"><span>B</span></label>
-          <label class="radio"><input type="radio" name="section" value="C"><span>C</span></label>
-          <label class="radio"><input type="radio" name="section" value="D"><span>D</span></label>
-        </div>
-      </div>
-
-      <div class="card question">
-        <h3>Class Roll / Reaction/Schine রোল <span class="req">*</span></h3>
-        <input id="f-roll" type="text" required inputmode="numeric" placeholder="Your class roll">
-      </div>
-
-      <div class="card question">
-        <h3>Participant Phone Number (whatsapp) / অংশগ্রহণকারীর ফোন নম্বর (হোয়াটসঅ্যাপ) <span class="req">*</span></h3>
-        <input id="f-phone" type="tel" required inputmode="tel" placeholder="01XXXXXXXXX">
-      </div>
-
-      <div class="card info-card">
-        <h3>Before Registration / Registration আগে</h3>
-        <p>Your account pass card looks like this before you register — an UNCONFIRMED badge.</p>
-        <div class="mini-pass">
-          <p class="mp-name">Arittra Dutta</p>
-          <p class="mp-batch">BATCH 2027 · 60TH SIGN DAY</p>
-          <div class="mp-row">
-            <span class="mp-btn">NGHS 60TH SIGN DAY</span>
-            <span class="mp-badge unconfirmed">UNCONFIRMED</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card info-card">
-        <h3>After Registration / Registration 후</h3>
-        <p>Once the committee confirms your deposit, the same card turns into a PASS ACTIVE.</p>
-        <div class="mini-pass">
-          <p class="mp-name">Arittra Dutta</p>
-          <p class="mp-batch">BATCH 2027 · 60TH SIGN DAY</p>
-          <div class="mp-row">
-            <span class="mp-btn">NGHS 60TH SIGN DAY</span>
-            <span class="mp-badge active">PASS ACTIVE</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card question">
-        <h3>NGHS-27 (Official) — batch 27 ও Sign-Day এর WhatsApp Group এ join করুন <span class="req">*</span></h3>
-        <div class="radio-row">
-          <label class="radio"><input type="radio" name="wgroup" value="Joined Already" required><span>Joined Already</span></label>
-          <label class="radio"><input type="radio" name="wgroup" value="Joined Right Now" required><span>Joined Right Now</span></label>
-        </div>
-      </div>
-
-      <div class="card info-card">
-        <h3>Join our's Whatsapp Group / Procedure — whatsapp Group এ join করুন</h3>
-        <div class="group-join">
-          <img src="signday-group.jpg" alt="NGHS-27 Official WhatsApp group" loading="lazy">
-          <div>
-            <p><b>NGHS-27 Official</b> · Sign Day announcements, updates &amp; help — everyone must be in the group.</p>
-            <a class="btn btn-primary" href="https://chat.whatsapp.com/LSyVUVqlxWNE7VAqfZuZUH?mode=gi_t" target="_blank" rel="noopener noreferrer">Join Group ↗</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Submit</button>
-        <button type="button" class="btn btn-lg" id="clearBtn">Clear form</button>
-      </div>
-    </form>
-  </section>
-
-  <!-- ============ SUCCESS ============ -->
-  <section id="success-view" class="card auth-card view hidden">
-    <div class="success-check">✓</div>
-    <h2>Registration submitted!</h2>
-    <p class="auth-sub">Your Sign Day form is saved. The committee will check your deposit and mark your pass <b>ACTIVE PASS</b> — your account card on <a href="account.html"><b>account.html</b></a> then turns PASS ACTIVE by itself. Keep an eye on the WhatsApp group.</p>
-    <dl class="summary">
-      <div><dt>Name</dt><dd id="sum-name">—</dd></div>
-      <div><dt>Shift</dt><dd id="sum-shift">—</dd></div>
-      <div><dt>Section</dt><dd id="sum-section">—</dd></div>
-      <div><dt>T-Shirt</dt><dd id="sum-tshirt">—</dd></div>
-      <div><dt>Payment</dt><dd id="sum-payment">—</dd></div>
-      <div><dt>Phone</dt><dd id="sum-phone">—</dd></div>
-    </dl>
-    <div class="success-actions">
-      <a class="btn btn-primary btn-lg" href="account.html">View my account pass</a>
-      <a class="btn btn-lg" href="https://chat.whatsapp.com/LSyVUVqlxWNE7VAqfZuZUH?mode=gi_t" target="_blank" rel="noopener noreferrer">Join WhatsApp Group ↗</a>
-      <button type="button" class="btn btn-lg" id="editAgainBtn">Edit my response</button>
-    </div>
-  </section>
-
 </main>
 
 <footer class="site-foot">
