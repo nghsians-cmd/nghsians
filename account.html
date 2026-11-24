@@ -392,6 +392,8 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
 .user-list::-webkit-scrollbar { width: 3px; }
 .user-list::-webkit-scrollbar-track { background: transparent; }
 .user-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+.network-load-more { padding: 10px 14px; border: 1px solid var(--border-hi); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text); font: 700 0.8rem var(--font-body); cursor: pointer; }
+.network-load-more:hover { border-color: rgba(var(--gold),0.5); color: rgba(var(--gold),1); }
 .user-item {
   display: flex; align-items: center; gap: 12px;
   padding: 11px 12px; border-radius: 10px;
@@ -1281,6 +1283,7 @@ input[type="password"], input[type="text"].password-visible { padding-right: 44p
       <div id="network-list" class="user-list">
         <div style="text-align:center;padding:24px;color:var(--text-dim);font-size:0.88rem">Loading network…</div>
       </div>
+      <button id="network-load-more" class="network-load-more hidden" type="button" onclick="loadMoreNetwork()" style="width:100%;margin-top:10px">Load more</button>
     </div>
   </div><!-- /dashboard-grid -->
 </div><!-- /page -->
@@ -1597,6 +1600,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let hasNewsletterColumns = true;
   // Network list cache + the member currently open in the detail modal
   let networkMembers = [];
+  let networkFollowingIds = new Set();
+  let networkVisibleCount = 30;
   window.currentMemberId = null;
   /* ---- NEW COLUMNS PROBE ----------------------------------------------
      The WhatsApp / Instagram fields live in two new columns. If that SQL
@@ -2118,8 +2123,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = false;
   };
   window.filterUsers = function() {
-    const term = getEl('user-search').value.toLowerCase();
-    document.querySelectorAll('.user-item').forEach(i => { i.style.display = i.innerText.toLowerCase().includes(term) ? 'flex' : 'none'; });
+    const term = getEl('user-search').value.trim().toLowerCase();
+    if (!term) { renderNetworkList(); return; }
+    // Search the complete cached directory, not only the currently rendered slice.
+    const matches = networkMembers.filter(user => `${user.username || ''} ${user.batch_year || ''}`.toLowerCase().includes(term));
+    renderNetworkList(matches, true);
   };
   /* ---- LOADERS ---- */
   async function loadProfile(user) {
@@ -2236,21 +2244,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     else { confetti({ colors: ['#FFF39A','#710C04'] }); }
     await supabase.from('verified_profiles').update({ notified_of_verification: true }).eq('id', p.id);
   }
+  function shuffleNetworkMembers(rows) {
+    for (let i = rows.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [rows[i], rows[j]] = [rows[j], rows[i]];
+    }
+    return rows;
+  }
+  function renderNetworkList(rows, searching) {
+    const list = getEl('network-list');
+    const more = getEl('network-load-more');
+    const source = rows || networkMembers;
+    const visible = searching ? source : source.slice(0, networkVisibleCount);
+    if (!source.length) {
+      list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:0.88rem">${searching ? 'No matching members.' : 'No other students yet.'}</div>`;
+      more.classList.add('hidden');
+      return;
+    }
+    list.innerHTML = visible.map(u => createUserHTML(u, networkFollowingIds.has(u.id))).join('');
+    more.classList.toggle('hidden', searching || networkVisibleCount >= source.length);
+  }
+  window.loadMoreNetwork = function() {
+    networkVisibleCount += 30;
+    renderNetworkList();
+  };
   async function loadNetwork() {
     const list = getEl('network-list');
-    const { data: all, error } = await supabase.from('verified_profiles').select('*');
-    if (error) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim)">Network Error</div>'; return; }
+    const all = [];
+    let offset = 0;
+    const pageSize = 500;
+    while (true) {
+      const { data: page, error } = await supabase.from('verified_profiles').select('*').range(offset, offset + pageSize - 1);
+      if (error) { list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim)">Network Error</div>'; return; }
+      all.push(...(page || []));
+      if (!page || page.length < pageSize) break;
+      offset += pageSize;
+    }
     const { data: following } = await supabase.from('user_relationships').select('following_id').eq('follower_id', currentUser.id);
-    const followingIds = new Set(following ? following.map(x => x.following_id) : []);
-    const others = all.filter(x => x.id !== currentUser.id);
-    networkMembers = others;   // cached for the member detail modal
-    // Close an open profile if that member is gone from the list
+    networkFollowingIds = new Set(following ? following.map(x => x.following_id) : []);
+    const others = (all || []).filter(x => x.id !== currentUser.id);
+    const architects = others.filter(x => String(x.role || '').toLowerCase() === 'architect')
+      .sort((a, b) => String(a.username || '').localeCompare(String(b.username || '')));
+    const remaining = shuffleNetworkMembers(others.filter(x => String(x.role || '').toLowerCase() !== 'architect'));
+    networkMembers = architects.concat(remaining); // Architect accounts remain first; everyone else is randomized per load.
+    networkVisibleCount = Math.max(30, architects.length);
     if (window.currentMemberId && !others.some(x => x.id === window.currentMemberId)) closeMember();
-    if (others.length === 0) {
-      list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:0.88rem">No other students yet.</div>';
-    } else {
-      list.innerHTML = '';
-      others.forEach(u => { list.innerHTML += createUserHTML(u, followingIds.has(u.id)); });
+    renderNetworkList();
+    if (getEl('user-search').value.trim()) window.filterUsers();
+    const requestedMember = new URLSearchParams(location.search).get('member');
+    if (requestedMember && networkMembers.some(x => x.id === requestedMember && !isPrivateMember(x))) {
+      history.replaceState(null, '', location.pathname + location.hash);
+      window.openMember(requestedMember);
     }
   }
   function createUserHTML(u, isFollow) {

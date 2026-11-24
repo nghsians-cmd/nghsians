@@ -193,6 +193,9 @@
   .alumni-card:hover .card-img {
     transform: scale(1.05);
   }
+  .alumni-card-actions { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .alumni-card-actions a { display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; border:1px solid rgba(var(--accent-gold),.38); border-radius:7px; color:rgba(var(--accent-gold),.95); font-size:.78rem; font-weight:700; }
+  .alumni-card-actions a:hover { background:rgba(var(--accent-gold),.1); }
   .database-alumni-card .card-img-placeholder {
     color: rgba(var(--accent-gold),.88);
     font-family: "Anton", Impact, sans-serif;
@@ -1325,7 +1328,8 @@
     card.dataset.status = String(person.occupation || '');
     card.dataset.blood = String(person.blood_group || '');
     card.dataset.institution = String(person.college_university || '');
-    card.dataset.email = '';
+    card.dataset.email = String(person.contact_email || '');
+    card.dataset.userId = String(person.user_id || '');
     card.dataset.plainDesc = 'true';
     const descriptions = [];
     if (person.why_proud) descriptions.push('Why I am proud of NGHS:\n' + String(person.why_proud));
@@ -1387,6 +1391,23 @@
       pills.appendChild(institution);
     }
     body.append(row,batch,pills);
+    const actions = document.createElement('div');
+    actions.className = 'alumni-card-actions';
+    if (card.dataset.email) {
+      const emailLink = document.createElement('a');
+      emailLink.href = 'mailto:' + card.dataset.email;
+      emailLink.textContent = 'Email';
+      emailLink.addEventListener('click', event => event.stopPropagation());
+      actions.appendChild(emailLink);
+    }
+    if (card.dataset.userId) {
+      const accountLink = document.createElement('a');
+      accountLink.href = 'account.html?member=' + encodeURIComponent(card.dataset.userId);
+      accountLink.textContent = 'View account';
+      accountLink.addEventListener('click', event => event.stopPropagation());
+      actions.appendChild(accountLink);
+    }
+    if (actions.childElementCount) body.appendChild(actions);
     card.append(header,body);
     card.addEventListener('click',function(){ window.openAlumniModal(card); });
     card.addEventListener('keydown',function(event){ if(event.key === 'Enter' || event.key === ' '){ event.preventDefault(); window.openAlumniModal(card); } });
@@ -1397,7 +1418,7 @@
     const alumniDirectoryClient = window.supabase && window.supabase.createClient(ALUMNI_SUPABASE_URL, ALUMNI_SUPABASE_KEY);
     if (!grid || !alumniDirectoryClient) return;
     const { data, error } = await alumniDirectoryClient.from('alumni_directory')
-      .select('application_id,full_name,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university,approved_at');
+      .select('application_id,user_id,full_name,contact_email,batch_year,occupation,blood_group,principal_names,why_proud,contribution,college_university,approved_at');
     if (error) { console.info('Approved alumni applications are not available yet:', error.message); return; }
     const existing = new Set();
     grid.querySelectorAll('.alumni-card').forEach(card => existing.add(directoryCardKey(card.dataset.name || (card.querySelector('.alumni-name') || {}).textContent, card.dataset.batch || (card.querySelector('.alumni-batch') || {}).textContent.replace(/[^0-9]/g,''))));
