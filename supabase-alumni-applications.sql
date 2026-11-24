@@ -3,7 +3,7 @@
    Safe to run more than once. This migration creates:
      • alumni_application_settings: one editable eligibility/auto-approval row
      • alumni_applications: private account-linked drafts + reviewable submissions
-     • alumni_directory: a public, approved-only view with no contact details
+     • alumni_directory: an approved-only directory with applicant email and account links
 
    Initial policy: batches through 2025 are approved automatically; 2026 is
    pending manual review; later batches are rejected. To change this next year,
@@ -188,7 +188,7 @@ drop policy if exists "Alumni admins can manage applications" on public.alumni_a
 create policy "Alumni admins can manage applications" on public.alumni_applications for all to authenticated using (lower(coalesce(auth.jwt() ->> 'email', '')) in ('nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com')) with check (lower(coalesce(auth.jwt() ->> 'email', '')) in ('nghsians@gmail.com', 'umairhoquechowdhury13@gmail.com'));
 revoke all on public.alumni_applications from anon;
 grant select, insert, update on public.alumni_applications to authenticated;
-comment on table public.alumni_applications is 'Private NGHSIANS alumni-interface applications and account-linked drafts. Drafts remain private; completed submissions are pending, approved, or denied. Contact data is not exposed in alumni_directory.';
+comment on table public.alumni_applications is 'Private NGHSIANS alumni-interface applications and account-linked drafts. Drafts remain private; approved alumni contact email and account ID are included in alumni_directory for directory contact and account links.';
 comment on column public.alumni_applications.status is 'Private draft, pending, approved, or denied. Batches at or below the configured auto-approval year are approved on final submission; 2026 is manually reviewed.';
 comment on column public.alumni_applications.batch_year is 'Applicant-entered four-digit batch year. Maximum is controlled by alumni_application_settings.max_eligible_batch.';
 comment on column public.alumni_applications.college_university is 'Current college/university for applicants selecting Student; exposed on approved alumni cards.';
@@ -358,9 +358,9 @@ $alumni_sync$;
 drop trigger if exists alumni_applications_sync_role on public.alumni_applications;
 create trigger alumni_applications_sync_role after insert or update of status on public.alumni_applications for each row execute function public.sync_alumni_application_role();
 
-create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution, a.college_university, a.reviewed_at as approved_at from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
+create or replace view public.alumni_directory with (security_barrier = true) as select a.id as application_id, a.full_name, a.batch_year, a.occupation, a.blood_group, a.principal_names, a.why_proud, a.contribution, a.college_university, a.reviewed_at as approved_at, a.user_id, a.contact_email from public.alumni_applications a where a.status = 'approved' and not exists (select 1 from public.verified_profiles p where p.id = a.user_id and lower(btrim(coalesce(p.role, ''))) = 'architect');
 grant select on public.alumni_directory to anon, authenticated;
-comment on view public.alumni_directory is 'Public-safe approved alumni records. Includes college/university when supplied and the approval timestamp used for a temporary 30-day New badge; omits account IDs, emails, phone numbers, newsletter consent, review notes, and reviewer identity.';
+comment on view public.alumni_directory is 'Approved alumni directory records, including applicant-provided contact email and account ID for email/account links; omits phone numbers, newsletter consent, review notes, and reviewer identity.';
 
 /* Verify the setup and review applications:
    select setting_key, max_eligible_batch, auto_approve_through_batch from public.alumni_application_settings;
