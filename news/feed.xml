@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>NGHSIANS News / NGHSIANS সংবাদ</title>
+  <id>https://nghsians.com/news/</id>
+  <link href="https://nghsians.com/news/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="https://nghsians.com/news/" rel="alternate" type="text/html" />
+  <updated>2026-11-14T00:00:00Z</updated>
+  <author>
+    <name>NGHSIANS</name>
+  </author>
+  <entry>
+    <title>NGHS 60th Sign Day: thank you for being part of it / NGHS ৬০তম সাইন ডে: পাশে থাকার জন্য ধন্যবাদ</title>
+    <link href="https://nghsians.com/news/stories/60th-sign-day.html" />
+    <id>https://nghsians.com/news/stories/60th-sign-day.html</id>
+    <updated>2026-11-14T00:00:00Z</updated>
+    <published>2026-11-12T09:00:00+06:00</published>
+    <summary>The NGHS 60th Sign Day for Batch 2027 took place on Thursday, 12 November 2026. Thank you to everyone who took part and helped make this school milestone meaningful.
+NGHS ৬০তম সাইন ডে: পাশে থাকার জন্য ধন্যবাদ</summary>
+  </entry>
+  <entry>
+    <title>The official 60th Batch Sign Day logo is unveiled / উন্মোচিত হলো ৬০তম ব্যাচ সাইন ডে-এর অফিসিয়াল লোগো</title>
+    <link href="https://nghsians.com/news/stories/official-sign-day-logo.html" />
+    <id>https://nghsians.com/news/stories/official-sign-day-logo.html</id>
+    <updated>2026-11-14T00:00:00Z</updated>
+    <published>2026-09-28T09:00:00+06:00</published>
+    <summary>NGHSIANS unveiled the official logo for the 60th Batch Sign Day on 28 September 2026, giving the milestone a shared visual identity.
+উন্মোচিত হলো ৬০তম ব্যাচ সাইন ডে-এর অফিসিয়াল লোগো</summary>
+  </entry>
+  <entry>
+    <title>SSC Batch 2026 results: browse the student archive / এসএসসি ব্যাচ ২০২৬-এর ফলাফল: শিক্ষার্থী তালিকা দেখুন</title>
+    <link href="https://nghsians.com/news/stories/ssc-2026-results.html" />
+    <id>https://nghsians.com/news/stories/ssc-2026-results.html</id>
+    <updated>2026-11-14T00:00:00Z</updated>
+    <summary>The NGHSIANS results archive lists 242 SSC Batch 2026 students and their Chattogram Board ranks in a searchable page.
+এসএসসি ব্যাচ ২০২৬-এর ফলাফল: শিক্ষার্থী তালিকা দেখুন</summary>
+  </entry>
+  <entry>
+    <title>Revisit the NGHS 59th Sign Day through its official film / অফিসিয়াল চলচ্চিত্রে ফিরে দেখুন NGHS ৫৯তম সাইন ডে</title>
+    <link href="https://nghsians.com/news/stories/59th-sign-day-film.html" />
+    <id>https://nghsians.com/news/stories/59th-sign-day-film.html</id>
+    <updated>2026-11-14T00:00:00Z</updated>
+    <published>2026-01-29T09:00:00+06:00</published>
+    <summary>The NGHS 59th Sign Day official film was shared on 29 January 2026, preserving a look back at the event and the school community.
+অফিসিয়াল চলচ্চিত্রে ফিরে দেখুন NGHS ৫৯তম সাইন ডে</summary>
+  </entry>
+  <entry>
+    <title>The official trailer for the Batch ’26 celebration / ব্যাচ ’২৬ উদযাপনের অফিসিয়াল ট্রেলার</title>
+    <link href="https://nghsians.com/news/stories/batch-26-trailer.html" />
+    <id>https://nghsians.com/news/stories/batch-26-trailer.html</id>
+    <updated>2026-11-14T00:00:00Z</updated>
+    <published>2026-01-03T09:00:00+06:00</published>
+    <summary>The Batch ’26 celebration trailer premiered on 3 January 2026, offering a first look at the upcoming celebration.
+ব্যাচ ’২৬ উদযাপনের অফিসিয়াল ট্রেলার</summary>
+  </entry>
+</feed>
