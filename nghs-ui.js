@@ -207,7 +207,7 @@
     var links = document.querySelectorAll('header .nav-link');
     if (!links.length) return;
 
-    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    var here = (location.pathname.split('/').filter(Boolean).pop() || 'index.html').toLowerCase();
 
     links.forEach(function (a) {
       decorateNavLink(a);
@@ -215,11 +215,12 @@
       if (!a.hasAttribute('data-nghs-ripple')) a.setAttribute('data-nghs-ripple', '');
 
       var href = (a.getAttribute('href') || '').toLowerCase();
-      var isPage = /\.html/.test(href.split('#')[0]);
+      var path = href.split('#')[0];
+      var isPage = /\.html/.test(path) || (path.startsWith('/') && path !== '/');
       if (!isPage) return;                       /* section links: leave to the page's own scroll-spy */
 
-      var file = href.split('#')[0].split('/').pop();
-      var isIndex = (file === 'index.html' || file === '' || file === 'nghsians.com');
+      var file = path.split('/').filter(Boolean).pop() || 'index.html';
+      var isIndex = (file === 'index.html' || file === 'nghsians.com');
       var match = isIndex ? (here === 'index.html' || here === '') : (file === here);
 
       if (match) {
@@ -272,7 +273,7 @@
     var brand = document.getElementById('brandBtn');
     if (!brand) return;
 
-    var here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+    var here = (location.pathname.split('/').filter(Boolean).pop() || 'index.html').toLowerCase();
     var isHome = (here === 'index.html' || here === '' || here === 'nghsians.com');
 
     /* already a real link — nothing to do */
