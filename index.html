@@ -1562,8 +1562,8 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="nghs-ui.css?v=nav-wave-5">
-<script src="nghs-ui.js?v=nav-wave-5" defer></script>
+<link rel="stylesheet" href="nghs-ui.css?v=nav-wave-6">
+<script src="nghs-ui.js?v=nav-wave-6" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -2202,17 +2202,38 @@ header.scrolled .user-icon-btn:hover { color: rgba(var(--gold), 1); border-color
     });
   });
 
-  // Intersection observer for active nav
-  const sections = document.querySelectorAll('section[id]');
-  const navObserver = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.querySelectorAll(`.nav-link[data-target="${e.target.id}"]`).forEach(l => l.classList.add('active'));
-      }
+  // Keep the section highlight tied to the section nearest the reading line.
+  const sections = [...document.querySelectorAll('section[id]')]
+    .filter(section => document.querySelector(`.nav-link[data-target="${section.id}"]`));
+  const sectionLinks = [...document.querySelectorAll('.nav-link[data-target]')];
+  let navUpdatePending = false;
+  function updateActiveSection() {
+    navUpdatePending = false;
+    const readingLine = Math.min(window.innerHeight * 0.36, 260);
+    let current = sections[0];
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top <= readingLine) current = section;
+      else break;
+    }
+    if (!current && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2) current = sections[sections.length - 1];
+    if (!current) return;
+    sectionLinks.forEach(link => {
+      const active = link.dataset.target === current.id;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else if (link.getAttribute('aria-current') === 'location') link.removeAttribute('aria-current');
     });
-  }, { rootMargin: '-40% 0px -55% 0px' });
-  sections.forEach(s => navObserver.observe(s));
+  }
+  function scheduleNavUpdate() {
+    if (!navUpdatePending) {
+      navUpdatePending = true;
+      requestAnimationFrame(updateActiveSection);
+    }
+  }
+  window.addEventListener('scroll', scheduleNavUpdate, { passive: true });
+  window.addEventListener('resize', scheduleNavUpdate);
+  window.addEventListener('load', scheduleNavUpdate);
+  scheduleNavUpdate();
 
   /* =====================
      REVEAL ON SCROLL

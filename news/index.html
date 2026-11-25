@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-lang="en">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -14,40 +14,40 @@
 <meta property="og:description" content="News and stories from Nasirabad Government High School, in English and Bangla.">
 <meta property="og:url" content="https://nghsians.com/news/"><meta property="og:image" content="https://nghsians.com/news/images/ssc-results.webp">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="NGHSIANS News"><meta name="twitter:description" content="Stories from the NGHSIANS community in English and Bangla."><meta name="twitter:image" content="https://nghsians.com/news/images/ssc-results.webp">
-<link rel="stylesheet" href="news.css">
+<link rel="stylesheet" href="news.css?v=6">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../nghs-ui.css?v=nav-wave-5">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"NGHSIANS News","url":"https://nghsians.com/news/","inLanguage":["en","bn"],"isPartOf":{"@type":"WebSite","name":"NGHSIANS","url":"https://nghsians.com/"},"publisher":{"@type":"Organization","name":"NGHSIANS","url":"https://nghsians.com/"},"mainEntity":{"@type":"ItemList","itemListOrder":"https://schema.org/ItemListOrderDescending","numberOfItems":5,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://nghsians.com/news/stories/60th-sign-day.html"},{"@type":"ListItem","position":2,"url":"https://nghsians.com/news/stories/official-sign-day-logo.html"},{"@type":"ListItem","position":3,"url":"https://nghsians.com/news/stories/ssc-2026-results.html"},{"@type":"ListItem","position":4,"url":"https://nghsians.com/news/stories/59th-sign-day-film.html"},{"@type":"ListItem","position":5,"url":"https://nghsians.com/news/stories/batch-26-trailer.html"}]}}</script>
 </head>
-<body>
+<body data-language="en">
 <a class="skip-link" href="#main">Skip to news</a>
 <header id="siteHeader">
-  <div class="header-grid" role="navigation" aria-label="Main navigation">
+  <div class="header-grid" role="navigation">
     <div class="nav-left" id="navLeft">
-      <a class="nav-link" href="/index.html#about">About</a>
+      <a class="nav-link" href="/index.html#about" data-target="about">About</a>
       <a class="nav-link active" aria-current="page" href="/news/">News</a>
       <a class="nav-link" href="/result.html">Result</a>
       <a class="nav-link" href="/dress.html">Dress Code</a>
-      <a class="nav-link" href="/index.html#gallery">Gallery</a>
+      <a class="nav-link" href="/index.html#gallery" data-target="gallery">Gallery</a>
     </div>
-    <a class="brand-center" id="brandBtn" href="/index.html" aria-label="Home">
-      <div class="brand-logo"><img src="/logo.png" alt="NGHSIANS logo"></div>
+    <a class="brand-center" id="brandBtn" href="/index.html" aria-label="Home (brand)">
+      <div class="brand-logo"><img src="/logo.png" alt="NGHSIANS logo" onerror="this.style.display='none'"></div>
       <div class="brand-title">NGHSIANS</div>
     </a>
     <div class="nav-right" id="navRight">
-      <a class="nav-link" href="/index.html#submit">Share</a>
+      <a class="nav-link" href="/index.html#submit" data-target="submit">Share</a>
       <a class="nav-link" href="/alumnis.html">Alumni</a>
-      <a class="nav-link" href="/index.html#contact">Contact</a>
-      <a class="nav-link" href="/merch.html">Merch</a>
-      <a class="nav-link" href="/sign.html">Sign Day</a>
+      <a class="nav-link" href="/index.html#contact" data-target="contact">Contact</a>
+      <a class="nav-link" href="/merch.html" data-external="true">Merch</a>
+      <a class="nav-link" href="/sign.html" data-external="true">Sign Day</a>
     </div>
-    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
   </div>
 </header>
-<div id="mobileMenu" aria-hidden="true" inert><nav id="mobileNavList" aria-label="Mobile navigation"></nav></div>
+<div id="mobileMenu" aria-hidden="true"><nav id="mobileNavList"></nav></div>
 <main id="main" class="news-shell news-main">
   <section class="news-hero" aria-labelledby="newsTitle">
     <div class="news-kicker" lang="en">The community journal · Chattogram</div><div class="news-kicker" lang="bn">আমাদের কমিউনিটির সংবাদ · চট্টগ্রাম</div>
@@ -61,8 +61,22 @@
   </div>
   <section class="news-controls" aria-label="Filter news">
     <input id="newsSearch" type="search" placeholder="Search headlines and stories…" aria-label="Search headlines and stories">
-    <select id="newsTopic" aria-label="Filter by topic"><option value="all">All topics</option><option value="events">Events & Sign Day</option><option value="results">Results</option><option value="media">Film & media</option></select>
-    <select id="newsYear" aria-label="Filter by year"><option value="all">All years</option><option value="2026">2026</option></select>
+    <div class="filter-menu" data-filter="topic">
+      <button class="filter-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Filter by topic"><span class="filter-current"><span lang="en">All topics</span><span lang="bn">সব বিষয়</span></span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="filter-options" role="listbox" aria-label="Topic options" hidden>
+        <button type="button" role="option" aria-selected="true" data-value="all"><span lang="en">All topics</span><span lang="bn">সব বিষয়</span></button>
+        <button type="button" role="option" aria-selected="false" data-value="events"><span lang="en">Events &amp; Sign Day</span><span lang="bn">অনুষ্ঠান ও সাইন ডে</span></button>
+        <button type="button" role="option" aria-selected="false" data-value="results"><span lang="en">Results</span><span lang="bn">ফলাফল</span></button>
+        <button type="button" role="option" aria-selected="false" data-value="media"><span lang="en">Film &amp; media</span><span lang="bn">চলচ্চিত্র ও মিডিয়া</span></button>
+      </div>
+    </div>
+    <div class="filter-menu" data-filter="year">
+      <button class="filter-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Filter by year"><span class="filter-current"><span lang="en">All years</span><span lang="bn">সব বছর</span></span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="filter-options" role="listbox" aria-label="Year options" hidden>
+        <button type="button" role="option" aria-selected="true" data-value="all"><span lang="en">All years</span><span lang="bn">সব বছর</span></button>
+        <button type="button" role="option" aria-selected="false" data-value="2026">2026</button>
+      </div>
+    </div>
   </section>
   <section class="news-grid" aria-label="News archive">
     <article class="news-card" data-news-card data-topic="events" data-year="2026" data-search="60th sign day batch 27 2027 event happened november 12 thank you সাইন ডে হয়েছে ধন্যবাদ ১২ নভেম্বর ব্যাচ ২০২৭">
@@ -115,11 +129,11 @@
         </div>
       </a>
     </article>
-    <p id="newsEmpty" class="news-empty" hidden>No stories match those filters. Try another search.</p>
+    <p id="newsEmpty" class="news-empty" hidden><span lang="en">No stories match those filters. Try another search.</span><span lang="bn">কোনো খবর মেলেনি। অন্যভাবে খুঁজে দেখুন।</span></p>
   </section>
 </main>
 <footer><div style="max-width:var(--max-w);margin:0 auto;padding:18px var(--pad);text-align:center;color:var(--muted);font-size:14px">© NGHSIANS — Nasirabad Government High School • Built with ♥<div style="margin-top:6px;color:var(--text);font-weight:600">In developing by Umair Hoque Chowdhury</div></div></footer>
-<script src="news.js" defer></script>
-<script src="../nghs-ui.js?v=nav-wave-5" defer></script>
+<script src="news.js?v=6" defer></script>
+<script src="../nghs-ui.js?v=nav-wave-6" defer></script>
 </body>
 </html>
